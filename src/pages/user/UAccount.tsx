@@ -43,6 +43,7 @@ const Account: React.FC = () => {
   const [editName, setEditName] = useState(currentUser?.displayName || "");
   const [editEmail, setEditEmail] = useState(currentUser?.email || "");
   const [editBarangay, setEditBarangay] = useState("");
+  const [editAddress, setEditAddress] = useState("");
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -63,6 +64,7 @@ const Account: React.FC = () => {
           const userData = userDoc.data();
           setEditBarangay(userData.barangay || "");
           setProfilePicture(userData.profilePicture || null);
+          setEditAddress(userData.address || "");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -108,12 +110,12 @@ const Account: React.FC = () => {
         updates.email = editEmail;
       }
 
-      // Update barangay
-      if (editBarangay !== "") {
+      // Update address
+      if (editAddress !== "") {
         await updateDoc(doc(db, "users", currentUser.uid), {
-          barangay: editBarangay,
+          address: editAddress,
         });
-        updates.barangay = editBarangay;
+        updates.address = editAddress;
       }
 
       // Log profile update
@@ -200,8 +202,9 @@ const Account: React.FC = () => {
       </IonHeader>
       <IonContent>
         <IonCard>
-          <IonCardContent>
-            <div
+          <IonCard>
+            <IonCardContent>
+              <div
               style={{
                 display: "flex",
                 alignItems: "center"
@@ -226,10 +229,24 @@ const Account: React.FC = () => {
                   <div style={{ color: "#666" }}>
                   Resident of Barangay {editBarangay || "Not specified"}
                 </div>
+                
                 </IonCardSubtitle>
                 
               </div>
             </div>
+            </IonCardContent>
+            <IonButton
+              expand="block"
+              fill="outline"
+              onClick={openEditModal}
+              
+            >
+              <IonIcon slot="start" icon={create} />
+              Edit Profile
+            </IonButton>
+          </IonCard>
+          <IonCardContent>
+            
 
             {/* Profile Picture Upload Button (di pa pwede kase may bayad para magstore ng picture) */}
             {/* <input
@@ -251,20 +268,14 @@ const Account: React.FC = () => {
 
             {/* Barangay Display */}
 
-            <IonButton
-              expand="block"
-              onClick={openEditModal}
-              className="ion-margin-vertical"
-            >
-              <IonIcon slot="start" icon={create} />
-              Edit Profile
-            </IonButton>
+            
 
             <IonItem detail={false} button onClick={handleLogout}>
               <IonIcon slot="start" icon={logOut} />
               Logout
             </IonItem>
           </IonCardContent>
+          
         </IonCard>
 
         {/* Edit Profile Modal */}
@@ -272,11 +283,7 @@ const Account: React.FC = () => {
           isOpen={showEditModal}
           onDidDismiss={() => setShowEditModal(false)}
         >
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Edit Profile</IonTitle>
-            </IonToolbar>
-          </IonHeader>
+          
           <IonContent className="ion-padding">
             <IonInput
               label="Name"
@@ -295,6 +302,14 @@ const Account: React.FC = () => {
               placeholder="Enter your email"
               className="ion-margin-bottom"
             />
+            <IonInput
+  label="Address"
+  labelPlacement="floating"
+  value={editAddress}
+  onIonChange={e => setEditAddress(e.detail.value!)}
+  placeholder="Enter your address"
+  className="ion-margin-bottom"
+/>
 
             <IonButton
               expand="block"
