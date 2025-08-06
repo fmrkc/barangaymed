@@ -13,7 +13,9 @@ import {
   IonSpinner,
   IonNote,
   IonText,
-  IonIcon
+  IonIcon,
+  IonBackButton,
+  IonButtons
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -129,6 +131,9 @@ const UserAnnouncements: React.FC = () => {
     <>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref='/user/dashboard' />
+          </IonButtons>
           <IonTitle>Barangay {userBarangay} Announcements</IonTitle>
         </IonToolbar>
       </IonHeader>
