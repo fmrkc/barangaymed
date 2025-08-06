@@ -203,7 +203,7 @@ const Account: React.FC = () => {
       <IonContent>
         <IonCard>
           <IonCard>
-            <IonCardContent>
+            <IonCardContent  className="ion-padding-vertical">
               <div
               style={{
                 display: "flex",
