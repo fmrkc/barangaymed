@@ -23,11 +23,12 @@ import {
   IonFab,
   IonFabButton,
   IonProgressBar,
+  IonButtons,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import LogoutButton from "../../components/LogoutButton";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, camera, image } from "ionicons/icons";
+import { logOut, create, person, camera, image, close } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, storage } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -203,51 +204,42 @@ const Account: React.FC = () => {
       <IonContent>
         <IonCard>
           <IonCard>
-            <IonCardContent  className="ion-padding-vertical">
+            <IonCardContent className="ion-padding-vertical">
               <div
-              style={{
-                display: "flex",
-                alignItems: "center"
-              }}
-            >
-              <div>
-                <IonAvatar style={{ height: "100%", padding: "10px" }}>
-                {profilePicture ? (
-                  <IonImg src={profilePicture} alt="Profile" />
-                ) : (
-                  <IonIcon icon={person} style={{ fontSize: "40px" }} />
-                )}
-              </IonAvatar>
-              </div>
-              <div>
-                <IonCardTitle>
-                  <div style={{ fontWeight: "bold" }}>
-                  {currentUser?.displayName || "User Profile"}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <IonAvatar style={{ height: "100%", padding: "10px" }}>
+                    {profilePicture ? (
+                      <IonImg src={profilePicture} alt="Profile" />
+                    ) : (
+                      <IonIcon icon={person} style={{ fontSize: "40px" }} />
+                    )}
+                  </IonAvatar>
                 </div>
-                </IonCardTitle>
-                <IonCardSubtitle>
-                  <div style={{ color: "#666" }}>
-                  Resident of Barangay {editBarangay || "Not specified"}
+                <div>
+                  <IonCardTitle>
+                    <div style={{ fontWeight: "bold" }}>
+                      {currentUser?.displayName || "User Profile"}
+                    </div>
+                  </IonCardTitle>
+                  <IonCardSubtitle>
+                    <div style={{ color: "#666" }}>
+                      Resident of Barangay {editBarangay || "Not specified"}
+                    </div>
+                  </IonCardSubtitle>
                 </div>
-                
-                </IonCardSubtitle>
-                
               </div>
-            </div>
             </IonCardContent>
-            <IonButton
-              expand="block"
-              fill="outline"
-              onClick={openEditModal}
-              
-            >
+            <IonButton expand="block" fill="outline" onClick={openEditModal}>
               <IonIcon slot="start" icon={create} />
               Edit Profile
             </IonButton>
           </IonCard>
           <IonCardContent>
-            
-
             {/* Profile Picture Upload Button (di pa pwede kase may bayad para magstore ng picture) */}
             {/* <input
                   type="file"
@@ -268,14 +260,11 @@ const Account: React.FC = () => {
 
             {/* Barangay Display */}
 
-            
-
             <IonItem detail={false} button onClick={handleLogout}>
               <IonIcon slot="start" icon={logOut} />
               Logout
             </IonItem>
           </IonCardContent>
-          
         </IonCard>
 
         {/* Edit Profile Modal */}
@@ -283,9 +272,27 @@ const Account: React.FC = () => {
           isOpen={showEditModal}
           onDidDismiss={() => setShowEditModal(false)}
         >
-          
+          <IonToolbar>
+            <IonCardTitle
+              className="ion-padding"
+              style={{ fontWeight: "bold" }}
+            >
+              Edit Profile
+            </IonCardTitle>
+            <IonButtons slot="end">
+              <IonButton
+                expand="block"
+                onClick={() => setShowEditModal(false)}
+                className="ion-margin-top"
+              >
+                <IonIcon slot="icon-only" icon={close} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+
           <IonContent className="ion-padding">
             <IonInput
+              fill="outline"
               label="Name"
               labelPlacement="floating"
               value={editName}
@@ -294,6 +301,7 @@ const Account: React.FC = () => {
               className="ion-margin-bottom"
             />
             <IonInput
+              fill="outline"
               label="Email"
               labelPlacement="floating"
               type="email"
@@ -303,13 +311,14 @@ const Account: React.FC = () => {
               className="ion-margin-bottom"
             />
             <IonInput
-  label="Address"
-  labelPlacement="floating"
-  value={editAddress}
-  onIonChange={e => setEditAddress(e.detail.value!)}
-  placeholder="Enter your address"
-  className="ion-margin-bottom"
-/>
+              fill="outline"
+              label="Address"
+              labelPlacement="floating"
+              value={editAddress}
+              onIonChange={(e) => setEditAddress(e.detail.value!)}
+              placeholder="Enter your address"
+              className="ion-margin-bottom"
+            />
 
             <IonButton
               expand="block"
@@ -317,14 +326,6 @@ const Account: React.FC = () => {
               disabled={isUpdating}
             >
               {isUpdating ? "Updating..." : "Save Changes"}
-            </IonButton>
-            <IonButton
-              expand="block"
-              fill="outline"
-              onClick={() => setShowEditModal(false)}
-              className="ion-margin-top"
-            >
-              Cancel
             </IonButton>
           </IonContent>
         </IonModal>
