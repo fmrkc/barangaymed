@@ -1,21 +1,24 @@
 import { IonButton, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import React from 'react';
 import { megaphone, notifications, person, calendar } from 'ionicons/icons';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Home: React.FC = () => {
+    const { currentUser } = useAuth();
     return (
         <>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Home</IonTitle>
+                    <IonTitle>BarangayMed+</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent className="ion-padding">
+            <IonContent className="ion-padding ion-text-center">
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12">
-                            <h1>Welcome to BarangayMed</h1>
-                            <p>Your health and wellness companion</p>
+                            
+                            <h1>Welcome {currentUser?.email} </h1>
+                            
                         </IonCol>
                     </IonRow>
                     
@@ -24,7 +27,7 @@ const Home: React.FC = () => {
                             <IonCard routerLink="/user/dashboard/announcements">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
+                                        <IonIcon icon={megaphone} />
                                         Barangay Announcements
                                     </IonCardTitle>
                                 </IonCardHeader>
@@ -38,7 +41,7 @@ const Home: React.FC = () => {
                             <IonCard routerLink="/user/dashboard/notifications">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={notifications} style={{ marginRight: '8px' }} />
+                                        <IonIcon icon={notifications} />
                                         Notifications
                                     </IonCardTitle>
                                 </IonCardHeader>
@@ -54,7 +57,7 @@ const Home: React.FC = () => {
                             <IonCard routerLink="/user/dashboard/account">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={person} style={{ marginRight: '8px' }} />
+                                        <IonIcon icon={person} />
                                         My Account
                                     </IonCardTitle>
                                 </IonCardHeader>
@@ -68,7 +71,7 @@ const Home: React.FC = () => {
                             <IonCard>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={calendar} style={{ marginRight: '8px' }} />
+                                        <IonIcon icon={calendar} />
                                         Health Services
                                     </IonCardTitle>
                                 </IonCardHeader>
