@@ -1,0 +1,118 @@
+/**
+ * Logger utility for tracking security events
+ */
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
+
+// Define log levels
+export type LogLevel = 'info' | 'warn' | 'error';
+
+// Define log entry structure
+export interface LogEntry {
+  timestamp: Date;
+  level: LogLevel;
+  message: string;
+  userId?: string;
+  userEmail?: string;
+  userRole?: string;
+  ip?: string;
+  userAgent?: string;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Save log entry to Firestore
+ * @param logEntry The log entry to save
+ */
+const saveLogToFirestore = async (logEntry: LogEntry) => {
+  try {
+    // Create a simplified version of the log entry for Firestore
+    const firestoreLogEntry = {
+      timestamp: Timestamp.fromDate(logEntry.timestamp),
+      level: logEntry.level,
+      message: logEntry.message,
+      userId: logEntry.userId || null,
+      userEmail: logEntry.userEmail || null,
+      userRole: logEntry.userRole || null,
+      ip: logEntry.ip || null,
+      userAgent: logEntry.userAgent || null,
+      metadata: logEntry.metadata || {}
+    };
+
+    // Save to Firestore collection named 'logs'
+    await addDoc(collection(db, 'logs'), firestoreLogEntry);
+  } catch (error) {
+    console.error('Failed to save log to Firestore:', error);
+    // We don't want logging errors to break the application
+  }
+};
+
+/**
+ * Log an event to the console and to Firestore
+ * @param level The severity level of the log
+ * @param message The log message
+ * @param data Additional data to include in the log
+ */
+export const logEvent = (level: LogLevel, message: string, data?: Partial<LogEntry>) => {
+  const logEntry: LogEntry = {
+    timestamp: new Date(),
+    level,
+    message,
+    ...data
+  };
+
+  // Log to console for development
+  console.log(`[${level.toUpperCase()}] ${message}`, logEntry);
+
+  // Save to Firestore for persistent storage
+  saveLogToFirestore(logEntry);
+};
+
+/**
+ * Log a user login event
+ * @param userId The user's ID
+ * @param userEmail The user's email
+ * @param userRole The user's role
+ */
+export const logLogin = (userId: string, userEmail: string, userRole: string) => {
+  logEvent('info', `User logged in: ${userEmail}`, {
+    userId,
+    userEmail,
+    userRole,
+    metadata: {
+      action: 'login'
+    }
+  });
+};
+
+/**
+ * Log a user logout event
+ * @param userId The user's ID
+ * @param userEmail The user's email
+ * @param userRole The user's role
+ */
+export const logLogout = (userId: string, userEmail: string, userRole: string) => {
+  logEvent('info', `User logged out: ${userEmail}`, {
+    userId,
+    userEmail,
+    userRole,
+    metadata: {
+      action: 'logout'
+    }
+  });
+};
+
+/**
+ * Log a failed login attempt
+ * @param email The email used in the failed attempt
+ * @param reason The reason for failure
+ */
+export const logFailedLogin = (email: string, reason: string) => {
+  logEvent('warn', `Failed login attempt: ${email}`, {
+    userEmail: email,
+    metadata: {
+      action: 'failed_login',
+      reason
+    }
+  });
+};
