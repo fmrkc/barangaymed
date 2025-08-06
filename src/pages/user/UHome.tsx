@@ -1,6 +1,6 @@
-import { IonButton, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import React from 'react';
-import { megaphone, notifications, person, calendar, clipboard, medkit } from 'ionicons/icons';
+import { megaphone, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Home: React.FC = () => {
@@ -16,7 +16,7 @@ const Home: React.FC = () => {
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12"  className="ion-text-center">   
-                            <h1>Welcome {currentUser?.email}!</h1>
+                            <h1>Welcome {currentUser?.displayName}!</h1>
                         </IonCol>
                     </IonRow>
 
