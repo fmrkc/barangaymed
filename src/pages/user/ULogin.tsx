@@ -1,4 +1,4 @@
-import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { logInSharp, personCircle, videocamOutline } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
@@ -69,7 +69,7 @@ const Login: React.FC = () => {
             <Intro onFinish={finishIntro} />
         ) : (
         <IonPage>
-            <IonContent scrollY={false} className='ion-padding'>
+            <IonContent scrollY={false}>
                 <IonGrid fixed>
                     <IonRow className='ion-justify-content-center'>
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
@@ -82,8 +82,10 @@ const Login: React.FC = () => {
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
                              <IonCard>
                                 <IonCardContent>
+                                    <IonCardTitle className='ion-text-center ion-padding'>Welcome back!</IonCardTitle>
                                     <form onSubmit={doLogin}>
                                     <IonInput
+                                    className='ion-margin-top'
                                         mode='md'
                                         fill='outline'
                                         labelPlacement='floating'
@@ -115,21 +117,23 @@ const Login: React.FC = () => {
                                         }}
                                     />
                                     {error && <p style={{ color: 'red' }}>{error}</p>}
-                                    <IonButton type='submit' className="ion-margin-top" expand='block'>
+                                    <IonButton type='submit' className="ion-padding-vertical" expand='block' routerDirection='forward'>
                                         Login
                                         <IonIcon icon={logInSharp} slot="end" />
                                     </IonButton>
-                                    <IonButton routerLink='/user/register' type='button' fill='outline' className="ion-margin-top" expand='block'>
-                                        No account? Create one
-                                        <IonIcon icon={personCircle} slot="end" />
+                                    <IonButton routerLink='/user/register' type='button' fill='clear'  expand='block' routerDirection='forward'>
+                                        Don't have an account? Sign Up Here
+                                        
                                     </IonButton>
-                                    <IonButton onClick={seeIntroAgain} size='small' type='button' fill='clear' className="ion-margin-top" expand='block'>
+                                    
+                                    </form>
+                                </IonCardContent>
+                                
+                            </IonCard>
+                            <IonButton onClick={seeIntroAgain} size='small' type='button' fill='clear' className="ion-margin-top" expand='block'>
                                         Watch intro again
                                         <IonIcon icon={videocamOutline} slot="end" />
                                     </IonButton>
-                                    </form>
-                                </IonCardContent>
-                            </IonCard>
                         </IonCol>
                     </IonRow>
                 </IonGrid>
