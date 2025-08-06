@@ -8,7 +8,7 @@ import Notifications from './UNotifications';
 import Account from './UAccount';
 import Announcements from './UBAnnouncements';
 
-import { home as homeIcon, notifications as notificationsIcon, person as personIcon, megaphone as megaphoneIcon } from 'ionicons/icons';
+import { home as homeIcon, notifications as notificationsIcon, person as personIcon, megaphone as megaphoneIcon, albums } from 'ionicons/icons';
 
 const UserDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -20,10 +20,10 @@ const UserDashboard: React.FC = () => {
             <IonIcon icon={homeIcon} />
             <IonLabel>Home</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="announcements" href="/user/dashboard/announcements">
-            <IonIcon icon={megaphoneIcon} />
-            <IonLabel>Announcements</IonLabel>
-          </IonTabButton>
+          <IonTabButton tab="user_requests" href="/user/dashboard/user_requests">
+            <IonIcon icon={albums} />
+            <IonLabel>Requests</IonLabel>
+          </IonTabButton>  
           <IonTabButton tab="notifications" href="/user/dashboard/notifications">
             <IonIcon icon={notificationsIcon} />
             <IonLabel>Notifications</IonLabel>

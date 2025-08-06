@@ -1,6 +1,6 @@
 import { IonButton, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import React from 'react';
-import { megaphone, notifications, person, calendar } from 'ionicons/icons';
+import { megaphone, notifications, person, calendar, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Home: React.FC = () => {
@@ -12,17 +12,45 @@ const Home: React.FC = () => {
                     <IonTitle>BarangayMed+</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent className="ion-padding ion-text-center">
+            <IonContent>
                 <IonGrid>
                     <IonRow>
-                        <IonCol size="12">
-                            
-                            <h1>Welcome {currentUser?.email} </h1>
-                            
+                        <IonCol size="12"  className="ion-text-center">   
+                            <h1>Welcome {currentUser?.email}!</h1>
                         </IonCol>
                     </IonRow>
-                    
+
                     <IonRow>
+                        <IonCol size="12" size-md="6">
+                            <IonCard routerLink="/user/dashboard/medicine_request">
+                                <IonCardHeader>
+                                    <IonCardTitle>
+                                        <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
+                                        Medicine Request
+                                    </IonCardTitle>
+                                </IonCardHeader>
+                                <IonCardContent>
+                                    Request over-the-counter medicines from your barangay.
+                                </IonCardContent>
+                            </IonCard>
+                        </IonCol>
+
+                        
+                        <IonCol size="12" size-md="6">
+                            <IonCard>
+                                <IonCardHeader>
+                                    <IonCardTitle>
+                                        <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
+                                        Book Teleconsultation
+                                    </IonCardTitle>
+                                </IonCardHeader>
+                                <IonCardContent>
+                                    Book appointments for teleconsultation with healthcare professionals.
+                                </IonCardContent>
+                            </IonCard>
+                        </IonCol>
+                        
+
                         <IonCol size="12" size-md="6">
                             <IonCard routerLink="/user/dashboard/announcements">
                                 <IonCardHeader>
@@ -32,43 +60,13 @@ const Home: React.FC = () => {
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    View the latest announcements from your barangay
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
-                        
-                        <IonCol size="12" size-md="6">
-                            <IonCard routerLink="/user/dashboard/notifications">
-                                <IonCardHeader>
-                                    <IonCardTitle>
-                                        <IonIcon icon={notifications} style={{ marginRight: '8px' }} />
-                                        Notifications
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <IonCardContent>
-                                    Check your health notifications and reminders
+                                    View the latest announcements from your barangay.
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
                     </IonRow>
                     
-                    <IonRow>
-                        
-                        
-                        <IonCol size="12" size-md="6">
-                            <IonCard>
-                                <IonCardHeader>
-                                    <IonCardTitle>
-                                        <IonIcon icon={calendar} style={{ marginRight: '8px' }} />
-                                        Health Services
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <IonCardContent>
-                                    Book appointments and access health services
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
-                    </IonRow>
+                    
                 </IonGrid>
             </IonContent>
         </>
