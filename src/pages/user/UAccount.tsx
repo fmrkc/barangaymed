@@ -28,7 +28,7 @@ import {
 import React, { useState, useEffect } from "react";
 import LogoutButton from "../../components/LogoutButton";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, camera, image, close } from "ionicons/icons";
+import { logOut, create, person, camera, image, close, pencil } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, storage } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -235,7 +235,7 @@ const Account: React.FC = () => {
               </div>
             </IonCardContent>
             <IonButton expand="block" fill="outline" onClick={openEditModal}>
-              <IonIcon slot="start" icon={create} />
+              <IonIcon slot="start" icon={pencil} />
               Edit Profile
             </IonButton>
           </IonCard>
