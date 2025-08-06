@@ -177,7 +177,7 @@ const UserAnnouncements: React.FC = () => {
             </IonCardHeader>
             <IonCardContent>
               <div style={{ marginBottom: '15px' }}>
-                <IonText color="medium">
+                <IonText>
                   <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                     {announcement.content}
                   </p>
