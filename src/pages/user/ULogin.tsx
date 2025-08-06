@@ -119,8 +119,8 @@ const Login: React.FC = () => {
                                         Login
                                         <IonIcon icon={logInSharp} slot="end" />
                                     </IonButton>
-                                    <IonButton routerLink='/user/register' type='button' color='tertiary' className="ion-margin-top" expand='block'>
-                                        Create Account
+                                    <IonButton routerLink='/user/register' type='button' fill='outline' className="ion-margin-top" expand='block'>
+                                        No account? Create one
                                         <IonIcon icon={personCircle} slot="end" />
                                     </IonButton>
                                     <IonButton onClick={seeIntroAgain} size='small' type='button' fill='clear' className="ion-margin-top" expand='block'>

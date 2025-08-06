@@ -78,7 +78,7 @@ const Account: React.FC = () => {
       setShowLoading(true);
       try {
         await logout();
-        router.push('/admin', 'forward');
+        router.push('/user', 'forward');
       } catch (error) {
         console.error('Logout error:', error);
       } finally {
