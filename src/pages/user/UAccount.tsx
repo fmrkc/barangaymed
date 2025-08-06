@@ -22,28 +22,25 @@ const Account: React.FC = () => {
     };
 
     return (
-        <>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Account</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent >
-            <IonCard>
-                <IonCardContent>
-                    <h1>{currentUser?.email}</h1>
-                    
-                    <IonItem detail={false} button onClick={handleLogout}>
-                                  <IonIcon slot="start" icon={logOut} />
-                                  Logout
-                                </IonItem>
-                </IonCardContent>
-            </IonCard>
+      <>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Account</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <IonCard>
+            <IonCardContent>
+              <h1>{currentUser?.email}</h1>
 
-            
-          
-            </IonContent>
-        </>
+              <IonItem detail={false} button onClick={handleLogout}>
+                <IonIcon slot="start" icon={logOut} />
+                Logout
+              </IonItem>
+            </IonCardContent>
+          </IonCard>
+        </IonContent>
+      </>
     );
 };
 
