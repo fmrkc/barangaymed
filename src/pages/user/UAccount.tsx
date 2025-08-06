@@ -25,7 +25,7 @@ const Account: React.FC = () => {
       <>
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Account</IonTitle>
+            <IonTitle>My Account</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent>
