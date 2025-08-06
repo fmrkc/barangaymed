@@ -27,7 +27,7 @@ const Home: React.FC = () => {
                             <IonCard routerLink="/user/dashboard/announcements">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={megaphone} />
+                                        <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
                                         Barangay Announcements
                                     </IonCardTitle>
                                 </IonCardHeader>
@@ -41,7 +41,7 @@ const Home: React.FC = () => {
                             <IonCard routerLink="/user/dashboard/notifications">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={notifications} />
+                                        <IonIcon icon={notifications} style={{ marginRight: '8px' }} />
                                         Notifications
                                     </IonCardTitle>
                                 </IonCardHeader>
@@ -53,25 +53,13 @@ const Home: React.FC = () => {
                     </IonRow>
                     
                     <IonRow>
-                        <IonCol size="12" size-md="6">
-                            <IonCard routerLink="/user/dashboard/account">
-                                <IonCardHeader>
-                                    <IonCardTitle>
-                                        <IonIcon icon={person} />
-                                        My Account
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <IonCardContent>
-                                    Manage your profile and health information
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
+                        
                         
                         <IonCol size="12" size-md="6">
                             <IonCard>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={calendar} />
+                                        <IonIcon icon={calendar} style={{ marginRight: '8px' }} />
                                         Health Services
                                     </IonCardTitle>
                                 </IonCardHeader>
