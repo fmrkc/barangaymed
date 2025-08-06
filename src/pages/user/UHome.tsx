@@ -3,6 +3,7 @@ import React from 'react';
 import { megaphone, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
+
 const Home: React.FC = () => {
     const { currentUser } = useAuth();
     return (
