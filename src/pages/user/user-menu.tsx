@@ -7,6 +7,8 @@ import Home from './user-home';
 import Notifications from './user-notifications';
 import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
+import Medicine_Request from './user-med-request';
+import User_Requests from './user-requests';
 
 import { home as homeIcon, notifications as notificationsIcon, person as personIcon, megaphone as megaphoneIcon, albums } from 'ionicons/icons';
 
@@ -38,7 +40,11 @@ const UserDashboard: React.FC = () => {
             <Route path="/user/dashboard/home" component={Home} exact />
             <Route path="/user/dashboard/announcements" component={Announcements} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
+            <Route path="/user/dashboard/user_requests" component={User_Requests} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
+            <Route path="/user/dashboard/medicine_request" component={Medicine_Request} exact />
+            
+            {/* Redirects */}
             <Route exact path="/user/dashboard">
               <Redirect to="/user/dashboard/home" />
           </Route>
