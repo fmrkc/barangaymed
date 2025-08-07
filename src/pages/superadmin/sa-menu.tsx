@@ -6,6 +6,7 @@ import Dashboard from './sa-dashboard';
 import Admin_Management from './sa-admin-manage';
 import Admin_Register from './sa-register';
 import Super_Announcements from './sa-rhu-announcements';
+import Med_Inventory from './sa-med-inventory';
 
 import { medical, medkit, megaphone, people, podium, logOut } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,7 +18,7 @@ const Menu: React.FC = () => {
 
     const paths = [
         { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium},
-        { name: 'Medicine Inventory', url: '/admin/inventory', icon: medkit },
+        { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Admin Management', url: '/superadmin/dashboard/admin-management', icon: people },
         { name: 'RHU Requests', url: '/admin/med-inventory', icon: megaphone },
         { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
@@ -72,6 +73,7 @@ const Menu: React.FC = () => {
           </IonMenu>
           <IonRouterOutlet id="main">
             <Route exact path="/superadmin/dashboard" component={Dashboard} />
+            <Route exact path="/superadmin/dashboard/medicine-inventory" component={Med_Inventory} />
             <Route exact path="/superadmin/dashboard/admin-management" component={Admin_Management} />
             <Route exact path="/superadmin/dashboard/sa-register" component={Admin_Register} />
             <Route exact path="/superadmin/dashboard/rhu-announcements" component={Super_Announcements} />
