@@ -1,13 +1,13 @@
-import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
 import React, { useState } from 'react';
 import { Route } from 'react-router';
+import { useIonRouter } from '@ionic/react';
 
-import SADashboard from './SADashboard';
-import SAManagement from './SAManagement';
-import SARegister from './SARegister';
-import SAAnnouncements from './SARHUAnnouncements';
+import Dashboard from './admin-dashboard';
+import Brgy_Announcements from './admin-brgy-announcements';
+import RHU_Announcements from './admin-rhu-announcements';
 
-import { medical, medkit, megaphone, people, podium, logOut } from 'ionicons/icons';
+import { calendar, medical, medkit, megaphone, podium, reader, logOut } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
@@ -16,18 +16,19 @@ const Menu: React.FC = () => {
     const [showLoading, setShowLoading] = useState(false);
 
     const paths = [
-        { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium},
+        { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
         { name: 'Medicine Inventory', url: '/admin/inventory', icon: medkit },
-        { name: 'Admin Management', url: '/superadmin/dashboard/adminmanagement', icon: people },
-        { name: 'RHU Requests', url: '/admin/inventory', icon: megaphone },
-        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhuannouncements', icon: medical },
+        { name: 'Medicine Requests', url: '/admin/inventory', icon: reader },
+        { name: 'Consultation Requests', url: '/admin/inventory', icon: calendar },
+        { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
+        { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
 
     const handleLogout = async () => {
       setShowLoading(true);
       try {
         await logout();
-        router.push('/superadmin', 'forward');
+        router.push('/admin', 'forward');
       } catch (error) {
         console.error('Logout error:', error);
       } finally {
@@ -42,8 +43,6 @@ const Menu: React.FC = () => {
             <IonHeader>
               <IonToolbar>
                 <IonTitle>BarangayMed+</IonTitle>
-               
-                
               </IonToolbar>
             </IonHeader>
             <IonContent>
@@ -62,19 +61,18 @@ const Menu: React.FC = () => {
                 <div>
                   <IonMenuToggle>
                     <IonItem detail={false} button color="danger" onClick={handleLogout}>
-                    <IonIcon slot="start" icon={logOut} />
+                      <IonIcon slot="start" icon={logOut} />
                       Logout
                     </IonItem>
-                  </IonMenuToggle>             
+                  </IonMenuToggle>
                 </div>
               </div>
             </IonContent>
           </IonMenu>
           <IonRouterOutlet id="main">
-            <Route exact path="/superadmin/dashboard" component={SADashboard} />
-            <Route exact path="/superadmin/dashboard/adminmanagement" component={SAManagement} />
-            <Route exact path="/superadmin/dashboard/saregister" component={SARegister} />
-            <Route exact path="/superadmin/dashboard/rhuannouncements" component={SAAnnouncements} />
+            <Route exact path="/admin/dashboard" component={Dashboard} />
+            <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
+            <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>
