@@ -49,42 +49,58 @@ const SuperAdminLogin: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent className='ion-padding'>
-        <IonGrid fixed>
-          <IonRow className='ion-justify-content-center'>
-            <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
+      <IonContent>
+        <IonGrid
+          fixed
+          style={{
+            minHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
               <div className="ion-text-center">
-                <img src={healthcare} alt='logo' width={'150vh'} />
+                <img src={healthcare} alt="logo" width={"150vh"} />
               </div>
             </IonCol>
           </IonRow>
-          <IonRow className='ion-justify-content-center'>
-            <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+              <div className="ion-text-center">
+                <h1>BarangayMed+</h1>
+                <h2>Super Admin Login</h2>
+              </div>
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
               <IonCard>
                 <IonCardContent>
                   <form onSubmit={doLogin}>
                     <IonInput
-                      mode='md'
-                      fill='outline'
-                      labelPlacement='floating'
+                      mode="md"
+                      fill="outline"
+                      labelPlacement="floating"
                       label="Super Admin E-mail"
-                      type='email'
-                      placeholder='superadmin@example.com'
+                      type="email"
+                      placeholder="superadmin@example.com"
                       value={email}
-                      onIonChange={e => setEmail(e.detail.value!)}
+                      onIonChange={(e) => setEmail(e.detail.value!)}
                     />
                     <IonInput
-                      mode='md'
+                      mode="md"
                       className="ion-margin-top"
-                      fill='outline'
-                      labelPlacement='floating'
+                      fill="outline"
+                      labelPlacement="floating"
                       label="Password"
-                      type='password'
-                      placeholder='superadmin123'
+                      type="password"
+                      placeholder="superadmin123"
                       value={password}
-                      onIonChange={e => setPassword(e.detail.value!)}
+                      onIonChange={(e) => setPassword(e.detail.value!)}
                       onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === "Enter") {
                           e.preventDefault();
                           // Update password state with current value before submitting
                           if (e.target instanceof HTMLInputElement) {
@@ -94,8 +110,12 @@ const SuperAdminLogin: React.FC = () => {
                         }
                       }}
                     />
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <IonButton type='submit' className="ion-margin-top" expand='block'>
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    <IonButton
+                      type="submit"
+                      className="ion-padding-vertical"
+                      expand="block"
+                    >
                       Login
                       <IonIcon icon={logInSharp} slot="end" />
                     </IonButton>

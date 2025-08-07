@@ -48,11 +48,27 @@ const AdminLogin: React.FC = () => {
   return (
     <IonPage>
       <IonContent className='ion-padding'>
-        <IonGrid fixed>
-          <IonRow className='ion-justify-content-center'>
-            <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
+        <IonGrid
+          fixed
+          style={{
+            minHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
               <div className="ion-text-center">
-                <img src={healthcare} alt='logo' width={'150vh'} />
+                <img src={healthcare} alt="logo" width={"150vh"} />
+              </div>
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-justify-content-center">
+            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+              <div className="ion-text-center">
+                <h1>BarangayMed+</h1>
+                <h2>Admin Login</h2>
               </div>
             </IonCol>
           </IonRow>
@@ -93,7 +109,7 @@ const AdminLogin: React.FC = () => {
                       }}
                     />
                     {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <IonButton type='submit' className="ion-margin-top" expand='block'>
+                    <IonButton type='submit' className="ion-padding-vertical" expand='block'>
                       Login
                       <IonIcon icon={logInSharp} slot="end" />
                     </IonButton>
