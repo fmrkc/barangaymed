@@ -1,4 +1,4 @@
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { logInSharp, personCircle, videocamOutline } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
@@ -90,9 +90,12 @@ const Login: React.FC = () => {
                   <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
                     <IonCard>
                       <IonCardContent>
-                        <IonCardTitle className="ion-text-center ion-padding">
-                          Welcome back!
+                        <IonCardTitle className="ion-padding-vertical">
+                          BarangayMed+
                         </IonCardTitle>
+                        <IonCardSubtitle>
+                            Your one stop for barangay healthcare needs!
+                        </IonCardSubtitle>
                         <form onSubmit={doLogin}>
                           <IonInput
                             className="ion-margin-top"

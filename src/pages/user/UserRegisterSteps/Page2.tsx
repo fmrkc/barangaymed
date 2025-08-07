@@ -15,6 +15,7 @@ const Page2: React.FC<Page2Props> = ({ address, contactNumber, onChange, onNext,
       <IonText>Step 2: Enter your address & contact number.</IonText>
       <IonInput
       className='ion-margin-top'
+      placeholder='123 Street, Barangay'
         fill="outline"
         label="Address"
         labelPlacement="floating"
@@ -22,6 +23,7 @@ const Page2: React.FC<Page2Props> = ({ address, contactNumber, onChange, onNext,
         onIonChange={e => onChange('address', e.detail.value!)}
       />
       <IonInput
+      type="tel" placeholder="0123-456-7890"
         fill="outline"
         label="Contact Number"
         labelPlacement="floating"
