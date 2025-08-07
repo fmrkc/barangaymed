@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
 
-import ADashboard from './admin-dashboard';
-import AAnnouncements from './admin-brgy-announcements';
-import ARHUpdates from './admin-rhu-announcements';
+import Dashboard from './admin-dashboard';
+import Brgy_Announcements from './admin-brgy-announcements';
+import RHU_Announcements from './admin-rhu-announcements';
 
 import { calendar, medical, medkit, megaphone, podium, reader, logOut } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,8 +20,8 @@ const Menu: React.FC = () => {
         { name: 'Medicine Inventory', url: '/admin/inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/admin/inventory', icon: reader },
         { name: 'Consultation Requests', url: '/admin/inventory', icon: calendar },
-        { name: 'Barangay Announcements', url: '/admin/dashboard/announcements', icon: megaphone },
-        { name: 'RHU Announcements', url: '/admin/dashboard/rhupdates', icon: medical },
+        { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
+        { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
 
     const handleLogout = async () => {
@@ -70,9 +70,9 @@ const Menu: React.FC = () => {
             </IonContent>
           </IonMenu>
           <IonRouterOutlet id="main">
-            <Route exact path="/admin/dashboard" component={ADashboard} />
-            <Route exact path="/admin/dashboard/announcements" component={AAnnouncements} />
-            <Route exact path="/admin/dashboard/rhupdates" component={ARHUpdates} />
+            <Route exact path="/admin/dashboard" component={Dashboard} />
+            <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
+            <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>
