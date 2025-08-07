@@ -64,86 +64,108 @@ const Login: React.FC = () => {
     }; 
 
     return (
-        <>
+      <>
         {!introSeen ? (
-            <Intro onFinish={finishIntro} />
+          <Intro onFinish={finishIntro} />
         ) : (
-        <IonPage>
+          <IonPage>
             <IonContent scrollY={false}>
-                <IonGrid fixed>
-                    <IonRow className='ion-justify-content-center'>
-                        <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
-                            <div className="ion-text-center">
-                                <img src={healthcare} alt='logo' width={'150vh'} />
-                            </div>
-                        </IonCol>
-                    </IonRow>
-                    <IonRow className='ion-justify-content-center'>
-                        <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
-                             <IonCard>
-                                <IonCardContent>
-                                    <IonCardTitle className='ion-text-center ion-padding'>Welcome back!</IonCardTitle>
-                                    <form onSubmit={doLogin}>
-                                    <IonInput
-                                    className='ion-margin-top'
-                                        mode='md'
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="E-mail"
-                                        type='email'
-                                        placeholder='juan@gmail.com'
-                                        value={email}
-                                        onIonChange={e => setEmail(e.detail.value!)}
-                                    />
-                                    <IonInput
-                                        mode='md'
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="Password"
-                                        type='password'
-                                        placeholder='juan123'
-                                        value={password}
-                                        onIonChange={e => setPassword(e.detail.value!)}
-                                        onKeyPress={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                // Update password state with current value before submitting
-                                                if (e.target instanceof HTMLInputElement) {
-                                                    setPassword(e.target.value);
-                                                }
-                                                doLogin(e);
-                                            }
-                                        }}
-                                    />
-                                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                                    <IonButton type='submit' className="ion-padding-vertical" expand='block' routerDirection='forward'>
-                                        Login
-                                        <IonIcon icon={logInSharp} slot="end" />
-                                    </IonButton>
-                                    <IonButton routerLink='/user/register' type='button' fill='clear'  expand='block' routerDirection='forward'>
-                                        Don't have an account? Sign Up Here
-                                        
-                                    </IonButton>
-                                    
-                                    </form>
-                                </IonCardContent>
-                                
-                            </IonCard>
-                            <IonButton onClick={seeIntroAgain} size='small' type='button' fill='clear' className="ion-margin-top" expand='block'>
-                                        Watch intro again
-                                        <IonIcon icon={videocamOutline} slot="end" />
-                                    </IonButton>
-                        </IonCol>
-                    </IonRow>
-                </IonGrid>
-                
-               
+              <IonGrid
+                fixed
+                style={{
+                  minHeight: "80vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                <IonRow className="ion-justify-content-center">
+                  <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+                    <div className="ion-text-center">
+                      <img src={healthcare} alt="logo" width={"150vh"} />
+                    </div>
+                  </IonCol>
+                </IonRow>
+                <IonRow className="ion-justify-content-center">
+                  <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+                    <IonCard>
+                      <IonCardContent>
+                        <IonCardTitle className="ion-text-center ion-padding">
+                          Welcome back!
+                        </IonCardTitle>
+                        <form onSubmit={doLogin}>
+                          <IonInput
+                            className="ion-margin-top"
+                            mode="md"
+                            fill="outline"
+                            labelPlacement="floating"
+                            label="E-mail"
+                            type="email"
+                            placeholder="juan@gmail.com"
+                            value={email}
+                            onIonChange={(e) => setEmail(e.detail.value!)}
+                          />
+                          <IonInput
+                            mode="md"
+                            className="ion-margin-top"
+                            fill="outline"
+                            labelPlacement="floating"
+                            label="Password"
+                            type="password"
+                            placeholder="juan123"
+                            value={password}
+                            onIonChange={(e) => setPassword(e.detail.value!)}
+                            onKeyPress={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                // Update password state with current value before submitting
+                                if (e.target instanceof HTMLInputElement) {
+                                  setPassword(e.target.value);
+                                }
+                                doLogin(e);
+                              }
+                            }}
+                          />
+                          {error && <p style={{ color: "red" }}>{error}</p>}
+                          <IonButton
+                            type="submit"
+                            className="ion-padding-vertical"
+                            expand="block"
+                            routerDirection="forward"
+                          >
+                            Login
+                            <IonIcon icon={logInSharp} slot="end" />
+                          </IonButton>
+                          <IonButton
+                            routerLink="/user/register"
+                            type="button"
+                            fill="clear"
+                            expand="block"
+                            routerDirection="forward"
+                          >
+                            Don't have an account? Sign Up Here
+                          </IonButton>
+                        </form>
+                      </IonCardContent>
+                    </IonCard>
+                    <IonButton
+                      onClick={seeIntroAgain}
+                      size="small"
+                      type="button"
+                      fill="clear"
+                      className="ion-margin-top"
+                      expand="block"
+                    >
+                      Watch intro again
+                      <IonIcon icon={videocamOutline} slot="end" />
+                    </IonButton>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
             </IonContent>
-
-        </IonPage>
+          </IonPage>
         )}
-        </>
+      </>
     );
 };
 
