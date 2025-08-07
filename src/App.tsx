@@ -37,18 +37,18 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 
-import SuperAdminLogin from './pages/superadmin/SALogin';
-import SuperAdminDashboard from './pages/superadmin/SADashboard';
-import SuperRegister from './pages/superadmin/SARegister';
+import SuperAdminLogin from './pages/superadmin/sa-login';
+import SuperAdminDashboard from './pages/superadmin/sa-dashboard';
+import SuperRegister from './pages/superadmin/sa-register';
 
-import ALogin from './pages/admin/ALogin';
-import AMenu from './pages/admin/AMenu';
-import AAnnouncements from './pages/admin/ABAnnouncements';
+import ALogin from './pages/admin/admin-login';
+import AMenu from './pages/admin/admin-menu';
+import AAnnouncements from './pages/admin/admin-brgy-announcements';
 
-import UserLogin from './pages/user/ULogin';
-import UserRegister from './pages/user/URegister';
-import UserDashboard from './pages/user/UDashboard';
-import SAMenu from './pages/superadmin/SAMenu';
+import UserLogin from './pages/user/user-login';
+import UserRegister from './pages/user/user-register';
+import UserDashboard from './pages/user/user-menu';
+import SAMenu from './pages/superadmin/sa-menu';
 
 
 setupIonicReact();

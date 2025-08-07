@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
 
-import ADashboard from './ADashboard';
-import AAnnouncements from './ABAnnouncements';
-import ARHUpdates from './ARHUAnnouncements';
+import ADashboard from './admin-dashboard';
+import AAnnouncements from './admin-brgy-announcements';
+import ARHUpdates from './admin-rhu-announcements';
 
 import { calendar, medical, medkit, megaphone, podium, reader, logOut } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';

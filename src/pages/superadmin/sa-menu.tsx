@@ -2,10 +2,10 @@ import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPag
 import React, { useState } from 'react';
 import { Route } from 'react-router';
 
-import SADashboard from './SADashboard';
-import SAManagement from './SAManagement';
-import SARegister from './SARegister';
-import SAAnnouncements from './SARHUAnnouncements';
+import SADashboard from './sa-dashboard';
+import SAManagement from './sa-admin-manage';
+import SARegister from './sa-register';
+import SAAnnouncements from './sa-rhu-announcements';
 
 import { medical, medkit, megaphone, people, podium, logOut } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
