@@ -153,7 +153,7 @@ const adminmanagement: React.FC = () => {
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12">
-                            <IonButton routerLink='/superadmin/dashboard/saregister' type='button' color='primary'>
+                            <IonButton routerLink='/superadmin/dashboard/sa-register' type='button' color='primary'>
                                 Create Admin/Super Admin Account
                                 <IonIcon icon={personCircle} slot="end" />
                             </IonButton>
