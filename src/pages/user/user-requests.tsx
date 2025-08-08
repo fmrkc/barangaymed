@@ -130,7 +130,6 @@ const UserRequests: React.FC = () => {
 
   return (
   <>
-    
       <IonHeader>
         <IonToolbar>
           

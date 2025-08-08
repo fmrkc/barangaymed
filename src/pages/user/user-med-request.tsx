@@ -148,6 +148,7 @@ const UserMedRequest: React.FC = () => {
   };
 
   return (
+    <>
     <IonPage>
       <IonHeader>
         <IonToolbar>
@@ -200,6 +201,7 @@ const UserMedRequest: React.FC = () => {
         </IonGrid>
       </IonContent>
     </IonPage>
+    </>
   );
 };
 
