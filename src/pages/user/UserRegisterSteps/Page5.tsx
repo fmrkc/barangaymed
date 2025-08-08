@@ -1,5 +1,6 @@
 import React from 'react';
-import { IonButton, IonList, IonItem, IonLabel, IonText, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonButton, IonList, IonItem, IonLabel, IonText, IonGrid, IonRow, IonCol, IonCardTitle, IonIcon, IonInput } from '@ionic/react';
+import { arrowBack, arrowForward, at, call, home, mail, map, person, personAdd } from 'ionicons/icons';
 
 interface Page5Props {
   firstName: string;
@@ -33,54 +34,67 @@ const Page5: React.FC<Page5Props> = ({
 }) => {
   return (
     <>
-      <IonText>Step 5: Review all of your information before submitting.</IonText>
-      <IonList className="ion-margin-top">
+      <IonCardTitle className="ion-padding-vertical">
+        Step 5: Review all of your information before submitting.
+      </IonCardTitle>
+
+      <IonList>
         <IonItem>
-          <IonLabel>First Name</IonLabel>
-          <IonText>{firstName}</IonText>
+          <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
+          <IonInput
+            readonly
+            value={`${firstName} ${middleName} ${lastName} ${suffix}`}
+          ></IonInput>
         </IonItem>
+
         <IonItem>
-          <IonLabel>Middle Name</IonLabel>
-          <IonText>{middleName}</IonText>
+          <IonIcon slot="start" icon={call} aria-hidden="true"></IonIcon>
+          <IonInput
+            
+            readonly
+            value={contactNumber}
+          ></IonInput>
         </IonItem>
+
         <IonItem>
-          <IonLabel>Last Name</IonLabel>
-          <IonText>{lastName}</IonText>
+          <IonIcon slot="start" icon={home} aria-hidden="true"></IonIcon>
+          <IonInput readonly value={address}></IonInput>
         </IonItem>
+
         <IonItem>
-          <IonLabel>Suffix</IonLabel>
-          <IonText>{suffix || '-'}</IonText>
+          <IonIcon slot="start" icon={map} aria-hidden="true"></IonIcon>
+          <IonInput readonly value={barangay}></IonInput>
         </IonItem>
+
         <IonItem>
-          <IonLabel>Address</IonLabel>
-          <IonText>{address}</IonText>
-        </IonItem>
-        <IonItem>
-          <IonLabel>Contact Number</IonLabel>
-          <IonText>{contactNumber}</IonText>
-        </IonItem>
-        <IonItem>
-          <IonLabel>Barangay</IonLabel>
-          <IonText>{barangay}</IonText>
-        </IonItem>
-        <IonItem>
-          <IonLabel>Email</IonLabel>
-          <IonText>{email}</IonText>
-        </IonItem>
-        <IonItem>
-          <IonLabel>Password</IonLabel>
-          <IonText>********</IonText>
+          <IonIcon slot="start" icon={mail} aria-hidden="true"></IonIcon>
+          <IonInput readonly value={email}></IonInput>
         </IonItem>
       </IonList>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <IonGrid>
         <IonRow className="ion-justify-content-between ion-margin-top">
           <IonCol size="5">
-            <IonButton expand="block" onClick={onBack} disabled={loading}>Back</IonButton>
+            <IonButton
+              expand="block"
+              onClick={onBack}
+              shape="round"
+              className="ion-padding-vertical"
+            >
+              Back
+              <IonIcon icon={arrowBack} slot="start" />
+            </IonButton>
           </IonCol>
           <IonCol size="5">
-            <IonButton expand="block" onClick={onSubmit} disabled={loading}>
-              {loading ? 'Creating Account...' : 'Create Account'}
+            <IonButton
+              expand="block"
+              onClick={onSubmit}
+              disabled={loading}
+              shape="round"
+              className="ion-padding-vertical"
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+              <IonIcon icon={personAdd} slot="end" />
             </IonButton>
           </IonCol>
         </IonRow>
