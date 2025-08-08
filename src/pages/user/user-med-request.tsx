@@ -1,4 +1,4 @@
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonModal, IonRow, IonTitle, IonToolbar, useIonLoading, useIonToast } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
@@ -8,9 +8,13 @@ import Page1 from './UserMedRequestSteps/Page1';
 import Page2 from './UserMedRequestSteps/Page2';
 import Page3 from './UserMedRequestSteps/Page3';
 
-const UserMedRequest: React.FC = () => {
+interface UserMedRequestModalProps {
+  isOpen: boolean;
+  onDidDismiss: () => void;
+}
+
+const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDidDismiss }) => {
   const { currentUser } = useAuth();
-  const router = useIonRouter();
   const [present, dismiss] = useIonLoading();
   const [presentToast] = useIonToast();
 
@@ -66,12 +70,10 @@ const UserMedRequest: React.FC = () => {
   };
 
   const fetchUserDetails = async () => {
-    // This would typically fetch from user profile
-    // For now, we'll use basic info from auth and set barangay to Apalit
     setUserDetails({
       name: currentUser?.displayName || currentUser?.email || '',
       address: '',
-      barangay: 'Apalit' // Set to Apalit since your user is from Apalit
+      barangay: 'Apalit'
     });
   };
 
@@ -107,6 +109,13 @@ const UserMedRequest: React.FC = () => {
     setStep(prev => Math.max(prev - 1, 1));
   };
 
+  const resetForm = () => {
+    setStep(1);
+    setSelectedMedicine(null);
+    setQuantity(1);
+    setPickupDate('');
+  };
+
   const submitRequest = async () => {
     if (!selectedMedicine || !currentUser) return;
 
@@ -136,7 +145,10 @@ const UserMedRequest: React.FC = () => {
         duration: 3000,
         color: 'success'
       });
-      router.push('/user/requests', 'forward');
+      
+      // Close modal and reset form
+      onDidDismiss();
+      resetForm();
     } catch (error) {
       dismiss();
       presentToast({
@@ -148,14 +160,17 @@ const UserMedRequest: React.FC = () => {
   };
 
   return (
-    <>
-    
+    <IonModal 
+      isOpen={isOpen} 
+      onDidDismiss={onDidDismiss}
+      className="medicine-request-modal"
+    >
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/user/dashboard/home" />
-          </IonButtons>
           <IonTitle>Medicine Request</IonTitle>
+          <IonButton slot="end" fill="clear" onClick={onDidDismiss}>
+            Close
+          </IonButton>
         </IonToolbar>
       </IonHeader>
 
@@ -200,9 +215,8 @@ const UserMedRequest: React.FC = () => {
           </IonRow>
         </IonGrid>
       </IonContent>
-    
-    </>
+    </IonModal>
   );
 };
 
-export default UserMedRequest;
+export default UserMedRequestModal;

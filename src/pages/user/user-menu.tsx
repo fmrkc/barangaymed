@@ -38,10 +38,11 @@ const UserDashboard: React.FC = () => {
 
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
-            <Route path="/user/dashboard/announcements" component={Announcements} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
             <Route path="/user/dashboard/user_requests" component={User_Requests} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
+
+            <Route path="/user/dashboard/announcements" component={Announcements} exact />
             <Route path="/user/dashboard/medicine_request" component={Medicine_Request} exact />
             
             {/* Redirects */}

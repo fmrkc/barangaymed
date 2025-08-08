@@ -1,11 +1,13 @@
-import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
-import React from 'react';
+import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton } from '@ionic/react';
+import React, { useState } from 'react';
 import { megaphone, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
-
+import UserMedRequestModal from './user-med-request';
 
 const Home: React.FC = () => {
     const { currentUser } = useAuth();
+    const [showMedicineModal, setShowMedicineModal] = useState(false);
+
     return (
         <>
             <IonHeader>
@@ -23,7 +25,7 @@ const Home: React.FC = () => {
 
                     <IonRow>
                         <IonCol size="12" size-md="6">
-                            <IonCard routerLink="/user/dashboard/medicine_request">
+                            <IonCard>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
@@ -33,6 +35,12 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     Request over-the-counter medicines from your barangay.
                                 </IonCardContent>
+                                <IonButton 
+                                    expand="block" 
+                                    onClick={() => setShowMedicineModal(true)}
+                                >
+                                    Request Medicine
+                                </IonButton>
                             </IonCard>
                         </IonCol>
 
@@ -70,6 +78,10 @@ const Home: React.FC = () => {
                     
                 </IonGrid>
             </IonContent>
+            <UserMedRequestModal 
+                isOpen={showMedicineModal}
+                onDidDismiss={() => setShowMedicineModal(false)}
+            />
         </>
     );
 };
