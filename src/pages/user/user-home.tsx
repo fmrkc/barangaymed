@@ -35,11 +35,11 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     Request over-the-counter medicines from your barangay.
                                 </IonCardContent>
-                                <IonButton 
+                                <IonButton
                                     expand="block" 
                                     onClick={() => setShowMedicineModal(true)}
                                 >
-                                    Request Medicine
+                                    Request Medicine Here
                                 </IonButton>
                             </IonCard>
                         </IonCol>
@@ -61,7 +61,7 @@ const Home: React.FC = () => {
                         
 
                         <IonCol size="12" size-md="6">
-                            <IonCard routerLink="/user/dashboard/announcements">
+                            <IonCard>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
@@ -71,6 +71,11 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     View the latest announcements from your barangay.
                                 </IonCardContent>
+                                <IonButton 
+                                    expand="block" 
+                                    routerLink="/user/dashboard/announcements">
+                                    View Announcements Here
+                                    </IonButton>
                             </IonCard>
                         </IonCol>
                     </IonRow>
