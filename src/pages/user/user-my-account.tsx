@@ -258,7 +258,7 @@ const Account: React.FC = () => {
                 </IonButton>
                 {isUploading && <IonProgressBar value={uploadProgress} />} */}
 
-            {/* Barangay Display */}
+            
 
             <IonItem detail={false} button onClick={handleLogout}>
               <IonIcon slot="start" icon={logOut} />
