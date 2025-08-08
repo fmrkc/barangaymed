@@ -150,7 +150,7 @@ const UserRequests: React.FC = () => {
         <IonSegment
           value={selectedSegment}
           onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
-          className="ion-margin"
+          
         >
           <IonSegmentButton value="all">All</IonSegmentButton>
           <IonSegmentButton value="pending">Pending</IonSegmentButton>
