@@ -205,7 +205,7 @@ const UserRegister: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/" />
+            <IonBackButton defaultHref="/" color={'primary'}  />
           </IonButtons>
           <IonTitle>Create Account</IonTitle>
         </IonToolbar>
@@ -214,7 +214,7 @@ const UserRegister: React.FC = () => {
       <IonContent scrollY={false}>
         <IonGrid fixed>
           <IonRow className="ion-justify-content-center">
-            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+            <IonCol >
               <IonCard>
                 <IonCardContent>
                   {step === 1 && (
