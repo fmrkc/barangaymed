@@ -11,7 +11,7 @@ const Home: React.FC = () => {
     return (
         <>
             <IonHeader>
-                <IonToolbar>
+                <IonToolbar className='ion-text-center'>
                     <IonTitle>BarangayMed+</IonTitle>
                 </IonToolbar>
             </IonHeader>

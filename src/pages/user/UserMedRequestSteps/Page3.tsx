@@ -49,7 +49,7 @@ const Page3: React.FC<Page3Props> = ({
       <IonCardHeader>
         <IonCardTitle>Step 3: Review Request</IonCardTitle>
         <IonText color="medium">
-          <p>Please review your medicine request details</p>
+          <p>Please review your medicine request details before submitting.</p>
         </IonText>
       </IonCardHeader>
 

@@ -42,7 +42,7 @@ const Page1: React.FC<Page1Props> = ({
       <IonCardHeader>
         <IonCardTitle>Step 1: Select Medicine</IonCardTitle>
         <IonText color="medium">
-          <p>Choose from available medicines in your barangay</p>
+          <p>Choose from the available over-the-counter medicines in your barangay.</p>
         </IonText>
       </IonCardHeader>
 

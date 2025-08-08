@@ -40,7 +40,7 @@ const Page2: React.FC<Page2Props> = ({
       <IonCardHeader>
         <IonCardTitle>Step 2: Request Details</IonCardTitle>
         <IonText color="medium">
-          <p>Specify quantity and pickup date</p>
+          <p>Specify the quantity and your pick-up date.</p>
         </IonText>
       </IonCardHeader>
 
