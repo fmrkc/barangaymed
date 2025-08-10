@@ -23,12 +23,17 @@ import {
   IonCol,
   IonNote,
   IonSegment,
-  IonSegmentButton
+  IonSegmentButton,
+  IonSegmentView,
+  IonIcon
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import '../user/user-requests.css';
+import { person } from 'ionicons/icons';
+import { withRouter } from 'react-router';
 
 interface MedicineRequest {
   id?: string;
@@ -148,15 +153,18 @@ const UserRequests: React.FC = () => {
         />
 
         <IonSegment
+        scrollable={true}
           value={selectedSegment}
           onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
-          
+          color={getStatusColor(selectedSegment)}
         >
           <IonSegmentButton value="all">All</IonSegmentButton>
           <IonSegmentButton value="pending">Pending</IonSegmentButton>
           <IonSegmentButton value="approved">Approved</IonSegmentButton>
           <IonSegmentButton value="completed">Completed</IonSegmentButton>
+          <IonSegmentButton value="cancelled">Cancelled</IonSegmentButton>
         </IonSegment>
+       
 
         <IonGrid>
           <IonRow>
@@ -165,7 +173,7 @@ const UserRequests: React.FC = () => {
                 <IonCard>
                   <IonCardContent className="ion-text-center">
                     <IonText color="medium">
-                      <p>No medicine requests found</p>
+                      <p>No medicine requests found.</p>
                     </IonText>
                   </IonCardContent>
                 </IonCard>
@@ -175,42 +183,37 @@ const UserRequests: React.FC = () => {
                 <IonCol size="12" sizeMd="6" sizeLg="4" key={request.id}>
                   <IonCard>
                     <IonCardHeader>
-                      <IonCardTitle>{request.medicineName}</IonCardTitle>
-                      <IonChip color={getStatusColor(request.status)} slot="end">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <IonCardTitle style={{fontWeight: "bold"}}>{request.medicineName}</IonCardTitle>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span>{request.medicineType}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span>{request.quantity} unit{request.quantity !== 1 ? 's' : ''}</span>
+                          </div>
+                      </div>
+                      
+                      
+                       <IonChip color={getStatusColor(request.status)} slot="end">
                         <IonLabel>{request.status.toUpperCase()}</IonLabel>
                       </IonChip>
+                      </div>
                     </IonCardHeader>
                     <IonCardContent>
                       <IonList>
-                        <IonItem>
-                          <IonLabel>
-                            <p>Type</p>
-                            <h3>{request.medicineType}</h3>
-                          </IonLabel>
-                        </IonItem>
-
-                        <IonItem>
-                          <IonLabel>
-                            <p>Quantity</p>
-                            <h3>{request.quantity} unit{request.quantity !== 1 ? 's' : ''}</h3>
-                          </IonLabel>
-                        </IonItem>
-
-                        <IonItem>
-                          <IonLabel>
-                            <p>Pickup Date</p>
-                            <h3>{formatDate(request.pickupDate)}</h3>
-                          </IonLabel>
-                        </IonItem>
-
-                        <IonItem>
-                          <IonLabel>
-                            <p>Request Date</p>
-                            <h3>{formatDate(request.requestDate)}</h3>
-                          </IonLabel>
-                        </IonItem>
-
-                        {request.approvedDate && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <h4>Request Date
+                            <IonText color={'light'}>
+                              <p>{formatDate(request.requestDate)}</p>
+                            </IonText>
+                          </h4>
+                          <h4>Pickup Date
+                            <IonText color={'light'}>
+                              <p>{formatDate(request.pickupDate)}</p></IonText>
+                          </h4>
+                        </div>
+                     {request.approvedDate && (
                           <IonItem>
                             <IonLabel>
                               <p>Approved Date</p>
