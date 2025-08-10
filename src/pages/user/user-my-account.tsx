@@ -24,9 +24,9 @@ import {
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail } from "ionicons/icons";
+import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
-import { auth, db } from "../../firebaseConfig";
+import { auth, db, login } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
@@ -233,8 +233,24 @@ const Account: React.FC = () => {
             </IonButton>
           </IonCard>
           <IonCardContent>
+            {/* <IonItem detail={false} button>
+              <IonIcon slot="start" icon={person} />
+              <IonLabel>Personal Info</IonLabel>
+            </IonItem>
+            <IonItem detail={false} button>
+              <IonIcon slot="start" icon={mail} />
+              <IonLabel>Address & Contact Number</IonLabel>
+            </IonItem> */}
+            <IonItem detail={false} button>
+              <IonIcon slot="start" icon={logIn} />
+              <IonLabel>Recent Logins</IonLabel>
+            </IonItem>
+            {/* <IonItem detail={false} button>
+              <IonIcon slot="start" icon={lockClosed} />
+              <IonLabel>Account Info</IonLabel>
+            </IonItem> */}
             <IonItem detail={false} button id="user-logout">
-              <IonIcon slot="start" icon={logOut} />
+              <IonIcon slot="start"  icon={logOut} />
               Logout
             </IonItem>
           </IonCardContent>
