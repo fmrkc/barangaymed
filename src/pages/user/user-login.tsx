@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { lockClosed, logInSharp, person, personCircle, videocamOutline } from 'ionicons/icons';
+import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
 import Intro from '../../components/Intro';
 import { Preferences } from '@capacitor/preferences';
@@ -73,7 +73,7 @@ const Login: React.FC = () => {
               <IonGrid
                 fixed
                 style={{
-                  minHeight: "80vh",
+                  minHeight: "90vh",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
@@ -88,9 +88,9 @@ const Login: React.FC = () => {
                 </IonRow>
                 <IonRow className="ion-justify-content-center">
                   <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
-                    <IonCard>
+                    <IonCard >
                       <IonCardContent>
-                        <IonCardTitle className="ion-padding-vertical">
+                        <IonCardTitle className="ion-padding-top">
                           BarangayMed+
                         </IonCardTitle>
                         <IonCardSubtitle>
@@ -138,7 +138,7 @@ const Login: React.FC = () => {
                             shape='round'
                           >
                             Login
-                            <IonIcon icon={logInSharp} slot="end" />
+                            <IonIcon icon={logIn} slot="end" />
                           </IonButton>
                           <IonButton
                             routerLink="/user/register"
