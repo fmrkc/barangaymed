@@ -38,6 +38,8 @@ const Login: React.FC = () => {
             if (user) {
                 await authLogin(user);
                 dismiss();
+                // Only redirect to dashboard if this is a direct login
+                // Don't redirect if coming from registration
                 router.push('/user/dashboard', 'forward');
             } else {
                 // Log the failed login attempt
