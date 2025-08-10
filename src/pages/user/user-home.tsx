@@ -41,7 +41,7 @@ const Home: React.FC = () => {
 
     return (
         <>
-            <IonHeader>
+            <IonHeader className='ion-no-border'>
                 <IonToolbar className='ion-text-center'>
                     <IonTitle>BarangayMed+</IonTitle>
                 </IonToolbar>
@@ -56,7 +56,7 @@ const Home: React.FC = () => {
 
                     <IonRow>
                         <IonCol size="12" size-md="6">
-                            <IonCard>
+                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
@@ -66,18 +66,12 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     Request over-the-counter medicines from your barangay.
                                 </IonCardContent>
-                                <IonButton
-                                    expand="block" 
-                                    onClick={() => setShowMedicineModal(true)}
-                                >
-                                    Request Medicine Here
-                                </IonButton>
                             </IonCard>
                         </IonCol>
 
                         
                         <IonCol size="12" size-md="6">
-                            <IonCard>
+                            <IonCard className='ion-padding-vertical' color={'primary'}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
@@ -92,7 +86,7 @@ const Home: React.FC = () => {
                         
 
                         <IonCol size="12" size-md="6">
-                            <IonCard>
+                            <IonCard className='ion-padding-vertical' color={'primary'} button routerLink="/user/dashboard/announcements">
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
@@ -102,11 +96,6 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     View the latest announcements from your barangay.
                                 </IonCardContent>
-                                <IonButton 
-                                    expand="block" 
-                                    routerLink="/user/dashboard/announcements">
-                                    View Announcements Here
-                                    </IonButton>
                             </IonCard>
                         </IonCol>
                     </IonRow>

@@ -198,7 +198,7 @@ const Account: React.FC = () => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>My Account</IonTitle>
         </IonToolbar>

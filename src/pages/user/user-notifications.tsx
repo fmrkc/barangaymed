@@ -5,7 +5,7 @@ const Notifications: React.FC = () => {
 
     return (
         <>
-            <IonHeader>
+            <IonHeader className='ion-no-border'>
                 <IonToolbar>
                     <IonTitle>Notifications</IonTitle>
                 </IonToolbar>
