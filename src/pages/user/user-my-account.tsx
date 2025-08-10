@@ -18,10 +18,13 @@ import {
   IonCardSubtitle,
   IonAvatar,
   IonButtons,
+  IonLabel,
+  IonText,
+  IonAlert,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, pencil, call, checkmarkDoneOutline, close } from "ionicons/icons";
+import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -159,6 +162,40 @@ const Account: React.FC = () => {
     setShowEditModal(true);
   };
 
+  const resetFormData = () => {
+    if (!currentUser) return;
+    
+    // Fetch fresh user data to reset form
+    const fetchUserData = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          // Reset all form fields to original values
+          setEditFirstName(userData.firstName || "");
+          setEditMiddleName(userData.middleName || "");
+          setEditLastName(userData.lastName || "");
+          setEditSuffix(userData.suffix || "");
+          setEditEmail(userData.email || currentUser.email || "");
+          setEditBarangay(userData.barangay || "");
+          setEditAddress(userData.address || "");
+          setEditContactNumber(userData.contactNumber || "");
+        }
+      } catch (error) {
+        console.error("Error resetting form data:", error);
+      }
+    };
+
+    fetchUserData();
+  };
+
+  const handleModalDismiss = () => {
+    resetFormData();
+    setShowEditModal(false);
+    setError(null);
+  };
+
   return (
     <>
       <IonHeader>
@@ -196,31 +233,58 @@ const Account: React.FC = () => {
             </IonButton>
           </IonCard>
           <IonCardContent>
-            <IonItem detail={false} button onClick={handleLogout}>
+            <IonItem detail={false} button id="user-logout">
               <IonIcon slot="start" icon={logOut} />
               Logout
             </IonItem>
           </IonCardContent>
         </IonCard>
 
+         <IonAlert
+         trigger="user-logout"
+         backdropDismiss={false}
+                header="Are you sure?"
+                message="Do you really want to log out?"
+                buttons={[
+                  {
+                    text: "Cancel",
+                    role: "cancel",
+                    handler: () => {
+                      console.log("Alert canceled");
+                    },
+                  },
+                  {
+                    text: "OK",
+                    role: "confirm",
+                    handler: () => {
+                      handleLogout();
+                    },
+                  },
+                ]}
+                onDidDismiss={({ detail }) =>
+                  console.log(`Dismissed with role: ${detail.role}`)
+                }
+              ></IonAlert>
+
         {/* Edit Profile Modal with separate name components */}
         <IonModal
           isOpen={showEditModal}
-          onDidDismiss={() => setShowEditModal(false)}
+          onDidDismiss={() => handleModalDismiss()}
         >
           <IonToolbar>
             <IonCardTitle className="ion-padding" style={{ fontWeight: "bold" }}>
               Edit Profile
             </IonCardTitle>
             <IonButtons slot="end">
-              <IonButton onClick={() => setShowEditModal(false)}>
-                <IonIcon icon={close} slot="end" />
+              <IonButton shape="round" onClick={() => handleModalDismiss()}>
+                <IonIcon icon={close} slot="end"  />
               </IonButton>
             </IonButtons>
           </IonToolbar>
 
           <IonContent className="ion-padding">
-            <IonInput
+            
+              <IonInput
               fill="outline"
               label="First Name"
               labelPlacement="floating"
@@ -228,7 +292,11 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditFirstName(e.detail.value!)}
               placeholder="Enter first name"
               className="ion-margin-bottom"
-            />
+            >
+              <IonIcon slot="start" icon={person}></IonIcon>
+            </IonInput>
+            
+            
             <IonInput
               fill="outline"
               label="Middle Name"
@@ -237,7 +305,9 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditMiddleName(e.detail.value!)}
               placeholder="Enter middle name"
               className="ion-margin-bottom"
-            />
+               >
+              <IonIcon slot="start" icon={person}></IonIcon>
+            </IonInput>
             <IonInput
               fill="outline"
               label="Last Name"
@@ -246,7 +316,9 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditLastName(e.detail.value!)}
               placeholder="Enter last name"
               className="ion-margin-bottom"
-            />
+               >
+              <IonIcon slot="start" icon={person}></IonIcon>
+            </IonInput>
             <IonInput
               fill="outline"
               label="Suffix"
@@ -255,7 +327,9 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditSuffix(e.detail.value!)}
               placeholder="Enter suffix (optional)"
               className="ion-margin-bottom"
-            />
+               >
+              <IonIcon slot="start" icon={person}></IonIcon>
+            </IonInput>
             <IonInput
               fill="outline"
               label="Email"
@@ -265,7 +339,9 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditEmail(e.detail.value!)}
               placeholder="Enter your email"
               className="ion-margin-bottom"
-            />
+               >
+              <IonIcon slot="start" icon={mail}></IonIcon>
+            </IonInput>
             <IonInput
               fill="outline"
               label="Address"
@@ -274,7 +350,9 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditAddress(e.detail.value!)}
               placeholder="Enter your address"
               className="ion-margin-bottom"
-            />
+               >
+              <IonIcon slot="start" icon={home}></IonIcon>
+            </IonInput>
             <IonInput
               fill="outline"
               label="Contact Number"
@@ -283,10 +361,14 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditContactNumber(e.detail.value!)}
               placeholder="+(63) 123-456-7890"
               className="ion-margin-bottom"
-            />
+               >
+              <IonIcon slot="start" icon={call}></IonIcon>
+            </IonInput>
 
             <IonButton
+              shape="round"
               expand="block"
+              className="ion-padding-vertical"
               onClick={handleUpdateProfile}
               disabled={isUpdating}
             >
