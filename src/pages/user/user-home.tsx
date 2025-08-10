@@ -41,7 +41,7 @@ const Home: React.FC = () => {
 
     return (
         <>
-            <IonHeader>
+            <IonHeader className='ion-no-border'>
                 <IonToolbar className='ion-text-center'>
                     <IonTitle>BarangayMed+</IonTitle>
                 </IonToolbar>
