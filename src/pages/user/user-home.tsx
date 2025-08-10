@@ -1,11 +1,42 @@
 import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { megaphone, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import UserMedRequestModal from './user-med-request';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+
 
 const Home: React.FC = () => {
     const { currentUser } = useAuth();
+    const [firstName, setFirstName] = useState("");
+    const [isLoadingUserData, setIsLoadingUserData] = useState(true);
+      
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+          if (!currentUser) return;
+    
+          try {
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              
+              // Set individual name components
+              setFirstName(userData.firstName || "");
+            
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          } finally {
+            setIsLoadingUserData(false);
+          }
+        };
+    
+        fetchUserData();
+      }, [currentUser]);
+
+
     const [showMedicineModal, setShowMedicineModal] = useState(false);
 
     return (
@@ -19,7 +50,7 @@ const Home: React.FC = () => {
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12"  className="ion-text-center">   
-                            <h1>Welcome {currentUser?.displayName}!</h1>
+                            <h1>Welcome {firstName}!</h1>
                         </IonCol>
                     </IonRow>
 

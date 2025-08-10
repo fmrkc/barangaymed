@@ -13,46 +13,51 @@ import {
   IonInput,
   IonToast,
   IonLoading,
-  IonSelect,
-  IonSelectOption,
   IonCardHeader,
   IonCardTitle,
   IonCardSubtitle,
   IonAvatar,
-  IonImg,
-  IonFab,
-  IonFabButton,
-  IonProgressBar,
   IonButtons,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, camera, image, close, pencil } from "ionicons/icons";
+import { logOut, create, person, pencil, call, checkmarkDoneOutline, close } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
-import { auth, db, storage } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { logEvent } from "../../utils/logger";
-
+import { MaskitoOptions } from '@maskito/core';
+import { useMaskito } from '@maskito/react';
 
 const Account: React.FC = () => {
   const { logout, currentUser } = useAuth();
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editName, setEditName] = useState(currentUser?.displayName || "");
+  
+  // Separate name components
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editMiddleName, setEditMiddleName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editSuffix, setEditSuffix] = useState("");
+  const [FullName, setFullName] = useState("");
+  
   const [editEmail, setEditEmail] = useState(currentUser?.email || "");
   const [editBarangay, setEditBarangay] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editContactNumber, setEditContactNumber] = useState("");
-
-
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
 
-  // Fetch user data including barangay and profile picture
+  const phoneMaskOptions: MaskitoOptions = {
+    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
+  };
+  const phoneMask = useMaskito({ options: phoneMaskOptions });
+
+  // Fetch user data including separate name components
   useEffect(() => {
     const fetchUserData = async () => {
       if (!currentUser) return;
@@ -61,11 +66,16 @@ const Account: React.FC = () => {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          if (!currentUser.displayName && userData.name) {
-            setEditName(userData.name);
-          }
-          setEditBarangay(userData.barangay || "");
           
+          // Set individual name components
+          setEditFirstName(userData.firstName || "");
+          setEditMiddleName(userData.middleName || "");
+          setEditLastName(userData.lastName || "");
+          setEditSuffix(userData.suffix || "");
+          setEditEmail(userData.email || currentUser.email || "");
+          setFullName([userData.firstName, userData.middleName, userData.lastName, userData.suffix].filter(Boolean).join(' '));
+          
+          setEditBarangay(userData.barangay || "");
           setEditAddress(userData.address || "");
           setEditContactNumber(userData.contactNumber || "");
         }
@@ -99,46 +109,41 @@ const Account: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const updates: any = {};
+      const fullName = [editFirstName, editMiddleName, editLastName, editSuffix]
+        .filter(Boolean)
+        .join(' ');
 
-      // Update display name
-      if (editName.trim() && editName !== currentUser.displayName) {
-        await updateProfile(currentUser, { displayName: editName });
-        updates.displayName = editName;
+      // Update Firebase Auth display name
+      if (fullName !== currentUser.displayName) {
+        await updateProfile(currentUser, { displayName: fullName });
       }
 
       // Update email
-      if (editEmail.trim() && editEmail !== currentUser.email) {
+      if (editEmail !== currentUser.email) {
         await updateEmail(currentUser, editEmail);
-        updates.email = editEmail;
       }
 
-      // Update address
-      if (editAddress !== "") {
-        await updateDoc(doc(db, "users", currentUser.uid), {
-          address: editAddress,
-        });
-        updates.address = editAddress;
-      }
+      // Update Firestore with individual components
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        firstName: editFirstName,
+        middleName: editMiddleName,
+        lastName: editLastName,
+        suffix: editSuffix,
+        address: editAddress,
+        contactNumber: editContactNumber,
+      });
 
-      // Update contact number
-      if (editContactNumber !== "") {
-        await updateDoc(doc(db, "users", currentUser.uid), {
-          contactNumber: editContactNumber,
-        });
-        updates.contactNumber = editContactNumber;
-      }
-
-      // Log profile update
       logEvent("info", "User profile updated", {
         userId: currentUser.uid,
         userEmail: currentUser.email || undefined,
-        metadata: {
-          action: "profile_update",
-          changes: updates,
-        },
       });
 
+      // Update the display name immediately
+      const updatedFullName = [editFirstName, editMiddleName, editLastName, editSuffix]
+        .filter(Boolean)
+        .join(' ');
+      setFullName(updatedFullName);
+      
       setSuccessMessage("Profile updated successfully!");
       setShowEditModal(false);
     } catch (error: any) {
@@ -149,10 +154,7 @@ const Account: React.FC = () => {
     }
   };
 
-
   const openEditModal = () => {
-    setEditName(currentUser?.displayName || "");
-    setEditEmail(currentUser?.email || "");
     setError(null);
     setShowEditModal(true);
   };
@@ -168,23 +170,16 @@ const Account: React.FC = () => {
         <IonCard>
           <IonCard>
             <IonCardContent className="ion-padding-vertical">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center" }}>
                 <div>
                   <IonAvatar style={{ height: "100%", padding: "10px" }}>
-                    
-                      <IonIcon icon={person} style={{ fontSize: "40px" }} />
-                   
+                    <IonIcon icon={person} style={{ fontSize: "40px" }} />
                   </IonAvatar>
                 </div>
                 <div>
                   <IonCardTitle>
                     <div style={{ fontWeight: "bold" }}>
-                      {currentUser?.displayName || "User Profile"}
+                      {FullName || "No Name Provided"}
                     </div>
                   </IonCardTitle>
                   <IonCardSubtitle>
@@ -201,9 +196,6 @@ const Account: React.FC = () => {
             </IonButton>
           </IonCard>
           <IonCardContent>
-         
-            
-
             <IonItem detail={false} button onClick={handleLogout}>
               <IonIcon slot="start" icon={logOut} />
               Logout
@@ -211,25 +203,18 @@ const Account: React.FC = () => {
           </IonCardContent>
         </IonCard>
 
-        {/* Edit Profile Modal */}
+        {/* Edit Profile Modal with separate name components */}
         <IonModal
           isOpen={showEditModal}
           onDidDismiss={() => setShowEditModal(false)}
         >
           <IonToolbar>
-            <IonCardTitle
-              className="ion-padding"
-              style={{ fontWeight: "bold" }}
-            >
+            <IonCardTitle className="ion-padding" style={{ fontWeight: "bold" }}>
               Edit Profile
             </IonCardTitle>
             <IonButtons slot="end">
-              <IonButton
-                expand="block"
-                onClick={() => setShowEditModal(false)}
-                className="ion-margin-top"
-              >
-                <IonIcon slot="icon-only" icon={close} />
+              <IonButton onClick={() => setShowEditModal(false)}>
+                <IonIcon icon={close} slot="end" />
               </IonButton>
             </IonButtons>
           </IonToolbar>
@@ -237,11 +222,38 @@ const Account: React.FC = () => {
           <IonContent className="ion-padding">
             <IonInput
               fill="outline"
-              label="Name"
+              label="First Name"
               labelPlacement="floating"
-              value={editName}
-              onIonChange={(e) => setEditName(e.detail.value!)}
-              placeholder="Enter your name"
+              value={editFirstName}
+              onIonChange={(e) => setEditFirstName(e.detail.value!)}
+              placeholder="Enter first name"
+              className="ion-margin-bottom"
+            />
+            <IonInput
+              fill="outline"
+              label="Middle Name"
+              labelPlacement="floating"
+              value={editMiddleName}
+              onIonChange={(e) => setEditMiddleName(e.detail.value!)}
+              placeholder="Enter middle name"
+              className="ion-margin-bottom"
+            />
+            <IonInput
+              fill="outline"
+              label="Last Name"
+              labelPlacement="floating"
+              value={editLastName}
+              onIonChange={(e) => setEditLastName(e.detail.value!)}
+              placeholder="Enter last name"
+              className="ion-margin-bottom"
+            />
+            <IonInput
+              fill="outline"
+              label="Suffix"
+              labelPlacement="floating"
+              value={editSuffix}
+              onIonChange={(e) => setEditSuffix(e.detail.value!)}
+              placeholder="Enter suffix (optional)"
               className="ion-margin-bottom"
             />
             <IonInput
@@ -267,10 +279,9 @@ const Account: React.FC = () => {
               fill="outline"
               label="Contact Number"
               labelPlacement="floating"
-              type="tel"
               value={editContactNumber}
               onIonChange={(e) => setEditContactNumber(e.detail.value!)}
-              placeholder="Enter your contact number"
+              placeholder="+(63) 123-456-7890"
               className="ion-margin-bottom"
             />
 
@@ -284,31 +295,10 @@ const Account: React.FC = () => {
           </IonContent>
         </IonModal>
 
-        {/* Loading overlay */}
         <IonLoading isOpen={isUpdating} message="Updating profile..." />
-
-        {/* Logging out loading spinner */}
-        <IonLoading
-          isOpen={showLoading}
-          message="Logging out..."
-          onDidDismiss={() => setShowLoading(false)}
-        />
-
-        {/* Toast notifications */}
-        <IonToast
-          isOpen={!!error}
-          message={error || ""}
-          duration={3000}
-          color="danger"
-          onDidDismiss={() => setError(null)}
-        />
-        <IonToast
-          isOpen={!!successMessage}
-          message={successMessage || ""}
-          duration={3000}
-          color="success"
-          onDidDismiss={() => setSuccessMessage(null)}
-        />
+        <IonLoading isOpen={showLoading} message="Logging out..." />
+        <IonToast isOpen={!!error} message={error || ""} duration={3000} color="danger" />
+        <IonToast isOpen={!!successMessage} message={successMessage || ""} duration={3000} color="success" />
       </IonContent>
     </>
   );
