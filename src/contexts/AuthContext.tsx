@@ -69,6 +69,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        await user.reload(); // Reload the user to get the latest profile data
+        console.log('User object after reload:', user);
         setCurrentUser(user);
         const role = await getUserRole(user.uid);
         setUserRole(role);

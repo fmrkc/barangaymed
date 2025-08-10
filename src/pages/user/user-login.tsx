@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { logInSharp, personCircle, videocamOutline } from 'ionicons/icons';
+import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
 import Intro from '../../components/Intro';
 import { Preferences } from '@capacitor/preferences';
@@ -38,6 +38,8 @@ const Login: React.FC = () => {
             if (user) {
                 await authLogin(user);
                 dismiss();
+                // Only redirect to dashboard if this is a direct login
+                // Don't redirect if coming from registration
                 router.push('/user/dashboard', 'forward');
             } else {
                 // Log the failed login attempt
@@ -73,7 +75,7 @@ const Login: React.FC = () => {
               <IonGrid
                 fixed
                 style={{
-                  minHeight: "80vh",
+                  minHeight: "90vh",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
@@ -88,32 +90,30 @@ const Login: React.FC = () => {
                 </IonRow>
                 <IonRow className="ion-justify-content-center">
                   <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
-                    <IonCard>
+                    <IonCard >
                       <IonCardContent>
-                        <IonCardTitle className="ion-padding-vertical">
+                        <IonCardTitle className="ion-padding-top">
                           BarangayMed+
                         </IonCardTitle>
                         <IonCardSubtitle>
                             Your one stop for barangay healthcare needs!
                         </IonCardSubtitle>
                         <form onSubmit={doLogin}>
+                          <IonCardSubtitle className='ion-margin-top'>E-mail</IonCardSubtitle>
                           <IonInput
-                            className="ion-margin-top"
                             mode="md"
                             fill="outline"
-                            labelPlacement="floating"
-                            label="E-mail"
                             type="email"
                             placeholder="juan@gmail.com"
                             value={email}
                             onIonChange={(e) => setEmail(e.detail.value!)}
-                          />
+                          >
+                            <IonIcon icon={person} slot="start" />
+                          </IonInput>
+                          <IonCardSubtitle className='ion-margin-top'>Password</IonCardSubtitle>
                           <IonInput
                             mode="md"
-                            className="ion-margin-top"
                             fill="outline"
-                            labelPlacement="floating"
-                            label="Password"
                             type="password"
                             placeholder="juan123"
                             value={password}
@@ -128,16 +128,19 @@ const Login: React.FC = () => {
                                 doLogin(e);
                               }
                             }}
-                          />
+                          >
+                            <IonIcon icon={lockClosed} slot="start" />
+                          </IonInput>
                           {error && <p style={{ color: "red" }}>{error}</p>}
                           <IonButton
                             type="submit"
                             className="ion-padding-vertical"
                             expand="block"
                             routerDirection="forward"
+                            shape='round'
                           >
                             Login
-                            <IonIcon icon={logInSharp} slot="end" />
+                            <IonIcon icon={logIn} slot="end" />
                           </IonButton>
                           <IonButton
                             routerLink="/user/register"
