@@ -26,15 +26,13 @@ import {
   IonButtons,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
-import LogoutButton from "../../components/LogoutButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { logOut, create, person, camera, image, close, pencil } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, storage } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { BARANGAYS } from "../../constants/barangays";
 import { logEvent } from "../../utils/logger";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 
 const Account: React.FC = () => {
   const { logout, currentUser } = useAuth();
@@ -45,9 +43,9 @@ const Account: React.FC = () => {
   const [editEmail, setEditEmail] = useState(currentUser?.email || "");
   const [editBarangay, setEditBarangay] = useState("");
   const [editAddress, setEditAddress] = useState("");
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
+  const [editContactNumber, setEditContactNumber] = useState("");
+
+
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +61,13 @@ const Account: React.FC = () => {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
+          if (!currentUser.displayName && userData.name) {
+            setEditName(userData.name);
+          }
           setEditBarangay(userData.barangay || "");
-          setProfilePicture(userData.profilePicture || null);
+          
           setEditAddress(userData.address || "");
+          setEditContactNumber(userData.contactNumber || "");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -119,6 +121,14 @@ const Account: React.FC = () => {
         updates.address = editAddress;
       }
 
+      // Update contact number
+      if (editContactNumber !== "") {
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          contactNumber: editContactNumber,
+        });
+        updates.contactNumber = editContactNumber;
+      }
+
       // Log profile update
       logEvent("info", "User profile updated", {
         userId: currentUser.uid,
@@ -139,53 +149,6 @@ const Account: React.FC = () => {
     }
   };
 
-  const handleProfilePictureUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file || !currentUser) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      // Create a reference to the storage location
-      const storageRef = ref(storage, `profile-pictures/${currentUser.uid}`);
-
-      // Upload the file
-      const uploadTask = uploadBytes(storageRef, file);
-
-      // Wait for upload to complete
-      await uploadTask;
-
-      // Get the download URL
-      const downloadURL = await getDownloadURL(storageRef);
-
-      // Update user document with new profile picture
-      await updateDoc(doc(db, "users", currentUser.uid), {
-        profilePicture: downloadURL,
-      });
-
-      setProfilePicture(downloadURL);
-
-      // Log profile picture update
-      logEvent("info", "Profile picture updated", {
-        userId: currentUser.uid,
-        userEmail: currentUser.email || undefined,
-        metadata: {
-          action: "profile_picture_update",
-        },
-      });
-
-      setSuccessMessage("Profile picture updated successfully!");
-    } catch (error: any) {
-      console.error("Upload error:", error);
-      setError(error.message || "Failed to upload profile picture");
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
-  };
 
   const openEditModal = () => {
     setEditName(currentUser?.displayName || "");
@@ -213,11 +176,9 @@ const Account: React.FC = () => {
               >
                 <div>
                   <IonAvatar style={{ height: "100%", padding: "10px" }}>
-                    {profilePicture ? (
-                      <IonImg src={profilePicture} alt="Profile" />
-                    ) : (
+                    
                       <IonIcon icon={person} style={{ fontSize: "40px" }} />
-                    )}
+                   
                   </IonAvatar>
                 </div>
                 <div>
@@ -240,24 +201,7 @@ const Account: React.FC = () => {
             </IonButton>
           </IonCard>
           <IonCardContent>
-            {/* Profile Picture Upload Button (di pa pwede kase may bayad para magstore ng picture) */}
-            {/* <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePictureUpload}
-                  style={{ display: 'none' }}
-                  id="profile-picture-input"
-                />
-                <IonButton 
-                  fill="clear" 
-                  onClick={() => document.getElementById('profile-picture-input')?.click()}
-                  disabled={isUploading}
-                >
-                  <IonIcon slot="start" icon={camera} />
-                  {isUploading ? 'Uploading...' : 'Change Photo'}
-                </IonButton>
-                {isUploading && <IonProgressBar value={uploadProgress} />} */}
-
+         
             
 
             <IonItem detail={false} button onClick={handleLogout}>
@@ -317,6 +261,16 @@ const Account: React.FC = () => {
               value={editAddress}
               onIonChange={(e) => setEditAddress(e.detail.value!)}
               placeholder="Enter your address"
+              className="ion-margin-bottom"
+            />
+            <IonInput
+              fill="outline"
+              label="Contact Number"
+              labelPlacement="floating"
+              type="tel"
+              value={editContactNumber}
+              onIonChange={(e) => setEditContactNumber(e.detail.value!)}
+              placeholder="Enter your contact number"
               className="ion-margin-bottom"
             />
 
