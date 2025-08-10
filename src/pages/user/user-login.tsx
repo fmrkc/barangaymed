@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { logInSharp, personCircle, videocamOutline } from 'ionicons/icons';
+import { lockClosed, logInSharp, person, personCircle, videocamOutline } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
 import Intro from '../../components/Intro';
 import { Preferences } from '@capacitor/preferences';
@@ -97,23 +97,21 @@ const Login: React.FC = () => {
                             Your one stop for barangay healthcare needs!
                         </IonCardSubtitle>
                         <form onSubmit={doLogin}>
+                          <IonCardSubtitle className='ion-margin-top'>E-mail</IonCardSubtitle>
                           <IonInput
-                            className="ion-margin-top"
                             mode="md"
                             fill="outline"
-                            labelPlacement="floating"
-                            label="E-mail"
                             type="email"
                             placeholder="juan@gmail.com"
                             value={email}
                             onIonChange={(e) => setEmail(e.detail.value!)}
-                          />
+                          >
+                            <IonIcon icon={person} slot="start" />
+                          </IonInput>
+                          <IonCardSubtitle className='ion-margin-top'>Password</IonCardSubtitle>
                           <IonInput
                             mode="md"
-                            className="ion-margin-top"
                             fill="outline"
-                            labelPlacement="floating"
-                            label="Password"
                             type="password"
                             placeholder="juan123"
                             value={password}
@@ -128,13 +126,16 @@ const Login: React.FC = () => {
                                 doLogin(e);
                               }
                             }}
-                          />
+                          >
+                            <IonIcon icon={lockClosed} slot="start" />
+                          </IonInput>
                           {error && <p style={{ color: "red" }}>{error}</p>}
                           <IonButton
                             type="submit"
                             className="ion-padding-vertical"
                             expand="block"
                             routerDirection="forward"
+                            shape='round'
                           >
                             Login
                             <IonIcon icon={logInSharp} slot="end" />
