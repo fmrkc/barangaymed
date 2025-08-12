@@ -177,7 +177,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
       <IonContent>
         <IonGrid fixed>
           <IonRow className="ion-justify-content-center">
-            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+            <IonCol>
               <IonCard>
                 <IonCardContent>
                   {step === 1 && (
