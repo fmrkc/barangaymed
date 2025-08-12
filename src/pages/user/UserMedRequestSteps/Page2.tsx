@@ -70,14 +70,15 @@ const Page2: React.FC<Page2Props> = ({
             type="number"
             value={quantity}
             min={1}
-            max={maxQuantity}
+            max={Math.min(maxQuantity, 12)}
             onIonChange={(e) => {
               const val = parseInt(e.detail.value!);
-              onQuantityChange(val > 0 ? val : 1);
+              const clampedVal = Math.max(1, Math.min(val, Math.min(maxQuantity, 12)));
+              onQuantityChange(clampedVal);
             }}
             placeholder="Enter quantity"
           />
-          <IonNote slot="helper">Maximum: {maxQuantity} units</IonNote>
+          <IonNote slot="helper">Maximum: {Math.min(maxQuantity, 12)} units (1-12 pcs allowed)</IonNote>
         </IonItem>
 
         <IonItem>
