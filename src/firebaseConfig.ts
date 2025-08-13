@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -79,6 +79,10 @@ email: string, password: string, name: string, role: string, userData: { [key: s
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+    
+    // Set display name in Firebase Auth
+    await updateProfile(user, { displayName: name });
+    
     // Add user document with full data in Firestore
     await setDoc(doc(db, 'users', user.uid), {
       email: email,

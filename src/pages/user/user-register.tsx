@@ -3,7 +3,8 @@ import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, 
 import { checkmarkDoneOutline } from 'ionicons/icons';
 import React from 'react';
 
-import { registerUserWithFullData, db } from '../../firebaseConfig';
+import { registerUserWithFullData, db, auth } from '../../firebaseConfig';
+import { signOut } from 'firebase/auth';
 
 import Page1 from './UserRegisterSteps/Page1';
 import Page2 from './UserRegisterSteps/Page2';
@@ -49,10 +50,8 @@ const UserRegister: React.FC = () => {
         setAddress(value);
         break;
       case 'contactNumber':
-        // Allow empty string or digits only
-        if (value === '' || /^\d+$/.test(value)) {
-          setContactNumber(value);
-        }
+        // Allow the formatted phone number from maskito
+        setContactNumber(value);
         break;
       case 'email':
         setEmail(value);
@@ -111,6 +110,7 @@ const UserRegister: React.FC = () => {
         timestamp: new Date().toISOString()
       }));
       dismiss();
+      await signOut(auth);
       presentToast({
         message: 'Account created successfully! Please login with your credentials.',
         duration: 2000,
@@ -134,9 +134,29 @@ const UserRegister: React.FC = () => {
 
   // Validation functions
   const isValidContactNumber = (number: string) => {
-    // Validate that the contact number is exactly 11 digits
-    const phoneRegex = /^\d{11}$/;
-    return phoneRegex.test(number);
+    // Extract only digits from the formatted number
+    const digitsOnly = number.replace(/\D/g, '');
+    
+    // Handle different Philippine mobile number formats:
+    // 1. With country code: 639xxxxxxxxx (12 digits)
+    // 2. Without country code: 9xxxxxxxxx (10 digits) 
+    // 3. With leading zero: 09xxxxxxxxx (11 digits)
+    
+    let phoneDigits = digitsOnly;
+    
+    // Remove country code '63' if present at the start
+    if (digitsOnly.startsWith('63')) {
+      phoneDigits = digitsOnly.substring(2);
+    }
+    
+    // Remove leading zero if present
+    if (phoneDigits.startsWith('0')) {
+      phoneDigits = phoneDigits.substring(1);
+    }
+    
+    // Philippine mobile numbers should have exactly 10 digits after removing country code and leading zero
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phoneDigits);
   };
 
   const isValidAddress = (addr: string) => {
@@ -146,7 +166,7 @@ const UserRegister: React.FC = () => {
 
   const isValidBarangay = (brgy: string) => {
     // Basic check: non-empty and only letters, numbers, spaces allowed
-    const barangayRegex = /^[a-zA-Z0-9\\s]+$/;
+    const barangayRegex = /^[a-zA-Z0-9\s]+$/;
     return barangayRegex.test(brgy) && brgy.trim().length > 0;
   };
 
@@ -205,7 +225,7 @@ const UserRegister: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/" />
+            <IonBackButton defaultHref="/" color={'primary'}  />
           </IonButtons>
           <IonTitle>Create Account</IonTitle>
         </IonToolbar>
@@ -214,7 +234,7 @@ const UserRegister: React.FC = () => {
       <IonContent scrollY={false}>
         <IonGrid fixed>
           <IonRow className="ion-justify-content-center">
-            <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+            <IonCol >
               <IonCard>
                 <IonCardContent>
                   {step === 1 && (

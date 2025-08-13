@@ -13,9 +13,10 @@ import {
   IonBadge,
   IonButton,
   IonIcon,
-  IonNote
+  IonNote,
+  IonChip
 } from '@ionic/react';
-import { search, chevronForward } from 'ionicons/icons';
+import { search, chevronForward, cube } from 'ionicons/icons';
 import { Medicine } from '../../../types/medicineRequests';
 
 interface Page1Props {
@@ -68,11 +69,11 @@ const Page1: React.FC<Page1Props> = ({
                 <IonLabel>
                   <h3>{medicine.name}</h3>
                   <p>Type: {medicine.type}</p>
-                  <IonNote>Available: {medicine.quantity} units</IonNote>
+                  <IonNote><IonIcon  icon={cube}></IonIcon> {medicine.quantity} units</IonNote>
                 </IonLabel>
-                <IonBadge color="primary" slot="end">
+                <IonChip color="primary" slot="end">
                   {medicine.quantity}
-                </IonBadge>
+                </IonChip>
               </IonItem>
             ))}
           </IonList>
@@ -88,7 +89,8 @@ const Page1: React.FC<Page1Props> = ({
           expand="block"
           onClick={onNext}
           disabled={!selectedMedicine}
-          className="ion-margin-top"
+          shape='round'
+          className="ion-padding-vertical"
         >
           Next
           <IonIcon icon={chevronForward} slot="end" />

@@ -1,5 +1,8 @@
-import React from 'react';
-import { IonButton, IonInput, IonRow, IonCol, IonText } from '@ionic/react';
+import React, { useState } from 'react';
+import { IonButton, IonInput, IonRow, IonCol, IonText, IonCardTitle, IonSelect, IonSelectOption, IonCardSubtitle, IonIcon } from '@ionic/react';
+import { arrowBack, arrowForward, call, chevronBack, chevronBackCircle, chevronForward, home, phoneLandscape } from 'ionicons/icons';
+import { MaskitoOptions, maskitoTransform } from '@maskito/core';
+import { useMaskito } from '@maskito/react';
 
 interface Page2Props {
   address: string;
@@ -10,33 +13,73 @@ interface Page2Props {
 }
 
 const Page2: React.FC<Page2Props> = ({ address, contactNumber, onChange, onNext, onBack }) => {
+  const phoneMaskOptions: MaskitoOptions = {
+    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
+  };
+  const phoneMask = useMaskito({ options: phoneMaskOptions });
+  // Simple input formatting function for phone number
+
+
   return (
     <>
-      <IonText>Step 2: Enter your address & contact number.</IonText>
-      <IonInput
-      className='ion-margin-top'
-      placeholder='123 Street, Barangay'
-        fill="outline"
-        label="Address"
-        labelPlacement="floating"
-        value={address}
-        onIonChange={e => onChange('address', e.detail.value!)}
-      />
-      <IonInput
-      type="tel" placeholder="0123-456-7890"
-        fill="outline"
-        label="Contact Number"
-        labelPlacement="floating"
-        value={contactNumber}
-        onIonChange={e => onChange('contactNumber', e.detail.value!)}
-        className="ion-margin-top"
-      />
+      <IonCardTitle className="ion-padding-vertical">
+        Step 2: Enter your barangay, address, and contact number.
+      </IonCardTitle>
+
+      <div className="ion-margin-top">
+        <IonCardSubtitle>Address *</IonCardSubtitle>
+        <IonInput
+          placeholder="123 Street, Barangay"
+          fill="outline"
+          value={address}
+          onIonChange={(e) => onChange("address", e.detail.value!)}
+        >
+          <IonIcon slot="start" icon={home}></IonIcon>
+        </IonInput>
+      </div>
+
+      <div className="ion-margin-top">
+        <IonCardSubtitle>Contact Number *</IonCardSubtitle>
+        <IonInput
+          ref={(phoneInput) => {
+            if (phoneInput) {
+              phoneInput.getInputElement().then((input) => {
+                phoneMask(input);
+              });
+            }
+          }}
+          fill="outline"
+          value={contactNumber}
+          onIonInput={(e) => onChange("contactNumber", e.detail.value || "")}
+          placeholder="+(63) 123-456-7890"
+        >
+          <IonIcon slot="start" icon={call}></IonIcon>
+        </IonInput>
+      </div>
+
       <IonRow className="ion-justify-content-between ion-margin-top">
         <IonCol size="5">
-          <IonButton expand="block" onClick={onBack}>Back</IonButton>
+          <IonButton
+            expand="block"
+            onClick={onBack}
+            shape="round"
+            className="ion-padding-vertical"
+            fill='outline'
+          >
+            Back
+            <IonIcon icon={arrowBack} slot="start" />
+          </IonButton>
         </IonCol>
         <IonCol size="5">
-          <IonButton expand="block" onClick={onNext}>Next</IonButton>
+          <IonButton
+            expand="block"
+            onClick={onNext}
+            shape="round"
+            className="ion-padding-vertical"
+          >
+            Next
+            <IonIcon icon={arrowForward} slot="end" />
+          </IonButton>
         </IonCol>
       </IonRow>
     </>

@@ -30,6 +30,7 @@ const Notifications: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
 
+
   const notificationsService = NotificationsService.getInstance();
 
   useEffect(() => {
@@ -65,6 +66,7 @@ const Notifications: React.FC = () => {
         setNotifications(newNotifications);
         setUnreadCount(newNotifications.filter(n => !n.read).length);
       }
+
     );
   };
 

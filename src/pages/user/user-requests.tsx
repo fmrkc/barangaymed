@@ -20,21 +20,21 @@ import {
   IonNote,
   IonSegment,
   IonSegmentButton,
-  IonAlert,
+  IonSegmentView,
+  IonIcon,
+  IonAlert
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  doc,
-  updateDoc,
-} from 'firebase/firestore';
+
+import { collection, getDocs, query, where, orderBy, doc, updateDoc} from 'firebase/firestore';
+import '../user/user-requests.css';
+import { person } from 'ionicons/icons';
+import { withRouter } from 'react-router';
+
 import { logMedicineRequestStatusUpdate } from '../../utils/logger';
+
 
 interface MedicineRequest {
   id?: string;
@@ -62,9 +62,11 @@ const UserRequests: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [selectedSegment, setSelectedSegment] = useState('all');
+
+  const [selectedSegment, setSelectedSegment] = useState('pending');
   const [showConfirmAlert, setShowConfirmAlert] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
+
 
   useEffect(() => {
     if (currentUser) {
@@ -188,8 +190,10 @@ const UserRequests: React.FC = () => {
   };
 
   return (
-    <>
-      <IonHeader>
+
+  <>
+      <IonHeader className='ion-no-border'>
+
         <IonToolbar>
           <IonTitle>My Medicine Requests</IonTitle>
         </IonToolbar>
@@ -206,15 +210,22 @@ const UserRequests: React.FC = () => {
         />
 
         <IonSegment
+        scrollable={true}
           value={selectedSegment}
           onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
+          color={getStatusColor(selectedSegment)}
+
         >
-          <IonSegmentButton value="all">All</IonSegmentButton>
+          
           <IonSegmentButton value="pending">Pending</IonSegmentButton>
           <IonSegmentButton value="approved">Approved</IonSegmentButton>
           <IonSegmentButton value="completed">Completed</IonSegmentButton>
           <IonSegmentButton value="cancelled">Cancelled</IonSegmentButton>
+
+          <IonSegmentButton value="all">All</IonSegmentButton>
+
         </IonSegment>
+       
 
         <IonGrid>
           <IonRow>
@@ -223,7 +234,7 @@ const UserRequests: React.FC = () => {
                 <IonCard>
                   <IonCardContent className="ion-text-center">
                     <IonText color="medium">
-                      <p>No medicine requests found</p>
+                      <p>No medicine requests found.</p>
                     </IonText>
                   </IonCardContent>
                 </IonCard>
@@ -236,68 +247,78 @@ const UserRequests: React.FC = () => {
                     onClick={() => handleCardClick(request)}
                   >
                     <IonCardHeader>
-                      <IonCardTitle>{request.medicineName}</IonCardTitle>
-                      <IonChip color={getStatusColor(request.status)} slot="end">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <IonCardTitle style={{fontWeight: "bold"}}>{request.medicineName}</IonCardTitle>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span>{request.medicineType}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span>{request.quantity} unit{request.quantity !== 1 ? 's' : ''}</span>
+                          </div>
+                      </div>
+                      
+                      
+                       <IonChip color={getStatusColor(request.status)} slot="end">
                         <IonLabel>{request.status.toUpperCase()}</IonLabel>
                       </IonChip>
+                      </div>
                     </IonCardHeader>
                     <IonCardContent>
-                      <IonList>
-                        <IonItem>
-                          <IonLabel>
-                            <p>Type</p>
-                            <h3>{request.medicineType}</h3>
-                          </IonLabel>
-                        </IonItem>
+                  
+                      <IonGrid>
+                        <IonRow>
+                          {request.requestDate && (
+                            <IonCol>
+                              <IonItem>
+                                <IonLabel>
+                                  <p>Requested</p>
+                                  <h3>{formatDate(request.requestDate)}</h3>
+                                </IonLabel>
+                              </IonItem>
+                            </IonCol>
+                          )}
 
-                        <IonItem>
-                          <IonLabel>
-                            <p>Quantity</p>
-                            <h3>{request.quantity} unit{request.quantity !== 1 ? 's' : ''}</h3>
-                          </IonLabel>
-                        </IonItem>
+                          <IonCol>
+                            <IonItem>
+                              <IonLabel>
+                                <p>Pickup</p>
+                                <h3>{formatDate(request.pickupDate)}</h3>
+                              </IonLabel>
+                            </IonItem>
+                          </IonCol>
 
-                        <IonItem>
-                          <IonLabel>
-                            <p>Pickup Date</p>
-                            <h3>{formatDate(request.pickupDate)}</h3>
-                          </IonLabel>
-                        </IonItem>
+                          {request.approvedDate && (
+                            <IonCol>
+                              <IonItem>
+                                <IonLabel>
+                                  <p>Approved</p>
+                                  <h3>{formatDate(request.approvedDate)}</h3>
+                                </IonLabel>
+                              </IonItem>
+                            </IonCol>
+                          )}
 
-                        <IonItem>
-                          <IonLabel>
-                            <p>Request Date</p>
-                            <h3>{formatDate(request.requestDate)}</h3>
-                          </IonLabel>
-                        </IonItem>
+                          {request.completedDate && (
+                            <IonItem>
+                              <IonLabel>
+                                <p>Completed</p>
+                                <h3>{formatDate(request.completedDate)}</h3>
+                              </IonLabel>
+                            </IonItem>
+                          )}
 
-                        {request.approvedDate && (
-                          <IonItem>
-                            <IonLabel>
-                              <p>Approved Date</p>
-                              <h3>{formatDate(request.approvedDate)}</h3>
-                            </IonLabel>
-                          </IonItem>
-                        )}
+                          {request.adminNotes && (
+                            <IonItem>
+                              <IonLabel>
+                                <p>Admin Notes</p>
+                                <IonNote>{request.adminNotes}</IonNote>
+                              </IonLabel>
+                            </IonItem>
+                          )}
 
-                        {request.completedDate && (
-                          <IonItem>
-                            <IonLabel>
-                              <p>Completed Date</p>
-                              <h3>{formatDate(request.completedDate)}</h3>
-                            </IonLabel>
-                          </IonItem>
-                        )}
-
-                        {request.adminNotes && (
-                          <IonItem>
-                            <IonLabel>
-                              <p>Admin Notes</p>
-                              <IonNote>{request.adminNotes}</IonNote>
-                            </IonLabel>
-                          </IonItem>
-                        )}
-                      </IonList>
+                        </IonRow>
+                      </IonGrid>
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
