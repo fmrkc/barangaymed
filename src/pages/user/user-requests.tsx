@@ -201,45 +201,60 @@ const UserRequests: React.FC = () => {
                       </div>
                     </IonCardHeader>
                     <IonCardContent>
-                      <IonList>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <h4>Request Date
-                            <IonText color={'light'}>
-                              <p>{formatDate(request.requestDate)}</p>
-                            </IonText>
-                          </h4>
-                          <h4>Pickup Date
-                            <IonText color={'light'}>
-                              <p>{formatDate(request.pickupDate)}</p></IonText>
-                          </h4>
-                        </div>
-                     {request.approvedDate && (
-                          <IonItem>
-                            <IonLabel>
-                              <p>Approved Date</p>
-                              <h3>{formatDate(request.approvedDate)}</h3>
-                            </IonLabel>
-                          </IonItem>
-                        )}
+                  
+                      <IonGrid>
+                        <IonRow>
+                          {request.requestDate && (
+                            <IonCol>
+                              <IonItem>
+                                <IonLabel>
+                                  <p>Requested</p>
+                                  <h3>{formatDate(request.requestDate)}</h3>
+                                </IonLabel>
+                              </IonItem>
+                            </IonCol>
+                          )}
 
-                        {request.completedDate && (
-                          <IonItem>
-                            <IonLabel>
-                              <p>Completed Date</p>
-                              <h3>{formatDate(request.completedDate)}</h3>
-                            </IonLabel>
-                          </IonItem>
-                        )}
+                          <IonCol>
+                            <IonItem>
+                              <IonLabel>
+                                <p>Pickup</p>
+                                <h3>{formatDate(request.pickupDate)}</h3>
+                              </IonLabel>
+                            </IonItem>
+                          </IonCol>
 
-                        {request.adminNotes && (
-                          <IonItem>
-                            <IonLabel>
-                              <p>Admin Notes</p>
-                              <IonNote>{request.adminNotes}</IonNote>
-                            </IonLabel>
-                          </IonItem>
-                        )}
-                      </IonList>
+                          {request.approvedDate && (
+                            <IonCol>
+                              <IonItem>
+                                <IonLabel>
+                                  <p>Approved</p>
+                                  <h3>{formatDate(request.approvedDate)}</h3>
+                                </IonLabel>
+                              </IonItem>
+                            </IonCol>
+                          )}
+
+                          {request.completedDate && (
+                            <IonItem>
+                              <IonLabel>
+                                <p>Completed</p>
+                                <h3>{formatDate(request.completedDate)}</h3>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+
+                          {request.adminNotes && (
+                            <IonItem>
+                              <IonLabel>
+                                <p>Admin Notes</p>
+                                <IonNote>{request.adminNotes}</IonNote>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+
+                        </IonRow>
+                      </IonGrid>
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
