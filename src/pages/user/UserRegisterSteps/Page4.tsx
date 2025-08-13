@@ -75,7 +75,7 @@ const Page4: React.FC<Page4Props> = ({ email, password, onChange, onNext, onBack
       )}
       <IonRow className="ion-justify-content-between ion-margin-top">
         <IonCol size="5">
-          <IonButton expand="block" onClick={onBack} shape='round' className='ion-padding-vertical'>
+          <IonButton fill='outline' expand="block" onClick={onBack} shape='round' className='ion-padding-vertical'>
             Back
             <IonIcon icon={arrowBack} slot="start" />
           </IonButton>

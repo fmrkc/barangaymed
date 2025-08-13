@@ -80,6 +80,7 @@ const Page5: React.FC<Page5Props> = ({
               onClick={onBack}
               shape="round"
               className="ion-padding-vertical"
+              fill='outline'
             >
               Back
               <IonIcon icon={arrowBack} slot="start" />

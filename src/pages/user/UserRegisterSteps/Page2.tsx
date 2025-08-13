@@ -64,6 +64,7 @@ const Page2: React.FC<Page2Props> = ({ address, contactNumber, onChange, onNext,
             onClick={onBack}
             shape="round"
             className="ion-padding-vertical"
+            fill='outline'
           >
             Back
             <IonIcon icon={arrowBack} slot="start" />
