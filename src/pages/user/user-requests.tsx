@@ -61,7 +61,7 @@ const UserRequests: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [selectedSegment, setSelectedSegment] = useState('all');
+  const [selectedSegment, setSelectedSegment] = useState('pending');
 
   useEffect(() => {
     if (currentUser) {
@@ -137,7 +137,6 @@ const UserRequests: React.FC = () => {
   <>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          
           <IonTitle>My Medicine Requests</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -158,11 +157,12 @@ const UserRequests: React.FC = () => {
           onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
           color={getStatusColor(selectedSegment)}
         >
-          <IonSegmentButton value="all">All</IonSegmentButton>
+          
           <IonSegmentButton value="pending">Pending</IonSegmentButton>
           <IonSegmentButton value="approved">Approved</IonSegmentButton>
           <IonSegmentButton value="completed">Completed</IonSegmentButton>
           <IonSegmentButton value="cancelled">Cancelled</IonSegmentButton>
+          <IonSegmentButton value="all">All</IonSegmentButton>
         </IonSegment>
        
 
