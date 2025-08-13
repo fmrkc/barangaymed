@@ -22,7 +22,8 @@ import {
   IonSegmentButton,
   IonSegmentView,
   IonIcon,
-  IonAlert
+  IonAlert,
+  IonButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -30,7 +31,7 @@ import { db } from '../../firebaseConfig';
 
 import { collection, getDocs, query, where, orderBy, doc, updateDoc} from 'firebase/firestore';
 import '../user/user-requests.css';
-import { person } from 'ionicons/icons';
+import { bagCheck, checkbox, checkmark, person } from 'ionicons/icons';
 import { withRouter } from 'react-router';
 
 import { logMedicineRequestStatusUpdate } from '../../utils/logger';
@@ -243,8 +244,6 @@ const UserRequests: React.FC = () => {
               filteredRequests.map((request) => (
                 <IonCol size="12" sizeMd="6" sizeLg="4" key={request.id}>
                   <IonCard
-                    button={request.status === 'approved'}
-                    onClick={() => handleCardClick(request)}
                   >
                     <IonCardHeader>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -267,7 +266,7 @@ const UserRequests: React.FC = () => {
                     <IonCardContent>
                   
                       <IonGrid>
-                        <IonRow>
+                        <IonRow style={{ padding: '0px', margin: '0px' }}>
                           {request.requestDate && (
                             <IonCol>
                               <IonItem>
@@ -320,6 +319,15 @@ const UserRequests: React.FC = () => {
                         </IonRow>
                       </IonGrid>
                     </IonCardContent>
+                    <div style={{ display: 'flex', justifyContent: 'space-between'}}>
+                          <IonButton fill='outline'>
+                            View Details
+                          </IonButton>
+                          <IonButton onClick={() => handleCardClick(request)} color="primary" disabled={request.status !== 'approved'}>
+                            <IonIcon icon={bagCheck} slot="start" />
+                            Mark as Completed
+                          </IonButton>
+                        </div>
                   </IonCard>
                 </IonCol>
               ))
