@@ -15,6 +15,7 @@ import {
 } from '@ionic/react';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // your firebase config import
+import { logMedicineRequestStatusUpdate } from '../../utils/logger';
 
 interface MedicineRequest {
   id: string;
@@ -51,6 +52,23 @@ const AdminMedicineRequests: React.FC = () => {
   const updateStatus = async () => {
     if (selectedRequest && newStatus) {
       const docRef = doc(db, 'medicineRequests', selectedRequest.id);
+      
+      // Log the status change
+      // Note: For admin updates, we need to get the current user info
+      // This is a simplified approach - in a real app, you'd get the admin user info
+      const adminUserId = 'admin-user-id'; // Replace with actual admin user ID
+      const adminEmail = 'admin@example.com'; // Replace with actual admin email
+      const adminRole = 'admin';
+      
+      logMedicineRequestStatusUpdate(
+        adminUserId,
+        adminEmail,
+        adminRole,
+        selectedRequest.id,
+        selectedRequest.status,
+        newStatus
+      );
+      
       await updateDoc(docRef, { status: newStatus });
       setRequests((prev) =>
         prev.map((req) =>

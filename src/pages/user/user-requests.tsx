@@ -34,6 +34,7 @@ import {
   doc,
   updateDoc,
 } from 'firebase/firestore';
+import { logMedicineRequestStatusUpdate } from '../../utils/logger';
 
 interface MedicineRequest {
   id?: string;
@@ -148,6 +149,17 @@ const UserRequests: React.FC = () => {
       try {
         const docRef = doc(db, 'medicineRequests', selectedRequest.id);
         const now = new Date();
+        
+        // Log the status change
+        logMedicineRequestStatusUpdate(
+          currentUser?.uid || '',
+          currentUser?.email || '',
+          'user',
+          selectedRequest.id,
+          'approved',
+          'completed'
+        );
+        
         await updateDoc(docRef, {
           status: 'completed',
           completedDate: now

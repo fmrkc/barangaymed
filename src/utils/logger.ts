@@ -116,3 +116,33 @@ export const logFailedLogin = (email: string, reason: string) => {
     }
   });
 };
+
+/**
+ * Log a medicine request status update
+ * @param userId The ID of the user making the update
+ * @param userEmail The email of the user making the update
+ * @param userRole The role of the user making the update
+ * @param requestId The ID of the medicine request
+ * @param oldStatus The previous status of the request
+ * @param newStatus The new status of the request
+ */
+export const logMedicineRequestStatusUpdate = (
+  userId: string,
+  userEmail: string,
+  userRole: string,
+  requestId: string,
+  oldStatus: string,
+  newStatus: string
+) => {
+  logEvent('info', `Medicine request status updated: ${requestId}`, {
+    userId,
+    userEmail,
+    userRole,
+    metadata: {
+      action: 'medicine_request_status_update',
+      requestId,
+      oldStatus,
+      newStatus
+    }
+  });
+};
