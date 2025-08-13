@@ -21,10 +21,11 @@ import {
   IonLabel,
   IonText,
   IonAlert,
+  IonItemDivider,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn } from "ionicons/icons";
+import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn, medical } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, login } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -233,14 +234,24 @@ const Account: React.FC = () => {
             </IonButton>
           </IonCard>
           <IonCardContent>
-            {/* <IonItem detail={false} button>
+             <IonItemDivider>
+              <IonLabel>Account Settings</IonLabel>
+            </IonItemDivider>
+            <IonItem detail={false} button>
+              <IonIcon slot="start" icon={medical} />
+              <IonLabel>Create Patient Record</IonLabel>
+            </IonItem>
+             <IonItem detail={false} button>
               <IonIcon slot="start" icon={person} />
               <IonLabel>Personal Info</IonLabel>
             </IonItem>
             <IonItem detail={false} button>
               <IonIcon slot="start" icon={mail} />
-              <IonLabel>Address & Contact Number</IonLabel>
-            </IonItem> */}
+              <IonLabel>Account Info</IonLabel>
+            </IonItem>
+            <IonItemDivider>
+              <IonLabel>Security</IonLabel>
+            </IonItemDivider>
             <IonItem detail={false} button>
               <IonIcon slot="start" icon={logIn} />
               <IonLabel>Recent Logins</IonLabel>
