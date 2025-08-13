@@ -64,13 +64,7 @@ const Page3: React.FC<Page3Props> = ({
               <IonIcon slot='start' icon={person}></IonIcon>
             </IonInput>
           </IonItem>
-          <IonItem>
-            <IonInput
-              readonly
-              value={userDetails.address || 'Not provided'}>
-              <IonIcon slot='start' icon={home}></IonIcon>
-            </IonInput>
-          </IonItem>
+      
           <IonItem>
             <IonInput
 
