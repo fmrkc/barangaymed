@@ -2,7 +2,7 @@
 import React from 'react';
 import { IonButton, IonGrid, IonRow, IonCol, IonSelect, IonSelectOption, IonLabel, IonText, IonCardSubtitle, IonCardTitle, IonIcon } from '@ionic/react';
 import { BARANGAYS } from '../../../constants/barangays';
-import { arrowBack, arrowForward } from 'ionicons/icons';
+import { arrowBack, arrowForward, cloudUpload } from 'ionicons/icons';
 
 interface Page3Props {
   onNext: () => void;
@@ -22,13 +22,14 @@ const Page3: React.FC<Page3Props> = ({ onNext, onBack, barangay, onBarangayChang
       <IonGrid>
         <IonRow className="ion-justify-content-center ion-margin-top">
           <IonCol size="12" sizeMd="6" className="ion-text-center">
-            <IonSelect placeholder="Floridablanca" disabled>
+            <IonSelect label='Municipality' placeholder="Floridablanca" disabled>
             </IonSelect>
           </IonCol>
         </IonRow>
         <IonRow className="ion-justify-content-center ion-margin-bottom">
           <IonCol size="12" sizeMd="6" className="ion-text-center">
             <IonSelect
+            label='Barangay'
               value={barangay}
               placeholder="Select Barangay"
               onIonChange={e => onBarangayChange(e.detail.value)}
@@ -44,17 +45,19 @@ const Page3: React.FC<Page3Props> = ({ onNext, onBack, barangay, onBarangayChang
         </IonRow>
         <IonRow className="ion-justify-content-center ion-margin-bottom">
           <IonCol size="12" sizeMd="6" className="ion-text-center">
-            <IonButton expand="block">Valid I.D.</IonButton>
+            <IonButton shape='round' expand="block">
+              <IonIcon icon={cloudUpload} slot="start" />
+              Barangay I.D.
+            </IonButton>
           </IonCol>
         </IonRow>
+       
         <IonRow className="ion-justify-content-center ion-margin-bottom">
           <IonCol size="12" sizeMd="6" className="ion-text-center">
-            <IonButton expand="block">Birth Certificate</IonButton>
-          </IonCol>
-        </IonRow>
-        <IonRow className="ion-justify-content-center ion-margin-bottom">
-          <IonCol size="12" sizeMd="6" className="ion-text-center">
-            <IonButton expand="block">Barangay Indigency</IonButton>
+            <IonButton shape='round' expand="block">
+              <IonIcon icon={cloudUpload} slot="start" />
+              Barangay Certificate
+            </IonButton>
           </IonCol>
         </IonRow>
 
