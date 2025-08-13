@@ -9,9 +9,10 @@ import {
   IonButton,
   IonIcon,
   IonList,
-  IonNote
+  IonNote,
+  IonInput
 } from '@ionic/react';
-import { checkmarkCircle, chevronBack } from 'ionicons/icons';
+import { checkmarkCircle, chevronBack, cube, home, medkit, person } from 'ionicons/icons';
 
 interface Page3Props {
   userDetails: {
@@ -55,66 +56,60 @@ const Page3: React.FC<Page3Props> = ({
 
       <IonCardContent>
         <IonList>
+          
           <IonItem>
-            <IonLabel>
-              <h3>Personal Information</h3>
-            </IonLabel>
+            <IonInput
+            readonly
+              value={userDetails.name || 'Not provided'}>
+              <IonIcon slot='start' icon={person}></IonIcon>
+            </IonInput>
+          </IonItem>
+          
+         
+          <IonItem>
+            <IonInput
+            readonly
+              value={userDetails.address || 'Not provided'}>
+              <IonIcon slot='start' icon={home}></IonIcon>
+            </IonInput>
+          </IonItem>
+       
+
+           <IonItem>
+            <IonInput
+       
+            label='Requesting:'
+            labelPlacement='floating'
+            readonly
+              value={selectedMedicine?.name + " (" + selectedMedicine?.type + ")" || 'Not specified'}>
+              <IonIcon slot='start' icon={medkit}></IonIcon>
+            </IonInput>
           </IonItem>
 
           <IonItem>
-            <IonLabel>
-              <p>Name</p>
-              <h3>{userDetails.name || 'Not provided'}</h3>
-            </IonLabel>
+            <IonInput
+            readonly
+              value={quantity + " pcs."}
+                      label='Quantity:'
+            labelPlacement='floating'
+            >
+                
+              <IonIcon slot='start' icon={cube}></IonIcon>
+            </IonInput>
           </IonItem>
 
-          <IonItem>
-            <IonLabel>
-              <p>Address</p>
-              <h3>{userDetails.address || 'Not provided'}</h3>
-            </IonLabel>
+         <IonItem>
+            <IonInput
+       
+            label='Will be picked up at:'
+            labelPlacement='floating'
+            readonly
+              value={pickupDate ? formatDate(pickupDate) : 'Not selected'}>
+              <IonIcon slot='start' icon={medkit}></IonIcon>
+            </IonInput>
           </IonItem>
 
-          <IonItem>
-            <IonLabel>
-              <p>Barangay</p>
-              <h3>{userDetails.barangay || 'Not provided'}</h3>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonLabel>
-              <h3>Medicine Details</h3>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonLabel>
-              <p>Medicine Name</p>
-              <h3>{selectedMedicine?.name || 'Not selected'}</h3>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonLabel>
-              <p>Type</p>
-              <h3>{selectedMedicine?.type || 'Not specified'}</h3>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonLabel>
-              <p>Quantity Requested</p>
-              <h3>{quantity} unit{quantity !== 1 ? 's' : ''}</h3>
-            </IonLabel>
-          </IonItem>
-
-          <IonItem>
-            <IonLabel>
-              <p>Pickup Date</p>
-              <h3>{pickupDate ? formatDate(pickupDate) : 'Not selected'}</h3>
-            </IonLabel>
-          </IonItem>
+       
         </IonList>
 
         <div className="ion-margin-top">
