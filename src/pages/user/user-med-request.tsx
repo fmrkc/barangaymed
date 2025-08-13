@@ -170,7 +170,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
         <IonToolbar>
           <IonTitle>Medicine Request</IonTitle>
          <IonButtons slot="end">
-                <IonButton onClick={onDidDismiss}>
+                <IonButton onClick={onDidDismiss} shape='round'>
                   <IonIcon icon={close} color='primary' />
                 </IonButton>
               </IonButtons>
