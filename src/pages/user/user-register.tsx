@@ -166,7 +166,7 @@ const UserRegister: React.FC = () => {
 
   const isValidBarangay = (brgy: string) => {
     // Basic check: non-empty and only letters, numbers, spaces allowed
-    const barangayRegex = /^[a-zA-Z0-9\\s]+$/;
+    const barangayRegex = /^[a-zA-Z0-9\s]+$/;
     return barangayRegex.test(brgy) && brgy.trim().length > 0;
   };
 
