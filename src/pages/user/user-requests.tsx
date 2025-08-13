@@ -1,11 +1,8 @@
 import {
   IonContent,
   IonHeader,
-  IonPage,
   IonTitle,
   IonToolbar,
-  IonButtons,
-  IonBackButton,
   IonCard,
   IonCardHeader,
   IonCardTitle,
@@ -14,7 +11,6 @@ import {
   IonItem,
   IonLabel,
   IonText,
-  IonBadge,
   IonChip,
   IonLoading,
   IonToast,
@@ -25,15 +21,20 @@ import {
   IonSegment,
   IonSegmentButton,
   IonSegmentView,
-  IonIcon
+  IonIcon,
+  IonAlert
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+
+import { collection, getDocs, query, where, orderBy, doc, updateDoc} from 'firebase/firestore';
 import '../user/user-requests.css';
 import { person } from 'ionicons/icons';
 import { withRouter } from 'react-router';
+
+import { logMedicineRequestStatusUpdate } from '../../utils/logger';
+
 
 interface MedicineRequest {
   id?: string;
@@ -61,7 +62,11 @@ const UserRequests: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
   const [selectedSegment, setSelectedSegment] = useState('pending');
+  const [showConfirmAlert, setShowConfirmAlert] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
+
 
   useEffect(() => {
     if (currentUser) {
@@ -79,10 +84,10 @@ const UserRequests: React.FC = () => {
       );
       const querySnapshot = await getDocs(q);
       const requestData: MedicineRequest[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
         requestData.push({
-          id: doc.id,
+          id: docSnap.id,
           userId: data.userId,
           userEmail: data.userEmail,
           userName: data.userName,
@@ -133,9 +138,62 @@ const UserRequests: React.FC = () => {
     ? requests 
     : requests.filter(req => req.status === selectedSegment);
 
+  // ✅ Handle marking as completed
+  const handleCardClick = (request: MedicineRequest) => {
+    if (request.status === 'approved') {
+      setSelectedRequest(request);
+      setShowConfirmAlert(true);
+    }
+  };
+
+  const markAsCompleted = async () => {
+    if (selectedRequest?.id) {
+      try {
+        const docRef = doc(db, 'medicineRequests', selectedRequest.id);
+        const now = new Date();
+        
+        // Log the status change
+        logMedicineRequestStatusUpdate(
+          currentUser?.uid || '',
+          currentUser?.email || '',
+          'user',
+          selectedRequest.id,
+          'approved',
+          'completed'
+        );
+        
+        await updateDoc(docRef, {
+          status: 'completed',
+          completedDate: now
+        });
+
+        // Update local state immediately
+        setRequests(prev =>
+          prev.map(req =>
+            req.id === selectedRequest.id
+              ? { ...req, status: 'completed', completedDate: now }
+              : req
+          )
+        );
+
+        setToastMessage('Request marked as completed');
+        setShowToast(true);
+      } catch (error) {
+        console.error('Error updating request:', error);
+        setToastMessage('Error marking as completed');
+        setShowToast(true);
+      } finally {
+        setSelectedRequest(null);
+        setShowConfirmAlert(false);
+      }
+    }
+  };
+
   return (
+
   <>
       <IonHeader className='ion-no-border'>
+
         <IonToolbar>
           <IonTitle>My Medicine Requests</IonTitle>
         </IonToolbar>
@@ -156,13 +214,16 @@ const UserRequests: React.FC = () => {
           value={selectedSegment}
           onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
           color={getStatusColor(selectedSegment)}
+
         >
           
           <IonSegmentButton value="pending">Pending</IonSegmentButton>
           <IonSegmentButton value="approved">Approved</IonSegmentButton>
           <IonSegmentButton value="completed">Completed</IonSegmentButton>
           <IonSegmentButton value="cancelled">Cancelled</IonSegmentButton>
+
           <IonSegmentButton value="all">All</IonSegmentButton>
+
         </IonSegment>
        
 
@@ -181,7 +242,10 @@ const UserRequests: React.FC = () => {
             ) : (
               filteredRequests.map((request) => (
                 <IonCol size="12" sizeMd="6" sizeLg="4" key={request.id}>
-                  <IonCard>
+                  <IonCard
+                    button={request.status === 'approved'}
+                    onClick={() => handleCardClick(request)}
+                  >
                     <IonCardHeader>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
@@ -262,10 +326,28 @@ const UserRequests: React.FC = () => {
             )}
           </IonRow>
         </IonGrid>
+
+        {/* ✅ Confirmation Alert */}
+        <IonAlert
+          isOpen={showConfirmAlert}
+          onDidDismiss={() => setShowConfirmAlert(false)}
+          header="Mark as Completed?"
+          message="Are you sure you want to mark this request as completed?"
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => setSelectedRequest(null),
+            },
+            {
+              text: 'Yes, Completed',
+              handler: markAsCompleted,
+            },
+          ]}
+        />
       </IonContent>
-    
     </>
   );
 };
 
-export default UserRequests
+export default UserRequests;
