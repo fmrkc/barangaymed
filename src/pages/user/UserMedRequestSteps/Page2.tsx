@@ -105,11 +105,11 @@ const Page2: React.FC<Page2Props> = ({
         </IonItem>
 
         <div className="ion-margin-top">
-          <IonButton expand="block" onClick={onNext}>
+          <IonButton expand="block" shape='round' className='ion-padding-vertical' onClick={onNext}>
             Next
             <IonIcon icon={chevronForward} slot="end" />
           </IonButton>
-          <IonButton expand="block" fill="outline" onClick={onBack}>
+          <IonButton expand="block" shape='round' className='ion-padding-vertical' fill="outline" onClick={onBack}>
             <IonIcon icon={chevronBack} slot="start" />
             Back
           </IonButton>

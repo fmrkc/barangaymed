@@ -56,31 +56,27 @@ const Page3: React.FC<Page3Props> = ({
 
       <IonCardContent>
         <IonList>
-          
+
           <IonItem>
             <IonInput
-            readonly
+              readonly
               value={userDetails.name || 'Not provided'}>
               <IonIcon slot='start' icon={person}></IonIcon>
             </IonInput>
           </IonItem>
-          
-         
           <IonItem>
             <IonInput
-            readonly
+              readonly
               value={userDetails.address || 'Not provided'}>
               <IonIcon slot='start' icon={home}></IonIcon>
             </IonInput>
           </IonItem>
-       
-
-           <IonItem>
+          <IonItem>
             <IonInput
-       
-            label='Requesting:'
-            labelPlacement='floating'
-            readonly
+
+              label='Requesting:'
+              labelPlacement='floating'
+              readonly
               value={selectedMedicine?.name + " (" + selectedMedicine?.type + ")" || 'Not specified'}>
               <IonIcon slot='start' icon={medkit}></IonIcon>
             </IonInput>
@@ -88,19 +84,17 @@ const Page3: React.FC<Page3Props> = ({
 
           <IonItem>
             <IonInput
-            readonly
+              readonly
               value={quantity + " pcs."}
-                      label='Quantity:'
-            labelPlacement='floating'
+              label='Quantity:'
+              labelPlacement='floating'
             >
-                
               <IonIcon slot='start' icon={cube}></IonIcon>
             </IonInput>
           </IonItem>
 
          <IonItem>
             <IonInput
-       
             label='Will be picked up at:'
             labelPlacement='floating'
             readonly
@@ -113,11 +107,11 @@ const Page3: React.FC<Page3Props> = ({
         </IonList>
 
         <div className="ion-margin-top">
-          <IonButton expand="block" onClick={onSubmit} color="success">
+          <IonButton expand="block" onClick={onSubmit} color="success" shape='round' className='ion-padding-vertical'>
             <IonIcon icon={checkmarkCircle} slot="start" />
             Submit Request
           </IonButton>
-          <IonButton expand="block" fill="outline" onClick={onBack}>
+          <IonButton expand="block" fill="outline" onClick={onBack} shape='round' className='ion-padding-vertical'>
             <IonIcon icon={chevronBack} slot="start" />
             Back
           </IonButton>

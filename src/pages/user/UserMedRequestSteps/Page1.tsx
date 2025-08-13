@@ -89,7 +89,8 @@ const Page1: React.FC<Page1Props> = ({
           expand="block"
           onClick={onNext}
           disabled={!selectedMedicine}
-          className="ion-margin-top"
+          shape='round'
+          className="ion-padding-vertical"
         >
           Next
           <IonIcon icon={chevronForward} slot="end" />

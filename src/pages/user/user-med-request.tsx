@@ -1,4 +1,4 @@
-import { IonBackButton, IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonModal, IonRow, IonTitle, IonToolbar, useIonLoading, useIonToast } from '@ionic/react';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonModal, IonRow, IonTitle, IonToolbar, useIonLoading, useIonToast } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
@@ -7,6 +7,7 @@ import { collection, getDocs, query, where, addDoc, serverTimestamp } from 'fire
 import Page1 from './UserMedRequestSteps/Page1';
 import Page2 from './UserMedRequestSteps/Page2';
 import Page3 from './UserMedRequestSteps/Page3';
+import { close, closeOutline } from 'ionicons/icons';
 
 interface UserMedRequestModalProps {
   isOpen: boolean;
@@ -168,9 +169,11 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
       <IonHeader>
         <IonToolbar>
           <IonTitle>Medicine Request</IonTitle>
-          <IonButton slot="end" fill="clear" onClick={onDidDismiss}>
-            Close
-          </IonButton>
+         <IonButtons slot="end">
+                <IonButton onClick={onDidDismiss}>
+                  <IonIcon icon={close} color='primary' />
+                </IonButton>
+              </IonButtons>
         </IonToolbar>
       </IonHeader>
 
