@@ -12,7 +12,7 @@ import {
   IonText,
   IonNote
 } from '@ionic/react';
-import { chevronBack, chevronForward } from 'ionicons/icons';
+import { bag, chevronBack, chevronForward, cube } from 'ionicons/icons';
 
 interface Page2Props {
   selectedMedicine: any;
@@ -48,26 +48,30 @@ const Page2: React.FC<Page2Props> = ({
         {selectedMedicine && (
           <div>
             <IonItem>
-              <IonLabel position="stacked">Selected Medicine</IonLabel>
-              <IonText>
-                <h3>{selectedMedicine.name}</h3>
-                <p>Type: {selectedMedicine.type}</p>
-              </IonText>
+              <IonInput
+              readonly
+              value={selectedMedicine.name}
+              > <IonIcon slot="start" icon={bag} aria-hidden="true" /></IonInput>
             </IonItem>
 
             <IonItem>
-              <IonLabel position="stacked">Available Quantity</IonLabel>
-              <IonText>
-                <IonNote>{selectedMedicine.quantity} units available</IonNote>
-              </IonText>
+              <IonInput
+              disabled
+              value={selectedMedicine.quantity + " units available."}
+              > <IonIcon slot="start" icon={cube} aria-hidden="true" /></IonInput>
             </IonItem>
+
+       
           </div>
         )}
 
         <IonItem>
-          <IonLabel position="stacked">Quantity Needed</IonLabel>
           <IonInput
+           className='ion-margin-top'
+            fill='outline'
             type="number"
+            label='Quantity:'
+            labelPlacement='floating'
             value={quantity}
             min={1}
             max={Math.min(maxQuantity, 12)}
@@ -84,6 +88,7 @@ const Page2: React.FC<Page2Props> = ({
         <IonItem>
           <IonLabel position="stacked">Pickup Date</IonLabel>
           <IonDatetime
+          className='ion-margin-top'
             presentation="date"
             min={new Date().toISOString()}
             value={pickupDate}
