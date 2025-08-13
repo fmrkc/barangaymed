@@ -13,7 +13,9 @@ import {
   IonSpinner,
   IonNote,
   IonText,
-  IonIcon
+  IonIcon,
+  IonButtons,
+  IonMenuButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -102,6 +104,9 @@ const ARHUAnnouncements: React.FC = () => {
     <>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+                      <IonMenuButton />
+                    </IonButtons>
           <IonTitle>ARHU Announcements</IonTitle>
         </IonToolbar>
       </IonHeader>

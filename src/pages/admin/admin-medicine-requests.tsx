@@ -11,7 +11,9 @@ import {
   IonBadge,
   IonAlert,
   IonSegment,
-  IonSegmentButton
+  IonSegmentButton,
+  IonButtons,
+  IonMenuButton
 } from '@ionic/react';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // your firebase config import
@@ -89,6 +91,9 @@ const AdminMedicineRequests: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonButtons slot="start">
+                      <IonMenuButton />
+                    </IonButtons>
           <IonTitle>Medicine Requests</IonTitle>
         </IonToolbar>
         {/* Category Filter */}
