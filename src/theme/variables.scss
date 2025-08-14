@@ -3,16 +3,17 @@
   /* Use format 'truetype-variations' for variable fonts for better compatibility */
   src: url('../assets/fonts/Alexandria-VariableFont_wght.ttf') format('truetype-variations');
   /* Define the range of weights the variable font supports */
-  font-weight: 100 900;
+  font-weight: normal;
   font-style: normal;
 }
 
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 :root {
-	--ion-background-color: #E4F7F5;
+	
 	  --ion-font-family: 'Alexandria', sans-serif;
 --ion-card-background: white;
+
 
 	--ion-color-primary: #009D91;
 	--ion-color-primary-rgb: 0,157,145;
