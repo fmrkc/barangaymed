@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
+import { IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
 import React, { useState } from 'react';
 import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
@@ -8,16 +8,17 @@ import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
 import Medicine_Requests from './admin-medicine-requests';
 
-import { calendar, medical, medkit, megaphone, podium, reader, logOut } from 'ionicons/icons';
+import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
-    const { logout, userRole } = useAuth();
+    const { logout, userRole, currentUser } = useAuth();
     const router = useIonRouter();
     const [showLoading, setShowLoading] = useState(false);
 
     const paths = [
         { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
+        { name: 'Residents', url: '/admin/dashboard/residents', icon: people},
         { name: 'Medicine Inventory', url: '/admin/inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
         { name: 'Consultation Requests', url: '/admin/inventory', icon: calendar },
@@ -49,6 +50,7 @@ const Menu: React.FC = () => {
             <IonContent>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
                 <div>
+             
                   {paths.map((item, index) => (
                     <IonMenuToggle key={index} autoHide={false}>
                       <IonItem detail={false} routerLink={item.url} routerDirection="none">
@@ -60,12 +62,45 @@ const Menu: React.FC = () => {
                 </div>
                 
                 <div>
-                  <IonMenuToggle>
-                    <IonItem detail={false} button color="danger" onClick={handleLogout}>
+                  <IonItemDivider><IonLabel>Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
+                   <IonMenuToggle autoHide={false}>
+                    <IonItem detail={false} button onClick={() => router.push('/admin/profile', 'forward')}>
+                      <IonIcon slot="start" icon={person} />
+                      Profile
+                    </IonItem>
+                  </IonMenuToggle>
+                  <IonMenuToggle autoHide={false}>
+                    <IonItem detail={false} button color="danger" id="admin-logout">
                       <IonIcon slot="start" icon={logOut} />
                       Logout
                     </IonItem>
                   </IonMenuToggle>
+
+                           <IonAlert
+                           trigger="admin-logout"
+                           backdropDismiss={false}
+                                  header="Are you sure?"
+                                  message="Do you really want to log out?"
+                                  buttons={[
+                                    {
+                                      text: "Cancel",
+                                      role: "cancel",
+                                      handler: () => {
+                                        console.log("Alert cancelled");
+                                      },
+                                    },
+                                    {
+                                      text: "OK",
+                                      role: "confirm",
+                                      handler: () => {
+                                        handleLogout();
+                                      },
+                                    },
+                                  ]}
+                                  onDidDismiss={({ detail }) =>
+                                    console.log(`Dismissed with role: ${detail.role}`)
+                                  }
+                                ></IonAlert>
                 </div>
               </div>
             </IonContent>
