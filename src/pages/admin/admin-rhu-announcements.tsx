@@ -15,7 +15,8 @@ import {
   IonText,
   IonIcon,
   IonButtons,
-  IonMenuButton
+  IonMenuButton,
+  IonPage
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -101,7 +102,7 @@ const ARHUAnnouncements: React.FC = () => {
   };
 
   return (
-    <>
+    <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
@@ -193,7 +194,7 @@ const ARHUAnnouncements: React.FC = () => {
           </div>
         )}
       </IonContent>
-    </>
+    </IonPage>
   );
 };
 
