@@ -119,6 +119,12 @@ const AdminLogin: React.FC = () => {
                       Login
                       <IonIcon icon={logInSharp} slot="end" />
                     </IonButton>
+                    <IonButton
+                    fill='clear'
+                    expand='block'
+                    >
+                      Forgot Password?
+                    </IonButton>
                   </form>
                 </IonCardContent>
               </IonCard>
