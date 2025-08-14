@@ -99,7 +99,7 @@ const AdminMedicineRequests: React.FC = () => {
         </IonToolbar>
         {/* Category Filter */}
         <IonToolbar>
-          <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as string)}>
+          <IonSegment scrollable={true} value={filter} onIonChange={(e) => setFilter(e.detail.value as string)}>
             <IonSegmentButton value="pending">PENDING</IonSegmentButton>
             <IonSegmentButton value="approved">APPROVED</IonSegmentButton>
             <IonSegmentButton value="completed">COMPLETED</IonSegmentButton>
