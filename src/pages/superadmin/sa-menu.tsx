@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import React, { useState } from 'react';
 import { Route } from 'react-router';
 
@@ -70,11 +70,36 @@ const Menu: React.FC = () => {
                     
                   </IonMenuToggle>
                   <IonMenuToggle>
-                    <IonItem detail={false} button color="danger" onClick={handleLogout}>
+                    <IonItem detail={false} button color="danger" id="sa-logout">
                     <IonIcon slot="start" icon={logOut} />
                       Logout
                     </IonItem>
-                  </IonMenuToggle>             
+                  </IonMenuToggle>            
+                  <IonAlert
+                                             trigger="sa-logout"
+                                             backdropDismiss={false}
+                                                    header="Are you sure?"
+                                                    message="Do you really want to log out?"
+                                                    buttons={[
+                                                      {
+                                                        text: "Cancel",
+                                                        role: "cancel",
+                                                        handler: () => {
+                                                          console.log("Alert cancelled");
+                                                        },
+                                                      },
+                                                      {
+                                                        text: "OK",
+                                                        role: "confirm",
+                                                        handler: () => {
+                                                          handleLogout();
+                                                        },
+                                                      },
+                                                    ]}
+                                                    onDidDismiss={({ detail }) =>
+                                                      console.log(`Dismissed with role: ${detail.role}`)
+                                                    }
+                                                  ></IonAlert> 
                 </div>
               </div>
             </IonContent>
