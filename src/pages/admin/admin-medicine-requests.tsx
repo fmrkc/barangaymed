@@ -122,58 +122,55 @@ const AdminMedicineRequests: React.FC = () => {
       <IonContent>
         {filteredRequests.map((req) => (
         <IonList>
-            <IonItem key={req.id} className="request-item">
-              
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
-            <div>
-<IonLabel className="request-info">
-                  <h2>
-                    <span className="medicine-name">{req.medicineName}</span> 
-                    <span className="quantity"> ({req.quantity})</span>
-                  </h2>
-                  <p className="user-name">Requested by: {req.userName}</p>
-                  <p className="pickup-date">Pickup: {req.pickupDate?.toDate?.().toLocaleString?.()}</p>
-                </IonLabel>
-            </div>
-      
-            <div>
-               <IonBadge
-                  color={
-                    req.status === 'pending'
-                      ? 'warning'
-                      : req.status === 'approved'
-                      ? 'success'
-                      : req.status === 'cancelled'
-                      ? 'danger'
-                      : 'medium'
-                  }
-                >
-                  {req.status.toUpperCase()}
-                </IonBadge>
-            </div>
-            <div>
-                
-                {req.status === 'pending' && (
-                  <button 
-                    className="view-details-btn"
-                    onClick={() => {
-                      setSelectedRequest(req);
-                      setShowModal(true);
-                    }}
+            <IonItem  key={req.id} className="request-item">     
+              <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <IonLabel className="request-info">
+                    <h2>
+                      <span className="medicine-name">{req.medicineName}</span>
+                      <span className="quantity"> ({req.quantity})</span>
+                    </h2>
+                    <p className="user-name">Requested by: {req.userName}</p>
+                    <p className="pickup-date">Pickup: {req.pickupDate?.toDate?.().toLocaleString?.()}</p>
+                  </IonLabel>
+                </div>
+                <div>
+                  <IonBadge
+                    color={
+                      req.status === 'pending'
+                        ? 'warning'
+                        : req.status === 'approved'
+                          ? 'success'
+                          : req.status === 'cancelled'
+                            ? 'danger'
+                            : 'medium'
+                    }
                   >
-                    <IonIcon icon={open} slot="start" />
-                    
-                  </button>
-                )}
-            </div>
-          </div>
-          
-                
-             
-              </IonItem>
-            
+                    {req.status.toUpperCase()}
+                  </IonBadge>
+                </div>
+                <div>
+                  
+                  {req.status === 'pending' && (
+                    <IonButtons>
+                      <IonButton 
+                      color="primary" 
+                      className="view-details-btn"
+                      onClick={() => {
+                        setSelectedRequest(req);
+                        setShowModal(true);
+                      }}>
+                        <IonIcon icon={open} />
+                      </IonButton>
+                     
+                    </IonButtons>
+                  )}
+                </div>
+              </div>
+            </IonItem>
+
           </IonList>
-          ))}
+        ))}
 
 
         {/* Medicine Request Details Modal */}
