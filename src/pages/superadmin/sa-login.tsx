@@ -1,6 +1,6 @@
-import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonPage, IonRow, IonInput, IonIcon, useIonLoading, useIonRouter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonPage, IonRow, IonInput, IonIcon, useIonLoading, useIonRouter, IonCardSubtitle } from '@ionic/react';
 import React, { useState } from 'react';
-import { logInSharp, personCircle } from 'ionicons/icons';
+import { lockClosed, logInSharp, person, personCircle } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png';
 import { useAuth } from '../../contexts/AuthContext';
 import { login, getUserRole } from '../../firebaseConfig';
@@ -79,22 +79,21 @@ const SuperAdminLogin: React.FC = () => {
               <IonCard>
                 <IonCardContent>
                   <form onSubmit={doLogin}>
+                    <IonCardSubtitle>E-mail</IonCardSubtitle>
                     <IonInput
                       mode="md"
                       fill="outline"
-                      labelPlacement="floating"
-                      label="Super Admin E-mail"
                       type="email"
                       placeholder="superadmin@example.com"
                       value={email}
                       onIonChange={(e) => setEmail(e.detail.value!)}
-                    />
+                       >
+                            <IonIcon icon={person} slot="start" />
+                          </IonInput>
+                    <IonCardSubtitle className='ion-margin-top'>Password</IonCardSubtitle>
                     <IonInput
                       mode="md"
-                      className="ion-margin-top"
                       fill="outline"
-                      labelPlacement="floating"
-                      label="Password"
                       type="password"
                       placeholder="superadmin123"
                       value={password}
@@ -109,12 +108,15 @@ const SuperAdminLogin: React.FC = () => {
                           doLogin(e);
                         }
                       }}
-                    />
+                       >
+                            <IonIcon icon={lockClosed} slot="start" />
+                          </IonInput>
                     {error && <p style={{ color: "red" }}>{error}</p>}
                     <IonButton
                       type="submit"
                       className="ion-padding-vertical"
                       expand="block"
+                      shape='round'
                     >
                       Login
                       <IonIcon icon={logInSharp} slot="end" />
