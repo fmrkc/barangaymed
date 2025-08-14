@@ -112,17 +112,7 @@ const AdminMedicineRequests: React.FC = () => {
       <IonContent>
         <IonList>
             {filteredRequests.map((req) => (
-              <IonItem
-                key={req.id}
-                button={req.status === 'pending'}
-                onClick={() => {
-                  if (req.status === 'pending') {
-                    setSelectedRequest(req);
-                    setShowChoiceAlert(true);
-                  }
-                  
-                }}
-              >
+              <IonItem key={req.id}>
                 <IonLabel>
                   <h2>{req.medicineName} ({req.quantity})</h2>
                   <p>Requested by: {req.userName}</p>
@@ -141,6 +131,30 @@ const AdminMedicineRequests: React.FC = () => {
                 >
                   {req.status.toUpperCase()}
                 </IonBadge>
+                {req.status === 'pending' && (
+                  <div className="action-buttons">
+                    <button 
+                      className="action-btn approve-btn"
+                      onClick={() => {
+                        setSelectedRequest(req);
+                        setNewStatus('approved');
+                        setShowConfirmAlert(true);
+                      }}
+                    >
+                      Approve
+                    </button>
+                    <button 
+                      className="action-btn cancel-btn"
+                      onClick={() => {
+                        setSelectedRequest(req);
+                        setNewStatus('cancelled');
+                        setShowConfirmAlert(true);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </IonItem>
             ))}
           </IonList>
