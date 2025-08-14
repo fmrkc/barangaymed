@@ -18,6 +18,7 @@ import {
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // your firebase config import
 import { logMedicineRequestStatusUpdate } from '../../utils/logger';
+import './admin-medicine-requests.css';
 
 interface MedicineRequest {
   id: string;
