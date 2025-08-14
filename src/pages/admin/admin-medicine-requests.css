@@ -142,21 +142,22 @@ ion-content::part(scroll) {
 
 .request-info p {
   margin: 4px 0;
-  color: var(--ion-color-medium);
+  
   font-size: 0.9rem;
 }
 
 .medicine-name {
-  color: var(--ion-color-primary);
+  
   font-weight: 600;
 }
 
 .quantity {
-  color: var(--ion-color-dark);
+  color: var(--ion-color-primary);
 }
 
 .user-name {
   font-style: italic;
+
 }
 
 .pickup-date {
