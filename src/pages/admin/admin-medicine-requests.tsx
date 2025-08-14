@@ -35,7 +35,7 @@ const AdminMedicineRequests: React.FC = () => {
   const [showConfirmAlert, setShowConfirmAlert] = useState(false);
   const [newStatus, setNewStatus] = useState<'approved' | 'cancelled' | 'completed' | null>(null);
 
-  const [filter, setFilter] = useState<string>('all'); // default ALL
+  const [filter, setFilter] = useState<string>('pending'); // default PENDING
 
   // Fetch data
   useEffect(() => {
@@ -99,11 +99,11 @@ const AdminMedicineRequests: React.FC = () => {
         {/* Category Filter */}
         <IonToolbar>
           <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as string)}>
-            <IonSegmentButton value="all">ALL</IonSegmentButton>
             <IonSegmentButton value="pending">PENDING</IonSegmentButton>
             <IonSegmentButton value="approved">APPROVED</IonSegmentButton>
             <IonSegmentButton value="completed">COMPLETED</IonSegmentButton>
             <IonSegmentButton value="cancelled">CANCELLED</IonSegmentButton>
+            <IonSegmentButton value="all">ALL</IonSegmentButton>
           </IonSegment>
         </IonToolbar>
       </IonHeader>
