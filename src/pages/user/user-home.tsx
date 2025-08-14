@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonText } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { megaphone, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -74,12 +74,12 @@ const Home: React.FC = () => {
                             <IonCard className='ion-padding-vertical' color={'primary'}>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
-                                        Book Teleconsultation
+                                        <IonIcon color={'light'} icon={clipboard} style={{ marginRight: '8px' }} />
+                                        <IonText color={'light'}>Book Teleconsultation</IonText> 
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    Book appointments for teleconsultation with healthcare professionals.
+                                    <IonText color={'light'}>Book appointments for teleconsultation with healthcare professionals.</IonText> 
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>

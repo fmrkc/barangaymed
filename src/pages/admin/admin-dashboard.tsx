@@ -6,8 +6,8 @@ const ADashboard: React.FC = () => {
   useAuth();
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color={"secondary"}>
+      <IonHeader className='ion-no-border'>
+        <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>

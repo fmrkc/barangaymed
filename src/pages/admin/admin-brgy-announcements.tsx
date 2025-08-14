@@ -38,6 +38,7 @@ import { add, create, trash, pencil, eye, eyeOff } from 'ionicons/icons';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 
+
 const BarangayAnnouncements: React.FC = () => {
   const { currentUser, userRole } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -212,7 +213,7 @@ const BarangayAnnouncements: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader  className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
