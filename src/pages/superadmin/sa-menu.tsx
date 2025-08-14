@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import React, { useState } from 'react';
 import { Route } from 'react-router';
 
@@ -8,11 +8,11 @@ import Admin_Register from './sa-register';
 import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 
-import { medical, medkit, megaphone, people, podium, logOut } from 'ionicons/icons';
+import { medical, medkit, megaphone, people, podium, logOut, person } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
-    const { logout, userRole } = useAuth();
+    const { currentUser, logout, userRole } = useAuth();
     const router = useIonRouter();
     const [showLoading, setShowLoading] = useState(false);
 
@@ -40,7 +40,7 @@ const Menu: React.FC = () => {
       <IonPage>
         <IonSplitPane contentId="main">
           <IonMenu contentId="main">
-            <IonHeader>
+            <IonHeader className='ion-no-border'>
               <IonToolbar>
                 <IonTitle>BarangayMed+</IonTitle>
                
@@ -61,6 +61,14 @@ const Menu: React.FC = () => {
                 </div>
                 
                 <div>
+                  <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>    
+                  <IonMenuToggle>
+                    <IonItem button detail={false}>
+                      Profile
+                      <IonIcon slot="start" icon={person} />
+                    </IonItem>
+                    
+                  </IonMenuToggle>
                   <IonMenuToggle>
                     <IonItem detail={false} button color="danger" onClick={handleLogout}>
                     <IonIcon slot="start" icon={logOut} />
