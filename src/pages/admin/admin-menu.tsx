@@ -42,7 +42,7 @@ const Menu: React.FC = () => {
       <IonPage>
         <IonSplitPane contentId="main">
           <IonMenu contentId="main">
-            <IonHeader>
+            <IonHeader className='ion-no-border'>
               <IonToolbar>
                 <IonTitle>BarangayMed+</IonTitle>
               </IonToolbar>
