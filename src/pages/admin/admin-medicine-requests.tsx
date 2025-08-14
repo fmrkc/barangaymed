@@ -13,12 +13,22 @@ import {
   IonSegment,
   IonSegmentButton,
   IonButtons,
-  IonMenuButton
+  IonMenuButton,
+  IonModal,
+  IonButton,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonIcon,
+  IonInput,
+  IonCardSubtitle
 } from '@ionic/react';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // your firebase config import
 import { logMedicineRequestStatusUpdate } from '../../utils/logger';
 import './admin-medicine-requests.css';
+import { calendarClear, checkmark, close, cube, ellipsisHorizontal, open, person } from 'ionicons/icons';
 
 interface MedicineRequest {
   id: string;
@@ -32,8 +42,9 @@ interface MedicineRequest {
 const AdminMedicineRequests: React.FC = () => {
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
-  const [showChoiceAlert, setShowChoiceAlert] = useState(false);
-  const [showConfirmAlert, setShowConfirmAlert] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showApproveAlert, setShowApproveAlert] = useState(false);
+  const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [newStatus, setNewStatus] = useState<'approved' | 'cancelled' | 'completed' | null>(null);
 
   const [filter, setFilter] = useState<string>('pending'); // default PENDING
@@ -52,13 +63,11 @@ const AdminMedicineRequests: React.FC = () => {
   }, []);
 
   // Update status in Firestore
-  const updateStatus = async () => {
-    if (selectedRequest && newStatus) {
+  const updateStatus = async (status: 'approved' | 'cancelled') => {
+    if (selectedRequest) {
       const docRef = doc(db, 'medicineRequests', selectedRequest.id);
       
       // Log the status change
-      // Note: For admin updates, we need to get the current user info
-      // This is a simplified approach - in a real app, you'd get the admin user info
       const adminUserId = 'admin-user-id'; // Replace with actual admin user ID
       const adminEmail = 'admin@example.com'; // Replace with actual admin email
       const adminRole = 'admin';
@@ -69,18 +78,19 @@ const AdminMedicineRequests: React.FC = () => {
         adminRole,
         selectedRequest.id,
         selectedRequest.status,
-        newStatus
+        status
       );
       
-      await updateDoc(docRef, { status: newStatus });
+      await updateDoc(docRef, { status: status });
       setRequests((prev) =>
         prev.map((req) =>
-          req.id === selectedRequest.id ? { ...req, status: newStatus } : req
+          req.id === selectedRequest.id ? { ...req, status: status } : req
         )
       );
+      
+      setShowModal(false);
+      setSelectedRequest(null);
     }
-    setSelectedRequest(null);
-    setNewStatus(null);
   };
 
   // Filtered requests
@@ -110,15 +120,24 @@ const AdminMedicineRequests: React.FC = () => {
       </IonHeader>
 
       <IonContent>
+        {filteredRequests.map((req) => (
         <IonList>
-            {filteredRequests.map((req) => (
-              <IonItem key={req.id}>
-                <IonLabel>
-                  <h2>{req.medicineName} ({req.quantity})</h2>
-                  <p>Requested by: {req.userName}</p>
-                  <p>Pickup: {req.pickupDate?.toDate?.().toLocaleString?.()}</p>
+            <IonItem key={req.id} className="request-item">
+              
+          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+            <div>
+<IonLabel className="request-info">
+                  <h2>
+                    <span className="medicine-name">{req.medicineName}</span> 
+                    <span className="quantity"> ({req.quantity})</span>
+                  </h2>
+                  <p className="user-name">Requested by: {req.userName}</p>
+                  <p className="pickup-date">Pickup: {req.pickupDate?.toDate?.().toLocaleString?.()}</p>
                 </IonLabel>
-                <IonBadge
+            </div>
+      
+            <div>
+               <IonBadge
                   color={
                     req.status === 'pending'
                       ? 'warning'
@@ -131,80 +150,151 @@ const AdminMedicineRequests: React.FC = () => {
                 >
                   {req.status.toUpperCase()}
                 </IonBadge>
+            </div>
+            <div>
+                
                 {req.status === 'pending' && (
-                  <div className="action-buttons">
-                    <button 
-                      className="action-btn approve-btn"
-                      onClick={() => {
-                        setSelectedRequest(req);
-                        setNewStatus('approved');
-                        setShowConfirmAlert(true);
-                      }}
-                    >
-                      Approve
-                    </button>
-                    <button 
-                      className="action-btn cancel-btn"
-                      onClick={() => {
-                        setSelectedRequest(req);
-                        setNewStatus('cancelled');
-                        setShowConfirmAlert(true);
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  <button 
+                    className="view-details-btn"
+                    onClick={() => {
+                      setSelectedRequest(req);
+                      setShowModal(true);
+                    }}
+                  >
+                    <IonIcon icon={open} slot="start" />
+                    
+                  </button>
                 )}
+            </div>
+          </div>
+          
+                
+             
               </IonItem>
-            ))}
+            
           </IonList>
+          ))}
 
 
-        {/* First choice alert for PENDING */}
+        {/* Medicine Request Details Modal */}
+        <IonModal 
+          isOpen={showModal} 
+          onDidDismiss={() => setShowModal(false)}
+          className="medicine-request-modal"
+        >
+          <IonCard>
+            <IonToolbar>
+               <IonCardHeader>
+              <IonCardTitle>Medicine Request Details</IonCardTitle>
+            </IonCardHeader>
+            <IonButtons slot="end">
+              <IonButton shape='round' onClick={() => setShowModal(false)}>
+                <IonIcon color='primary' icon={close} />
+              </IonButton>
+            </IonButtons>
+            </IonToolbar>
+           
+            <IonCardContent>
+              {selectedRequest && (
+                <div>
+
+                  <IonItem>
+                    <IonInput label='Medicine Name' labelPlacement='floating' readonly value={selectedRequest.medicineName}></IonInput>
+                    <IonIcon slot="start" icon={cube} aria-hidden="true"></IonIcon>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonInput label='Quantity' labelPlacement='floating' readonly value={selectedRequest.quantity}></IonInput>
+                    <IonIcon slot="start" icon={cube} aria-hidden="true"></IonIcon>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonInput label='Requested By' labelPlacement='floating' readonly value={selectedRequest.userName}></IonInput>
+                    <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonInput color={'medium'} label='Pickup Date' labelPlacement='floating' readonly value={selectedRequest.pickupDate?.toDate?.().toLocaleString?.()}></IonInput>
+                    <IonIcon slot="start" icon={calendarClear} aria-hidden="true"></IonIcon>
+                  </IonItem>
+
+                <IonItem>
+                  <IonLabel><p>Current Status</p></IonLabel>
+                     <div className={`status-badge ${selectedRequest.status}`}>
+                      {selectedRequest.status.toUpperCase()}
+                    </div>
+                    <IonIcon slot="start" icon={ellipsisHorizontal} aria-hidden="true"></IonIcon>
+                  </IonItem>
+                </div>
+              )}
+            </IonCardContent>
+          </IonCard>
+          
+          <div className="modal-actions">
+            <IonButton 
+              color="medium" 
+              fill="outline"
+              onClick={() => setShowModal(false)}
+            >
+              Cancel
+            </IonButton>
+            <div>
+              <IonButton 
+                color="danger" 
+                onClick={() => setShowCancelAlert(true)}
+                style={{ marginRight: '10px' }}
+              >
+                Reject
+                <IonIcon icon={close} slot="start" />
+              </IonButton>
+              <IonButton 
+                color="success" 
+                onClick={() => setShowApproveAlert(true)}
+              >
+                Approve
+                <IonIcon icon={checkmark} slot="end" />
+              </IonButton>
+            </div>
+          </div>
+        </IonModal>
+
+        {/* Approve Confirmation Alert */}
         <IonAlert
-          isOpen={showChoiceAlert}
-          onDidDismiss={() => setShowChoiceAlert(false)}
-          header="Update Request"
-          message="Approve or Cancel this request?"
+          isOpen={showApproveAlert}
+          onDidDismiss={() => setShowApproveAlert(false)}
+          header="Confirm Approval"
+          message={`Are you sure you want to approve this medicine request for ${selectedRequest?.medicineName}?`}
           buttons={[
             {
-              text: 'Approve',
-              handler: () => {
-                setNewStatus('approved');
-                setShowConfirmAlert(true);
-              },
-            },
-            {
-              text: 'Cancel Request',
-              role: 'destructive',
-              handler: () => {
-                setNewStatus('cancelled');
-                setShowConfirmAlert(true);
-              },
-            },
-            {
-              text: 'Close',
+              text: 'No',
               role: 'cancel'
+            },
+            {
+              text: 'Yes, Approve',
+              handler: () => {
+                updateStatus('approved');
+              }
             }
           ]}
         />
 
-        {/* Confirmation alert */}
+        {/* Cancel Confirmation Alert */}
         <IonAlert
-          isOpen={showConfirmAlert}
-          onDidDismiss={() => setShowConfirmAlert(false)}
-          header="Confirm Action"
-          message={`Are you sure you want to mark this request as ${newStatus?.toUpperCase()}?`}
+          isOpen={showCancelAlert}
+          onDidDismiss={() => setShowCancelAlert(false)}
+          header="Confirm Rejection"
+          message={`Are you sure you want to reject this medicine request for ${selectedRequest?.medicineName}?`}
           buttons={[
-            {
-              text: 'Yes',
-              handler: () => {
-                updateStatus();
-              },
-            },
             {
               text: 'No',
               role: 'cancel'
+            },
+            {
+              text: 'Yes, Reject',
+              role: 'destructive',
+              handler: () => {
+                updateStatus('cancelled');
+              }
             }
           ]}
         />
