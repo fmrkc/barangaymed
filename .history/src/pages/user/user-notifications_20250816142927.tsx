@@ -14,6 +14,7 @@ import {
   IonLoading,
   IonToast,
   IonButton,
+  IonModal,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -21,6 +22,7 @@ import { NotificationsService } from '../../services/notificationsService';
 import { Notification } from '../../types/notifications';
 import { checkmarkCircle, alertCircle, mailOutline } from 'ionicons/icons';
 import { format } from 'date-fns';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const Notifications: React.FC = () => {
   const { currentUser } = useAuth();
@@ -30,7 +32,11 @@ const Notifications: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedDetails, setSelectedDetails] = useState<any | null>(null);
+
   const notificationsService = NotificationsService.getInstance();
+  const db = getFirestore();
 
   useEffect(() => {
     if (currentUser) {
@@ -107,19 +113,25 @@ const Notifications: React.FC = () => {
     }
   };
 
-  const formatDateTime = (date: Date) => {
-    return format(date, 'MMM dd, yyyy • h:mm a');
-  };
-
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = async (notification: Notification) => {
     try {
-      await notificationsService.markAsRead(notificationId);
+      await notificationsService.markAsRead(notification.id);
       setNotifications(prev =>
         prev.map(n =>
-          n.id === notificationId ? { ...n, read: true } : n
+          n.id === notification.id ? { ...n, read: true } : n
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
+
+      // 🔎 Load details from medicineRequests collection
+      if (notification.medicineId) {
+        const docRef = doc(db, 'medicineRequests', notification.medicineId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSelectedDetails({ id: docSnap.id, ...docSnap.data() });
+          setShowDetails(true);
+        }
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -155,7 +167,6 @@ const Notifications: React.FC = () => {
 
         {notifications.length === 0 && !loading && (
           <div className="ion-padding ion-text-center">
-            
             <IonIcon icon={mailOutline} size="large" color="medium" />
             <h2>No Notifications</h2>
             <p>You don't have any notifications yet.</p>
@@ -171,7 +182,7 @@ const Notifications: React.FC = () => {
               key={notification.id}
               button
               detail={false}
-              onClick={() => markAsRead(notification.id)}
+              onClick={() => markAsRead(notification)}
               className={!notification.read ? 'unread-notification' : ''}
             >
               <IonIcon
@@ -208,6 +219,34 @@ const Notifications: React.FC = () => {
           </div>
         )}
       </IonContent>
+
+      {/* ✅ Details Modal */}
+      <IonModal isOpen={showDetails} onDidDismiss={() => setShowDetails(false)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Request Details</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          {selectedDetails ? (
+            <>
+              <h2>Status: <IonText color="primary"><b>{selectedDetails.status}</b></IonText></h2>
+              <p><b>Medicine:</b> {selectedDetails.medicineName}</p>
+              <p><b>Type:</b> {selectedDetails.medicineType}</p>
+              <p><b>Quantity:</b> {selectedDetails.quantity}</p>
+              <p><b>Request Date:</b> {format(selectedDetails.requestDate.toDate(), 'MMM dd, yyyy • h:mm a')}</p>
+              <p><b>Pickup Date:</b> {format(selectedDetails.pickupDate.toDate(), 'MMM dd, yyyy • h:mm a')}</p>
+              <p><b>Status Updated:</b> {format(selectedDetails.pickupDate.toDate(), 'MMM dd, yyyy • h:mm a')}</p>
+            </>
+          ) : (
+            <p>Loading details...</p>
+          )}
+
+          <IonButton expand="block" onClick={() => setShowDetails(false)}>
+            Back
+          </IonButton>
+        </IonContent>
+      </IonModal>
 
       <style>
         {`

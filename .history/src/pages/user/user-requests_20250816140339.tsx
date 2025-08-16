@@ -10,7 +10,7 @@ const UserRequests: React.FC = () => {
   };
 
   const handleTeleconsultationRequest = () => {
-    history.push('/user/dashboard/requests/requests_teleconsultation');
+    history.push('/user/dashboard/requests_teleconsultation');
   };
 
   return (

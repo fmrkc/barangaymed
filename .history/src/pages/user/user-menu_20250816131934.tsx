@@ -10,8 +10,8 @@ import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
 import Medicine_Request from './user-med-request';
 import User_Requests from './user-requests';
-import Medicine_Requests_Status from './user-requestsmeds';
-import Teleconsultation_Requests_Status from './user-requeststele'
+import Medicine_Request_Status from './user-requestsmeds';
+import Teleconsultation_Request_Status from './user-requeststele'
 
 import { home as homeIcon, notifications as notificationsIcon, person as personIcon, megaphone as megaphoneIcon, albums } from 'ionicons/icons';
 
@@ -25,7 +25,7 @@ const UserDashboard: React.FC = () => {
             <IonIcon icon={homeIcon} />
             <IonLabel>Home</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="requests" href="/user/dashboard/requests">
+          <IonTabButton tab="user_requests" href="/user/dashboard/user_requests">
             <IonIcon icon={albums} />
             <IonLabel>Requests</IonLabel>
           </IonTabButton>  
@@ -42,11 +42,10 @@ const UserDashboard: React.FC = () => {
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
-            <Route path="/user/dashboard/requests" component={User_Requests} exact />
+            <Route path="/user/dashboard/user_requests" component={User_Requests} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
-
-            <Route path="/user/dashboard/requests/requests_medicine" component={Medicine_Requests_Status} exact />
-            <Route path="/user/dashboard/requests/requests_teleconsultation" component={Teleconsultation_Requests_Status} exact />
+            <Route path="/user/dashboard/user-requestsmeds" component={Medicine_Request_Status} exact />
+            <Route path="/user/dashboard/user-requeststele" component={Teleconsultation_Request_Status} exact />
 
             <Route path="/user/dashboard/announcements" component={Announcements} exact />
             <Route path="/user/dashboard/medicine_request" component={Medicine_Request} exact />

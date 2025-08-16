@@ -45,8 +45,8 @@ const UserDashboard: React.FC = () => {
             <Route path="/user/dashboard/requests" component={User_Requests} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
 
-            <Route path="/user/dashboard/requests/requests_medicine" component={Medicine_Requests_Status} exact />
-            <Route path="/user/dashboard/requests/requests_teleconsultation" component={Teleconsultation_Requests_Status} exact />
+            <Route path="/user/dashboard/requests_medicine" component={Medicine_Requests_Status} exact />
+            <Route path="/user/dashboard/requests_teleconsultation" component={Teleconsultation_Requests_Status} exact />
 
             <Route path="/user/dashboard/announcements" component={Announcements} exact />
             <Route path="/user/dashboard/medicine_request" component={Medicine_Request} exact />

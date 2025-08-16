@@ -49,9 +49,8 @@ import AAnnouncements from './pages/admin/admin-brgy-announcements';
 import UserLogin from './pages/user/user-login';
 import UserRegister from './pages/user/user-register';
 import UserDashboard from './pages/user/user-menu';
-import User_Requests from './pages/user/user-requests';
-import Medicine_Requests_Status from './pages/user/user-requestsmeds';
-import Teleconsultation_Requests_Status from './pages/user/user-requeststele';
+import UserRequestsMeds from './pages/user/user-requestsmeds';
+import UserRequestsTele from './pages/user/user-requeststele';
 import SAMenu from './pages/superadmin/sa-menu';
 
 
@@ -131,6 +130,24 @@ const App: React.FC = () => (
                 redirectTo="/user/login"
               >
                 <UserDashboard />
+              </ProtectedRoute>
+            </Route>
+
+            {/* User Requests Routes */}
+            <Route path="/user/requests/meds_request">
+              <ProtectedRoute 
+                requiredRole="user" 
+                redirectTo="/user/login"
+              >
+                <UserRequestsMeds />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/user/requests/tele_request">
+              <ProtectedRoute 
+                requiredRole="user" 
+                redirectTo="/user/login"
+              >
+                <UserRequestsTele />
               </ProtectedRoute>
             </Route>
 
