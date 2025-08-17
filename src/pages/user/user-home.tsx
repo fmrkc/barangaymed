@@ -59,12 +59,12 @@ const Home: React.FC = () => {
                             <IonCard  className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon color={'light'} icon={medkit} style={{ marginRight: '8px' }} />
-                                        <IonText color={'light'}>Medicine Request</IonText>
+                                        <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
+                                        <IonText>Medicine Request</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    <IonText color={'light'}>
+                                    <IonText>
                                         Request over-the-counter medicines from your barangay.
                                     </IonText>
                                 </IonCardContent>
@@ -76,29 +76,28 @@ const Home: React.FC = () => {
                             <IonCard className='ion-padding-vertical' color={'primary'}>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon color={'light'} icon={clipboard} style={{ marginRight: '8px' }} />
-                                        <IonText color={'light'}>Book Teleconsultation</IonText> 
+                                        <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
+                                        <IonText>Book Teleconsultation</IonText> 
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    <IonText color={'light'}>Book appointments for teleconsultation with healthcare professionals.</IonText> 
+                                    <IonText>Book appointments for teleconsultation with healthcare professionals.</IonText> 
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
-                        
 
                         <IonCol size="12" size-md="6">
                             <IonCard className='ion-padding-vertical' color={'primary'} button routerLink="/user/dashboard/announcements">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonText color={'light'}>
+                                        <IonText>
                                             <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
                                         Barangay Announcements
                                         </IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    <IonText color={'light'}>View the latest announcements from your barangay.</IonText>
+                                    <IonText>View the latest announcements from your barangay.</IonText>
                                     
                                 </IonCardContent>
                             </IonCard>

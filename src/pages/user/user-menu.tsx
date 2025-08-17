@@ -27,7 +27,7 @@ const UserDashboard: React.FC = () => {
           </IonTabButton>
           <IonTabButton tab="requests" href="/user/dashboard/requests">
             <IonIcon icon={albums} />
-            <IonLabel>Requests</IonLabel>
+            <IonLabel>My Requests</IonLabel>
           </IonTabButton>  
           <IonTabButton tab="notifications" href="/user/dashboard/notifications">
             <IonIcon icon={notificationsIcon} />
