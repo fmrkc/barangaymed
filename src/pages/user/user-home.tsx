@@ -56,15 +56,17 @@ const Home: React.FC = () => {
 
                     <IonRow>
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
+                            <IonCard  className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
-                                        Medicine Request
+                                        <IonIcon color={'light'} icon={medkit} style={{ marginRight: '8px' }} />
+                                        <IonText color={'light'}>Medicine Request</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    Request over-the-counter medicines from your barangay.
+                                    <IonText color={'light'}>
+                                        Request over-the-counter medicines from your barangay.
+                                    </IonText>
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
@@ -89,12 +91,15 @@ const Home: React.FC = () => {
                             <IonCard className='ion-padding-vertical' color={'primary'} button routerLink="/user/dashboard/announcements">
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
+                                        <IonText color={'light'}>
+                                            <IonIcon icon={megaphone} style={{ marginRight: '8px' }} />
                                         Barangay Announcements
+                                        </IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    View the latest announcements from your barangay.
+                                    <IonText color={'light'}>View the latest announcements from your barangay.</IonText>
+                                    
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
