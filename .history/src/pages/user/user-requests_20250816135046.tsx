@@ -6,11 +6,11 @@ const UserRequests: React.FC = () => {
   const history = useHistory();
 
   const handleMedicineRequest = () => {
-    history.push('/user/dashboard/requests/requests_medicine');
+    history.push('/user/dashboard/requests_medicine');
   };
 
   const handleTeleconsultationRequest = () => {
-    history.push('/user/dashboard/requests/requests_teleconsultation');
+    history.push('/user/dashboard/requests_teleconsultation');
   };
 
   return (

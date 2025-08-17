@@ -30,6 +30,7 @@ const Notifications: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
 
+
   const notificationsService = NotificationsService.getInstance();
 
   useEffect(() => {
@@ -65,6 +66,7 @@ const Notifications: React.FC = () => {
         setNotifications(newNotifications);
         setUnreadCount(newNotifications.filter(n => !n.read).length);
       }
+
     );
   };
 
@@ -155,7 +157,7 @@ const Notifications: React.FC = () => {
 
         {notifications.length === 0 && !loading && (
           <div className="ion-padding ion-text-center">
-            
+            {/* ✅ FIXED: Replace IonEmptyState with Ionic layout */}
             <IonIcon icon={mailOutline} size="large" color="medium" />
             <h2>No Notifications</h2>
             <p>You don't have any notifications yet.</p>
@@ -209,6 +211,7 @@ const Notifications: React.FC = () => {
         )}
       </IonContent>
 
+      {/* ✅ FIXED: Use standard style tag */}
       <style>
         {`
           .unread-notification {
