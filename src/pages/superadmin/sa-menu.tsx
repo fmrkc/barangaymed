@@ -62,44 +62,44 @@ const Menu: React.FC = () => {
                 
                 <div>
                   <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>    
-                  <IonMenuToggle>
+                  <IonMenuToggle autoHide={false}>
                     <IonItem button detail={false}>
                       Profile
-                      <IonIcon slot="start" icon={person} />
+                      <IonIcon  slot="start" icon={person} />
                     </IonItem>
                     
                   </IonMenuToggle>
-                  <IonMenuToggle>
-                    <IonItem detail={false} button color="danger" id="sa-logout">
+                  <IonMenuToggle autoHide={false}>
+                    <IonItem  detail={false} button color="danger" id="sa-logout">
                     <IonIcon slot="start" icon={logOut} />
                       Logout
                     </IonItem>
                   </IonMenuToggle>            
                   <IonAlert
-                                             trigger="sa-logout"
-                                             backdropDismiss={false}
-                                                    header="Are you sure?"
-                                                    message="Do you really want to log out?"
-                                                    buttons={[
-                                                      {
-                                                        text: "Cancel",
-                                                        role: "cancel",
-                                                        handler: () => {
-                                                          console.log("Alert cancelled");
-                                                        },
-                                                      },
-                                                      {
-                                                        text: "OK",
-                                                        role: "confirm",
-                                                        handler: () => {
-                                                          handleLogout();
-                                                        },
-                                                      },
-                                                    ]}
-                                                    onDidDismiss={({ detail }) =>
-                                                      console.log(`Dismissed with role: ${detail.role}`)
-                                                    }
-                                                  ></IonAlert> 
+                    trigger="sa-logout"
+                    backdropDismiss={false}
+                    header="Are you sure?"
+                    message="Do you really want to log out?"
+                    buttons={[
+                      {
+                        text: "Cancel",
+                        role: "cancel",
+                        handler: () => {
+                          console.log("Alert cancelled");
+                        },
+                      },
+                      {
+                        text: "OK",
+                        role: "confirm",
+                        handler: () => {
+                          handleLogout();
+                        },
+                      },
+                    ]}
+                    onDidDismiss={({ detail }) =>
+                      console.log(`Dismissed with role: ${detail.role}`)
+                    }
+                  ></IonAlert>
                 </div>
               </div>
             </IonContent>
