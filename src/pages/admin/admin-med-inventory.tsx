@@ -22,7 +22,9 @@ import {
   IonAlert,
   IonFab,
   IonFabButton,
-  IonToast
+  IonToast,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -150,6 +152,9 @@ const Admin_Med_Inventory: React.FC = () => {
       </IonHeader>
       
       <IonContent className="ion-padding">
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent />
+        </IonRefresher>
         <IonSearchbar
           value={searchTerm}
           onIonChange={(e) => setSearchTerm(e.detail.value!)}
@@ -247,11 +252,7 @@ const Admin_Med_Inventory: React.FC = () => {
           </IonGrid>
         )}
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={handleRefresh}>
-            <IonIcon icon="refresh" />
-          </IonFabButton>
-        </IonFab>
+    
 
         <IonAlert
           isOpen={showAlert}
