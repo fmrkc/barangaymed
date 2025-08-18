@@ -4,10 +4,11 @@ import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
 
 import Dashboard from './admin-dashboard';
+import Residents from './admin-residents';
+import Inventory from './admin-med-inventory';
 import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
 import Medicine_Requests from './admin-medicine-requests';
-import Residents from './admin-residents';
 
 import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,7 +21,7 @@ const Menu: React.FC = () => {
     const paths = [
         { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
         { name: 'Residents', url: '/admin/dashboard/residents', icon: people},
-        { name: 'Medicine Inventory', url: '/admin/inventory', icon: medkit },
+        { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
         { name: 'Consultation Requests', url: '/admin/inventory', icon: calendar },
         { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
@@ -109,6 +110,7 @@ const Menu: React.FC = () => {
           <IonRouterOutlet id="main">
             <Route exact path="/admin/dashboard" component={Dashboard} />
             <Route exact path="/admin/dashboard/residents" component={Residents} />
+            <Route exact path="/admin/dashboard/inventory" component={Inventory} />
             <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
             <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
             <Route exact path="/admin/dashboard/medicine-requests" component={Medicine_Requests} />

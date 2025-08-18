@@ -144,4 +144,18 @@ export class MedicineService {
     });
     return docRef.id;
   }
+
+  /**
+   * Gets the barangay of a user from their profile.
+   * @param uid The user ID to get barangay for.
+   * @returns Promise resolving to an object containing user data including barangay.
+   */
+  public async getUserBarangay(uid: string): Promise<{ barangay: string }> {
+    const userDoc = await getDoc(doc(db, 'users', uid));
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      return { barangay: data.barangay || '' };
+    }
+    return { barangay: '' };
+  }
 }
