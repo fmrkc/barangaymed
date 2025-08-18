@@ -118,16 +118,6 @@ const Login: React.FC = () => {
                             placeholder="juan123"
                             value={password}
                             onIonChange={(e) => setPassword(e.detail.value!)}
-                            onKeyPress={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                // Update password state with current value before submitting
-                                if (e.target instanceof HTMLInputElement) {
-                                  setPassword(e.target.value);
-                                }
-                                doLogin(e);
-                              }
-                            }}
                           >
                             <IonIcon icon={lockClosed} slot="start" />
                           </IonInput>
