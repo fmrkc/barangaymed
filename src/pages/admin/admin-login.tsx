@@ -69,7 +69,7 @@ const AdminLogin: React.FC = () => {
               <div className="ion-text-center">
                 <IonText color={'primary'}>
                   <h1>BarangayMed+</h1>
-                  <h2>Super Admin Login</h2>
+                  <h2>Admin Login</h2>
                 </IonText>
               </div>
             </IonCol>
