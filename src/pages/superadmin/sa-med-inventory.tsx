@@ -259,7 +259,7 @@ const Medicine_Inventory: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
@@ -376,8 +376,8 @@ const Medicine_Inventory: React.FC = () => {
               <IonItem>
                 <IonLabel position="stacked">Type *</IonLabel>
                 <IonSelect 
-                  value={medicineType}
-                  onIonChange={(e) => setSelectedMedicine(e.detail.value)}
+                  value={medicineType} // Changed from setSelectedMedicine to setMedicineType
+                  onIonChange={(e) => setMedicineType(e.detail.value)}
                   placeholder="Select type"
                 >
                   {medicineTypes.map(type => (
