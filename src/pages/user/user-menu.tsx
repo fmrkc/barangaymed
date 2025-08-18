@@ -10,8 +10,8 @@ import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
 import Medicine_Request from './user-med-request';
 import User_Requests from './user-requests';
-import Medicine_Requests_Status from './user-requestsmeds';
-import Teleconsultation_Requests_Status from './user-requeststele'
+import Medicine_Requests_Status from './user-med-list';
+import Teleconsultation_Requests_Status from './user-tele-list'
 
 import { home as homeIcon, notifications as notificationsIcon, person as personIcon, megaphone as megaphoneIcon, albums } from 'ionicons/icons';
 
