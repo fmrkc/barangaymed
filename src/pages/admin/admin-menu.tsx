@@ -7,6 +7,7 @@ import Dashboard from './admin-dashboard';
 import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
 import Medicine_Requests from './admin-medicine-requests';
+import Residents from './admin-residents';
 
 import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -107,6 +108,7 @@ const Menu: React.FC = () => {
           </IonMenu>
           <IonRouterOutlet id="main">
             <Route exact path="/admin/dashboard" component={Dashboard} />
+            <Route exact path="/admin/dashboard/residents" component={Residents} />
             <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
             <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
             <Route exact path="/admin/dashboard/medicine-requests" component={Medicine_Requests} />
