@@ -1,5 +1,5 @@
-import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonList, IonItem, IonLabel, IonSpinner, IonActionSheet, IonModal, IonInput, IonSelect, IonSelectOption, IonButtons, IonBackButton, IonMenuButton } from '@ionic/react';
-import { personCircle, create, trash, ellipsisVertical } from 'ionicons/icons';
+import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonList, IonItem, IonLabel, IonSpinner, IonActionSheet, IonModal, IonInput, IonSelect, IonSelectOption, IonButtons, IonBackButton, IonMenuButton, IonFab, IonFabButton } from '@ionic/react';
+import { personCircle, create, trash, ellipsisVertical, add } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
@@ -141,7 +141,7 @@ const adminmanagement: React.FC = () => {
 
     return (
         <IonPage>
-            <IonHeader>
+            <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonButtons slot="start">
                         <IonMenuButton />
@@ -150,15 +150,21 @@ const adminmanagement: React.FC = () => {
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
+                <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                          <IonFabButton routerLink='/superadmin/dashboard/sa-register'>
+                            <IonIcon icon={add} />
+                          </IonFabButton>
+                        </IonFab>
+                
                 <IonGrid>
-                    <IonRow>
+                    {/* <IonRow>
                         <IonCol size="12">
                             <IonButton routerLink='/superadmin/dashboard/sa-register' type='button' color='primary'>
                                 Create Admin/Super Admin Account
                                 <IonIcon icon={personCircle} slot="end" />
                             </IonButton>
                         </IonCol>
-                    </IonRow>
+                    </IonRow> */}
                     
                     <IonRow className="ion-margin-top">
                         <IonCol size="12">
