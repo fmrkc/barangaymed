@@ -72,7 +72,7 @@ const Page1: React.FC<Page1Props> = ({
                   <IonNote><IonIcon  icon={cube}></IonIcon> {medicine.quantity} units</IonNote>
                 </IonLabel>
                 <IonChip color={medicine.quantity > 0 ? "primary" : "danger"} slot="end">
-                  {medicine.quantity > 0 ? medicine.quantity : "Sold Out"}
+                  {medicine.quantity > 0 ? medicine.quantity : "Out of Stock"}
                 </IonChip>
               </IonItem>
             ))}
