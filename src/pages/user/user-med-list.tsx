@@ -34,7 +34,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, getDoc } from 'firebase/firestore';
-import '../user/user-requestsmeds.css';
+import '../user/user-med-list.css';
 import { bagCheck, close, chevronBack } from 'ionicons/icons';
 import { logMedicineRequestStatusUpdate } from '../../utils/logger';
 
