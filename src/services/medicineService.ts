@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig';
-import { collection, getDocs, query, where, doc, updateDoc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc, getDoc, Timestamp, addDoc } from 'firebase/firestore';
 import { Medicine } from '../types/medicineRequests'; // Assuming Medicine interface is here
 
 export class MedicineService {
