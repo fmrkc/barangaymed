@@ -1,4 +1,4 @@
-import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonPage, IonRow, IonInput, IonIcon, useIonLoading, useIonRouter, IonCardSubtitle } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonPage, IonRow, IonInput, IonIcon, useIonLoading, useIonRouter, IonCardSubtitle, IonText } from '@ionic/react';
 import React, { useState } from 'react';
 import { lockClosed, logInSharp, person, personCircle } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png';
@@ -69,8 +69,10 @@ const SuperAdminLogin: React.FC = () => {
           <IonRow className="ion-justify-content-center">
             <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
               <div className="ion-text-center">
-                <h1>BarangayMed+</h1>
-                <h2>Super Admin Login</h2>
+                <IonText color={'primary'}>
+                  <h1>BarangayMed+</h1>
+                  <h2>Super Admin Login</h2>
+                </IonText>
               </div>
             </IonCol>
           </IonRow>
@@ -98,16 +100,6 @@ const SuperAdminLogin: React.FC = () => {
                       placeholder="superadmin123"
                       value={password}
                       onIonChange={(e) => setPassword(e.detail.value!)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          // Update password state with current value before submitting
-                          if (e.target instanceof HTMLInputElement) {
-                            setPassword(e.target.value);
-                          }
-                          doLogin(e);
-                        }
-                      }}
                        >
                             <IonIcon icon={lockClosed} slot="start" />
                           </IonInput>
