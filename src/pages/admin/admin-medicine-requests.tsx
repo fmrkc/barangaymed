@@ -26,20 +26,29 @@ import {
 } from '@ionic/react';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // your firebase config import
-import { logMedicineRequestStatusUpdate } from '../../utils/logger';
+import { MedicineService } from '../../services/medicineService';
+import { LogService } from '../../services/logService';
+import { useAuth } from '../../contexts/AuthContext'; // Assuming AuthContext is available for current user
 import './admin-medicine-requests.css';
 import { calendarClear, checkmark, close, cube, ellipsisHorizontal, open, person } from 'ionicons/icons';
 
+const medicineService = MedicineService.getInstance();
+const logService = LogService.getInstance();
+
 interface MedicineRequest {
   id: string;
+  medicineId: string; // Added medicineId
   medicineName: string;
   quantity: number;
   status: string;
   userName: string;
+  userEmail: string; // Added userEmail
+  userId: string; // Added userId for notifications
   pickupDate: any;
 }
 
 const AdminMedicineRequests: React.FC = () => {
+  const { currentUser } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -64,22 +73,49 @@ const AdminMedicineRequests: React.FC = () => {
 
   // Update status in Firestore
   const updateStatus = async (status: 'approved' | 'cancelled') => {
-    if (selectedRequest) {
+    if (selectedRequest && currentUser) {
       const docRef = doc(db, 'medicineRequests', selectedRequest.id);
       
-      // Log the status change
-      const adminUserId = 'admin-user-id'; // Replace with actual admin user ID
-      const adminEmail = 'admin@example.com'; // Replace with actual admin email
-      const adminRole = 'admin';
-      
-      logMedicineRequestStatusUpdate(
-        adminUserId,
-        adminEmail,
-        adminRole,
-        selectedRequest.id,
-        selectedRequest.status,
-        status
-      );
+      // Log the status change for user notification
+      await logService.logActivity({
+        action: 'medicine_request_status_update',
+        userId: selectedRequest.userId, // User who made the request
+        userEmail: selectedRequest.userEmail || 'unknown@email.com',
+        role: 'user',
+        details: {
+          requestId: selectedRequest.id,
+          oldStatus: selectedRequest.status,
+          newStatus: status,
+          medicineName: selectedRequest.medicineName,
+          message: `Your request for ${selectedRequest.medicineName} has been ${status}.`
+        }
+      });
+
+      // If cancelled, increment medicine quantity back
+      if (status === 'cancelled') {
+        try {
+          await medicineService.incrementMedicineQuantity(selectedRequest.medicineId, selectedRequest.quantity);
+          // Log inventory change due to cancellation
+          await logService.logActivity({
+            action: 'medicine_inventory_update',
+            userId: currentUser.uid,
+            userEmail: currentUser.email || 'unknown@email.com',
+            userName: currentUser.displayName || 'Admin',
+            role: 'admin',
+            details: {
+              medicineId: selectedRequest.medicineId,
+              medicineName: selectedRequest.medicineName,
+              quantityChange: selectedRequest.quantity,
+              reason: 'request_cancelled',
+              requestId: selectedRequest.id,
+              message: `Returned ${selectedRequest.quantity} units of ${selectedRequest.medicineName} to inventory due to request cancellation.`
+            }
+          });
+        } catch (error) {
+          console.error('Error incrementing medicine quantity:', error);
+          // Handle error, maybe show a toast
+        }
+      }
       
       await updateDoc(docRef, { status: status });
       setRequests((prev) =>

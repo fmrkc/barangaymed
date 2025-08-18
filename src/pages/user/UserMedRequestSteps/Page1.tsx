@@ -59,20 +59,20 @@ const Page1: React.FC<Page1Props> = ({
           value={selectedMedicine?.id}
           onIonChange={(e) => {
             const medicine = medicines.find(m => m.id === e.detail.value);
-            if (medicine) onMedicineSelect(medicine);
+            if (medicine && medicine.quantity > 0) onMedicineSelect(medicine);
           }}
         >
           <IonList>
             {filteredMedicines.map((medicine) => (
-              <IonItem key={medicine.id}>
-                <IonRadio slot="start" value={medicine.id} />
+              <IonItem key={medicine.id} disabled={medicine.quantity <= 0}>
+                <IonRadio slot="start" value={medicine.id} disabled={medicine.quantity <= 0} />
                 <IonLabel>
                   <h3>{medicine.name}</h3>
                   <p>Type: {medicine.type}</p>
                   <IonNote><IonIcon  icon={cube}></IonIcon> {medicine.quantity} units</IonNote>
                 </IonLabel>
-                <IonChip color="primary" slot="end">
-                  {medicine.quantity}
+                <IonChip color={medicine.quantity > 0 ? "primary" : "danger"} slot="end">
+                  {medicine.quantity > 0 ? medicine.quantity : "Sold Out"}
                 </IonChip>
               </IonItem>
             ))}
@@ -88,7 +88,7 @@ const Page1: React.FC<Page1Props> = ({
         <IonButton
           expand="block"
           onClick={onNext}
-          disabled={!selectedMedicine}
+          disabled={!selectedMedicine || selectedMedicine.quantity <= 0}
           shape='round'
           className="ion-padding-vertical"
         >

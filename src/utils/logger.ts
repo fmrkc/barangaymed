@@ -3,6 +3,9 @@
  */
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import { LogService } from '../services/logService';
+
+const logService = LogService.getInstance();
 
 // Define log levels
 export type LogLevel = 'info' | 'warn' | 'error';
@@ -26,21 +29,19 @@ export interface LogEntry {
  */
 const saveLogToFirestore = async (logEntry: LogEntry) => {
   try {
-    // Create a simplified version of the log entry for Firestore
-    const firestoreLogEntry = {
-      timestamp: Timestamp.fromDate(logEntry.timestamp),
-      level: logEntry.level,
-      message: logEntry.message,
-      userId: logEntry.userId || null,
-      userEmail: logEntry.userEmail || null,
-      userRole: logEntry.userRole || null,
-      ip: logEntry.ip || null,
-      userAgent: logEntry.userAgent || null,
-      metadata: logEntry.metadata || {}
-    };
-
-    // Save to Firestore collection named 'logs'
-    await addDoc(collection(db, 'logs'), firestoreLogEntry);
+    await logService.logActivity({
+      action: logEntry.metadata?.action || 'general_log',
+      userId: logEntry.userId,
+      userEmail: logEntry.userEmail,
+      role: logEntry.userRole,
+      details: {
+        level: logEntry.level,
+        message: logEntry.message,
+        ip: logEntry.ip,
+        userAgent: logEntry.userAgent,
+        ...logEntry.metadata,
+      },
+    });
   } catch (error) {
     console.error('Failed to save log to Firestore:', error);
     // We don't want logging errors to break the application

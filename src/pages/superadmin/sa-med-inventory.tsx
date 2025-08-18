@@ -39,31 +39,13 @@ import {
 import { add, search, close, create, trash, pencil } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { collection, addDoc, getDocs, query, where, Timestamp, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import { MedicineService } from '../../services/medicineService'; // Import MedicineService
+import { LogService } from '../../services/logService'; // Import LogService
 import { BARANGAYS } from '../../constants/barangays';
+import { Medicine } from '../../types/medicineRequests'; // Import Medicine interface
 
-interface Medicine {
-  id?: string;
-  name: string;
-  type: string;
-  quantity: number;
-  expiryDate: Date;
-  location: string;
-  barangay?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface ActivityLog {
-  id?: string;
-  action: string;
-  userId: string;
-  userEmail: string;
-  details: any;
-  timestamp: Date;
-  collectionName: string;
-}
+const medicineService = MedicineService.getInstance();
+const logService = LogService.getInstance();
 
 const OTC_MEDICINES = [
   'Paracetamol',
@@ -133,54 +115,25 @@ const Medicine_Inventory: React.FC = () => {
     filterMedicines();
   }, [medicines, searchText, selectedSegment]);
 
-  const logActivity = async (action: string, details: any) => {
-    if (!currentUser) return;
-    
-    try {
-      const logEntry: Omit<ActivityLog, 'id'> = {
-        action,
-        userId: currentUser.uid,
-        userEmail: currentUser.email || 'unknown@email.com',
-        details,
-        timestamp: new Date(),
-        collectionName: 'medicines'
-      };
-
-      await addDoc(collection(db, 'activityLogs'), {
-        ...logEntry,
-        timestamp: serverTimestamp()
-      });
-    } catch (error) {
-      console.error('Error logging activity:', error);
-    }
-  };
-
   const fetchMedicines = async () => {
     setLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, 'medicines'));
-      const medicineData: Medicine[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        medicineData.push({
-          id: doc.id,
-          name: data.name,
-          type: data.type,
-          quantity: data.quantity,
-          expiryDate: data.expiryDate.toDate(),
-          location: data.location,
-          barangay: data.barangay,
-          createdAt: data.createdAt.toDate(),
-          updatedAt: data.updatedAt.toDate()
-        });
-      });
+      const medicineData = await medicineService.getAllMedicines();
       setMedicines(medicineData);
       
-      await logActivity('VIEW', {
-        action: 'Fetched medicine inventory',
-        count: medicineData.length,
-        location: selectedSegment
-      });
+      if (currentUser) {
+        await logService.logActivity({
+          action: 'view_medicine_inventory',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown@email.com',
+          role: 'superadmin',
+          details: {
+            message: 'Fetched medicine inventory',
+            count: medicineData.length,
+            location: selectedSegment
+          }
+        });
+      }
     } catch (error) {
       console.error('Error fetching medicines:', error);
       setToastMessage('Error loading medicines');
@@ -234,41 +187,34 @@ const Medicine_Inventory: React.FC = () => {
 
     setLoading(true);
     try {
-      const newMedicine: Omit<Medicine, 'id'> = {
+      const newMedicine: Omit<Medicine, 'id' | 'createdAt' | 'updatedAt'> = {
         name: medicineName,
         type: medicineType,
         quantity: parseInt(quantity),
         expiryDate: new Date(expiryDate),
         location: selectedLocation,
         barangay: selectedLocation === 'barangay' ? selectedBarangay : undefined,
-        createdAt: new Date(),
-        updatedAt: new Date()
       };
 
-      const docData: any = {
-        name: newMedicine.name,
-        type: newMedicine.type,
-        quantity: newMedicine.quantity,
-        expiryDate: Timestamp.fromDate(newMedicine.expiryDate),
-        location: newMedicine.location,
-        createdAt: Timestamp.fromDate(newMedicine.createdAt),
-        updatedAt: Timestamp.fromDate(newMedicine.updatedAt)
-      };
+      const medicineId = await medicineService.addMedicine(newMedicine);
 
-      if (newMedicine.barangay) {
-        docData.barangay = newMedicine.barangay;
+      if (currentUser) {
+        await logService.logActivity({
+          action: 'add_medicine',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown@email.com',
+          role: 'superadmin',
+          details: {
+            medicineId: medicineId,
+            medicineName: newMedicine.name,
+            type: newMedicine.type,
+            quantity: newMedicine.quantity,
+            location: newMedicine.location,
+            barangay: newMedicine.barangay,
+            message: `Added ${newMedicine.quantity} units of ${newMedicine.name} to inventory.`
+          }
+        });
       }
-
-      const docRef = await addDoc(collection(db, 'medicines'), docData);
-
-      await logActivity('CREATE', {
-        medicineId: docRef.id,
-        medicineName: newMedicine.name,
-        type: newMedicine.type,
-        quantity: newMedicine.quantity,
-        location: newMedicine.location,
-        barangay: newMedicine.barangay
-      });
 
       setToastMessage('Medicine added successfully');
       setShowToast(true);
@@ -431,7 +377,7 @@ const Medicine_Inventory: React.FC = () => {
                 <IonLabel position="stacked">Type *</IonLabel>
                 <IonSelect 
                   value={medicineType}
-                  onIonChange={(e) => setMedicineType(e.detail.value)}
+                  onIonChange={(e) => setSelectedMedicine(e.detail.value)}
                   placeholder="Select type"
                 >
                   {medicineTypes.map(type => (
