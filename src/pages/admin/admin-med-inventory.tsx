@@ -24,13 +24,14 @@ import {
   IonFabButton,
   IonToast,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
+  IonButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineService } from '../../services/medicineService';
 import { Medicine } from '../../types/medicineRequests';
-import { medkit, warning, checkmarkCircle, closeCircle } from 'ionicons/icons';
+import { medkit, warning, checkmarkCircle, closeCircle, notifications } from 'ionicons/icons';
 import './admin-med-inventory.css';
 
 const Admin_Med_Inventory: React.FC = () => {
@@ -44,6 +45,11 @@ const Admin_Med_Inventory: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [notifications, setNotifications] = useState<Array<{
+    type: 'expiry' | 'lowStock';
+    message: string;
+    medicineName: string;
+  }>>([]);
 
   const medicineService = MedicineService.getInstance();
 
@@ -134,6 +140,67 @@ const Admin_Med_Inventory: React.FC = () => {
     }
   };
 
+  const checkForNotifications = () => {
+    const newNotifications: Array<{
+      type: 'expiry' | 'lowStock';
+      message: string;
+      medicineName: string;
+    }> = [];
+
+    medicines.forEach(medicine => {
+      // Check for expiry notifications
+      const expiryStatus = getExpiryStatus(medicine.expiryDate);
+      if (expiryStatus.color === 'warning' || expiryStatus.color === 'danger') {
+        newNotifications.push({
+          type: 'expiry',
+          message: `${expiryStatus.text} - expires ${new Date(medicine.expiryDate).toLocaleDateString()}`,
+          medicineName: medicine.name
+        });
+      }
+
+      // Check for low stock notifications
+      if (medicine.quantity <= 5) {
+        newNotifications.push({
+          type: 'lowStock',
+          message: `Low stock - only ${medicine.quantity} units remaining`,
+          medicineName: medicine.name
+        });
+      }
+    });
+
+    setNotifications(newNotifications);
+  };
+
+  const handleRequestMedicine = async (medicine: Medicine) => {
+    try {
+      const { db } = await import('../../firebaseConfig');
+      const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
+      
+      const requestData = {
+        adminId: currentUser?.uid,
+        adminEmail: currentUser?.email,
+        barangay: userBarangay,
+        medicineId: medicine.id,
+        medicineName: medicine.name,
+        medicineType: medicine.type,
+        currentQuantity: medicine.quantity,
+        status: 'pending',
+        requestDate: serverTimestamp(),
+        requestType: 'shortage_notification',
+        notes: `Barangay ${userBarangay} has a shortage of ${medicine.name} (${medicine.type}). Current stock: ${medicine.quantity} units.`
+      };
+
+      await addDoc(collection(db, 'adminMedicineRequests'), requestData);
+      
+      setToastMessage(`Request sent to Super Admin for ${medicine.name}`);
+      setShowToast(true);
+    } catch (error) {
+      console.error('Error sending request:', error);
+      setAlertMessage('Failed to send request. Please try again.');
+      setShowAlert(true);
+    }
+  };
+
   const handleRefresh = () => {
     loadMedicines();
     setToastMessage('Medicine list refreshed');
@@ -144,11 +211,17 @@ const Admin_Med_Inventory: React.FC = () => {
     <IonPage>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot='start'>
             <IonMenuButton />
           </IonButtons>
           <IonTitle>Barangay {userBarangay} Inventory</IonTitle>
+          <IonButtons slot='end'>
+            <IonButton shape='round'>
+              <IonIcon icon='notifications' slot="start" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
+        
       </IonHeader>
       
       <IonContent className="ion-padding">
@@ -243,6 +316,17 @@ const Admin_Med_Inventory: React.FC = () => {
                             </IonCol>
                           </IonRow>
                         </IonGrid>
+                        
+                        {(medicine.quantity <= 10 || getExpiryStatus(medicine.expiryDate).color === 'warning' || getExpiryStatus(medicine.expiryDate).color === 'danger') && (
+                          <IonButton 
+                            expand="block" 
+                            color="primary"
+                            onClick={() => handleRequestMedicine(medicine)}
+                            className="ion-margin-top"
+                          >
+                            Request from Super Admin
+                          </IonButton>
+                        )}
                       </IonCardContent>
                     </IonCard>
                   </IonCol>

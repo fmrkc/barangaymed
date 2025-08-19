@@ -36,7 +36,7 @@ import {
   IonDatetimeButton,
   IonPopover
 } from '@ionic/react';
-import { add, search, close, create, trash, pencil } from 'ionicons/icons';
+import { add, search, close, create, trash, pencil, notifications } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineService } from '../../services/medicineService'; // Import MedicineService
@@ -265,6 +265,11 @@ const Medicine_Inventory: React.FC = () => {
             <IonMenuButton />
           </IonButtons>
           <IonTitle>Medicine Inventory Management</IonTitle>
+          <IonButtons slot="end">
+            <IonButton shape='round'>
+              <IonIcon icon={notifications} slot="start" />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       
