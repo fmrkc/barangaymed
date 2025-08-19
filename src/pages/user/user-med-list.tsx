@@ -416,7 +416,7 @@ const UserRequests: React.FC = () => {
                         View Details
                       </IonButton>
                       <IonButton onClick={() => handleCardClick(request)} color="primary" disabled={request.status !== 'approved'}>
-                        <IonIcon icon={bagCheck} slot="start" />
+                        <IonIcon icon={checkmark} slot="end" />
                         Mark as Completed
                       </IonButton>
                     </div>
