@@ -38,25 +38,19 @@ const Page2: React.FC<Page2Props> = ({
   return (
     <div>
       <IonCardHeader>
-        <IonCardTitle>Step 2: Request Details</IonCardTitle>
+        <IonCardTitle>You are requesting: {selectedMedicine.name}</IonCardTitle>
         <IonText color="medium">
-          <p>Specify the quantity and your pick-up date.</p>
+          <p>Specify the quantity and pickup date.</p>
         </IonText>
       </IonCardHeader>
 
       <IonCardContent>
         {selectedMedicine && (
           <div>
-            <IonItem>
-              <IonInput
-              readonly
-              value={selectedMedicine.name}
-              > <IonIcon slot="start" icon={bag} aria-hidden="true" /></IonInput>
-            </IonItem>
 
             <IonItem>
               <IonInput
-              disabled
+              readonly
               value={selectedMedicine.quantity + " units available."}
               > <IonIcon slot="start" icon={cube} aria-hidden="true" /></IonInput>
             </IonItem>
@@ -65,13 +59,14 @@ const Page2: React.FC<Page2Props> = ({
           </div>
         )}
 
-        <IonItem>
+        <IonItem >
           <IonInput
            className='ion-margin-top'
             fill='outline'
             type="number"
             label='Quantity:'
             labelPlacement='floating'
+            helperText={'Only 1-12 pcs. allowed per request.'}
             value={quantity}
             min={1}
             max={Math.min(maxQuantity, 12)}
@@ -82,11 +77,11 @@ const Page2: React.FC<Page2Props> = ({
             }}
             placeholder="Enter quantity"
           />
-          <IonNote slot="helper">Maximum: {Math.min(maxQuantity, 12)} units (1-12 pcs allowed)</IonNote>
+         
         </IonItem>
 
         <IonItem>
-          <IonLabel position="stacked">Pickup Date</IonLabel>
+          <IonLabel position="stacked">Pickup Date:</IonLabel>
           <IonDatetime
           className='ion-margin-top'
             presentation="date"
@@ -109,10 +104,7 @@ const Page2: React.FC<Page2Props> = ({
             Next
             <IonIcon icon={chevronForward} slot="end" />
           </IonButton>
-          <IonButton expand="block" shape='round' className='ion-padding-vertical' fill="outline" onClick={onBack}>
-            <IonIcon icon={chevronBack} slot="start" />
-            Back
-          </IonButton>
+      
         </div>
       </IonCardContent>
     </div>
