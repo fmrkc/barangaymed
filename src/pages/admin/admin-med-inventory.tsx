@@ -25,13 +25,16 @@ import {
   IonToast,
   IonRefresher,
   IonRefresherContent,
-  IonButton
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonInput
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineService } from '../../services/medicineService';
 import { Medicine } from '../../types/medicineRequests';
-import { medkit, warning, checkmarkCircle, closeCircle, notifications } from 'ionicons/icons';
+import { medkit, warning, checkmarkCircle, closeCircle, notifications, notificationsCircle, notificationsOff, barbell, alertCircle, ellipsisVertical, open } from 'ionicons/icons';
 import './admin-med-inventory.css';
 
 const Admin_Med_Inventory: React.FC = () => {
@@ -260,71 +263,64 @@ const Admin_Med_Inventory: React.FC = () => {
                 
                 return (
                   <IonCol size="12" size-md="6" size-lg="4" key={medicine.id}>
-                    <IonCard>
+                    <IonCard button>
                       <IonCardHeader>
-                        <IonCardTitle>{medicine.name}</IonCardTitle>
+                        <IonCardTitle>
+                          <IonText color={"primary"}>{medicine.name}</IonText>
+                        </IonCardTitle>
                         <IonCardSubtitle>Type: {medicine.type}</IonCardSubtitle>
                       </IonCardHeader>
-                      
+
                       <IonCardContent>
                         <IonGrid>
                           <IonRow>
                             <IonCol size="6">
-                              <IonText color="medium">
-                                <small>Quantity</small>
-                              </IonText>
-                              <div>
-                                <strong>{medicine.quantity}</strong>
-                                <IonBadge 
-                                  color={quantityStatus.color} 
-                                  style={{ marginLeft: '8px' }}
-                                >
+                              <IonItem>
+                                <IonLabel>
+                                  <small>In stock:</small>
+                                  <br /> {medicine.quantity}
+                                </IonLabel>
+                                <IonBadge color={quantityStatus.color}>
                                   {quantityStatus.text}
                                 </IonBadge>
-                              </div>
+                              </IonItem>
                             </IonCol>
-                            
                             <IonCol size="6">
-                              <IonText color="medium">
-                                <small>Location</small>
-                              </IonText>
-                              <div>
-                                <strong>{medicine.location}</strong>
-                              </div>
-                            </IonCol>
-                          </IonRow>
-                          
-                          <IonRow className="ion-margin-top">
-                            <IonCol size="12">
-                              <IonText color="medium">
-                                <small>Expiry Date</small>
-                              </IonText>
-                              <div>
-                                <IonIcon 
-                                  icon={expiryStatus.icon} 
-                                  color={expiryStatus.color}
-                                  style={{ marginRight: '4px' }}
-                                />
-                                <strong>{new Date(medicine.expiryDate).toLocaleDateString()}</strong>
-                                <IonBadge 
-                                  color={expiryStatus.color}
-                                  style={{ marginLeft: '8px' }}
-                                >
+                              <IonItem>
+                                <IonLabel>
+                                  <small>Expiry Date:</small>
+                                  <br />
+                                  {new Date(
+                                    medicine.expiryDate
+                                  ).toLocaleDateString()}
+                                </IonLabel>
+                                <IonBadge color={expiryStatus.color}>
+                                  <IonIcon
+                                    icon={expiryStatus.icon}
+                                    slot="start"
+                                  />
                                   {expiryStatus.text}
                                 </IonBadge>
-                              </div>
+                              </IonItem>
                             </IonCol>
                           </IonRow>
                         </IonGrid>
+
                         
-                        {(medicine.quantity <= 10 || getExpiryStatus(medicine.expiryDate).color === 'warning' || getExpiryStatus(medicine.expiryDate).color === 'danger') && (
-                          <IonButton 
-                            expand="block" 
+
+                        {(medicine.quantity <= 10 ||
+                          getExpiryStatus(medicine.expiryDate).color ===
+                            "warning" ||
+                          getExpiryStatus(medicine.expiryDate).color ===
+                            "danger") && (
+                          <IonButton
+                            expand="block"
                             color="primary"
                             onClick={() => handleRequestMedicine(medicine)}
                             className="ion-margin-top"
                           >
                             Request from Super Admin
+                            <IonIcon icon={alertCircle} slot="end" />
                           </IonButton>
                         )}
                       </IonCardContent>
