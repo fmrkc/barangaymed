@@ -30,6 +30,7 @@ interface TelePage1Props {
 const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
   const history = useHistory();
   const [formData, setFormData] = useState({
+    consultationType: '',
     preferredDate: '',
     preferredTime: '',
     symptoms: '',
@@ -37,7 +38,7 @@ const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
   });
 
   const handleNext = () => {
-    if (!formData.preferredDate || !formData.preferredTime || !formData.symptoms) {
+    if (!formData.consultationType || !formData.preferredDate || !formData.preferredTime || !formData.symptoms) {
       alert('Please fill in all required fields');
       return;
     }
@@ -62,6 +63,19 @@ const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
               <IonCard>
                 <IonCardContent>
                   <h2>Consultation Details</h2>
+                  
+                  <IonItem>
+                    <IonLabel position="stacked">Consultation Type *</IonLabel>
+                    <IonSelect
+                      value={formData.consultationType}
+                      placeholder="Select consultation type"
+                      onIonChange={(e) => setFormData({ ...formData, consultationType: e.detail.value })}
+                    >
+                      <IonSelectOption value="general">General Consultation</IonSelectOption>
+                      <IonSelectOption value="specialist">Specialist Consultation</IonSelectOption>
+                      <IonSelectOption value="follow-up">Follow-up Consultation</IonSelectOption>
+                    </IonSelect>
+                  </IonItem>
 
                   <IonItem>
                     <IonLabel position="stacked">Preferred Date *</IonLabel>

@@ -52,6 +52,7 @@ const TelePage3: React.FC<TelePage3Props> = ({ step1Data, step2Data }) => {
         userBarangay: step2Data.barangay,
         preferredDate: new Date(step1Data.preferredDate),
         preferredTime: step1Data.preferredTime,
+        consultationType: step1Data.consultationType,
         symptoms: step1Data.symptoms,
         additionalNotes: step1Data.additionalNotes || '',
         status: 'pending',
@@ -98,6 +99,7 @@ const TelePage3: React.FC<TelePage3Props> = ({ step1Data, step2Data }) => {
                 <IonCardContent>
                   <h3>Consultation Details</h3>
                   <IonText>
+                    <p><strong>Consultation Type:</strong> {step1Data.consultationType}</p>
                     <p><strong>Preferred Date:</strong> {new Date(step1Data.preferredDate).toLocaleDateString()}</p>
                     <p><strong>Preferred Time:</strong> {step1Data.preferredTime}</p>
                     <p><strong>Symptoms:</strong> {step1Data.symptoms}</p>

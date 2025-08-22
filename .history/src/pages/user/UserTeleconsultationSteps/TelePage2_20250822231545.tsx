@@ -108,67 +108,52 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                 <IonCardContent>
                   <h2>Personal Information</h2>
                   
-                  {loading ? (
-                    <div className="ion-text-center ion-padding">
-                      <IonSpinner />
-                      <p>Loading your information...</p>
-                    </div>
-                  ) : (
-                    <>
-                      {error && (
-                        <IonText color="warning" className="ion-padding">
-                          <p>{error}</p>
-                        </IonText>
-                      )}
-                      
-                      <IonItem>
-                        <IonLabel position="stacked">Full Name *</IonLabel>
-                        <IonInput
-                          value={formData.fullName}
-                          onIonChange={(e) => setFormData({ ...formData, fullName: e.detail.value! })}
-                          placeholder="Enter your full name"
-                        />
-                      </IonItem>
+                  <IonItem>
+                    <IonLabel position="stacked">Full Name *</IonLabel>
+                    <IonInput
+                      value={formData.fullName}
+                      onIonChange={(e) => setFormData({ ...formData, fullName: e.detail.value! })}
+                      placeholder="Enter your full name"
+                    />
+                  </IonItem>
 
-                      <IonItem>
-                        <IonLabel position="stacked">Email Address *</IonLabel>
-                        <IonInput
-                          type="email"
-                          value={formData.email}
-                          onIonChange={(e) => setFormData({ ...formData, email: e.detail.value! })}
-                          placeholder="Enter your email address"
-                        />
-                      </IonItem>
+                  <IonItem>
+                    <IonLabel position="stacked">Email Address *</IonLabel>
+                    <IonInput
+                      type="email"
+                      value={formData.email}
+                      onIonChange={(e) => setFormData({ ...formData, email: e.detail.value! })}
+                      placeholder="Enter your email address"
+                    />
+                  </IonItem>
 
-                      <IonItem>
-                        <IonLabel position="stacked">Phone Number *</IonLabel>
-                        <IonInput
-                          type="tel"
-                          value={formData.phone}
-                          onIonChange={(e) => setFormData({ ...formData, phone: e.detail.value! })}
-                          placeholder="Enter your phone number"
-                        />
-                      </IonItem>
+                  <IonItem>
+                    <IonLabel position="stacked">Phone Number *</IonLabel>
+                    <IonInput
+                      type="tel"
+                      value={formData.phone}
+                      onIonChange={(e) => setFormData({ ...formData, phone: e.detail.value! })}
+                      placeholder="Enter your phone number"
+                    />
+                  </IonItem>
 
-                      <IonItem>
-                        <IonLabel position="stacked">Address *</IonLabel>
-                        <IonInput
-                          value={formData.address}
-                          onIonChange={(e) => setFormData({ ...formData, address: e.detail.value! })}
-                          placeholder="Enter your complete address"
-                        />
-                      </IonItem>
+                  <IonItem>
+                    <IonLabel position="stacked">Address *</IonLabel>
+                    <IonInput
+                      value={formData.address}
+                      onIonChange={(e) => setFormData({ ...formData, address: e.detail.value! })}
+                      placeholder="Enter your complete address"
+                    />
+                  </IonItem>
 
-                      <IonItem>
-                        <IonLabel position="stacked">Barangay *</IonLabel>
-                        <IonInput
-                          value={formData.barangay}
-                          onIonChange={(e) => setFormData({ ...formData, barangay: e.detail.value! })}
-                          placeholder="Enter your barangay"
-                        />
-                      </IonItem>
-                    </>
-                  )}
+                  <IonItem>
+                    <IonLabel position="stacked">Barangay *</IonLabel>
+                    <IonInput
+                      value={formData.barangay}
+                      onIonChange={(e) => setFormData({ ...formData, barangay: e.detail.value! })}
+                      placeholder="Enter your barangay"
+                    />
+                  </IonItem>
 
                   <div className="ion-margin-top">
                     <IonButton expand="block" onClick={handleBack} fill="outline" className="ion-margin-bottom">

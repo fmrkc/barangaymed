@@ -30,6 +30,7 @@ interface TelePage1Props {
 const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
   const history = useHistory();
   const [formData, setFormData] = useState({
+    consultationType: '',
     preferredDate: '',
     preferredTime: '',
     symptoms: '',
@@ -37,7 +38,7 @@ const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
   });
 
   const handleNext = () => {
-    if (!formData.preferredDate || !formData.preferredTime || !formData.symptoms) {
+    if (!formData.consultationType || !formData.preferredDate || !formData.preferredTime || !formData.symptoms) {
       alert('Please fill in all required fields');
       return;
     }
@@ -62,26 +63,43 @@ const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
               <IonCard>
                 <IonCardContent>
                   <h2>Consultation Details</h2>
+                  
+                  <IonItem>
+                    <IonLabel position="stacked">Consultation Type *</IonLabel>
+                    <IonSelect
+                      value={formData.consultationType}
+                      placeholder="Select consultation type"
+                      onIonChange={(e) => setFormData({ ...formData, consultationType: e.detail.value })}
+                    >
+                      <IonSelectOption value="general">General Consultation</IonSelectOption>
+                      <IonSelectOption value="specialist">Specialist Consultation</IonSelectOption>
+                      <IonSelectOption value="follow-up">Follow-up Consultation</IonSelectOption>
+                    </IonSelect>
+                  </IonItem>
 
                   <IonItem>
                     <IonLabel position="stacked">Preferred Date *</IonLabel>
                     <IonDatetime
                       presentation="date"
                       value={formData.preferredDate}
-                      onIonChange={(e) => setFormData({ ...formData, preferredDate: Array.isArray(e.detail.value) ? e.detail.value[0] : e.detail.value || '' })}
+                      onIonChange={(e) => setFormData({ ...formData, preferredDate: e.detail.value! })}
                       min={new Date().toISOString()}
                     />
                   </IonItem>
 
                   <IonItem>
-                    <IonLabel position="stacked">Preferred Time Period *</IonLabel>
+                    <IonLabel position="stacked">Preferred Time *</IonLabel>
                     <IonSelect
                       value={formData.preferredTime}
-                      placeholder="Select AM or PM"
+                      placeholder="Select preferred time"
                       onIonChange={(e) => setFormData({ ...formData, preferredTime: e.detail.value })}
                     >
-                      <IonSelectOption value="AM">Morning (AM)</IonSelectOption>
-                      <IonSelectOption value="PM">Afternoon (PM)</IonSelectOption>
+                      <IonSelectOption value="09:00">9:00 AM</IonSelectOption>
+                      <IonSelectOption value="10:00">10:00 AM</IonSelectOption>
+                      <IonSelectOption value="11:00">11:00 AM</IonSelectOption>
+                      <IonSelectOption value="14:00">2:00 PM</IonSelectOption>
+                      <IonSelectOption value="15:00">3:00 PM</IonSelectOption>
+                      <IonSelectOption value="16:00">4:00 PM</IonSelectOption>
                     </IonSelect>
                   </IonItem>
 

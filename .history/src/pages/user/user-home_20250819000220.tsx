@@ -75,7 +75,7 @@ const Home: React.FC = () => {
 
                         
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowTeleconsultationModal(true)}>
+                            <IonCard className='ion-padding-vertical' color={'primary'}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
@@ -109,13 +109,9 @@ const Home: React.FC = () => {
                     
                 </IonGrid>
             </IonContent>
-            <UserMedRequestModal
+            <UserMedRequestModal 
                 isOpen={showMedicineModal}
                 onDidDismiss={() => setShowMedicineModal(false)}
-            />
-            <UserTeleRequest
-                isOpen={showTeleconsultationModal}
-                onDidDismiss={() => setShowTeleconsultationModal(false)}
             />
         </>
     );

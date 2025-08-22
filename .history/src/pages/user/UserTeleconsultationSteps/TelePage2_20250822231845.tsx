@@ -155,7 +155,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                         <IonInput
                           value={formData.address}
                           onIonChange={(e) => setFormData({ ...formData, address: e.detail.value! })}
-                          placeholder="Enter your complete address"
+                          placeholder极Enter your complete address"
                         />
                       </IonItem>
 

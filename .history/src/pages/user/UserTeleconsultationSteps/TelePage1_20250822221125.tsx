@@ -30,6 +30,7 @@ interface TelePage1Props {
 const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
   const history = useHistory();
   const [formData, setFormData] = useState({
+    consultationType: '',
     preferredDate: '',
     preferredTime: '',
     symptoms: '',

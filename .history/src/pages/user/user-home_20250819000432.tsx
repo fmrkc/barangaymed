@@ -113,10 +113,6 @@ const Home: React.FC = () => {
                 isOpen={showMedicineModal}
                 onDidDismiss={() => setShowMedicineModal(false)}
             />
-            <UserTeleRequest
-                isOpen={showTeleconsultationModal}
-                onDidDismiss={() => setShowTeleconsultationModal(false)}
-            />
         </>
     );
 };
