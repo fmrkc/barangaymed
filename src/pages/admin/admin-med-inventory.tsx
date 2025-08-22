@@ -38,7 +38,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineService } from '../../services/medicineService';
 import { Medicine } from '../../types/medicineRequests';
-import { medkit, warning, checkmarkCircle, closeCircle, notifications, notificationsCircle, notificationsOff, barbell, alertCircle, ellipsisVertical, open } from 'ionicons/icons';
+import { medkit, warning, checkmarkCircle, closeCircle, notifications, notificationsCircle, notificationsOff, barbell, alertCircle, ellipsisVertical, open, albums, medkitOutline, cube, cubeOutline, calendar, close, business, calendarOutline, businessOutline, add, create, pencil, createOutline, pencilOutline, idCard, document } from 'ionicons/icons';
 import './admin-med-inventory.css';
 
 const Admin_Med_Inventory: React.FC = () => {
@@ -254,11 +254,10 @@ const Admin_Med_Inventory: React.FC = () => {
           <IonTitle>Barangay {userBarangay} Inventory</IonTitle>
           <IonButtons slot='end'>
             <IonButton shape='round'>
-              <IonIcon icon='notifications' slot="start" />
+              <IonIcon icon={albums} slot="start" />
             </IonButton>
           </IonButtons>
         </IonToolbar>
-        
       </IonHeader>
       
       <IonContent className="ion-padding">
@@ -272,6 +271,7 @@ const Admin_Med_Inventory: React.FC = () => {
           debounce={300}
           animated
         />
+        <IonCardSubtitle>Showing all medicines currently in stock in {userBarangay}.</IonCardSubtitle>
 
         {loading ? (
           <div className="ion-text-center ion-padding">
@@ -392,8 +392,10 @@ const Admin_Med_Inventory: React.FC = () => {
         >
           <IonHeader>
             <IonToolbar>
-              <IonButtons slot="start">
-                <IonButton onClick={handleCloseModal}>Close</IonButton>
+              <IonButtons slot="end">
+                <IonButton onClick={handleCloseModal} >
+                  <IonIcon icon={close} color='primary' />
+                </IonButton>
               </IonButtons>
               <IonTitle>
                 {selectedMedicine?.name}
@@ -415,75 +417,63 @@ const Admin_Med_Inventory: React.FC = () => {
           </IonHeader>
 
           <IonContent className="ion-padding">
-            {selectedSegment === 'details' && selectedMedicine && (
-              <IonGrid>
-                <IonRow>
-                  <IonCol size="12">
-                    <IonCard>
-                      <IonCardHeader>
-                        <IonCardTitle>Medicine Information</IonCardTitle>
-                      </IonCardHeader>
-                      <IonCardContent>
+            <IonCard>
+              <IonCardContent>
+                {selectedSegment === 'details' && selectedMedicine && (
+                  <IonGrid>
+                    <IonRow>
+                      <IonCol size="12">
                         <IonList>
                           <IonItem>
-                            <IonLabel>
-                              <h3>Name</h3>
-                              <p>{selectedMedicine.name}</p>
-                            </IonLabel>
+                            <IonInput label='Medicine ID:' labelPlacement='floating' value={selectedMedicine.id} disabled>
+                              <IonIcon icon={document} slot="start" />       
+                            </IonInput>
                           </IonItem>
+                          <br />
                           <IonItem>
-                            <IonLabel>
-                              <h3>Type</h3>
-                              <p>{selectedMedicine.type}</p>
-                            </IonLabel>
-                          </IonItem>
+                            <IonInput value={selectedMedicine.type} label='Med Type:' labelPlacement='floating'>
+                              <IonIcon icon={cubeOutline} slot="start" />
+                            </IonInput>
+                           </IonItem>
+                          <br />
                           <IonItem>
-                            <IonLabel>
-                              <h3>Quantity</h3>
-                              <p>{selectedMedicine.quantity} units</p>
-                            </IonLabel>
-                          </IonItem>
+                             <IonInput label='Quantity:' labelPlacement='floating'  value={selectedMedicine.quantity + ' units'} readonly>
+                              <IonIcon icon={cubeOutline} slot="start" />       
+                            </IonInput>
+                       </IonItem>
+                          <br />
                           <IonItem>
-                            <IonLabel>
-                              <h3>Expiry Date</h3>
-                              <p>{selectedMedicine.expiryDate.toLocaleDateString()}</p>
-                            </IonLabel>
+                             <IonInput label='Expiration Date:' labelPlacement='floating' value={selectedMedicine.expiryDate.toLocaleDateString()} readonly>
+                              <IonIcon icon={calendarOutline} slot="start" />       
+                            </IonInput>
                           </IonItem>
+                         <br />
+                          
+                       
                           <IonItem>
-                            <IonLabel>
-                              <h3>Location</h3>
-                              <p>{selectedMedicine.location}</p>
-                            </IonLabel>
-                          </IonItem>
-                          <IonItem>
-                            <IonLabel>
-                              <h3>Barangay</h3>
-                              <p>{selectedMedicine.barangay || 'N/A'}</p>
-                            </IonLabel>
-                          </IonItem>
                           {selectedMedicine.createdAt && (
-                            <IonItem>
-                              <IonLabel>
-                                <h3>Created At</h3>
-                                <p>{selectedMedicine.createdAt.toLocaleDateString()}</p>
-                              </IonLabel>
-                            </IonItem>
+                              <IonInput label='Created:' labelPlacement='floating' value={selectedMedicine.createdAt.toLocaleDateString()} readonly>       
+                                <IonIcon icon={createOutline} slot="start" />       
+                            </IonInput>
+                           
+                          
                           )}
                           {selectedMedicine.updatedAt && (
-                            <IonItem>
-                              <IonLabel>
-                                <h3>Last Updated</h3>
-                                <p>{selectedMedicine.updatedAt.toLocaleDateString()}</p>
-                              </IonLabel>
-                            </IonItem>
+                            <IonInput label='Last update:' labelPlacement='floating' value={selectedMedicine.updatedAt.toLocaleDateString()} readonly>
+                              <IonIcon icon={pencilOutline} slot="start" />       
+                            </IonInput>
+                              
+                          
                           )}
+                          </IonItem>
                         </IonList>
-                      </IonCardContent>
-                    </IonCard>
+               
                   </IonCol>
                 </IonRow>
               </IonGrid>
             )}
+          </IonCardContent>
+          </IonCard>
 
             {selectedSegment === 'orders' && (
               <IonGrid>
