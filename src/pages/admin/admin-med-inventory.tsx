@@ -28,7 +28,11 @@ import {
   IonButton,
   IonItem,
   IonLabel,
-  IonInput
+  IonInput,
+  IonModal,
+  IonSegment,
+  IonSegmentButton,
+  IonList
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -53,6 +57,11 @@ const Admin_Med_Inventory: React.FC = () => {
     message: string;
     medicineName: string;
   }>>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState<'details' | 'orders'>('details');
+  const [medicineRequests, setMedicineRequests] = useState<any[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
 
   const medicineService = MedicineService.getInstance();
 
@@ -210,6 +219,31 @@ const Admin_Med_Inventory: React.FC = () => {
     setShowToast(true);
   };
 
+  const handleOpenMedicineDetails = async (medicine: Medicine) => {
+    setSelectedMedicine(medicine);
+    setSelectedSegment('details');
+    setShowModal(true);
+    
+    // Load medicine requests when opening modal
+    setLoadingRequests(true);
+    try {
+      const requests = await medicineService.getRequestsByMedicineId(medicine.id);
+      setMedicineRequests(requests);
+    } catch (error) {
+      console.error('Error loading medicine requests:', error);
+      setToastMessage('Failed to load medicine requests');
+      setShowToast(true);
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedMedicine(null);
+    setMedicineRequests([]);
+  };
+
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
@@ -263,7 +297,7 @@ const Admin_Med_Inventory: React.FC = () => {
                 
                 return (
                   <IonCol size="12" size-md="6" size-lg="4" key={medicine.id}>
-                    <IonCard button>
+                    <IonCard button onClick={() => handleOpenMedicineDetails(medicine)}>
                       <IonCardHeader>
                         <IonCardTitle>
                           <IonText color={"primary"}>{medicine.name}</IonText>
@@ -315,11 +349,11 @@ const Admin_Med_Inventory: React.FC = () => {
                             "danger") && (
                           <IonButton
                             expand="block"
-                            color="primary"
+                            color='danger'
                             onClick={() => handleRequestMedicine(medicine)}
                             className="ion-margin-top"
                           >
-                            Request from Super Admin
+                            Request from RHU
                             <IonIcon icon={alertCircle} slot="end" />
                           </IonButton>
                         )}
@@ -349,6 +383,180 @@ const Admin_Med_Inventory: React.FC = () => {
           duration={2000}
           position="bottom"
         />
+
+        {/* Medicine Details Modal */}
+        <IonModal 
+          isOpen={showModal} 
+          onDidDismiss={handleCloseModal}
+          className="medicine-details-modal"
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={handleCloseModal}>Close</IonButton>
+              </IonButtons>
+              <IonTitle>
+                {selectedMedicine?.name}
+              </IonTitle>
+            </IonToolbar>
+            <IonToolbar>
+              <IonSegment 
+                value={selectedSegment} 
+                onIonChange={(e) => setSelectedSegment(e.detail.value as 'details' | 'orders')}
+              >
+                <IonSegmentButton value="details">
+                  <IonLabel>Details</IonLabel>
+                </IonSegmentButton>
+                <IonSegmentButton value="orders">
+                  <IonLabel>Orders ({medicineRequests.length})</IonLabel>
+                </IonSegmentButton>
+              </IonSegment>
+            </IonToolbar>
+          </IonHeader>
+
+          <IonContent className="ion-padding">
+            {selectedSegment === 'details' && selectedMedicine && (
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="12">
+                    <IonCard>
+                      <IonCardHeader>
+                        <IonCardTitle>Medicine Information</IonCardTitle>
+                      </IonCardHeader>
+                      <IonCardContent>
+                        <IonList>
+                          <IonItem>
+                            <IonLabel>
+                              <h3>Name</h3>
+                              <p>{selectedMedicine.name}</p>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              <h3>Type</h3>
+                              <p>{selectedMedicine.type}</p>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              <h3>Quantity</h3>
+                              <p>{selectedMedicine.quantity} units</p>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              <h3>Expiry Date</h3>
+                              <p>{selectedMedicine.expiryDate.toLocaleDateString()}</p>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              <h3>Location</h3>
+                              <p>{selectedMedicine.location}</p>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              <h3>Barangay</h3>
+                              <p>{selectedMedicine.barangay || 'N/A'}</p>
+                            </IonLabel>
+                          </IonItem>
+                          {selectedMedicine.createdAt && (
+                            <IonItem>
+                              <IonLabel>
+                                <h3>Created At</h3>
+                                <p>{selectedMedicine.createdAt.toLocaleDateString()}</p>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+                          {selectedMedicine.updatedAt && (
+                            <IonItem>
+                              <IonLabel>
+                                <h3>Last Updated</h3>
+                                <p>{selectedMedicine.updatedAt.toLocaleDateString()}</p>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+                        </IonList>
+                      </IonCardContent>
+                    </IonCard>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            )}
+
+            {selectedSegment === 'orders' && (
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="12">
+                    {loadingRequests ? (
+                      <div className="ion-text-center ion-padding">
+                        <IonSpinner name="crescent" />
+                        <IonText color="medium">
+                          <p>Loading orders...</p>
+                        </IonText>
+                      </div>
+                    ) : medicineRequests.length === 0 ? (
+                      <div className="ion-text-center ion-padding">
+                        <IonIcon icon={medkit} style={{ fontSize: '48px', color: 'var(--ion-color-medium)' }} />
+                        <IonText color="medium">
+                          <h3>No orders found</h3>
+                          <p>No orders have been placed for this medicine yet.</p>
+                        </IonText>
+                      </div>
+                    ) : (
+                      <IonList>
+                        {medicineRequests
+                          // Sort orders by requestDate in descending order (newest first)
+                          .sort((a, b) => {
+                            const dateA = a.requestDate ? new Date(a.requestDate).getTime() : 0;
+                            const dateB = b.requestDate ? new Date(b.requestDate).getTime() : 0;
+                            return dateB - dateA;
+                          })
+                          .map((request) => {
+                            // Format quantity with + or - based on request status
+                            let formattedQuantity = request.quantity;
+                            if (request.status === 'approved') {
+                              formattedQuantity = `-${request.quantity}`; // Medicine removed from inventory
+                            } else if (request.status === 'cancelled') {
+                              formattedQuantity = `+${request.quantity}`; // Medicine returned to inventory
+                            }
+
+                            return (
+                              <IonItem key={request.id}>
+                                <IonLabel>
+                                  <h3>{request.userName}</h3>
+                                  <p>Quantity: {formattedQuantity}</p>
+                                  <p>Status: {request.status}</p>
+                                  <p>Requested: {request.requestDate?.toLocaleDateString()}</p>
+                                  {request.pickupDate && (
+                                    <p>Pickup: {request.pickupDate.toLocaleDateString()}</p>
+                                  )}
+                                </IonLabel>
+                                <IonBadge
+                                  color={
+                                    request.status === 'pending'
+                                      ? 'warning'
+                                      : request.status === 'approved'
+                                        ? 'success'
+                                        : request.status === 'cancelled'
+                                          ? 'danger'
+                                          : 'medium'
+                                  }
+                                >
+                                  {request.status.toUpperCase()}
+                                </IonBadge>
+                              </IonItem>
+                            );
+                          })}
+                      </IonList>
+                    )}
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            )}
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
