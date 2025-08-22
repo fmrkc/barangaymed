@@ -32,7 +32,8 @@ import {
   IonModal,
   IonSegment,
   IonSegmentButton,
-  IonList
+  IonList,
+  IonChip
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -407,7 +408,7 @@ const Admin_Med_Inventory: React.FC = () => {
                 onIonChange={(e) => setSelectedSegment(e.detail.value as 'details' | 'orders')}
               >
                 <IonSegmentButton value="details">
-                  <IonLabel>Details</IonLabel>
+                  <IonLabel> Details</IonLabel>
                 </IonSegmentButton>
                 <IonSegmentButton value="orders">
                   <IonLabel>Orders ({medicineRequests.length})</IonLabel>
@@ -417,9 +418,9 @@ const Admin_Med_Inventory: React.FC = () => {
           </IonHeader>
 
           <IonContent className="ion-padding">
-            <IonCard>
-              <IonCardContent>
-                {selectedSegment === 'details' && selectedMedicine && (
+            {selectedSegment === 'details' && selectedMedicine && (
+              <IonCard>
+                <IonCardContent>
                   <IonGrid>
                     <IonRow>
                       <IonCol size="12">
@@ -467,13 +468,14 @@ const Admin_Med_Inventory: React.FC = () => {
                           )}
                           </IonItem>
                         </IonList>
-               
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
+
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
+                </IonCardContent>
+              </IonCard>
             )}
-          </IonCardContent>
-          </IonCard>
+    
 
             {selectedSegment === 'orders' && (
               <IonGrid>
@@ -516,14 +518,12 @@ const Admin_Med_Inventory: React.FC = () => {
                               <IonItem key={request.id}>
                                 <IonLabel>
                                   <h3>{request.userName}</h3>
-                                  <p>Quantity: {formattedQuantity}</p>
-                                  <p>Status: {request.status}</p>
                                   <p>Requested: {request.requestDate?.toLocaleDateString()}</p>
                                   {request.pickupDate && (
                                     <p>Pickup: {request.pickupDate.toLocaleDateString()}</p>
                                   )}
                                 </IonLabel>
-                                <IonBadge
+                                <IonChip
                                   color={
                                     request.status === 'pending'
                                       ? 'warning'
@@ -534,8 +534,8 @@ const Admin_Med_Inventory: React.FC = () => {
                                           : 'medium'
                                   }
                                 >
-                                  {request.status.toUpperCase()}
-                                </IonBadge>
+                                  {request.status.toUpperCase() + ' = ' + formattedQuantity}
+                                </IonChip>
                               </IonItem>
                             );
                           })}
