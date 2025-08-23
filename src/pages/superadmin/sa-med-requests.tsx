@@ -22,13 +22,16 @@ import {
   IonLabel,
   IonButton,
   IonToast,
-  IonSpinner
+  IonSpinner,
+  IonChip,
+  IonIcon
 } from '@ionic/react';
 import SA_Med_Request_Modal from './sa-med-req-modal';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { collection, query, where, onSnapshot, orderBy, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+import { close, open } from 'ionicons/icons';
 
 const SA_Med_Requests: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -138,37 +141,44 @@ const SA_Med_Requests: React.FC = () => {
             <IonRow>
               {filteredRequests.map((request) => (
                 <IonCol size="12" size-md="6" key={request.id}>
-                  <IonCard className='ion-margin-horizontal' onClick={() => { setSelectedRequest(request); setIsModalOpen(true); }}>
+                  <IonCard button className='ion-margin-horizontal' onClick={() => { setSelectedRequest(request); setIsModalOpen(true); }}>
                     <IonCardHeader>
-                      <IonCardTitle>{request.medicineName}</IonCardTitle>
-                      <IonText color="medium">
-                        <p>Barangay: {request.barangay}</p>
-                        <p>Type: {request.medicineType}</p>
-                        <p>Current Stock: {request.currentQuantity} units</p>
-                      </IonText>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <IonCardTitle>
+                          {request.medicineName} ({request.medicineType})
+                        </IonCardTitle>
+                        <IonChip color={getStatusColor(request.status)}>
+                          {request.status}
+                        </IonChip>
+                      </div>
                     </IonCardHeader>
                     <IonCardContent>
                       <IonText color="medium">
-                        <p>Status: <IonBadge color={getStatusColor(request.status)}>{request.status}</IonBadge></p>
+                        <IonText color="medium">
+                          <p>Requesting from: Brgy. {request.barangay}</p>
+                          <p></p>
+                          <p>Brgy. {request.barangay} currently has: {request.currentQuantity} units</p>
+                        </IonText>
                       </IonText>
-                      
                       <div style={{ marginTop: '16px', textAlign: 'right' }}>
-                        <IonButton 
-                          size="small" 
+                        <IonButton
+                          size="small"
                           color="danger"
                           onClick={(e) => { e.stopPropagation(); handleStatusUpdate(request.id, 'rejected'); }}
                           disabled={request.status !== 'pending'}
                           style={{ marginLeft: '8px' }}
                         >
                           Reject
+                          <IonIcon icon={close} slot='start' />
                         </IonButton>
-                          <IonButton 
-                          size="small" 
+                        <IonButton
+                          size="small"
                           color="success"
                           onClick={(e) => { e.stopPropagation(); handleStatusUpdate(request.id, 'approved'); }}
                           disabled={request.status !== 'pending'}
                         >
-                          Approve
+                          Process Request
+                          <IonIcon icon={open} slot='end' />
                         </IonButton>
                       </div>
                     </IonCardContent>
