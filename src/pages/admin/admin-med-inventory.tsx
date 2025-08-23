@@ -528,10 +528,10 @@ const Admin_Med_Inventory: React.FC = () => {
                                     request.status === 'pending'
                                       ? 'warning'
                                       : request.status === 'approved'
-                                        ? 'success'
+                                        ? 'primary'
                                         : request.status === 'cancelled'
                                           ? 'danger'
-                                          : 'medium'
+                                          : 'success'
                                   }
                                 >
                                   {request.status.toUpperCase() + ' = ' + formattedQuantity}
