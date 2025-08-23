@@ -121,7 +121,7 @@ const SA_Med_Requests: React.FC = () => {
             <IonLabel>All</IonLabel>
           </IonSegmentButton>
         </IonSegment>
-
+        <br />
         {loading ? (
           <div className="ion-text-center ion-padding">
             <IonSpinner name="crescent" />
@@ -137,15 +137,18 @@ const SA_Med_Requests: React.FC = () => {
             </IonText>
           </div>
         ) : (
+          
           <IonGrid>
             <IonRow>
               {filteredRequests.map((request) => (
                 <IonCol size="12" size-md="6" key={request.id}>
-                  <IonCard button className='ion-margin-horizontal' onClick={() => { setSelectedRequest(request); setIsModalOpen(true); }}>
+                  <IonCard button onClick={() => { setSelectedRequest(request); setIsModalOpen(true); }}>
                     <IonCardHeader>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <IonCardTitle>
-                          {request.medicineName} ({request.medicineType})
+                          <IonText color={'primary'}>
+                            {request.medicineName} ({request.medicineType})
+                          </IonText>
                         </IonCardTitle>
                         <IonChip color={getStatusColor(request.status)}>
                           {request.status}

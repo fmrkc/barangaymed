@@ -69,7 +69,10 @@ const SA_Med_Request_Modal: React.FC<SA_Med_Request_ModalProps> = ({ isOpen, onC
           </IonLabel>
         </IonItem>
         <IonItem>
-          Current Status:
+          <IonLabel>
+             <p>Current Status:</p>
+          </IonLabel>
+         
           <IonBadge slot='end' color={getStatusColor(request.status)} style={{ margin: '8px 0' }}>
             {request.status}
           </IonBadge>
@@ -83,7 +86,7 @@ const SA_Med_Request_Modal: React.FC<SA_Med_Request_ModalProps> = ({ isOpen, onC
 
           color="danger"
           disabled={request.status !== 'pending'}
-          style={{ marginLeft: '8px' }}
+          
         >
           Reject
           <IonIcon icon={close} slot='start' />
@@ -91,6 +94,7 @@ const SA_Med_Request_Modal: React.FC<SA_Med_Request_ModalProps> = ({ isOpen, onC
         <IonButton
           color="success"
           disabled={request.status !== 'pending'}
+          style={{ marginLeft: '15px' }}
         >
           Process Request
           <IonIcon icon={open} slot='end' />
