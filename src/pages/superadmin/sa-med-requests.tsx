@@ -101,9 +101,7 @@ const SA_Med_Requests: React.FC = () => {
       
       <IonContent>
         <IonSegment value={selectedSegment} onIonChange={(e) => setSelectedSegment(String(e.detail.value))}>
-          <IonSegmentButton value="all">
-            <IonLabel>All</IonLabel>
-          </IonSegmentButton>
+        
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -112,6 +110,9 @@ const SA_Med_Requests: React.FC = () => {
           </IonSegmentButton>
           <IonSegmentButton value="rejected">
             <IonLabel>Rejected</IonLabel>
+          </IonSegmentButton>
+            <IonSegmentButton value="all">
+            <IonLabel>All</IonLabel>
           </IonSegmentButton>
         </IonSegment>
 
