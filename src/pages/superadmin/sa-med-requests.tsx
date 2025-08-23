@@ -24,6 +24,7 @@ import {
   IonToast,
   IonSpinner
 } from '@ionic/react';
+import SA_Med_Request_Modal from './sa-med-req-modal';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { collection, query, where, onSnapshot, orderBy, updateDoc, doc } from 'firebase/firestore';
@@ -32,9 +33,11 @@ import { db } from '../../firebaseConfig';
 const SA_Med_Requests: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSegment, setSelectedSegment] = useState('all');
+  const [selectedSegment, setSelectedSegment] = useState('pending');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
   useEffect(() => {
     loadRequests();
@@ -135,7 +138,7 @@ const SA_Med_Requests: React.FC = () => {
             <IonRow>
               {filteredRequests.map((request) => (
                 <IonCol size="12" size-md="6" key={request.id}>
-                  <IonCard className='ion-margin-horizontal'>
+                  <IonCard className='ion-margin-horizontal' onClick={() => { setSelectedRequest(request); setIsModalOpen(true); }}>
                     <IonCardHeader>
                       <IonCardTitle>{request.medicineName}</IonCardTitle>
                       <IonText color="medium">
@@ -146,31 +149,26 @@ const SA_Med_Requests: React.FC = () => {
                     </IonCardHeader>
                     <IonCardContent>
                       <IonText color="medium">
-                        <p>Admin: {request.adminEmail}</p>
-                        <p>Requested: {new Date(request.requestDate?.toDate()).toLocaleDateString()}</p>
+                        <p>Status: <IonBadge color={getStatusColor(request.status)}>{request.status}</IonBadge></p>
                       </IonText>
-                      <IonBadge color={getStatusColor(request.status)} style={{ margin: '8px 0' }}>
-                        {request.status}
-                      </IonBadge>
-                      <p>{request.notes}</p>
                       
-                      <div style={{ marginTop: '16px' }}>
-                        <IonButton 
-                          size="small" 
-                          color="success"
-                          onClick={() => handleStatusUpdate(request.id, 'approved')}
-                          disabled={request.status !== 'pending'}
-                        >
-                          Approve
-                        </IonButton>
+                      <div style={{ marginTop: '16px', textAlign: 'right' }}>
                         <IonButton 
                           size="small" 
                           color="danger"
-                          onClick={() => handleStatusUpdate(request.id, 'rejected')}
+                          onClick={(e) => { e.stopPropagation(); handleStatusUpdate(request.id, 'rejected'); }}
                           disabled={request.status !== 'pending'}
                           style={{ marginLeft: '8px' }}
                         >
                           Reject
+                        </IonButton>
+                          <IonButton 
+                          size="small" 
+                          color="success"
+                          onClick={(e) => { e.stopPropagation(); handleStatusUpdate(request.id, 'approved'); }}
+                          disabled={request.status !== 'pending'}
+                        >
+                          Approve
                         </IonButton>
                       </div>
                     </IonCardContent>
@@ -187,6 +185,12 @@ const SA_Med_Requests: React.FC = () => {
           message={toastMessage}
           duration={3000}
           position="bottom"
+        />
+
+        <SA_Med_Request_Modal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          request={selectedRequest} 
         />
       </IonContent>
     </IonPage>
