@@ -45,7 +45,7 @@ const Page1: React.FC<Page1Props> = ({
   return (
     <div>
       <IonCardHeader>
-        <IonCardTitle>Step 1: Select Medicine</IonCardTitle>
+        
         <IonText color="medium">
           <p>Choose from the available over-the-counter medicines in your barangay.</p>
         </IonText>
@@ -81,10 +81,9 @@ const Page1: React.FC<Page1Props> = ({
                 <IonLabel>
                   <h3>{medicine.name}</h3>
                   <p>Type: {medicine.type}</p>
-                  <IonNote><IonIcon  icon={cube}></IonIcon> {medicine.quantity} units</IonNote>
-                </IonLabel>
+                  </IonLabel>
                 <IonChip color={medicine.quantity > 0 ? "primary" : "danger"} slot="end">
-                  {medicine.quantity > 0 ? medicine.quantity : "Out of Stock"}
+                  In stock: {medicine.quantity > 0 ? medicine.quantity : "0"}
                 </IonChip>
               </IonItem>
             ))}
