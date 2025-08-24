@@ -144,16 +144,6 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
   const submitRequest = async () => {
     if (!selectedMedicine || !currentUser) return;
 
-    // Check if user has too many pending requests
-    if (hasTooManyPendingRequests) {
-      presentToast({
-        message: `You have ${pendingRequestsCount} pending requests. Please wait until they are fulfilled before making new requests.`,
-        duration: 3000,
-        color: 'danger'
-      });
-      return;
-    }
-
     await present('Submitting request...');
     try {
       // Check quantity again before final submission to prevent race conditions

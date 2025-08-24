@@ -35,13 +35,10 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
     address: '',
     barangay: ''
   });
-  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
-  const [hasTooManyPendingRequests, setHasTooManyPendingRequests] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
       fetchUserDetails();
-      checkPendingRequests();
     }
   }, [currentUser]);
 
@@ -50,18 +47,6 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
       fetchMedicines();
     }
   }, [currentUser, userDetails.barangay]);
-
-  const checkPendingRequests = async () => {
-    if (!currentUser) return;
-    
-    try {
-      const count = await medicineService.getPendingRequestsCount(currentUser.uid);
-      setPendingRequestsCount(count);
-      setHasTooManyPendingRequests(count >= 3);
-    } catch (error) {
-      console.error('Error checking pending requests:', error);
-    }
-  };
 
   const fetchMedicines = async () => {
     try {
@@ -143,16 +128,6 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
 
   const submitRequest = async () => {
     if (!selectedMedicine || !currentUser) return;
-
-    // Check if user has too many pending requests
-    if (hasTooManyPendingRequests) {
-      presentToast({
-        message: `You have ${pendingRequestsCount} pending requests. Please wait until they are fulfilled before making new requests.`,
-        duration: 3000,
-        color: 'danger'
-      });
-      return;
-    }
 
     await present('Submitting request...');
     try {
@@ -256,8 +231,6 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
                       selectedMedicine={selectedMedicine}
                       onMedicineSelect={setSelectedMedicine}
                       onNext={onNext}
-                      hasTooManyPendingRequests={hasTooManyPendingRequests}
-                      pendingRequestsCount={pendingRequestsCount}
                     />
                   )}
                   {step === 2 && (

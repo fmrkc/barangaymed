@@ -32,9 +32,7 @@ const Page1: React.FC<Page1Props> = ({
   medicines,
   selectedMedicine,
   onMedicineSelect,
-  onNext,
-  hasTooManyPendingRequests = false,
-  pendingRequestsCount = 0
+  onNext
 }) => {
   const [searchText, setSearchText] = React.useState('');
 
@@ -52,19 +50,11 @@ const Page1: React.FC<Page1Props> = ({
       </IonCardHeader>
 
       <IonCardContent>
-        {hasTooManyPendingRequests && (
-          <IonText color="danger" className="ion-text-center ion-margin-bottom">
-            <p><strong>Request Limit Reached</strong></p>
-            <p>You have {pendingRequestsCount} pending medicine requests. You cannot request more medicines until your existing requests are fulfilled.</p>
-          </IonText>
-        )}
-
         <IonSearchbar
           value={searchText}
           onIonChange={(e) => setSearchText(e.detail.value!)}
           placeholder="Search medicines..."
           className="ion-margin-bottom"
-          disabled={hasTooManyPendingRequests}
         />
 
         <IonRadioGroup
@@ -76,8 +66,8 @@ const Page1: React.FC<Page1Props> = ({
         >
           <IonList>
             {filteredMedicines.map((medicine) => (
-              <IonItem key={medicine.id} disabled={medicine.quantity <= 0 || hasTooManyPendingRequests}>
-                <IonRadio slot="start" value={medicine.id} disabled={medicine.quantity <= 0 || hasTooManyPendingRequests} />
+              <IonItem key={medicine.id} disabled={medicine.quantity <= 0}>
+                <IonRadio slot="start" value={medicine.id} disabled={medicine.quantity <= 0} />
                 <IonLabel>
                   <h3>{medicine.name}</h3>
                   <p>Type: {medicine.type}</p>
@@ -100,7 +90,7 @@ const Page1: React.FC<Page1Props> = ({
         <IonButton
           expand="block"
           onClick={onNext}
-          disabled={!selectedMedicine || selectedMedicine.quantity <= 0 || hasTooManyPendingRequests}
+          disabled={!selectedMedicine || selectedMedicine.quantity <= 0}
           shape='round'
           className="ion-padding-vertical"
         >

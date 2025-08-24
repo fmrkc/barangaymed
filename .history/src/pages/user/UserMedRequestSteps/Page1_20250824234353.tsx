@@ -100,7 +100,7 @@ const Page1: React.FC<Page1Props> = ({
         <IonButton
           expand="block"
           onClick={onNext}
-          disabled={!selectedMedicine || selectedMedicine.quantity <= 0 || hasTooManyPendingRequests}
+          disabled={!selectedMedicine || selectedMedicine.quantity <= 0}
           shape='round'
           className="ion-padding-vertical"
         >

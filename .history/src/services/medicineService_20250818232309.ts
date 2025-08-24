@@ -158,19 +158,4 @@ export class MedicineService {
     }
     return { barangay: '' };
   }
-
-  /**
-   * Gets the count of pending medicine requests for a user.
-   * @param userId The user ID to check pending requests for.
-   * @returns Promise resolving to the number of pending requests.
-   */
-  public async getPendingRequestsCount(userId: string): Promise<number> {
-    const q = query(
-      collection(db, 'medicineRequests'),
-      where('userId', '==', userId),
-      where('status', '==', 'pending')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.size;
-  }
 }
