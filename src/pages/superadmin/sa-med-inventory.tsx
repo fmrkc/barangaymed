@@ -450,18 +450,28 @@ const Medicine_Inventory: React.FC = () => {
                 <IonCol size="12" size-md="6" size-lg="4" key={medicine.id}>
                   <IonCard>
                     <IonCardHeader>
-                      <IonCardTitle>{medicine.name}</IonCardTitle>
+                      <IonCardTitle>
+                        <IonText color={'primary'}>
+                          {medicine.name} 
+                        </IonText> ({medicine.type})
+                        </IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
-                      <IonText color="medium">
-                        <p><strong>Type:</strong> {medicine.type}</p>
-                        <p><strong>Quantity:</strong> {medicine.quantity} units</p>
-                        <p><strong>Location:</strong> {medicine.location === 'rhu' ? 'RHU' : medicine.barangay}</p>
-                        <p><strong>Expiry:</strong> {formatDate(medicine.expiryDate)}</p>
-                      </IonText>
-                      <IonChip color={expiryStatus.color as any}>
-                        <IonLabel>{expiryStatus.text}</IonLabel>
+                        
+                        <IonItem className='ion-no-padding'>
+                          <IonLabel position="stacked">Quantity</IonLabel>
+                          <IonChip color={expiryStatus.color as any}>
+                            {medicine.quantity} units
+                          </IonChip>
+                        </IonItem>
+                        <IonItem className='ion-no-padding'>
+                          <IonLabel position="stacked">Expiry Date</IonLabel>
+                          <IonChip color={expiryStatus.color as any}>
+                        {expiryStatus.text}
                       </IonChip>
+                        </IonItem>
+                     
+                      
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
