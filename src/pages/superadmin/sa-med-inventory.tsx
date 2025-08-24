@@ -34,7 +34,8 @@ import {
   IonLoading,
   IonToast,
   IonDatetimeButton,
-  IonPopover
+  IonPopover,
+  IonActionSheet
 } from '@ionic/react';
 import { add, search, close, create, trash, pencil, notifications } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -82,6 +83,8 @@ const Medicine_Inventory: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState('rhu');
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [selectedLocationBeforeModal, setSelectedLocationBeforeModal] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false); // New state for notifications modal
@@ -94,7 +97,7 @@ const Medicine_Inventory: React.FC = () => {
   const [medicineType, setMedicineType] = useState('');
   const [quantity, setQuantity] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('rhu');
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedBarangay, setSelectedBarangay] = useState('');
 
   const medicineTypes = [
@@ -357,7 +360,7 @@ const Medicine_Inventory: React.FC = () => {
         </IonModal>
 
         <IonItem>
-          <IonLabel position="stacked">Select Location</IonLabel>
+          <IonLabel position="stacked">Select Inventory Location</IonLabel>
           <IonSelect 
             value={selectedSegment} 
             onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
@@ -423,15 +426,46 @@ const Medicine_Inventory: React.FC = () => {
         </IonGrid>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => setShowModal(true)}>
+          <IonFabButton onClick={() => setShowActionSheet(true)}>
             <IonIcon icon={add} />
           </IonFabButton>
         </IonFab>
 
+        <IonActionSheet
+          isOpen={showActionSheet}
+          onDidDismiss={() => setShowActionSheet(false)}
+          header="Where will this medicine record be stored?"
+          buttons={[
+            {
+              text: 'RHU',
+              handler: () => {
+                setSelectedLocationBeforeModal('rhu');
+                setSelectedLocation('rhu');
+                setShowModal(true);
+              }
+            },
+            {
+              text: 'Barangay',
+              handler: () => {
+                setSelectedLocationBeforeModal('barangay');
+                setSelectedLocation('barangay');
+                setShowModal(true);
+              }
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => {
+                setShowActionSheet(false);
+              }
+            }
+          ]}
+        />
+
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Add New Medicine</IonTitle>
+              <IonTitle>New Medicine Record</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowModal(false)}>
                   <IonIcon icon={close} />
