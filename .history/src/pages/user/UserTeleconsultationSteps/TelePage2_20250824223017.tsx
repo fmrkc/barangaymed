@@ -40,7 +40,6 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
     phone: '',
     address: '',
     barangay: '',
-    notes: '',
   });
 
   useEffect(() => {
@@ -65,7 +64,6 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
           phone: userData.contactNumber,
           address: userData.address,
           barangay: userData.barangay,
-          notes: '', // Initialize notes field
         });
         setError(null);
       } catch (err) {
@@ -173,25 +171,11 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                     </>
                   )}
 
-                  <IonItem>
-                    <IonLabel position="stacked">Additional Notes (Optional)</IonLabel>
-                    <IonTextarea
-                      rows={3}
-                      value={formData.notes}
-                      onIonChange={(e) => setFormData({ ...formData, notes: e.detail.value! })}
-                      placeholder="Any additional information you'd like to share"
-                    />
-                  </IonItem>
-
                   <div className="ion-margin-top">
                     <IonButton expand="block" onClick={handleBack} fill="outline" className="ion-margin-bottom">
                       Back
                     </IonButton>
-                    <IonButton 
-                      expand="block" 
-                      onClick={handleNext}
-                      disabled={!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangay}
-                    >
+                    <IonButton expand="block" onClick={handleNext}>
                       Next
                     </IonButton>
                   </div>

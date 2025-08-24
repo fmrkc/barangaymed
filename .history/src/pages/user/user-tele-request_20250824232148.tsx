@@ -256,7 +256,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonLabel position="stacked">Full Name *</IonLabel>
                         <IonInput
                           value={formData.fullName}
-                          disabled
+                          readonly
                           placeholder="Your full name"
                         />
                       </IonItem>
@@ -285,7 +285,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonLabel position="stacked">Address *</IonLabel>
                         <IonInput
                           value={formData.address}
-                          disabled
+                          readonly
                           placeholder="Your complete address"
                         />
                       </IonItem>
@@ -295,7 +295,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonSelect
                           value={formData.barangay}
                           placeholder="Select your barangay"
-                          disabled
                           onIonChange={(e) => {
                             const value = e.detail.value;
                             if (Array.isArray(value)) {

@@ -295,7 +295,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonSelect
                           value={formData.barangay}
                           placeholder="Select your barangay"
-                          disabled
                           onIonChange={(e) => {
                             const value = e.detail.value;
                             if (Array.isArray(value)) {

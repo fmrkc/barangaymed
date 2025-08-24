@@ -76,7 +76,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           email: userData.email,
           phone: userData.contactNumber,
           address: userData.address,
-          barangay: userData.barangay,
         }));
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -96,22 +95,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, '');
     setFormData({ ...formData, phone: numericValue });
-  };
-
-  const validateStep1 = () => {
-    return (
-      formData.preferredDate &&
-      formData.preferredTime &&
-      formData.symptoms.trim()
-    );
-  };
-
-  const validateStep2 = () => {
-    return (
-      formData.email.trim() &&
-      formData.phone.trim() &&
-      formData.barangay
-    );
   };
 
   const handleStep2Next = (data: any) => {
@@ -243,7 +226,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         />
                       </IonItem>
 
-                      <IonButton expand="block" onClick={() => setCurrentStep(2)} className="ion-margin-top" disabled={!validateStep1()}>
+                      <IonButton expand="block" onClick={() => setCurrentStep(2)} className="ion-margin-top">
                         Next
                       </IonButton>
                     </div>
@@ -256,7 +239,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonLabel position="stacked">Full Name *</IonLabel>
                         <IonInput
                           value={formData.fullName}
-                          disabled
+                          readonly
                           placeholder="Your full name"
                         />
                       </IonItem>
@@ -276,7 +259,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonInput
                           type="tel"
                           value={formData.phone}
-                          onIonChange={handlePhoneNumberChange}
+                          onIonChange={(e) => setFormData({ ...formData, phone: e.detail.value! })}
                           placeholder="Enter your phone number"
                         />
                       </IonItem>
@@ -285,7 +268,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonLabel position="stacked">Address *</IonLabel>
                         <IonInput
                           value={formData.address}
-                          disabled
+                          readonly
                           placeholder="Your complete address"
                         />
                       </IonItem>
@@ -295,7 +278,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonSelect
                           value={formData.barangay}
                           placeholder="Select your barangay"
-                          disabled
                           onIonChange={(e) => {
                             const value = e.detail.value;
                             if (Array.isArray(value)) {
@@ -345,7 +327,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <IonButton expand="block" onClick={() => setCurrentStep(1)} fill="outline" className="ion-margin-bottom">
                           Back
                         </IonButton>
-                        <IonButton expand="block" onClick={() => setCurrentStep(3)} disabled={!validateStep2()}>
+                        <IonButton expand="block" onClick={() => setCurrentStep(3)}>
                           Next
                         </IonButton>
                       </div>

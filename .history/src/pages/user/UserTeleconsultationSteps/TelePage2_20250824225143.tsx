@@ -187,11 +187,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                     <IonButton expand="block" onClick={handleBack} fill="outline" className="ion-margin-bottom">
                       Back
                     </IonButton>
-                    <IonButton 
-                      expand="block" 
-                      onClick={handleNext}
-                      disabled={!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangay}
-                    >
+                    <IonButton expand="block" onClick={handleNext}>
                       Next
                     </IonButton>
                   </div>
