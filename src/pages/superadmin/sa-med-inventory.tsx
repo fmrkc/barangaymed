@@ -437,7 +437,7 @@ const Medicine_Inventory: React.FC = () => {
           header="Where will this medicine record be stored?"
           buttons={[
             {
-              text: 'RHU',
+              text: 'RHU Inventory',
               handler: () => {
                 setSelectedLocationBeforeModal('rhu');
                 setSelectedLocation('rhu');
@@ -445,7 +445,7 @@ const Medicine_Inventory: React.FC = () => {
               }
             },
             {
-              text: 'Barangay',
+              text: 'Specific Barangay Inventory',
               handler: () => {
                 setSelectedLocationBeforeModal('barangay');
                 setSelectedLocation('barangay');
