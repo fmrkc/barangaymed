@@ -101,17 +101,14 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
 
   const validateStep1 = () => {
     return (
-      formData.preferredDate &&
-      formData.preferredTime &&
       formData.symptoms.trim()
     );
   };
 
   const validateStep2 = () => {
     return (
-      formData.email.trim() &&
-      formData.phone.trim() &&
-      formData.barangay
+      formData.preferredDate &&
+      formData.preferredTime
     );
   };
 
@@ -182,6 +179,36 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                       <h3>Consultation Details</h3>
 
                       <IonItem>
+                        <IonLabel position="stacked">Symptoms/Reason for Consultation *</IonLabel>
+                        <IonTextarea
+                          rows={4}
+                          value={formData.symptoms}
+                          onIonChange={(e) => setFormData({ ...formData, symptoms: e.detail.value! })}
+                          placeholder="Please describe your symptoms or reason for consultation"
+                        />
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Additional Notes (Optional)</IonLabel>
+                        <IonTextarea
+                          rows={3}
+                          value={formData.additionalNotes}
+                          onIonChange={(e) => setFormData({ ...formData, additionalNotes: e.detail.value! })}
+                          placeholder="Any additional information you'd like to share"
+                        />
+                      </IonItem>
+
+                      <IonButton expand="block" onClick={() => setCurrentStep(2)} className="ion-margin-top" disabled={!validateStep1()}>
+                        Next
+                      </IonButton>
+                    </div>
+                  )}
+
+                  {currentStep === 2 && (
+                    <div>
+                      <h3>Schedule Details</h3>
+
+                      <IonItem>
                         <IonLabel position="stacked">Preferred Date *</IonLabel>
                         <IonDatetime
                           presentation="date"
@@ -216,96 +243,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         >
                           <IonSelectOption value="AM">Morning (AM)</IonSelectOption>
                           <IonSelectOption value="PM">Afternoon (PM)</IonSelectOption>
-                        </IonSelect>
-                      </IonItem>
-
-                      <IonItem>
-                        <IonLabel position="stacked">Symptoms/Reason for Consultation *</IonLabel>
-                        <IonTextarea
-                          rows={4}
-                          value={formData.symptoms}
-                          onIonChange={(e) => setFormData({ ...formData, symptoms: e.detail.value! })}
-                          placeholder="Please describe your symptoms or reason for consultation"
-                        />
-                      </IonItem>
-
-                      <IonItem>
-                        <IonLabel position="stacked">Additional Notes (Optional)</IonLabel>
-                        <IonTextarea
-                          rows={3}
-                          value={formData.additionalNotes}
-                          onIonChange={(e) => setFormData({ ...formData, additionalNotes: e.detail.value! })}
-                          placeholder="Any additional information you'd like to share"
-                        />
-                      </IonItem>
-
-                      <IonButton expand="block" onClick={() => setCurrentStep(2)} className="ion-margin-top" disabled={!validateStep1()}>
-                        Next
-                      </IonButton>
-                    </div>
-                  )}
-
-                  {currentStep === 2 && (
-                    <div>
-                      <h3>Personal Information</h3>
-                      <IonItem>
-                        <IonLabel position="stacked">Full Name *</IonLabel>
-                        <IonInput
-                          value={formData.fullName}
-                          disabled
-                          placeholder="Your full name"
-                        />
-                      </IonItem>
-
-                      <IonItem>
-                        <IonLabel position="stacked">Email Address *</IonLabel>
-                        <IonInput
-                          type="email"
-                          value={formData.email}
-                          onIonChange={(e) => setFormData({ ...formData, email: e.detail.value! })}
-                          placeholder="Enter your email address"
-                        />
-                      </IonItem>
-
-                      <IonItem>
-                        <IonLabel position="stacked">Phone Number *</IonLabel>
-                        <IonInput
-                          type="tel"
-                          value={formData.phone}
-                          onIonChange={handlePhoneNumberChange}
-                          placeholder="Enter your phone number"
-                        />
-                      </IonItem>
-
-                      <IonItem>
-                        <IonLabel position="stacked">Address *</IonLabel>
-                        <IonInput
-                          value={formData.address}
-                          disabled
-                          placeholder="Your complete address"
-                        />
-                      </IonItem>
-
-                      <IonItem>
-                        <IonLabel position="stacked">Barangay *</IonLabel>
-                        <IonSelect
-                          value={formData.barangay}
-                          placeholder="Select your barangay"
-                          disabled
-                          onIonChange={(e) => {
-                            const value = e.detail.value;
-                            if (Array.isArray(value)) {
-                              setFormData({ ...formData, barangay: value[0] || '' });
-                            } else if (typeof value === 'string') {
-                              setFormData({ ...formData, barangay: value });
-                            } else {
-                              setFormData({ ...formData, barangay: '' });
-                            }
-                          }}
-                        >
-                          {BARANGAYS.map(barangay => (
-                            <IonSelectOption key={barangay} value={barangay}>{barangay}</IonSelectOption>
-                          ))}
                         </IonSelect>
                       </IonItem>
 
