@@ -1,4 +1,4 @@
-export interface TeleconsultationRequest {
+export interface TeleconsultationRequests {
   id?: string;
   userId: string;
   userEmail: string;
@@ -10,7 +10,7 @@ export interface TeleconsultationRequest {
   preferredTime: string;
   symptoms: string;
   additionalNotes?: string;
-  status: 'pending' | 'approved' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   requestDate: Date;
   confirmedDate?: Date;
   completedDate?: Date;

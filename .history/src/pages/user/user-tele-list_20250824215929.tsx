@@ -56,8 +56,7 @@ const UserRequestTele: React.FC = () => {
     setShowDetailsModal(true);
   };
 
-  const handleMarkAsCompleted = async (requestId: string | undefined) => {
-    if (!requestId) return;
+  const handleMarkAsCompleted = async (requestId: string) => {
     await teleconsultationService.updateRequestStatus(requestId, 'completed');
     setRequests(requests.map(req => req.id === requestId ? { ...req, status: 'completed' } : req));
   };

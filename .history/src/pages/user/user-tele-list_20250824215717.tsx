@@ -56,8 +56,7 @@ const UserRequestTele: React.FC = () => {
     setShowDetailsModal(true);
   };
 
-  const handleMarkAsCompleted = async (requestId: string | undefined) => {
-    if (!requestId) return;
+  const handleMarkAsCompleted = async (requestId: string) => {
     await teleconsultationService.updateRequestStatus(requestId, 'completed');
     setRequests(requests.map(req => req.id === requestId ? { ...req, status: 'completed' } : req));
   };
@@ -82,74 +81,9 @@ const UserRequestTele: React.FC = () => {
             <IonCardTitle>Teleconsultation Requests</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <IonTabBar>
-              <IonTabButton tab="all" onClick={() => handleStatusChange('all')}>
-                <IonLabel>All</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="pending" onClick={() => handleStatusChange('pending')}>
-                <IonLabel>Pending</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="approved" onClick={() => handleStatusChange('approved')}>
-                <IonLabel>Approved</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="completed" onClick={() => handleStatusChange('completed')}>
-                <IonLabel>Completed</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="cancelled" onClick={() => handleStatusChange('cancelled')}>
-                <IonLabel>Cancelled</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
-            {loading ? (
-              <p>Loading requests...</p>
-            ) : (
-              <IonList>
-                {requests.map(request => (
-                  <IonItem key={request.id}>
-                    <IonLabel>
-                      <h2>Status: {request.status}</h2>
-                      <p>Date Sent: {request.requestDate?.toLocaleDateString()}</p>
-                      {request.status === 'approved' && (
-                        <p>Scheduled Date: {request.preferredDate?.toLocaleDateString()}</p>
-                      )}
-                    </IonLabel>
-                    <IonButtons slot="end">
-                      <IonButton onClick={() => handleViewDetails(request)}>VIEW DETAILS</IonButton>
-                      {request.status === 'approved' && request.id && (
-                        <IonButton onClick={() => handleMarkAsCompleted(request.id)}>MARK AS COMPLETED</IonButton>
-                      )}
-                    </IonButtons>
-                  </IonItem>
-                ))}
-              </IonList>
-            )}
+            <p>Your teleconsultation requests will appear here.</p>
           </IonCardContent>
         </IonCard>
-
-        <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Request Details</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowDetailsModal(false)}>Close</IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {selectedRequest && (
-              <div>
-                <h3>Request Details</h3>
-                <p>User: {selectedRequest.userName}</p>
-                <p>Symptoms: {selectedRequest.symptoms}</p>
-                <p>Additional Notes: {selectedRequest.additionalNotes}</p>
-                <p>Status: {selectedRequest.status}</p>
-                <p>Date Sent: {selectedRequest.requestDate?.toLocaleDateString()}</p>
-                {selectedRequest.status === 'approved' && (
-                  <p>Scheduled Date: {selectedRequest.preferredDate?.toLocaleDateString()}</p>
-                )}
-              </div>
-            )}
-          </IonContent>
-        </IonModal>
       </IonContent>
 
       {/* Navigation Menu Bar */}

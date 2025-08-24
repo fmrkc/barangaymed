@@ -56,8 +56,7 @@ const UserRequestTele: React.FC = () => {
     setShowDetailsModal(true);
   };
 
-  const handleMarkAsCompleted = async (requestId: string | undefined) => {
-    if (!requestId) return;
+  const handleMarkAsCompleted = async (requestId: string) => {
     await teleconsultationService.updateRequestStatus(requestId, 'completed');
     setRequests(requests.map(req => req.id === requestId ? { ...req, status: 'completed' } : req));
   };
@@ -114,7 +113,7 @@ const UserRequestTele: React.FC = () => {
                     </IonLabel>
                     <IonButtons slot="end">
                       <IonButton onClick={() => handleViewDetails(request)}>VIEW DETAILS</IonButton>
-                      {request.status === 'approved' && request.id && (
+                      {request.status === 'approved' && (
                         <IonButton onClick={() => handleMarkAsCompleted(request.id)}>MARK AS COMPLETED</IonButton>
                       )}
                     </IonButtons>
