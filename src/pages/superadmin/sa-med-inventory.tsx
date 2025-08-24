@@ -45,6 +45,7 @@ import { LogService } from '../../services/logService'; // Import LogService
 import { BARANGAYS } from '../../constants/barangays';
 import { Medicine } from '../../types/medicineRequests'; // Import Medicine interface
 import { Notification } from '../../types/notifications'; // Import Notification interface
+import RHUMedicineModal from '../../components/RHUMedicineModal'; // Import RHU Medicine Modal
 
 const medicineService = MedicineService.getInstance();
 const logService = LogService.getInstance();
@@ -86,6 +87,7 @@ const Medicine_Inventory: React.FC = () => {
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [selectedLocationBeforeModal, setSelectedLocationBeforeModal] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showRHUModal, setShowRHUModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false); // New state for notifications modal
   const [searchText, setSearchText] = useState('');
@@ -230,6 +232,63 @@ const Medicine_Inventory: React.FC = () => {
     } catch (error) {
       console.error('Error adding medicine:', error);
       setToastMessage('Error adding medicine');
+      setShowToast(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddRHUMedicine = async () => {
+    if (!medicineName || !medicineType || !quantity || !expiryDate) {
+      setToastMessage('Please fill all required fields');
+      setShowToast(true);
+      return;
+    }
+
+    if (!validateOTCMedicine(medicineName)) {
+      setToastMessage('This system only accepts over-the-counter (OTC) medicines. Please check the medicine name.');
+      setShowToast(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const newMedicine: Omit<Medicine, 'id' | 'createdAt' | 'updatedAt'> = {
+        name: medicineName,
+        type: medicineType,
+        quantity: parseInt(quantity),
+        expiryDate: new Date(expiryDate),
+        location: 'rhu',
+        barangay: undefined,
+      };
+
+      const medicineId = await medicineService.addMedicine(newMedicine);
+
+      if (currentUser) {
+        await logService.logActivity({
+          action: 'add_medicine',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown@email.com',
+          role: 'superadmin',
+          details: {
+            medicineId: medicineId,
+            medicineName: newMedicine.name,
+            type: newMedicine.type,
+            quantity: newMedicine.quantity,
+            location: 'rhu',
+            message: `Added ${newMedicine.quantity} units of ${newMedicine.name} to RHU inventory.`
+          }
+        });
+      }
+
+      setToastMessage('Medicine added to RHU successfully');
+      setShowToast(true);
+      resetForm();
+      setShowRHUModal(false);
+      fetchMedicines();
+    } catch (error) {
+      console.error('Error adding RHU medicine:', error);
+      setToastMessage('Error adding medicine to RHU');
       setShowToast(true);
     } finally {
       setLoading(false);
@@ -439,9 +498,7 @@ const Medicine_Inventory: React.FC = () => {
             {
               text: 'RHU Inventory',
               handler: () => {
-                setSelectedLocationBeforeModal('rhu');
-                setSelectedLocation('rhu');
-                setShowModal(true);
+                setShowRHUModal(true);
               }
             },
             {
@@ -568,6 +625,14 @@ const Medicine_Inventory: React.FC = () => {
             </IonButton>
           </IonContent>
         </IonModal>
+
+        <RHUMedicineModal 
+          isOpen={showRHUModal} 
+          onClose={() => setShowRHUModal(false)} 
+          onMedicineAdded={fetchMedicines} 
+          setLoading={setLoading} 
+          currentUser={currentUser} 
+        />
       </IonContent>
     </IonPage>
   );
