@@ -207,25 +207,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
             </IonCol>
           </IonRow>
 
-          {hasPendingRequest && (
-            <IonRow>
-              <IonCol size="12" size-md="8" offset-md="2">
-                <IonCard color="warning">
-                  <IonCardHeader>
-                    <IonCardTitle>Request Limit Reached</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
-                    <p>You already have a pending teleconsultation request. You can only have one active request at a time.</p>
-                    <p>Please wait for your current request to be processed or cancel it before making a new one.</p>
-                    <IonButton expand="block" onClick={() => history.push('/user/dashboard/requests')}>
-                      View My Requests
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
-              </IonCol>
-            </IonRow>
-          )}
-
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
               <IonCard>
@@ -233,11 +214,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   <IonCardTitle>Step {currentStep} of 3</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  {hasPendingRequest ? (
-                    <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
-                      <p>Form disabled - You have a pending request</p>
-                    </div>
-                  ) : currentStep === 1 ? (
+                  {currentStep === 1 && (
                     <div>
                       <h3>Consultation Details</h3>
 
@@ -303,7 +280,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         Next
                       </IonButton>
                     </div>
-                  ) : currentStep === 2 ? (
+                  )}
+
+                  {currentStep === 2 && (
                     <div>
                       <h3>Personal Information</h3>
                       <IonItem>
@@ -404,7 +383,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         </IonButton>
                       </div>
                     </div>
-                  ) : (
+                  )}
+
+                  {currentStep === 3 && (
                     <div>
                       <h3>Review Your Booking</h3>
                       <IonText>

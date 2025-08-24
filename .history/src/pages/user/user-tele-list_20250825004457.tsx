@@ -170,27 +170,6 @@ const UserRequestTele: React.FC = () => {
             )}
           </IonContent>
         </IonModal>
-
-        <IonAlert
-          isOpen={showCancelAlert}
-          onDidDismiss={() => setShowCancelAlert(false)}
-          header={'Confirm Cancellation'}
-          message={'Are you sure you want to cancel this teleconsultation request?'}
-          buttons={[
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              cssClass: 'secondary',
-              handler: () => {
-                setShowCancelAlert(false);
-              }
-            },
-            {
-              text: 'Yes, Cancel',
-              handler: confirmCancelRequest
-            }
-          ]}
-        />
       </IonContent>
 
       {/* Navigation Menu Bar */}

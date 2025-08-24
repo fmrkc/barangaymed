@@ -151,13 +151,6 @@ const UserRequests: React.FC = () => {
     }
   };
 
-  const handleCancelRequest = (request: MedicineRequest) => {
-    if (request.status === 'pending') {
-      setSelectedRequest(request);
-      setShowCancelAlert(true);
-    }
-  };
-
   const markAsCompleted = async () => {
     if (selectedRequest?.id) {
       try {
@@ -191,43 +184,6 @@ const UserRequests: React.FC = () => {
       } finally {
         setSelectedRequest(null);
         setShowConfirmAlert(false);
-      }
-    }
-  };
-
-  const cancelRequest = async () => {
-    if (selectedRequest?.id) {
-      try {
-        const docRef = doc(db, 'medicineRequests', selectedRequest.id);
-        const now = new Date();
-        logMedicineRequestStatusUpdate(
-          currentUser?.uid || '',
-          currentUser?.email || '',
-          'user',
-          selectedRequest.id,
-          'pending',
-          'cancelled'
-        );
-        await updateDoc(docRef, {
-          status: 'cancelled',
-          cancelledDate: now
-        });
-        setRequests(prev =>
-          prev.map(req =>
-            req.id === selectedRequest.id
-              ? { ...req, status: 'cancelled', cancelledDate: now }
-              : req
-          )
-        );
-        setToastMessage('Request cancelled successfully');
-        setShowToast(true);
-      } catch (error) {
-        console.error('Error cancelling request:', error);
-        setToastMessage('Error cancelling request');
-        setShowToast(true);
-      } finally {
-        setSelectedRequest(null);
-        setShowCancelAlert(false);
       }
     }
   };
@@ -388,18 +344,10 @@ const UserRequests: React.FC = () => {
                       <IonButton fill='outline' onClick={() => handleViewDetails(request.id)}>
                         View Details
                       </IonButton>
-                      {request.status === 'approved' && (
-                        <IonButton onClick={() => handleCardClick(request)} color="primary">
-                          <IonIcon icon={bagCheck} slot="start" />
-                          Mark as Completed
-                        </IonButton>
-                      )}
-                      {request.status === 'pending' && (
-                        <IonButton onClick={() => handleCancelRequest(request)} color="danger">
-                          <IonIcon icon={close} slot="start" />
-                          Cancel Request
-                        </IonButton>
-                      )}
+                      <IonButton onClick={() => handleCardClick(request)} color="primary" disabled={request.status !== 'approved'}>
+                        <IonIcon icon={bagCheck} slot="start" />
+                        Mark as Completed
+                      </IonButton>
                     </div>
                   </IonCard>
                 </IonCol>
@@ -416,17 +364,6 @@ const UserRequests: React.FC = () => {
           buttons={[
             { text: 'Cancel', role: 'cancel', handler: () => setSelectedRequest(null) },
             { text: 'Yes, Completed', handler: markAsCompleted },
-          ]}
-        />
-
-        <IonAlert
-          isOpen={showCancelAlert}
-          onDidDismiss={() => setShowCancelAlert(false)}
-          header="Cancel Request?"
-          message="Are you sure you want to cancel this request?"
-          buttons={[
-            { text: 'Cancel', role: 'cancel', handler: () => setSelectedRequest(null) },
-            { text: 'Yes, Cancel', handler: cancelRequest },
           ]}
         />
 

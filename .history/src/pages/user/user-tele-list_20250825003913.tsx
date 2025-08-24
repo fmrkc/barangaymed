@@ -65,20 +65,6 @@ const UserRequestTele: React.FC = () => {
     setRequests(requests.map(req => req.id === requestId ? { ...req, status: 'completed' } : req));
   };
 
-  const handleCancelRequest = (request: TeleconsultationRequest) => {
-    setRequestToCancel(request);
-    setShowCancelAlert(true);
-  };
-
-  const confirmCancelRequest = async () => {
-    if (requestToCancel && requestToCancel.id) {
-      await teleconsultationService.updateRequestStatus(requestToCancel.id, 'cancelled');
-      setRequests(requests.map(req => req.id === requestToCancel.id ? { ...req, status: 'cancelled' } : req));
-      setShowCancelAlert(false);
-      setRequestToCancel(null);
-    }
-  };
-
   return (
     <>
       <IonHeader>
@@ -131,9 +117,6 @@ const UserRequestTele: React.FC = () => {
                     </IonLabel>
                     <IonButtons slot="end">
                       <IonButton onClick={() => handleViewDetails(request)}>VIEW DETAILS</IonButton>
-                      {request.status === 'pending' && (
-                        <IonButton onClick={() => handleCancelRequest(request)}>CANCEL REQUEST</IonButton>
-                      )}
                       {request.status === 'approved' && request.id && (
                         <IonButton onClick={() => handleMarkAsCompleted(request.id)}>MARK AS COMPLETED</IonButton>
                       )}
@@ -170,27 +153,6 @@ const UserRequestTele: React.FC = () => {
             )}
           </IonContent>
         </IonModal>
-
-        <IonAlert
-          isOpen={showCancelAlert}
-          onDidDismiss={() => setShowCancelAlert(false)}
-          header={'Confirm Cancellation'}
-          message={'Are you sure you want to cancel this teleconsultation request?'}
-          buttons={[
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              cssClass: 'secondary',
-              handler: () => {
-                setShowCancelAlert(false);
-              }
-            },
-            {
-              text: 'Yes, Cancel',
-              handler: confirmCancelRequest
-            }
-          ]}
-        />
       </IonContent>
 
       {/* Navigation Menu Bar */}

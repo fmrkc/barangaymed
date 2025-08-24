@@ -419,17 +419,6 @@ const UserRequests: React.FC = () => {
           ]}
         />
 
-        <IonAlert
-          isOpen={showCancelAlert}
-          onDidDismiss={() => setShowCancelAlert(false)}
-          header="Cancel Request?"
-          message="Are you sure you want to cancel this request?"
-          buttons={[
-            { text: 'Cancel', role: 'cancel', handler: () => setSelectedRequest(null) },
-            { text: 'Yes, Cancel', handler: cancelRequest },
-          ]}
-        />
-
         {/* Details Modal */}
         <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
           <IonHeader>

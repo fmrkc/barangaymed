@@ -435,6 +435,36 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                       </div>
                     </div>
                   )}
+                    <div>
+                      <h3>Review Your Booking</h3>
+                      <IonText>
+                        <p><strong>Preferred Date:</strong> {new Date(formData.preferredDate).toLocaleDateString()}</p>
+                        <p><strong>Preferred Time:</strong> {formData.preferredTime}</p>
+                        <p><strong>Symptoms:</strong> {formData.symptoms}</p>
+                        {formData.additionalNotes && (
+                          <p><strong>Additional Notes:</strong> {formData.additionalNotes}</p>
+                        )}
+                      </IonText>
+
+                      <h3 className="ion-margin-top">Personal Information</h3>
+                      <IonText>
+                        <p><strong>Name:</strong> {formData.fullName}</p>
+                        <p><strong>Email:</strong> {formData.email}</p>
+                        <p><strong>Phone:</strong> {formData.phone}</p>
+                        <p><strong>Address:</strong> {formData.address}</p>
+                        <p><strong>Barangay:</strong> {formData.barangay}</p>
+                      </IonText>
+
+                      <div className="ion-margin-top">
+                        <IonButton expand="block" onClick={() => setCurrentStep(2)} fill="outline" className="ion-margin-bottom">
+                          Back
+                        </IonButton>
+                        <IonButton expand="block" onClick={handleSubmit}>
+                          Confirm Booking
+                        </IonButton>
+                      </div>
+                    </div>
+                  )}
                 </IonCardContent>
               </IonCard>
             </IonCol>

@@ -303,7 +303,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         Next
                       </IonButton>
                     </div>
-                  ) : currentStep === 2 ? (
+                  )}
+
+                  {currentStep === 2 && (
                     <div>
                       <h3>Personal Information</h3>
                       <IonItem>
@@ -404,7 +406,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         </IonButton>
                       </div>
                     </div>
-                  ) : (
+                  )}
+
+                  {currentStep === 3 && (
                     <div>
                       <h3>Review Your Booking</h3>
                       <IonText>

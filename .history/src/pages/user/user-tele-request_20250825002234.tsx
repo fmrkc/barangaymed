@@ -44,7 +44,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const history = useHistory();
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [formData, setFormData] = useState({
     preferredDate: '',
     preferredTime: '',
@@ -58,7 +57,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   });
 
   useEffect(() => {
-    const fetchUserDataAndCheckPending = async () => {
+    const fetchUserData = async () => {
       if (!currentUser) {
         return;
       }
@@ -80,24 +79,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           address: userData.address,
           barangay: userData.barangay,
         }));
-
-        // Check for existing pending teleconsultation requests
-        const q = query(
-          collection(db, 'teleconsultationRequests'),
-          where('userId', '==', currentUser.uid),
-          where('status', '==', 'pending')
-        );
-        const querySnapshot = await getDocs(q);
-        
-        if (querySnapshot.size >= 1) {
-          setHasPendingRequest(true);
-        }
       } catch (err) {
-        console.error('Error fetching user data or checking pending requests:', err);
+        console.error('Error fetching user data:', err);
       }
     };
 
-    fetchUserDataAndCheckPending();
+    fetchUserData();
   }, [currentUser]);
 
   const handleStep1Next = (data: any) => {
@@ -136,25 +123,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const handleSubmit = async () => {
     if (!currentUser) {
       alert('Please login to book a teleconsultation');
-      return;
-    }
-
-    // Check for existing pending teleconsultation requests
-    try {
-      const q = query(
-        collection(db, 'teleconsultationRequests'),
-        where('userId', '==', currentUser.uid),
-        where('status', '==', 'pending')
-      );
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.size >= 1) {
-        alert('You already have a pending teleconsultation request. Please cancel it before making a new one.');
-        return;
-      }
-    } catch (error) {
-      console.error('Error checking pending requests:', error);
-      alert('Error checking your existing requests. Please try again.');
       return;
     }
 
@@ -207,25 +175,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
             </IonCol>
           </IonRow>
 
-          {hasPendingRequest && (
-            <IonRow>
-              <IonCol size="12" size-md="8" offset-md="2">
-                <IonCard color="warning">
-                  <IonCardHeader>
-                    <IonCardTitle>Request Limit Reached</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
-                    <p>You already have a pending teleconsultation request. You can only have one active request at a time.</p>
-                    <p>Please wait for your current request to be processed or cancel it before making a new one.</p>
-                    <IonButton expand="block" onClick={() => history.push('/user/dashboard/requests')}>
-                      View My Requests
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
-              </IonCol>
-            </IonRow>
-          )}
-
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
               <IonCard>
@@ -233,11 +182,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   <IonCardTitle>Step {currentStep} of 3</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  {hasPendingRequest ? (
-                    <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
-                      <p>Form disabled - You have a pending request</p>
-                    </div>
-                  ) : currentStep === 1 ? (
+                  {currentStep === 1 && (
                     <div>
                       <h3>Consultation Details</h3>
 
@@ -303,7 +248,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         Next
                       </IonButton>
                     </div>
-                  ) : currentStep === 2 ? (
+                  )}
+
+                  {currentStep === 2 && (
                     <div>
                       <h3>Personal Information</h3>
                       <IonItem>
@@ -404,7 +351,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         </IonButton>
                       </div>
                     </div>
-                  ) : (
+                  )}
+
+                  {currentStep === 3 && (
                     <div>
                       <h3>Review Your Booking</h3>
                       <IonText>
