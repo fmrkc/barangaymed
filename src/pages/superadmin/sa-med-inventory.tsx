@@ -43,6 +43,7 @@ import { MedicineService } from '../../services/medicineService'; // Import Medi
 import { LogService } from '../../services/logService'; // Import LogService
 import { BARANGAYS } from '../../constants/barangays';
 import { Medicine } from '../../types/medicineRequests'; // Import Medicine interface
+import { Notification } from '../../types/notifications'; // Import Notification interface
 
 const medicineService = MedicineService.getInstance();
 const logService = LogService.getInstance();
@@ -76,12 +77,14 @@ const OTC_MEDICINES = [
 ];
 
 const Medicine_Inventory: React.FC = () => {
+  const [expiryNotifications, setExpiryNotifications] = useState<Notification[]>([]); // New state for notifications
   const { currentUser } = useAuth();
   const [selectedSegment, setSelectedSegment] = useState('rhu');
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false); // New state for notifications modal
   const [searchText, setSearchText] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -257,6 +260,38 @@ const Medicine_Inventory: React.FC = () => {
     return { color: 'success', text: 'Valid' };
   };
 
+  const fetchExpirationNotifications = () => {
+    const newNotifications: Notification[] = [];
+    // Only check RHU medicines for notifications
+    const rhuMedicines = medicines.filter(med => med.location === 'rhu');
+    
+    rhuMedicines.forEach(medicine => {
+      const expiryStatus = getExpiryStatus(medicine.expiryDate);
+      if (expiryStatus.color === 'danger' || expiryStatus.color === 'warning') {
+        newNotifications.push({
+          id: medicine.id,
+          userId: currentUser?.uid || '',
+          userEmail: currentUser?.email || 'unknown@email.com',
+          type: 'system',
+          title: `Medicine Expiry Alert`,
+          message: `${medicine.name} is ${expiryStatus.text.toLowerCase()} - expires on ${formatDate(medicine.expiryDate)}`,
+          timestamp: new Date(),
+          read: false,
+          metadata: {
+            medicineName: medicine.name,
+            // Removed expiryDate as it is not part of the Notification interface
+          }
+        });
+      }
+    });
+    setExpiryNotifications(newNotifications);
+  };
+
+  const handleNotificationButtonClick = () => {
+    fetchExpirationNotifications();
+    setShowNotificationsModal(true);
+  };
+
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
@@ -266,7 +301,7 @@ const Medicine_Inventory: React.FC = () => {
           </IonButtons>
           <IonTitle>Medicine Inventory Management</IonTitle>
           <IonButtons slot="end">
-            <IonButton shape='round'>
+            <IonButton onClick={handleNotificationButtonClick} shape='round'>
               <IonIcon icon={notifications} slot="start" />
             </IonButton>
           </IonButtons>
@@ -282,6 +317,44 @@ const Medicine_Inventory: React.FC = () => {
           message={toastMessage}
           duration={3000}
         />
+
+        {/* Notifications Modal */}
+        <IonModal isOpen={showNotificationsModal} onDidDismiss={() => setShowNotificationsModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Medicine Inventory Notifications</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowNotificationsModal(false)}>
+                  <IonIcon icon={close} />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            {expiryNotifications.length === 0 ? (
+              <IonText color="medium">
+                <p className="ion-text-center">No expiry notifications at this time.</p>
+              </IonText>
+            ) : (
+              <IonList>
+                {expiryNotifications.map((notification) => (
+                  <IonItem key={notification.id}>
+                    <IonLabel>
+                      <h3>{notification.title}</h3>
+                      <p>{notification.message}</p>
+                      <p>
+                        <small>
+                          {notification.timestamp.toLocaleDateString()} at{' '}
+                          {notification.timestamp.toLocaleTimeString()}
+                        </small>
+                      </p>
+                    </IonLabel>
+                  </IonItem>
+                ))}
+              </IonList>
+            )}
+          </IonContent>
+        </IonModal>
 
         <IonItem>
           <IonLabel position="stacked">Select Location</IonLabel>
