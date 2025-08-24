@@ -33,6 +33,7 @@ import { UserService } from '../../services/userService';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
+import { BARANGAYS } from '../../constants/barangays';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -167,12 +168,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       </IonHeader>
       <IonContent>
         <IonGrid>
-          <IonRow>
-            <IonCol size="12" className="ion-text-center">
-              <h1>Book Your Teleconsultation</h1>
-              <p>Complete the following steps to book your teleconsultation appointment</p>
-            </IonCol>
-          </IonRow>
+         
 
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
@@ -307,37 +303,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                             }
                           }}
                         >
-                          <IonSelectOption value="Anon">Anon</IonSelectOption>
-                          <IonSelectOption value="Apalit">Apalit</IonSelectOption>
-                          <IonSelectOption value="Basa Air Base">Basa Air Base</IonSelectOption>
-                          <IonSelectOption value="Benedicto">Benedicto</IonSelectOption>
-                          <IonSelectOption value="Bodega">Bodega</IonSelectOption>
-                          <IonSelectOption value="Cabangcalan">Cabangcalan</IonSelectOption>
-                          <IonSelectOption value="Calantas">Calantas</IonSelectOption>
-                          <IonSelectOption value="Carmencita">Carmencita</IonSelectOption>
-                          <IonSelectOption value="Consuelo">Consuelo</IonSelectOption>
-                          <IonSelectOption value="Dampe">Dampe</IonSelectOption>
-                          <IonSelectOption value="Del Carmen">Del Carmen</IonSelectOption>
-                          <IonSelectOption value="Gutad">Gutad</IonSelectOption>
-                          <IonSelectOption value="Mabical">Mabical</IonSelectOption>
-                          <IonSelectOption value="Maligaya">Maligaya</IonSelectOption>
-                          <IonSelectOption value="Maquiapo">Maquiapo</IonSelectOption>
-                          <IonSelectOption value="Nabuclod">Nabuclod</IonSelectOption>
-                          <IonSelectOption value="Pabanlag">Pabanlag</IonSelectOption>
-                          <IonSelectOption value="Paguiruan">Paguiruan</IonSelectOption>
-                          <IonSelectOption value="Palmayo">Palmayo</IonSelectOption>
-                          <IonSelectOption value="Pandaguirig">Pandaguirig</IonSelectOption>
-                          <IonSelectOption value="Poblacion">Poblacion</IonSelectOption>
-                          <IonSelectOption value="San Antonio">San Antonio</IonSelectOption>
-                          <IonSelectOption value="San Isidro">San Isidro</IonSelectOption>
-                          <IonSelectOption value="San Jose">San Jose</IonSelectOption>
-                          <IonSelectOption value="San Nicolas">San Nicolas</IonSelectOption>
-                          <IonSelectOption value="San Pedro">San Pedro</IonSelectOption>
-                          <IonSelectOption value="San Roque">San Roque</IonSelectOption>
-                          <IonSelectOption value="Santa Monica">Santa Monica</IonSelectOption>
-                          <IonSelectOption value="Santo Cristo">Santo Cristo</IonSelectOption>
-                          <IonSelectOption value="Solib">Solib</IonSelectOption>
-                          <IonSelectOption value="Valdez">Valdez</IonSelectOption>
+                          {BARANGAYS.map(barangay => (
+                            <IonSelectOption key={barangay} value={barangay}>{barangay}</IonSelectOption>
+                          ))}
                         </IonSelect>
                       </IonItem>
 
