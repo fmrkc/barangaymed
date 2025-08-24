@@ -419,17 +419,18 @@ const Medicine_Inventory: React.FC = () => {
         </IonModal>
 
         <IonItem>
-          <IonLabel position="stacked">Select Inventory Location</IonLabel>
+          <IonLabel position="stacked">Select Location:</IonLabel>
           <IonSelect 
             value={selectedSegment} 
             onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
             placeholder="Choose a location"
           >
             <IonSelectOption value="rhu">RHU Inventory</IonSelectOption>
-            <IonSelectOption value="all">All Barangays</IonSelectOption>
+           
             {BARANGAYS.map(barangay => (
               <IonSelectOption key={barangay} value={barangay}>{barangay}</IonSelectOption>
             ))}
+             <IonSelectOption value="all">All Barangays</IonSelectOption>
           </IonSelect>
         </IonItem>
 
@@ -459,14 +460,14 @@ const Medicine_Inventory: React.FC = () => {
                     <IonCardContent>
                         
                         <IonItem className='ion-no-padding'>
-                          <IonLabel position="stacked">Quantity</IonLabel>
-                          <IonChip color={expiryStatus.color as any}>
+                          <p>Quantity</p>
+                          <IonChip slot='end' color={expiryStatus.color as any}>
                             {medicine.quantity} units
                           </IonChip>
                         </IonItem>
                         <IonItem className='ion-no-padding'>
-                          <IonLabel position="stacked">Expiry Date</IonLabel>
-                          <IonChip color={expiryStatus.color as any}>
+                          <p>Expiry Date</p>
+                          <IonChip slot='end' color={expiryStatus.color as any}>
                         {expiryStatus.text}
                       </IonChip>
                         </IonItem>
