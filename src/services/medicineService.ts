@@ -173,4 +173,28 @@ export class MedicineService {
     const querySnapshot = await getDocs(q);
     return querySnapshot.size;
   }
+
+  /**
+   * Fetches all medicine requests for a specific medicine ID.
+   * @param medicineId The ID of the medicine to fetch requests for.
+   * @returns Promise resolving to an array of medicine request objects.
+   */
+  public async getRequestsByMedicineId(medicineId: string): Promise<any[]> {
+    const q = query(
+      collection(db, 'medicineRequests'),
+      where('medicineId', '==', medicineId)
+    );
+    const querySnapshot = await getDocs(q);
+    const requests: any[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      requests.push({
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate(),
+        updatedAt: data.updatedAt?.toDate(),
+      });
+    });
+    return requests;
+  }
 }

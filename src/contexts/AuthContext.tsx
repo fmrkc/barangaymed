@@ -28,13 +28,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   // Function to handle user login
-  const login = async (user: FirebaseUser) => {
+const fetchUserIP = async (): Promise<string> => {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip || 'unknown';
+    } catch (error) {
+        console.error('Failed to fetch IP address:', error);
+        return 'unknown';
+    }
+};
+
+const login = async (user: FirebaseUser) => {
+    const userIP = await fetchUserIP();
     setCurrentUser(user);
     const role = await getUserRole(user.uid);
     setUserRole(role);
     
     // Log the login event
-    logLogin(user.uid, user.email || 'Unknown', role || 'Unknown');
+    logLogin(user.uid, user.email || 'Unknown', role || 'Unknown', userIP);
     
     // Wait until role is set before resolving
     return new Promise<void>((resolve) => {

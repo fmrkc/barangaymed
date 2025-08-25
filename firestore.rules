@@ -16,25 +16,21 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Checks if the user has a specific role via custom claims.
-    function hasRole(role) {
-      return isAuthenticated() && request.auth.token.role == role;
-    }
-
+    // Checks if the user has a specific role using custom claims
     function isUserRole() {
-      return hasRole('user');
+      return isAuthenticated() && request.auth.token.role == 'user';
     }
 
     function isAdmin() {
-      return hasRole('admin');
+      return isAuthenticated() && request.auth.token.role == 'admin';
     }
 
     function isSuperAdmin() {
-      return hasRole('super_admin');
+      return isAuthenticated() && request.auth.token.role == 'super_admin';
     }
 
     // Checks if the user is an admin for a specific barangay.
-    // This assumes the admin's assigned barangayId is in their custom claims.
+    // This assumes the admin's assigned barangayId is stored in custom claims
     function isAdminOfBarangay(barangayId) {
       return isAdmin() && request.auth.token.barangayId == barangayId;
     }
@@ -109,18 +105,17 @@ service cloud.firestore {
     }
 
     // =================================================================
-    // Collection: teleRequests
+    // Collection: teleconsultationRequests
     // Stores requests for tele-consultations from users.
     // =================================================================
-    match /teleRequests/{teleRequestId} {
+    match /teleconsultationRequests/{teleRequestId} {
       // READ: The owner or the admin of the barangay can read.
       allow read: if isOwner(resource.data.userId) || isAdminOfBarangay(resource.data.barangayId);
 
       // CREATE: A user can create a request for themselves.
-      allow create: if isOwner(request.resource.data.userId)
+      allow create: if isOwner(request.resource.data.userId) && isUserRole()
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt == request.time
-                    && request.resource.data.concern is string;
+                    && request.resource.data.symptoms is string;
 
       // UPDATE: An admin can update the status. A user can cancel their own pending request.
       allow update: if (isOwner(resource.data.userId) && request.resource.data.status == 'cancelled' && resource.data.status == 'pending') ||
@@ -173,7 +168,7 @@ service cloud.firestore {
     // =================================================================
     match /rhuInventory/{barangayId}/{medicineId} {
       // READ: Users can read their own barangay's inventory. Admins can read their own. Super admins can read all.
-      allow read: if (isUserRole() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.barangayId == barangayId) ||
+      allow read: if (isUserRole() && request.auth.token.barangayId == barangayId) ||
                      isAdminOfBarangay(barangayId) ||
                      isSuperAdmin();
 
@@ -190,6 +185,21 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       // WRITE: Only admins and super admins can post/edit announcements.
       allow write: if isAdmin() || isSuperAdmin();
+    }
+
+    // =================================================================
+    // Collection: logs
+    // Stores system activity logs and notifications.
+    // =================================================================
+    match /logs/{logId} {
+      // READ: Users can read their own logs. Admins can read logs for users in their barangay. Super admins can read all logs.
+      allow read: if isOwner(resource.data.userId) ||
+                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                     isSuperAdmin();
+
+      // WRITE: Only allow writes through Cloud Functions or specific authorized processes.
+      // Client-side writes are restricted to prevent unauthorized log creation.
+      allow write: if false;
     }
   }
 }

@@ -29,18 +29,21 @@ export interface LogEntry {
  */
 const saveLogToFirestore = async (logEntry: LogEntry) => {
   try {
+    // Filter out undefined values from details to prevent Firestore errors
+    const filteredDetails = {
+      level: logEntry.level,
+      message: logEntry.message,
+      ...(logEntry.ip && { ip: logEntry.ip }),
+      ...(logEntry.userAgent && { userAgent: logEntry.userAgent }),
+      ...logEntry.metadata,
+    };
+
     await logService.logActivity({
       action: logEntry.metadata?.action || 'general_log',
       userId: logEntry.userId,
       userEmail: logEntry.userEmail,
       role: logEntry.userRole,
-      details: {
-        level: logEntry.level,
-        message: logEntry.message,
-        ip: logEntry.ip,
-        userAgent: logEntry.userAgent,
-        ...logEntry.metadata,
-      },
+      details: filteredDetails,
     });
   } catch (error) {
     console.error('Failed to save log to Firestore:', error);
@@ -74,12 +77,14 @@ export const logEvent = (level: LogLevel, message: string, data?: Partial<LogEnt
  * @param userId The user's ID
  * @param userEmail The user's email
  * @param userRole The user's role
+ * @param ip The user's IP address (optional)
  */
-export const logLogin = (userId: string, userEmail: string, userRole: string) => {
+export const logLogin = (userId: string, userEmail: string, userRole: string, ip?: string) => {
   logEvent('info', `User logged in: ${userEmail}`, {
     userId,
     userEmail,
     userRole,
+    ip,
     metadata: {
       action: 'login'
     }
