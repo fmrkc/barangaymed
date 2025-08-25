@@ -239,7 +239,7 @@ const Account: React.FC = () => {
             </IonItemDivider>
             <IonItem detail={false} button>
               <IonIcon slot="start" icon={medical} />
-              <IonLabel>Create My Medical Record</IonLabel>
+              <IonLabel>Create Patient Record</IonLabel>
             </IonItem>
              <IonItem detail={false} button>
               <IonIcon slot="start" icon={person} />

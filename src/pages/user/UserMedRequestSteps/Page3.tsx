@@ -105,7 +105,10 @@ const Page3: React.FC<Page3Props> = ({
             <IonIcon icon={checkmarkCircle} slot="start" />
             Submit Request
           </IonButton>
-          
+          <IonButton expand="block" fill="outline" onClick={onBack} shape='round' className='ion-padding-vertical'>
+            <IonIcon icon={chevronBack} slot="start" />
+            Back
+          </IonButton>
         </div>
       </IonCardContent>
     </div>

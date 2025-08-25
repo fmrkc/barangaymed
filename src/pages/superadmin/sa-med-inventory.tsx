@@ -34,19 +34,15 @@ import {
   IonLoading,
   IonToast,
   IonDatetimeButton,
-  IonPopover,
-  IonActionSheet,
-  IonFooter
+  IonPopover
 } from '@ionic/react';
-import { add, search, close, create, trash, pencil, notifications, time, people, document } from 'ionicons/icons';
+import { add, search, close, create, trash, pencil } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineService } from '../../services/medicineService'; // Import MedicineService
 import { LogService } from '../../services/logService'; // Import LogService
 import { BARANGAYS } from '../../constants/barangays';
 import { Medicine } from '../../types/medicineRequests'; // Import Medicine interface
-import { Notification } from '../../types/notifications'; // Import Notification interface
-import RHUMedicineModal from '../../components/RHUMedicineModal'; // Import RHU Medicine Modal
 
 const medicineService = MedicineService.getInstance();
 const logService = LogService.getInstance();
@@ -80,34 +76,22 @@ const OTC_MEDICINES = [
 ];
 
 const Medicine_Inventory: React.FC = () => {
-  const [expiryNotifications, setExpiryNotifications] = useState<Notification[]>([]); // New state for notifications
   const { currentUser } = useAuth();
   const [selectedSegment, setSelectedSegment] = useState('rhu');
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
-  const [showActionSheet, setShowActionSheet] = useState(false);
-  const [selectedLocationBeforeModal, setSelectedLocationBeforeModal] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [showRHUModal, setShowRHUModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showNotificationsModal, setShowNotificationsModal] = useState(false); // New state for notifications modal
   const [searchText, setSearchText] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  
-  // Medicine details modal states
-  const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
-  const [showMedicineModal, setShowMedicineModal] = useState(false);
-  const [medicineSegment, setMedicineSegment] = useState<'details' | 'orders'>('details');
-  const [medicineRequests, setMedicineRequests] = useState<any[]>([]);
-  const [loadingRequests, setLoadingRequests] = useState(false);
   
   // Form states
   const [medicineName, setMedicineName] = useState('');
   const [medicineType, setMedicineType] = useState('');
   const [quantity, setQuantity] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('rhu');
   const [selectedBarangay, setSelectedBarangay] = useState('');
 
   const medicineTypes = [
@@ -246,63 +230,6 @@ const Medicine_Inventory: React.FC = () => {
     }
   };
 
-  const handleAddRHUMedicine = async () => {
-    if (!medicineName || !medicineType || !quantity || !expiryDate) {
-      setToastMessage('Please fill all required fields');
-      setShowToast(true);
-      return;
-    }
-
-    if (!validateOTCMedicine(medicineName)) {
-      setToastMessage('This system only accepts over-the-counter (OTC) medicines. Please check the medicine name.');
-      setShowToast(true);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const newMedicine: Omit<Medicine, 'id' | 'createdAt' | 'updatedAt'> = {
-        name: medicineName,
-        type: medicineType,
-        quantity: parseInt(quantity),
-        expiryDate: new Date(expiryDate),
-        location: 'rhu',
-        barangay: undefined,
-      };
-
-      const medicineId = await medicineService.addMedicine(newMedicine);
-
-      if (currentUser) {
-        await logService.logActivity({
-          action: 'add_medicine',
-          userId: currentUser.uid,
-          userEmail: currentUser.email || 'unknown@email.com',
-          role: 'superadmin',
-          details: {
-            medicineId: medicineId,
-            medicineName: newMedicine.name,
-            type: newMedicine.type,
-            quantity: newMedicine.quantity,
-            location: 'rhu',
-            message: `Added ${newMedicine.quantity} units of ${newMedicine.name} to RHU inventory.`
-          }
-        });
-      }
-
-      setToastMessage('Medicine added to RHU successfully');
-      setShowToast(true);
-      resetForm();
-      setShowRHUModal(false);
-      fetchMedicines();
-    } catch (error) {
-      console.error('Error adding RHU medicine:', error);
-      setToastMessage('Error adding medicine to RHU');
-      setShowToast(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const resetForm = () => {
     setMedicineName('');
     setMedicineType('');
@@ -330,71 +257,6 @@ const Medicine_Inventory: React.FC = () => {
     return { color: 'success', text: 'Valid' };
   };
 
-  const fetchExpirationNotifications = () => {
-    const newNotifications: Notification[] = [];
-    // Only check RHU medicines for notifications
-    const rhuMedicines = medicines.filter(med => med.location === 'rhu');
-    
-    rhuMedicines.forEach(medicine => {
-      const expiryStatus = getExpiryStatus(medicine.expiryDate);
-      if (expiryStatus.color === 'danger' || expiryStatus.color === 'warning') {
-        newNotifications.push({
-          id: medicine.id,
-          userId: currentUser?.uid || '',
-          userEmail: currentUser?.email || 'unknown@email.com',
-          type: 'system',
-          title: `Medicine Expiry Alert`,
-          message: `${medicine.name} is ${expiryStatus.text.toLowerCase()} - expires on ${formatDate(medicine.expiryDate)}`,
-          timestamp: new Date(),
-          read: false,
-          metadata: {
-            medicineName: medicine.name,
-            // Removed expiryDate as it is not part of the Notification interface
-          }
-        });
-      }
-    });
-    setExpiryNotifications(newNotifications);
-  };
-
-  const handleNotificationButtonClick = () => {
-    fetchExpirationNotifications();
-    setShowNotificationsModal(true);
-  };
-
-  const handleMedicineClick = async (medicine: Medicine) => {
-    setSelectedMedicine(medicine);
-    setMedicineSegment('details');
-    setShowMedicineModal(true);
-    
-    // Fetch medicine requests when opening modal
-    await fetchMedicineRequests(medicine.id);
-  };
-
-  const fetchMedicineRequests = async (medicineId: string) => {
-    setLoadingRequests(true);
-    try {
-      const requests = await medicineService.getRequestsByMedicineId(medicineId);
-      setMedicineRequests(requests);
-    } catch (error) {
-      console.error('Error fetching medicine requests:', error);
-      setToastMessage('Error loading medicine requests');
-      setShowToast(true);
-    } finally {
-      setLoadingRequests(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'success';
-      case 'pending': return 'warning';
-      case 'completed': return 'primary';
-      case 'cancelled': return 'danger';
-      default: return 'medium';
-    }
-  };
-
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
@@ -403,11 +265,6 @@ const Medicine_Inventory: React.FC = () => {
             <IonMenuButton />
           </IonButtons>
           <IonTitle>Medicine Inventory Management</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={handleNotificationButtonClick} shape='round'>
-              <IonIcon icon={notifications} slot="start" />
-            </IonButton>
-          </IonButtons>
         </IonToolbar>
       </IonHeader>
       
@@ -421,57 +278,18 @@ const Medicine_Inventory: React.FC = () => {
           duration={3000}
         />
 
-        {/* Notifications Modal */}
-        <IonModal isOpen={showNotificationsModal} onDidDismiss={() => setShowNotificationsModal(false)}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Medicine Inventory Notifications</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowNotificationsModal(false)}>
-                  <IonIcon icon={close} />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent className="ion-padding">
-            {expiryNotifications.length === 0 ? (
-              <IonText color="medium">
-                <p className="ion-text-center">No expiry notifications at this time.</p>
-              </IonText>
-            ) : (
-              <IonList>
-                {expiryNotifications.map((notification) => (
-                  <IonItem key={notification.id}>
-                    <IonLabel>
-                      <h3>{notification.title}</h3>
-                      <p>{notification.message}</p>
-                      <p>
-                        <small>
-                          {notification.timestamp.toLocaleDateString()} at{' '}
-                          {notification.timestamp.toLocaleTimeString()}
-                        </small>
-                      </p>
-                    </IonLabel>
-                  </IonItem>
-                ))}
-              </IonList>
-            )}
-          </IonContent>
-        </IonModal>
-
         <IonItem>
-          <IonLabel position="stacked">Select Location:</IonLabel>
+          <IonLabel position="stacked">Select Location</IonLabel>
           <IonSelect 
             value={selectedSegment} 
             onIonChange={(e) => setSelectedSegment(String(e.detail.value))}
             placeholder="Choose a location"
           >
             <IonSelectOption value="rhu">RHU Inventory</IonSelectOption>
-           
+            <IonSelectOption value="all">All Barangays</IonSelectOption>
             {BARANGAYS.map(barangay => (
               <IonSelectOption key={barangay} value={barangay}>{barangay}</IonSelectOption>
             ))}
-             <IonSelectOption value="all">All Barangays</IonSelectOption>
           </IonSelect>
         </IonItem>
 
@@ -490,30 +308,20 @@ const Medicine_Inventory: React.FC = () => {
               const expiryStatus = getExpiryStatus(medicine.expiryDate);
               return (
                 <IonCol size="12" size-md="6" size-lg="4" key={medicine.id}>
-                  <IonCard onClick={() => handleMedicineClick(medicine)} style={{ cursor: 'pointer' }}>
+                  <IonCard>
                     <IonCardHeader>
-                      <IonCardTitle>
-                        <IonText color={'primary'}>
-                          {medicine.name} 
-                        </IonText> ({medicine.type})
-                        </IonCardTitle>
+                      <IonCardTitle>{medicine.name}</IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
-                        
-                        <IonItem className='ion-no-padding'>
-                          <p>Quantity</p>
-                          <IonChip slot='end' color={expiryStatus.color as any}>
-                            {medicine.quantity} units
-                          </IonChip>
-                        </IonItem>
-                        <IonItem className='ion-no-padding'>
-                          <p>Expiry Date</p>
-                          <IonChip slot='end' color={expiryStatus.color as any}>
-                        {expiryStatus.text}
+                      <IonText color="medium">
+                        <p><strong>Type:</strong> {medicine.type}</p>
+                        <p><strong>Quantity:</strong> {medicine.quantity} units</p>
+                        <p><strong>Location:</strong> {medicine.location === 'rhu' ? 'RHU' : medicine.barangay}</p>
+                        <p><strong>Expiry:</strong> {formatDate(medicine.expiryDate)}</p>
+                      </IonText>
+                      <IonChip color={expiryStatus.color as any}>
+                        <IonLabel>{expiryStatus.text}</IonLabel>
                       </IonChip>
-                        </IonItem>
-                     
-                      
                     </IonCardContent>
                   </IonCard>
                 </IonCol>
@@ -537,44 +345,15 @@ const Medicine_Inventory: React.FC = () => {
         </IonGrid>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => setShowActionSheet(true)}>
+          <IonFabButton onClick={() => setShowModal(true)}>
             <IonIcon icon={add} />
           </IonFabButton>
         </IonFab>
 
-        <IonActionSheet
-          isOpen={showActionSheet}
-          onDidDismiss={() => setShowActionSheet(false)}
-          header="Where will this medicine record be stored?"
-          buttons={[
-            {
-              text: 'RHU Inventory',
-              handler: () => {
-                setShowRHUModal(true);
-              }
-            },
-            {
-              text: 'Specific Barangay Inventory',
-              handler: () => {
-                setSelectedLocationBeforeModal('barangay');
-                setSelectedLocation('barangay');
-                setShowModal(true);
-              }
-            },
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              handler: () => {
-                setShowActionSheet(false);
-              }
-            }
-          ]}
-        />
-
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>New Medicine Record</IonTitle>
+              <IonTitle>Add New Medicine</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowModal(false)}>
                   <IonIcon icon={close} />
@@ -675,138 +454,6 @@ const Medicine_Inventory: React.FC = () => {
               <IonIcon icon={create} slot="start" />
               Add Medicine
             </IonButton>
-          </IonContent>
-        </IonModal>
-
-        <RHUMedicineModal 
-          isOpen={showRHUModal} 
-          onClose={() => setShowRHUModal(false)} 
-          onMedicineAdded={fetchMedicines} 
-          setLoading={setLoading} 
-          currentUser={currentUser} 
-        />
-
-        {/* Medicine Details Modal */}
-        <IonModal isOpen={showMedicineModal} onDidDismiss={() => setShowMedicineModal(false)}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>
-                {selectedMedicine?.name} Details
-              </IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowMedicineModal(false)}>
-                  <IonIcon icon={close} />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          
-          <IonContent className="ion-padding">
-            <IonSegment value={medicineSegment} onIonChange={(e) => setMedicineSegment(e.detail.value as 'details' | 'orders')}>
-              <IonSegmentButton value="details">
-                <IonLabel>Details</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="orders">
-                <IonLabel>Orders</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-
-            {medicineSegment === 'details' && selectedMedicine && (
-              <IonList>
-                <IonItem>
-                  <IonLabel>
-                    <h3>Medicine Name</h3>
-                    <p>{selectedMedicine.name}</p>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Type</h3>
-                    <p>{selectedMedicine.type}</p>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Quantity</h3>
-                    <p>{selectedMedicine.quantity} units</p>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Expiry Date</h3>
-                    <p>{formatDate(selectedMedicine.expiryDate)}</p>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Location</h3>
-                    <p>{selectedMedicine.location === 'rhu' ? 'RHU' : selectedMedicine.barangay}</p>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Status</h3>
-                    <IonChip color={getExpiryStatus(selectedMedicine.expiryDate).color as any}>
-                      {getExpiryStatus(selectedMedicine.expiryDate).text}
-                    </IonChip>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Created At</h3>
-                    <p>{selectedMedicine.createdAt ? formatDate(selectedMedicine.createdAt) : 'N/A'}</p>
-                  </IonLabel>
-                </IonItem>
-                
-                <IonItem>
-                  <IonLabel>
-                    <h3>Last Updated</h3>
-                    <p>{selectedMedicine.updatedAt ? formatDate(selectedMedicine.updatedAt) : 'N/A'}</p>
-                  </IonLabel>
-                </IonItem>
-              </IonList>
-
-             
-            )}
-
-            {medicineSegment === 'orders' && (
-              <div>
-                <IonLoading isOpen={loadingRequests} message="Loading requests..." />
-                
-                {medicineRequests.length === 0 ? (
-                  <IonText color="medium">
-                    <p className="ion-text-center">No orders found for this medicine.</p>
-                  </IonText>
-                ) : (
-                  <IonList>
-                    {medicineRequests.map((request) => (
-                      <IonItem key={request.id}>
-                        <IonLabel>
-                          <h3>Request from {request.barangay}</h3>
-                          <p>Quantity: {request.quantity} units</p>
-                          <p>Status: 
-                            <IonChip color={getStatusColor(request.status)}>
-                              {request.status}
-                            </IonChip>
-                          </p>
-                          <p>Requested on: {formatDate(request.createdAt)}</p>
-                        </IonLabel>
-                      </IonItem>
-                    ))}
-                  </IonList>
-                )}
-              </div>
-            )}
-
-            <IonFooter>
-              <IonToolbar></IonToolbar>
-            </IonFooter>
           </IonContent>
         </IonModal>
       </IonContent>

@@ -26,6 +26,4 @@ export interface Medicine {
   expiryDate: Date;
   location: string;
   barangay?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
