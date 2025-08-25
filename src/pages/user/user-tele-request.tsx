@@ -26,13 +26,14 @@ import {
   IonItem,
   IonLabel,
   IonToast,
+  IonAlert
 } from '@ionic/react';
 import { calendar, person, location } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
 import { LogService } from '../../services/logService';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { BARANGAYS } from '../../constants/barangays';
@@ -48,6 +49,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const history = useHistory();
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [formData, setFormData] = useState({
     preferredDate: '',
     preferredTime: '',
@@ -61,7 +63,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   });
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserDataAndCheckPending = async () => {
       if (!currentUser) {
         return;
       }
@@ -83,25 +85,27 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           address: userData.address,
           barangay: userData.barangay,
         }));
+
+        // Check for existing pending teleconsultation requests
+        const q = query(
+          collection(db, 'teleconsultationRequests'),
+          where('userId', '==', currentUser.uid),
+          where('status', '==', 'pending')
+        );
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.size >= 1) {
+          setHasPendingRequest(true);
+        }
       } catch (err) {
-        console.error('Error fetching user data:', err);
+        console.error('Error fetching user data or checking pending requests:', err);
       }
     };
 
-    fetchUserData();
+    fetchUserDataAndCheckPending();
   }, [currentUser]);
 
-  const handleStep1Next = (data: any) => {
-    setFormData(prev => ({ ...prev, ...data }));
-    setCurrentStep(2);
-  };
 
-  const handlePhoneNumberChange = (e: CustomEvent) => {
-    const value = e.detail.value!;
-    // Only allow numbers
-    const numericValue = value.replace(/[^0-9]/g, '');
-    setFormData({ ...formData, phone: numericValue });
-  };
 
   const validateStep1 = () => {
     return (
@@ -116,10 +120,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     );
   };
 
-  const handleStep2Next = (data: any) => {
-    setFormData(prev => ({ ...prev, ...data }));
-    setCurrentStep(3);
-  };
 
   const handleSubmit = async () => {
     if (!currentUser) {
@@ -183,6 +183,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       </IonHeader>
       <IonContent>
         <IonGrid>
+         
+
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
               <IonCard>
@@ -190,7 +192,11 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   <IonCardTitle>Step {currentStep} of 3</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  {currentStep === 1 && (
+                  {hasPendingRequest ? (
+                    <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
+                      <p>Form disabled - You have a pending request</p>
+                    </div>
+                  ) : currentStep === 1 ? (
                     <div>
                       <h3>Consultation Details</h3>
 
@@ -218,9 +224,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         Next
                       </IonButton>
                     </div>
-                  )}
-
-                  {currentStep === 2 && (
+                  ) : currentStep === 2 ? (
                     <div>
                       <h3>Schedule Details</h3>
 
@@ -271,9 +275,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         </IonButton>
                       </div>
                     </div>
-                  )}
-
-                  {currentStep === 3 && (
+                  ) : currentStep === 3 ? (
                     <div>
                       <h3>Review Your Booking</h3>
                       <IonText>
@@ -303,7 +305,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         </IonButton>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </IonCardContent>
               </IonCard>
             </IonCol>
@@ -320,5 +322,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     </IonModal>
   );
 };
+
 
 export default UserTeleRequest;
