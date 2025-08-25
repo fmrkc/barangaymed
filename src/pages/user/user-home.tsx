@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { megaphone, clipboard, medkit, receipt } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import UserMedRequestModal from './user-med-request';
+import UserTeleRequest from './user-tele-request';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 
@@ -38,6 +39,7 @@ const Home: React.FC = () => {
 
 
     const [showMedicineModal, setShowMedicineModal] = useState(false);
+    const [showTeleconsultationModal, setShowTeleconsultationModal] = useState(false);
 
     return (
         <>
@@ -89,7 +91,7 @@ const Home: React.FC = () => {
 
                         
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'}>
+                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowTeleconsultationModal(true)}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
@@ -123,9 +125,13 @@ const Home: React.FC = () => {
                     
                 </IonGrid>
             </IonContent>
-            <UserMedRequestModal 
+            <UserMedRequestModal
                 isOpen={showMedicineModal}
                 onDidDismiss={() => setShowMedicineModal(false)}
+            />
+            <UserTeleRequest
+                isOpen={showTeleconsultationModal}
+                onDidDismiss={() => setShowTeleconsultationModal(false)}
             />
         </>
     );

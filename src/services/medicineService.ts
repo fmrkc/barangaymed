@@ -160,9 +160,24 @@ export class MedicineService {
   }
 
   /**
-   * Fetches medicine requests for a specific medicine ID.
-   * @param medicineId The ID of the medicine to get requests for.
-   * @returns Promise resolving to an array of MedicineRequest objects.
+   * Gets the count of pending medicine requests for a user.
+   * @param userId The user ID to check pending requests for.
+   * @returns Promise resolving to the number of pending requests.
+   */
+  public async getPendingRequestsCount(userId: string): Promise<number> {
+    const q = query(
+      collection(db, 'medicineRequests'),
+      where('userId', '==', userId),
+      where('status', '==', 'pending')
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.size;
+  }
+
+  /**
+   * Fetches all medicine requests for a specific medicine ID.
+   * @param medicineId The ID of the medicine to fetch requests for.
+   * @returns Promise resolving to an array of medicine request objects.
    */
   public async getRequestsByMedicineId(medicineId: string): Promise<any[]> {
     const q = query(
@@ -176,10 +191,8 @@ export class MedicineService {
       requests.push({
         id: doc.id,
         ...data,
-        requestDate: data.requestDate?.toDate(),
-        pickupDate: data.pickupDate?.toDate(),
-        approvedDate: data.approvedDate?.toDate(),
-        completedDate: data.completedDate?.toDate(),
+        createdAt: data.createdAt?.toDate(),
+        updatedAt: data.updatedAt?.toDate(),
       });
     });
     return requests;
