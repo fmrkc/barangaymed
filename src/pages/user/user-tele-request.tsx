@@ -25,11 +25,13 @@ import {
   IonDatetime,
   IonItem,
   IonLabel,
+  IonToast,
 } from '@ionic/react';
 import { calendar, person, location } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
+import { LogService } from '../../services/logService';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
@@ -41,6 +43,8 @@ interface UserTeleRequestProps {
 }
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const history = useHistory();
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
@@ -144,7 +148,21 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         preferredDate: serverTimestamp(),
       });
 
-      alert('Teleconsultation request submitted successfully!');
+      // Log the activity
+      const logService = LogService.getInstance();
+      await logService.logActivity({
+        action: 'teleconsultation_request',
+        userId: currentUser.uid,
+        userEmail: currentUser.email || '',
+        details: {
+          preferredDate: formData.preferredDate,
+          preferredTime: formData.preferredTime,
+          symptoms: formData.symptoms,
+        },
+      });
+
+      setShowToast(true);
+      setToastMessage('Teleconsultation request submitted successfully!');
       onDidDismiss();
       history.push('/user/dashboard');
     } catch (error) {
@@ -165,8 +183,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       </IonHeader>
       <IonContent>
         <IonGrid>
-         
-
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
               <IonCard>
@@ -294,6 +310,13 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           </IonRow>
         </IonGrid>
       </IonContent>
+      <IonToast
+        isOpen={showToast}
+        onDidDismiss={() => setShowToast(false)}
+        message={toastMessage}
+        duration={3000}
+        position="top"
+      />
     </IonModal>
   );
 };
