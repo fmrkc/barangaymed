@@ -143,10 +143,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         requestDate: new Date(),
       };
 
-      await addDoc(collection(db, 'teleconsultationRequests'), {
-        ...teleconsultationData,
-        preferredDate: serverTimestamp(),
-      });
+      await addDoc(collection(db, 'teleconsultationRequests'), teleconsultationData);
 
       // Log the activity
       const logService = LogService.getInstance();

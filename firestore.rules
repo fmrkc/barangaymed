@@ -16,25 +16,21 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Checks if the user has a specific role via custom claims.
-    function hasRole(role) {
-      return isAuthenticated() && request.auth.token.role == role;
-    }
-
+    // Checks if the user has a specific role using custom claims
     function isUserRole() {
-      return hasRole('user');
+      return isAuthenticated() && request.auth.token.role == 'user';
     }
 
     function isAdmin() {
-      return hasRole('admin');
+      return isAuthenticated() && request.auth.token.role == 'admin';
     }
 
     function isSuperAdmin() {
-      return hasRole('super_admin');
+      return isAuthenticated() && request.auth.token.role == 'super_admin';
     }
 
     // Checks if the user is an admin for a specific barangay.
-    // This assumes the admin's assigned barangayId is in their custom claims.
+    // This assumes the admin's assigned barangayId is stored in custom claims
     function isAdminOfBarangay(barangayId) {
       return isAdmin() && request.auth.token.barangayId == barangayId;
     }
@@ -119,7 +115,6 @@ service cloud.firestore {
       // CREATE: A user can create a request for themselves.
       allow create: if isOwner(request.resource.data.userId) && isUserRole()
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt == request.time
                     && request.resource.data.symptoms is string;
 
       // UPDATE: An admin can update the status. A user can cancel their own pending request.
@@ -173,7 +168,7 @@ service cloud.firestore {
     // =================================================================
     match /rhuInventory/{barangayId}/{medicineId} {
       // READ: Users can read their own barangay's inventory. Admins can read their own. Super admins can read all.
-      allow read: if (isUserRole() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.barangayId == barangayId) ||
+      allow read: if (isUserRole() && request.auth.token.barangayId == barangayId) ||
                      isAdminOfBarangay(barangayId) ||
                      isSuperAdmin();
 
