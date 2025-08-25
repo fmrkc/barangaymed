@@ -23,9 +23,11 @@ import {
   IonIcon,
   IonAlert,
   IonButton,
+  IonTabs,
+  IonTabBar,
+  IonTabButton,
   IonModal,
-  IonButtons,
-  IonFooter
+  IonButtons
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -33,10 +35,8 @@ import { db } from '../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, getDoc } from 'firebase/firestore';
 import '../user/user-med-list.css';
-import { bagCheck, close, chevronBack, checkmark, arrowBack } from 'ionicons/icons';
+import { bagCheck, close, chevronBack } from 'ionicons/icons';
 import { logMedicineRequestStatusUpdate } from '../../utils/logger';
-import { MedicineService } from '../../services/medicineService';
-import { LogService } from '../../services/logService';
 
 interface MedicineRequest {
   id?: string;
@@ -60,7 +60,7 @@ interface MedicineRequest {
 
 const UserRequests: React.FC = () => {
   const { currentUser } = useAuth();
-  const history = useHistory();
+  const history = useHistory(); // ✅ for navigation
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -68,14 +68,11 @@ const UserRequests: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState('pending');
   const [showConfirmAlert, setShowConfirmAlert] = useState(false);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
-  const [showCancelConfirmAlert, setShowCancelConfirmAlert] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
+
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailedRequest, setDetailedRequest] = useState<MedicineRequest | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
-
-  const medicineService = MedicineService.getInstance();
-  const logService = LogService.getInstance();
 
   useEffect(() => {
     if (currentUser) {
@@ -219,58 +216,6 @@ const UserRequests: React.FC = () => {
           prev.map(req =>
             req.id === selectedRequest.id
               ? { ...req, status: 'cancelled', cancelledDate: now }
-    if (selectedRequest?.id && currentUser) {
-      try {
-        const docRef = doc(db, 'medicineRequests', selectedRequest.id);
-        
-        // Log the status change for user notification
-        await logService.logActivity({
-          action: 'medicine_request_status_update',
-          userId: selectedRequest.userId,
-          userEmail: selectedRequest.userEmail || 'unknown@email.com',
-          role: 'user',
-          details: {
-            requestId: selectedRequest.id,
-            oldStatus: selectedRequest.status,
-            newStatus: 'cancelled',
-            medicineName: selectedRequest.medicineName,
-            message: `You have cancelled your request for ${selectedRequest.medicineName}.`
-          }
-        });
-
-        // Increment medicine quantity back to inventory
-        try {
-          await medicineService.incrementMedicineQuantity(selectedRequest.medicineId, selectedRequest.quantity);
-          // Log inventory change due to cancellation
-          await logService.logActivity({
-            action: 'medicine_inventory_update',
-            userId: currentUser.uid,
-            userEmail: currentUser.email || 'unknown@email.com',
-            userName: currentUser.displayName || 'User',
-            role: 'user',
-            details: {
-              medicineId: selectedRequest.medicineId,
-              medicineName: selectedRequest.medicineName,
-              quantityChange: selectedRequest.quantity,
-              reason: 'request_cancelled_by_user',
-              requestId: selectedRequest.id,
-              message: `Returned ${selectedRequest.quantity} units of ${selectedRequest.medicineName} to inventory due to user cancellation.`
-            }
-          });
-        } catch (error) {
-          console.error('Error incrementing medicine quantity:', error);
-        }
-
-        // Update the request status
-        await updateDoc(docRef, {
-          status: 'cancelled',
-          completedDate: new Date()
-        });
-
-        setRequests(prev =>
-          prev.map(req =>
-            req.id === selectedRequest.id
-              ? { ...req, status: 'cancelled' }
               : req
           )
         );
@@ -283,8 +228,6 @@ const UserRequests: React.FC = () => {
       } finally {
         setSelectedRequest(null);
         setShowCancelAlert(false);
-        setShowCancelConfirmAlert(false);
-        setShowDetailsModal(false);
       }
     }
   };
@@ -331,9 +274,10 @@ const UserRequests: React.FC = () => {
     <>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
+          {/*Back button to go to requests.tsx */}
           <IonButtons slot="start">
             <IonButton onClick={() => history.push('/user/dashboard/requests')}>
-              <IonIcon icon={arrowBack} />
+              <IonIcon icon={chevronBack} />
             </IonButton>
           </IonButtons>
           <IonTitle>My Medicine Requests</IonTitle>
@@ -456,10 +400,6 @@ const UserRequests: React.FC = () => {
                           Cancel Request
                         </IonButton>
                       )}
-                      <IonButton onClick={() => handleCardClick(request)} color="primary" disabled={request.status !== 'approved'}>
-                        <IonIcon icon={checkmark} slot="end" />
-                        Mark as Completed
-                      </IonButton>
                     </div>
                   </IonCard>
                 </IonCol>
@@ -487,13 +427,6 @@ const UserRequests: React.FC = () => {
           buttons={[
             { text: 'Cancel', role: 'cancel', handler: () => setSelectedRequest(null) },
             { text: 'Yes, Cancel', handler: cancelRequest },
-          isOpen={showCancelConfirmAlert}
-          onDidDismiss={() => setShowCancelConfirmAlert(false)}
-          header="Cancel Request?"
-          message="Are you sure you want to cancel this request? The medicine quantity will be returned to inventory."
-          buttons={[
-            { text: 'No', role: 'cancel', handler: () => setSelectedRequest(null) },
-            { text: 'Yes, Cancel', handler: cancelRequest, role: 'destructive' },
           ]}
         />
 
@@ -524,25 +457,6 @@ const UserRequests: React.FC = () => {
               </IonList>
             )}
           </IonContent>
-          <IonFooter>
-            <IonToolbar>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
-                <IonButton 
-                  expand='block' 
-                  fill='outline' 
-                  color={'danger'} 
-                  onClick={() => {
-                    setSelectedRequest(detailedRequest);
-                    setShowCancelConfirmAlert(true);
-                  }}
-                  disabled={detailedRequest?.status === 'cancelled' || detailedRequest?.status === 'completed'}
-                >
-                  Cancel Request
-                  <IonIcon icon={close} slot='start' />
-                </IonButton>
-              </div>
-            </IonToolbar>
-          </IonFooter>
         </IonModal>
       </IonContent>
     </>
@@ -550,3 +464,4 @@ const UserRequests: React.FC = () => {
 };
 
 export default UserRequests;
+

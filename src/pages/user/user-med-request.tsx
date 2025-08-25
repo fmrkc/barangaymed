@@ -10,7 +10,7 @@ import { Medicine } from '../../types/medicineRequests';
 import Page1 from './UserMedRequestSteps/Page1';
 import Page2 from './UserMedRequestSteps/Page2';
 import Page3 from './UserMedRequestSteps/Page3';
-import { arrowBack, backspace, close, closeOutline } from 'ionicons/icons';
+import { close, closeOutline } from 'ionicons/icons';
 
 const medicineService = MedicineService.getInstance();
 const logService = LogService.getInstance();
@@ -233,13 +233,8 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
       onDidDismiss={onDidDismiss}
       className="medicine-request-modal"
     >
-      <IonHeader className='ion-no-border'>
+      <IonHeader>
         <IonToolbar>
-          <IonButtons slot='start'>
-            <IonButton onClick={onBack} shape='round'>
-              <IonIcon icon={arrowBack} color='primary' />
-            </IonButton>
-          </IonButtons>
           <IonTitle>Medicine Request</IonTitle>
          <IonButtons slot="end">
                 <IonButton onClick={onDidDismiss} shape='round'>

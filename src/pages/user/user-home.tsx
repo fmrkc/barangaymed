@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonText } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { megaphone, clipboard, medkit, receipt } from 'ionicons/icons';
+import { megaphone, clipboard, medkit } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import UserMedRequestModal from './user-med-request';
 import UserTeleRequest from './user-tele-request';
@@ -58,32 +58,16 @@ const Home: React.FC = () => {
 
                     <IonRow>
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
+                            <IonCard  className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
-                                        <IonText>OTC Medicine Request</IonText>
+                                        <IonText>Medicine Request</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <IonText>
                                         Request over-the-counter medicines from your barangay.
-                                    </IonText>
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
-
-                        <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
-                                <IonCardHeader>
-                                    <IonCardTitle>
-                                        <IonIcon icon={receipt} style={{ marginRight: '8px' }} />
-                                        <IonText>Prescription Medicine Request</IonText>
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <IonCardContent>
-                                    <IonText>
-                                        Upload your prescription here and we'll try to fulfill it.
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
