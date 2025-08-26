@@ -11,17 +11,9 @@ import Medicine_Request from './user-med-request';
 import User_Requests from './user-requests';
 import Medicine_Requests_Status from './user-med-list';
 import Teleconsultation_Requests_Status from './user-tele-list';
+import { clipboard, home, notifications, person } from 'ionicons/icons';
 
-import { 
-  home as homeIcon, 
-  homeOutline as homeOutlineIcon,
-  notifications as notificationsIcon,
-  notificationsOutline as notificationsOutlineIcon,
-  person as personIcon,
-  personOutline as personOutlineIcon,
-  albums,
-  albumsOutline
-} from 'ionicons/icons';
+
 
 const UserDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -31,19 +23,19 @@ const UserDashboard: React.FC = () => {
       <IonTabs>
         <IonTabBar slot="bottom" className='ion-padding'>
           <IonTabButton tab="home" href="/user/dashboard/home" onClick={() => setSelectedTab('home')}>
-            <IonIcon icon={selectedTab === 'home' ? homeIcon : homeOutlineIcon} /> {/* Change icon based on selection */}
+            <IonIcon icon={home} /> {/* Change icon based on selection */}
             <IonLabel>Home</IonLabel>
           </IonTabButton>
           <IonTabButton tab="requests" href="/user/dashboard/requests" onClick={() => setSelectedTab('requests')}>
-            <IonIcon icon={selectedTab === 'requests' ? albums : albumsOutline} /> {/* Change icon based on selection */}
+            <IonIcon icon={clipboard} /> {/* Change icon based on selection */}
             <IonLabel>My Requests</IonLabel>
           </IonTabButton>  
           <IonTabButton tab="notifications" href="/user/dashboard/notifications" onClick={() => setSelectedTab('notifications')}>
-            <IonIcon icon={selectedTab === 'notifications' ? notificationsIcon : notificationsOutlineIcon} /> {/* Change icon based on selection */}
+            <IonIcon icon={notifications} /> {/* Change icon based on selection */}
             <IonLabel>Notifications</IonLabel>
           </IonTabButton>
           <IonTabButton tab="account" href="/user/dashboard/account" onClick={() => setSelectedTab('account')}>
-            <IonIcon icon={selectedTab === 'account' ? personIcon : personOutlineIcon} /> {/* Change icon based on selection */}
+            <IonIcon icon={person} /> {/* Change icon based on selection */}
             <IonLabel>Account</IonLabel>
           </IonTabButton>
         </IonTabBar>

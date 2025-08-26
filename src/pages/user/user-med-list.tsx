@@ -451,7 +451,7 @@ const UserRequests: React.FC = () => {
 
         {/* Details Modal */}
         <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
               <IonButton slot="end" fill="clear" onClick={() => setShowDetailsModal(false)}>
