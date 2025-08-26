@@ -8,8 +8,6 @@ import {
   IonCardHeader, 
   IonCardTitle, 
   IonCardContent, 
-  IonTabBar, 
-  IonTabButton, 
   IonIcon, 
   IonLabel, 
   IonButtons, 
@@ -17,13 +15,18 @@ import {
   IonModal,
   IonList,
   IonItem,
-  IonAlert
+  IonAlert,
+  IonSegment,
+  IonSegmentButton,
+  IonTabBar,
+  IonTabButton
 } from '@ionic/react';
 import { person, home, notifications, albums, chevronBack } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationService } from '../../services/teleconsultationService';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
+import './user-tele-list.css';
 
 const UserRequestTele: React.FC = () => {
   const history = useHistory();
@@ -32,7 +35,7 @@ const UserRequestTele: React.FC = () => {
 
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('pending');
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
@@ -94,28 +97,29 @@ const UserRequestTele: React.FC = () => {
       </IonHeader>
 
       <IonContent className="with-tab-padding">
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Teleconsultation Requests</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <IonTabBar>
-              <IonTabButton tab="all" onClick={() => handleStatusChange('all')}>
-                <IonLabel>All</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="pending" onClick={() => handleStatusChange('pending')}>
+         <IonSegment scrollable={true} value={selectedStatus} onIonChange={e => handleStatusChange(String(e.detail.value))}>
+              
+              <IonSegmentButton value="pending">
                 <IonLabel>Pending</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="approved" onClick={() => handleStatusChange('approved')}>
+              </IonSegmentButton>
+              <IonSegmentButton value="approved">
                 <IonLabel>Approved</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="completed" onClick={() => handleStatusChange('completed')}>
+              </IonSegmentButton>
+              <IonSegmentButton value="completed">
                 <IonLabel>Completed</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="cancelled" onClick={() => handleStatusChange('cancelled')}>
+              </IonSegmentButton>
+              <IonSegmentButton value="cancelled">
                 <IonLabel>Cancelled</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
+              </IonSegmentButton>
+              <IonSegmentButton value="all">
+                <IonLabel>All</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+
+
+        <IonCard>
+          <IonCardContent>
+           
             {loading ? (
               <p>Loading requests...</p>
             ) : (
@@ -192,26 +196,6 @@ const UserRequestTele: React.FC = () => {
           ]}
         />
       </IonContent>
-
-      {/* Navigation Menu Bar */}
-      <IonTabBar slot="bottom">
-        <IonTabButton tab="home" onClick={() => history.push('/user/dashboard/home')}>
-          <IonIcon icon={home} />
-          <IonLabel>Home</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="user_requests" onClick={() => history.push('/user/dashboard/requests')}>
-          <IonIcon icon={albums} />
-          <IonLabel>Requests</IonLabel>
-        </IonTabButton>  
-        <IonTabButton tab="notifications" onClick={() => history.push('/user/dashboard/notifications')}>
-          <IonIcon icon={notifications} />
-          <IonLabel>Notifications</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="account" onClick={() => history.push('/user/dashboard/account')}>
-          <IonIcon icon={person} />
-          <IonLabel>Account</IonLabel>
-        </IonTabButton>
-      </IonTabBar>
     </>
   );
 };
