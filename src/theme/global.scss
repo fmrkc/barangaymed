@@ -2,3 +2,15 @@ ion-card {
     border-radius: 10px;
     box-shadow: none;
 }
+
+@media (prefers-color-scheme: light) {
+  ion-segment {
+    --background: white;
+  }
+
+  ion-item-divider {
+    --background: white;
+  }
+
+}
+
