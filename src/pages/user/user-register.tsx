@@ -1,9 +1,8 @@
-
 import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonPage, IonRouterLink, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast } from '@ionic/react';
 import { checkmarkDoneOutline } from 'ionicons/icons';
 import React from 'react';
 
-import { registerUserWithFullData, db, auth } from '../../firebaseConfig';
+import { registerUserWithFullData, auth } from '../../firebaseConfig';
 import { signOut } from 'firebase/auth';
 
 import Page1 from './UserRegisterSteps/Page1';
@@ -11,7 +10,7 @@ import Page2 from './UserRegisterSteps/Page2';
 import Page3 from './UserRegisterSteps/Page3';
 import Page4 from './UserRegisterSteps/Page4';
 import Page5 from './UserRegisterSteps/Page5';
-import { addDoc, collection } from 'firebase/firestore';
+import { LogService } from '../../services/logService';
 
 const UserRegister: React.FC = () => {
   const router = useIonRouter();
@@ -80,7 +79,7 @@ const UserRegister: React.FC = () => {
     await present('Creating account...');
     try {
       const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
-      const user = await registerUserWithFullData(email, password, fullName, role, {
+      const user = await registerUserWithFullData(email, password, fullName, 'user', {
         firstName,
         middleName,
         lastName,
@@ -90,23 +89,27 @@ const UserRegister: React.FC = () => {
         barangay // include barangay in registration data
       });
 
-      // Log registration event in Firestore
-    await addDoc(collection(db, 'logs'), {
-      event: "UserRegistration",
-      status: "success",
-      email,
-      fullName,
-      role,
-      barangay,
-      timestamp: new Date()
-    });
+      // Log registration event using LogService
+      const logService = LogService.getInstance();
+      await logService.logActivity({
+        action: "UserRegistration",
+        userId: user.uid,
+        userEmail: email,
+        userName: fullName,
+        role: 'user',
+        details: {
+          barangay,
+          contactNumber,
+          address
+        }
+      });
 
       console.log(JSON.stringify({
         event: "UserRegistration",
         status: "success",
         email,
         fullName,
-        role,
+        role: 'user',
         timestamp: new Date().toISOString()
       }));
       dismiss();
