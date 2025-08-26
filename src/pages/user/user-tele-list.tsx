@@ -1,38 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonCard, 
-  IonCardHeader, 
-  IonCardTitle, 
-  IonCardContent, 
-  IonTabBar, 
-  IonTabButton, 
-  IonIcon, 
-  IonLabel, 
-  IonButtons, 
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonIcon,
+  IonLabel,
+  IonButtons,
   IonButton,
   IonModal,
   IonList,
   IonItem,
-  IonAlert
+  IonAlert,
+  IonSegment,
+  IonSegmentButton,
+  IonTabBar,
+  IonTabButton,
+  IonItemDivider,
+  IonText,
+  IonInput,
+  IonTextarea,
+  IonChip,
+  IonFooter,
+  IonBackButton
 } from '@ionic/react';
-import { person, home, notifications, albums, chevronBack } from 'ionicons/icons';
+import { person, home, notifications, albums, chevronBack, close, open, arrowBack } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationService } from '../../services/teleconsultationService';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
+import './user-tele-list.css';
 
 const UserRequestTele: React.FC = () => {
   const history = useHistory();
   const { currentUser } = useAuth();
   const teleconsultationService = TeleconsultationService.getInstance();
-
+  const [selectedSegment, setSelectedSegment] = useState('pending');
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('pending');
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
@@ -79,6 +89,16 @@ const UserRequestTele: React.FC = () => {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'approved': return 'primary';
+      case 'completed': return 'success';
+      case 'cancelled': return 'danger';
+      default: return 'medium';
+    }
+  };
+
   return (
     <>
       <IonHeader>
@@ -93,29 +113,30 @@ const UserRequestTele: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Teleconsultation Requests</IonCardTitle>
-          </IonCardHeader>
+      <IonContent className="with-tab-padding">
+        <IonSegment color={getStatusColor(selectedSegment)} scrollable={true} value={selectedStatus} onIonChange={e => { handleStatusChange(String(e.detail.value)); setSelectedSegment(String(e.detail.value)); }}>
+
+          <IonSegmentButton value="pending">
+            <IonLabel>Pending</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="approved">
+            <IonLabel>Approved</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="completed">
+            <IonLabel>Completed</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="cancelled">
+            <IonLabel>Cancelled</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="all">
+            <IonLabel>All</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+
+
+        <IonCard className='ion-margin'>
           <IonCardContent>
-            <IonTabBar>
-              <IonTabButton tab="all" onClick={() => handleStatusChange('all')}>
-                <IonLabel>All</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="pending" onClick={() => handleStatusChange('pending')}>
-                <IonLabel>Pending</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="approved" onClick={() => handleStatusChange('approved')}>
-                <IonLabel>Approved</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="completed" onClick={() => handleStatusChange('completed')}>
-                <IonLabel>Completed</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="cancelled" onClick={() => handleStatusChange('cancelled')}>
-                <IonLabel>Cancelled</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
+
             {loading ? (
               <p>Loading requests...</p>
             ) : (
@@ -123,20 +144,17 @@ const UserRequestTele: React.FC = () => {
                 {requests.map(request => (
                   <IonItem key={request.id}>
                     <IonLabel>
-                      <h2>Status: {request.status}</h2>
+                      <h2>Status: <IonText color={getStatusColor(request.status)}>{request.status}</IonText></h2>
                       <p>Date Sent: {request.requestDate?.toLocaleDateString()}</p>
                       {request.status === 'approved' && (
                         <p>Scheduled Date: {request.preferredDate?.toLocaleDateString()}</p>
                       )}
                     </IonLabel>
                     <IonButtons slot="end">
-                      <IonButton onClick={() => handleViewDetails(request)}>VIEW DETAILS</IonButton>
-                      {request.status === 'pending' && (
-                        <IonButton onClick={() => handleCancelRequest(request)}>CANCEL REQUEST</IonButton>
-                      )}
-                      {request.status === 'approved' && request.id && (
-                        <IonButton onClick={() => handleMarkAsCompleted(request.id)}>MARK AS COMPLETED</IonButton>
-                      )}
+                      <IonButton fill='outline' color={'primary'} onClick={() => handleViewDetails(request)}>
+                        VIEW DETAILS
+                        <IonIcon icon={open} slot='end' />
+                      </IonButton>
                     </IonButtons>
                   </IonItem>
                 ))}
@@ -144,32 +162,86 @@ const UserRequestTele: React.FC = () => {
             )}
           </IonCardContent>
         </IonCard>
-
-        <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
-          <IonHeader>
+        
+        {loading ? (
+              <p></p>
+            ) : ( 
+              
+                <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
+          <IonHeader className='ion-no-border '>
             <IonToolbar>
-              <IonTitle>Request Details</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowDetailsModal(false)}>Close</IonButton>
+              <IonButtons slot="start">
+                <IonButton shape='round' color={'primary'} onClick={() => setShowDetailsModal(false)}>
+                  <IonIcon icon={arrowBack} slot='start' />
+                </IonButton>
               </IonButtons>
+              <IonTitle>Request Details</IonTitle>
             </IonToolbar>
           </IonHeader>
-          <IonContent>
             {selectedRequest && (
-              <div>
-                <h3>Request Details</h3>
-                <p>User: {selectedRequest.userName}</p>
-                <p>Symptoms: {selectedRequest.symptoms}</p>
-                <p>Additional Notes: {selectedRequest.additionalNotes}</p>
-                <p>Status: {selectedRequest.status}</p>
-                <p>Date Sent: {selectedRequest.requestDate?.toLocaleDateString()}</p>
-                {selectedRequest.status === 'approved' && (
-                  <p>Scheduled Date: {selectedRequest.preferredDate?.toLocaleDateString()}</p>
-                )}
-              </div>
-            )}
-          </IonContent>
+                <IonContent className='ion-padding'>
+
+                  <IonCard>
+                    <IonCardContent>
+                      <IonItemDivider><IonLabel>Request ID: {selectedRequest.id}</IonLabel></IonItemDivider>
+                      <IonItem>
+                        <IonLabel slot='start'>Status: </IonLabel>
+                        <IonChip slot='end' color={getStatusColor(selectedRequest.status)}>{selectedRequest.status}</IonChip>
+                      </IonItem>
+                      {selectedRequest.status === 'approved' && (
+                        <>
+                          <IonItemDivider><IonLabel>Approved Details</IonLabel></IonItemDivider>
+                          <IonInput label='Schedule Date: ' value={selectedRequest.preferredDate?.toLocaleDateString()} />
+                        </>
+                      )}
+                      <IonItem>
+                        <IonLabel slot='start'>Request Date:</IonLabel>
+                        <IonChip slot='end'>{selectedRequest.requestDate?.toLocaleDateString()}</IonChip>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel slot='start'>AM/PM:</IonLabel>
+                        <IonChip slot='end'>{selectedRequest.preferredTime}</IonChip>
+                      </IonItem>
+                      <IonItem>
+                        <IonInput labelPlacement='floating' label='Symptom:' readonly value={selectedRequest.symptoms}></IonInput>
+                      </IonItem>
+                      <IonItem>
+                        <IonTextarea readonly label='Additional Notes:' labelPlacement='floating' value={selectedRequest.additionalNotes}></IonTextarea>
+                      </IonItem>
+
+                      <IonItemDivider><IonLabel>Resident Details</IonLabel></IonItemDivider>
+                      <IonItem>
+                        <IonInput readonly label='Name:' value={selectedRequest.userName}></IonInput>
+                      </IonItem>
+                      <IonItem>
+                        <IonInput readonly label='Contact Number:' value={selectedRequest.userPhone}></IonInput>
+                      </IonItem>
+                      <IonItem>
+                        <IonInput readonly label='Request Sent:' value={selectedRequest.requestDate?.toLocaleDateString()}></IonInput>
+                      </IonItem>
+                    </IonCardContent>
+                    <IonFooter>
+                    </IonFooter>
+                  </IonCard>
+                </IonContent>
+          )}
+           {selectedRequest && selectedRequest.status === 'pending' && (
+             <IonFooter>
+              <IonToolbar>
+               <div className='ion-text-right ion-padding'>
+                 <IonButton color={'danger'} onClick={() => handleCancelRequest(selectedRequest)}>
+                   CANCEL REQUEST
+                   <IonIcon icon={close} slot='end' />
+                 </IonButton>
+               </div>
+              </IonToolbar>
+            </IonFooter>
+           )}
         </IonModal>
+              
+
+            )}
+        
 
         <IonAlert
           isOpen={showCancelAlert}
@@ -192,26 +264,6 @@ const UserRequestTele: React.FC = () => {
           ]}
         />
       </IonContent>
-
-      {/* Navigation Menu Bar */}
-      <IonTabBar slot="bottom">
-        <IonTabButton tab="home" onClick={() => history.push('/user/dashboard/home')}>
-          <IonIcon icon={home} />
-          <IonLabel>Home</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="user_requests" onClick={() => history.push('/user/dashboard/requests')}>
-          <IonIcon icon={albums} />
-          <IonLabel>Requests</IonLabel>
-        </IonTabButton>  
-        <IonTabButton tab="notifications" onClick={() => history.push('/user/dashboard/notifications')}>
-          <IonIcon icon={notifications} />
-          <IonLabel>Notifications</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="account" onClick={() => history.push('/user/dashboard/account')}>
-          <IonIcon icon={person} />
-          <IonLabel>Account</IonLabel>
-        </IonTabButton>
-      </IonTabBar>
     </>
   );
 };

@@ -28,7 +28,7 @@ import {
   IonToast,
   IonAlert
 } from '@ionic/react';
-import { calendar, person, location } from 'ionicons/icons';
+import { calendar, person, location, open, close } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
@@ -169,18 +169,21 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   };
 
   return (
+
     <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/user/dashboard" />
-          </IonButtons>
+          <IonButtons slot="end">
+                      <IonButton onClick={onDidDismiss} shape='round'>
+                        <IonIcon icon={close} color='primary' />
+                      </IonButton>
+                    </IonButtons>
           <IonTitle>Book Teleconsultation</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <IonGrid>
-         
+
 
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
@@ -190,8 +193,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 </IonCardHeader>
                 <IonCardContent>
                   {hasPendingRequest ? (
-                    <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
-                      <p>Form disabled - You have a pending request</p>
+                    <div style={{ height: '85vh', justifyContent: 'center', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
+                      <p>You currently have a pending request. Please check your current pending request for more information!</p>
+                      <IonButton className='ion-padding-vertical' shape='round' expand='block' onClick={() => history.push('/user/dashboard/requests/teleconsultation')}>
+                        View My Pending Request
+                        <IonIcon slot="end" icon={open} />
+                      </IonButton>
                     </div>
                   ) : currentStep === 1 ? (
                     <div>

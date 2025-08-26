@@ -311,7 +311,7 @@ const UserRequests: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="with-tab-padding">
         <IonLoading isOpen={loading || detailsLoading} message="Loading..." />
         <IonToast
           isOpen={showToast}

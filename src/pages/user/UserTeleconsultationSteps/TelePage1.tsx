@@ -46,11 +46,11 @@ const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
   };
 
   return (
-    <IonPage>
+    <>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/user/dashboard" />
+            <IonBackButton defaultHref="/user/dashboard/home" />
           </IonButtons>
           <IonTitle>Book Teleconsultation - Step 1</IonTitle>
         </IonToolbar>
@@ -114,7 +114,7 @@ const TelePage1: React.FC<TelePage1Props> = ({ onNext }) => {
           </IonRow>
         </IonGrid>
       </IonContent>
-    </IonPage>
+    </>
   );
 };
 
