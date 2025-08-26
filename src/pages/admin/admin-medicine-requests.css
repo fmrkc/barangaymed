@@ -19,12 +19,6 @@ ion-content::part(scroll) {
   scrollbar-width: none;    /* Firefox */
 }
 
-/* Modal styles for medicine request details */
-.medicine-request-modal {
-  --width: 90%;
-  --max-width: 500px;
-  --border-radius: 10px;
-}
 
 
 
@@ -103,9 +97,7 @@ ion-content::part(scroll) {
   transition: opacity 0.2s;
 }
 
-.action-btn:hover {
-  opacity: 0.8;
-}
+
 
 .approve-btn {
   background-color: var(--ion-color-success);

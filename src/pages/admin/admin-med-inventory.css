@@ -30,10 +30,7 @@ ion-card {
   transition: transform 0.2s ease;
 }
 
-ion-card:hover {
-  transform: translateY(-2px);
-  --box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
+
 
 ion-card-header {
   padding-bottom: 8px;
