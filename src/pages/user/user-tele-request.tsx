@@ -28,7 +28,7 @@ import {
   IonToast,
   IonAlert
 } from '@ionic/react';
-import { calendar, person, location, open } from 'ionicons/icons';
+import { calendar, person, location, open, close } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
@@ -169,18 +169,21 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   };
 
   return (
+
     <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/user/dashboard" />
-          </IonButtons>
+          <IonButtons slot="end">
+                      <IonButton onClick={onDidDismiss} shape='round'>
+                        <IonIcon icon={close} color='primary' />
+                      </IonButton>
+                    </IonButtons>
           <IonTitle>Book Teleconsultation</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <IonGrid>
-         
+
 
           <IonRow>
             <IonCol size="12" size-md="8" offset-md="2">
