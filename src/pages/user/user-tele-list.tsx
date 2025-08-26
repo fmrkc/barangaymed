@@ -93,7 +93,7 @@ const UserRequestTele: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="with-tab-padding">
         <IonCard>
           <IonCardHeader>
             <IonCardTitle>Teleconsultation Requests</IonCardTitle>
