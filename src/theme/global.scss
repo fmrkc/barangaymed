@@ -3,6 +3,10 @@ ion-card {
     box-shadow: none;
 }
 
+ion-item-divider {
+  --background: none;
+}
+
 @media (prefers-color-scheme: light) {
   ion-segment {
     --background: white;
