@@ -101,7 +101,7 @@ const UserRequestTele: React.FC = () => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
             {/* Back Button (similar to UserRequests.tsx) */}
@@ -168,7 +168,7 @@ const UserRequestTele: React.FC = () => {
             ) : ( 
               
                 <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
-          <IonHeader className='ion-no-border '>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonButtons slot="start">
                 <IonButton shape='round' color={'primary'} onClick={() => setShowDetailsModal(false)}>

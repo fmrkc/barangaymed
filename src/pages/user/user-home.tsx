@@ -48,7 +48,7 @@ const Home: React.FC = () => {
                     <IonTitle>BarangayMed+</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent>
+            <IonContent className="with-tab-padding">
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12"  className="ion-text-center">   
