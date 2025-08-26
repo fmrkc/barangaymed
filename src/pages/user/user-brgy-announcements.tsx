@@ -129,7 +129,7 @@ const UserAnnouncements: React.FC = () => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref='/user/dashboard' />

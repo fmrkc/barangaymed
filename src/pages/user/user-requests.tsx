@@ -16,7 +16,7 @@ const UserRequests: React.FC = () => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>My Requests</IonTitle>
         </IonToolbar>
