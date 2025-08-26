@@ -99,3 +99,7 @@ email: string, password: string, name: string, role: string, userData: { [key: s
     throw error;
   }
 }
+
+// Import and export the createAdmin Cloud Function
+import { httpsCallable } from 'firebase/functions';
+export const createAdmin = httpsCallable(functions, 'createAdmin');

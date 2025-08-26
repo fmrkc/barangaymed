@@ -2,7 +2,7 @@ import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, 
 import { checkmarkDoneOutline } from 'ionicons/icons';
 import React from 'react';
 
-import { registerUserWithFullData } from '../../firebaseConfig';
+import { createAdmin } from '../../firebaseConfig';
 import { useAuth } from '../../contexts/AuthContext';
 import { BARANGAYS } from '../../constants/barangays';
 
@@ -33,7 +33,7 @@ const SuperRegister: React.FC = () => {
 
         await present('Creating account...');
         try {
-            await registerUserWithFullData(email, password, fullName, role, { barangay }); // pass fullName as 4th arg
+            await createAdmin({ email, password, fullName, role, barangay }); // call the new Cloud Function
             dismiss();
             setShowToast(true);
             setTimeout(() => {
