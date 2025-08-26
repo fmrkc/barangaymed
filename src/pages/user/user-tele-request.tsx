@@ -28,7 +28,7 @@ import {
   IonToast,
   IonAlert
 } from '@ionic/react';
-import { calendar, person, location } from 'ionicons/icons';
+import { calendar, person, location, open } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
@@ -190,8 +190,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 </IonCardHeader>
                 <IonCardContent>
                   {hasPendingRequest ? (
-                    <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
-                      <p>Form disabled - You have a pending request</p>
+                    <div style={{ height: '85vh', justifyContent: 'center', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
+                      <p>You currently have a pending request. Please check your current pending request for more information!</p>
+                      <IonButton className='ion-padding-vertical' shape='round' expand='block' onClick={() => history.push('/user/dashboard/requests/requests_teleconsultation')}>
+                        View My Pending Request
+                        <IonIcon slot="end" icon={open} />
+                      </IonButton>
                     </div>
                   ) : currentStep === 1 ? (
                     <div>
