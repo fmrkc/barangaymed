@@ -51,14 +51,12 @@ const Page1: React.FC<Page1Props> = ({
       <IonCardContent>
         {hasTooManyPendingRequests ? (
           <div style={{ height: '85vh', justifyContent: 'center', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
-          
-          
-                                <p>You currently have <IonText style={{ fontWeight: 'bold' }} color={'primary'}>{pendingRequestsCount}</IonText> pending request/s. Please check your current pending requests for more information!</p>
-                                <IonButton className='ion-padding-vertical' shape='round' expand='block' onClick={() => history.push('/user/dashboard/requests/requests_medicine')} >
-                                  View My Pending Request/s
-                                  <IonIcon slot="end" icon={open} />
-                                </IonButton>
-                              </div>
+            <p>You currently have <IonText style={{ fontWeight: 'bold' }} color={'primary'}>{pendingRequestsCount}</IonText> pending request/s. Please check your current pending requests for more information!</p>
+            <IonButton className='ion-padding-vertical' shape='round' expand='block' onClick={() => history.push('/user/dashboard/requests/medicine')} >
+              View My Pending Request/s
+              <IonIcon slot="end" icon={open} />
+            </IonButton>
+          </div>
         ) : (
           <>
             <IonSearchbar

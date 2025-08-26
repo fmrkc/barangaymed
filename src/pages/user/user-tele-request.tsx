@@ -195,7 +195,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   {hasPendingRequest ? (
                     <div style={{ height: '85vh', justifyContent: 'center', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
                       <p>You currently have a pending request. Please check your current pending request for more information!</p>
-                      <IonButton className='ion-padding-vertical' shape='round' expand='block' onClick={() => history.push('/user/dashboard/requests/requests_teleconsultation')}>
+                      <IonButton className='ion-padding-vertical' shape='round' expand='block' onClick={() => history.push('/user/dashboard/requests/teleconsultation')}>
                         View My Pending Request
                         <IonIcon slot="end" icon={open} />
                       </IonButton>
