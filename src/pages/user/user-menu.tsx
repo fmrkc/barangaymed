@@ -29,7 +29,7 @@ const UserDashboard: React.FC = () => {
 
   return (
       <IonTabs>
-        <IonTabBar slot="bottom">
+        <IonTabBar slot="bottom" className='ion-padding'>
           <IonTabButton tab="home" href="/user/dashboard/home" onClick={() => setSelectedTab('home')}>
             <IonIcon icon={selectedTab === 'home' ? homeIcon : homeOutlineIcon} /> {/* Change icon based on selection */}
             <IonLabel>Home</IonLabel>
