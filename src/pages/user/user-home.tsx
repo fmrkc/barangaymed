@@ -52,7 +52,8 @@ const Home: React.FC = () => {
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12"  className="ion-text-center">   
-                            <h1>Welcome {firstName}!</h1>
+                            <h1><IonText style={{ fontWeight: 'bold' }} color={'primary'}>Welcome {firstName}!</IonText></h1>
+                            <p>Access BarangayMed's features below:</p>
                         </IonCol>
                     </IonRow>
 
