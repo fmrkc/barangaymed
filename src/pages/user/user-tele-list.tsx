@@ -164,7 +164,7 @@ const UserRequestTele: React.FC = () => {
         </IonCard>
         
         {loading ? (
-              <p>Loading requests...</p>
+              <p></p>
             ) : ( 
               
                 <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
