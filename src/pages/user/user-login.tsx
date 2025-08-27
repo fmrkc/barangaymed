@@ -5,8 +5,9 @@ import healthcare from '../../assets/healthcare.png'
 import Intro from '../../components/Intro';
 import { Preferences } from '@capacitor/preferences';
 import { useAuth } from '../../contexts/AuthContext';
-import { login } from '../../firebaseConfig';
+import { login, auth } from '../../firebaseConfig';
 import { logFailedLogin } from '../../utils/logger';
+import { sendEmailVerification, signOut } from 'firebase/auth';
 
 const INTR0_KEY = 'intro-seen';
 
@@ -36,6 +37,13 @@ const Login: React.FC = () => {
         try {
             const user = await login(email, password);
             if (user) {
+                if (!user.emailVerified) {
+                    await sendEmailVerification(user);
+                    await signOut(auth);
+                    dismiss();
+                    setError('Your email is not verified. We have sent you a new verification email. Please check your inbox.');
+                    return;
+                }
                 await authLogin(user);
                 dismiss();
                 // Only redirect to dashboard if this is a direct login
