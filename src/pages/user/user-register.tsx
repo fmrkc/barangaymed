@@ -3,7 +3,7 @@ import { checkmarkDoneOutline } from 'ionicons/icons';
 import React from 'react';
 
 import { registerUserWithFullData, auth } from '../../firebaseConfig';
-import { signOut } from 'firebase/auth';
+import { signOut, sendEmailVerification } from 'firebase/auth';
 
 import Page1 from './UserRegisterSteps/Page1';
 import Page2 from './UserRegisterSteps/Page2';
@@ -11,6 +11,7 @@ import Page3 from './UserRegisterSteps/Page3';
 import Page4 from './UserRegisterSteps/Page4';
 import Page5 from './UserRegisterSteps/Page5';
 import { LogService } from '../../services/logService';
+import { BARANGAYS } from '../../constants/barangays';
 
 const UserRegister: React.FC = () => {
   const router = useIonRouter();
@@ -27,36 +28,43 @@ const UserRegister: React.FC = () => {
   const [contactNumber, setContactNumber] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
   const [role] = React.useState('user'); // fixed role
   const [barangay, setBarangay] = React.useState(''); // new state for barangay
   const [error, setError] = React.useState<string | null>(null);
 
   const onChange = (field: string, value: string) => {
+    // Basic XSS protection
+    const sanitizedValue = value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     switch (field) {
       case 'firstName':
-        setFirstName(value);
+        setFirstName(sanitizedValue);
         break;
       case 'middleName':
-        setMiddleName(value);
+        setMiddleName(sanitizedValue);
         break;
       case 'lastName':
-        setLastName(value);
+        setLastName(sanitizedValue);
         break;
       case 'suffix':
-        setSuffix(value);
+        setSuffix(sanitizedValue);
         break;
       case 'address':
-        setAddress(value);
+        setAddress(sanitizedValue);
         break;
       case 'contactNumber':
         // Allow the formatted phone number from maskito
-        setContactNumber(value);
+        setContactNumber(sanitizedValue);
         break;
       case 'email':
-        setEmail(value);
+        setEmail(sanitizedValue);
         break;
       case 'password':
-        setPassword(value);
+        setPassword(value); // Don't sanitize password to allow special characters
+        break;
+      case 'confirmPassword':
+        setConfirmPassword(value); // Don't sanitize password
         break;
       default:
         break;
@@ -79,7 +87,7 @@ const UserRegister: React.FC = () => {
     await present('Creating account...');
     try {
       const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
-      const user = await registerUserWithFullData(email, password, fullName, 'user', {
+      const userCredential = await registerUserWithFullData(email, password, fullName, 'user', {
         firstName,
         middleName,
         lastName,
@@ -89,11 +97,13 @@ const UserRegister: React.FC = () => {
         barangay // include barangay in registration data
       });
 
+      await sendEmailVerification(userCredential);
+
       // Log registration event using LogService
       const logService = LogService.getInstance();
       await logService.logActivity({
         action: "UserRegistration",
-        userId: user.uid,
+        userId: userCredential.uid,
         userEmail: email,
         userName: fullName,
         role: 'user',
@@ -115,14 +125,14 @@ const UserRegister: React.FC = () => {
       dismiss();
       await signOut(auth);
       presentToast({
-        message: 'Account created successfully! Please login with your credentials.',
-        duration: 2000,
+        message: 'Account created! Please check your email to verify your account and then login.',
+        duration: 5000,
         color: 'success',
         icon: checkmarkDoneOutline,
         position: 'top'
       });
       router.push('/user/login', 'forward');
-    } catch (err) {
+    } catch (err: any) {
       console.log(JSON.stringify({
         event: "UserRegistration",
         status: "failure",
@@ -131,35 +141,24 @@ const UserRegister: React.FC = () => {
         timestamp: new Date().toISOString()
       }));
       dismiss();
-      setError('Registration failed. Please try again.');
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email address is already in use. Please use a different email.');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     }
   };
 
   // Validation functions
   const isValidContactNumber = (number: string) => {
-    // Extract only digits from the formatted number
     const digitsOnly = number.replace(/\D/g, '');
-    
-    // Handle different Philippine mobile number formats:
-    // 1. With country code: 639xxxxxxxxx (12 digits)
-    // 2. Without country code: 9xxxxxxxxx (10 digits) 
-    // 3. With leading zero: 09xxxxxxxxx (11 digits)
-    
-    let phoneDigits = digitsOnly;
-    
-    // Remove country code '63' if present at the start
     if (digitsOnly.startsWith('63')) {
-      phoneDigits = digitsOnly.substring(2);
+      return /^\d{12}$/.test(digitsOnly);
     }
-    
-    // Remove leading zero if present
-    if (phoneDigits.startsWith('0')) {
-      phoneDigits = phoneDigits.substring(1);
+    if (digitsOnly.startsWith('0')) {
+        return /^\d{11}$/.test(digitsOnly);
     }
-    
-    // Philippine mobile numbers should have exactly 10 digits after removing country code and leading zero
-    const phoneRegex = /^\d{10}$/;
-    return phoneRegex.test(phoneDigits);
+    return /^\d{10}$/.test(digitsOnly);
   };
 
   const isValidAddress = (addr: string) => {
@@ -168,9 +167,16 @@ const UserRegister: React.FC = () => {
   };
 
   const isValidBarangay = (brgy: string) => {
-    // Basic check: non-empty and only letters, numbers, spaces allowed
-    const barangayRegex = /^[a-zA-Z0-9\s]+$/;
-    return barangayRegex.test(brgy) && brgy.trim().length > 0;
+    return BARANGAYS.includes(brgy as any);
+  };
+
+  const isStrongPassword = (password: string): boolean => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
   };
 
   const validateStep = (currentStep: number): string | null => {
@@ -178,21 +184,22 @@ const UserRegister: React.FC = () => {
       case 1:
         if (!firstName.trim()) return 'First name is required.';
         if (!lastName.trim()) return 'Last name is required.';
-        // middleName and suffix are optional
         break;
       case 2:
         if (!address.trim()) return 'Address is required.';
-        if (!isValidAddress(address)) return 'Address format is invalid.';
+        if (!isValidAddress(address)) return 'Address must be at least 5 characters long.';
         if (!contactNumber.trim()) return 'Contact number is required.';
-        if (!isValidContactNumber(contactNumber)) return 'Contact number format is invalid.';
+        if (!isValidContactNumber(contactNumber)) return 'Please enter a valid Philippine contact number.';
         break;
       case 3:
         if (!barangay.trim()) return 'Barangay is required.';
-        if (!isValidBarangay(barangay)) return 'Barangay format is invalid.';
+        if (!isValidBarangay(barangay)) return 'Please select a valid barangay from the list.';
         break;
       case 4:
         if (!email.trim()) return 'Email is required.';
-        if (!password.trim()) return 'Password is required.';
+        if (!password) return 'Password is required.';
+        if (!isStrongPassword(password)) return 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.';
+        if (password !== confirmPassword) return 'Passwords do not match.';
         break;
       case 5:
         // Final step, no additional validation here
@@ -271,6 +278,7 @@ const UserRegister: React.FC = () => {
                     <Page4
                       email={email}
                       password={password}
+                      confirmPassword={confirmPassword}
                       onChange={onChange}
                       onNext={onNext}
                       onBack={onBack}

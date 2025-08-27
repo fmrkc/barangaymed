@@ -1,27 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IonButton, IonInput, IonRow, IonCol, IonText, IonCardSubtitle, IonCardTitle, IonIcon } from '@ionic/react';
 import { arrowBack, arrowForward, lockClosed, mail } from 'ionicons/icons';
 
 interface Page4Props {
   email: string;
   password: string;
+  confirmPassword?: string; // Make it optional to avoid breaking changes if not passed
   onChange: (field: string, value: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-const Page4: React.FC<Page4Props> = ({ email, password, onChange, onNext, onBack }) => {
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleNext = () => {
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    setError('');
-    onNext();
-  };
+const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange, onNext, onBack }) => {
 
   return (
     <>
@@ -62,17 +52,12 @@ const Page4: React.FC<Page4Props> = ({ email, password, onChange, onNext, onBack
           type="password"
           placeholder="Re-enter your password"
           value={confirmPassword}
-          onIonChange={e => setConfirmPassword(e.detail.value!)}
+          onIonChange={e => onChange('confirmPassword', e.detail.value!)}
         >
           <IonIcon slot="start" icon={lockClosed}></IonIcon>
         </IonInput>
       </div>
      
-      {error && (
-        <IonText color="danger" className="ion-padding-start">
-          {error}
-        </IonText>
-      )}
       <IonRow className="ion-justify-content-between ion-margin-top">
         <IonCol size="5">
           <IonButton fill='outline' expand="block" onClick={onBack} shape='round' className='ion-padding-vertical'>

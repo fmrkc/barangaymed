@@ -23,9 +23,7 @@
     "globals": "^15.15.0",
     "typescript": "^5.1.6",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
-    "firebase-functions-test": "^3.1.0"
+    "@typescript-eslint/parser": "^7.13.1"
   },
-  "private": true,
-  "type": "module"
+  "private": true
 }
