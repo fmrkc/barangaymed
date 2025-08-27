@@ -1,11 +1,11 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 import { logger } from "firebase-functions";
 
 admin.initializeApp();
 
 // Export the createAdmin function
-export { createAdmin } from './createAdminUser';
+export { createAdmin } from './createAdminUser.js';
 
 /**
  * On user creation, set custom claims based on the user's role in Firestore.
