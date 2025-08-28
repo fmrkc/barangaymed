@@ -13,6 +13,7 @@ export interface UserData {
   contactNumber: string;
   email: string;
   barangay: string;
+  address: string;
 }
 
 export class UserService {
@@ -46,7 +47,8 @@ export class UserService {
         zipCode: data.zipCode || '',
         contactNumber: data.contactNumber || '',
         email: data.email || '',
-        barangay: data.barangay || ''
+        barangay: data.barangay || '',
+        address: data.address || ''
       };
       }
       return this.getEmptyUserData();
@@ -72,7 +74,8 @@ export class UserService {
       zipCode: '',
       contactNumber: '',
       email: '',
-      barangay: ''
+      barangay: '',
+      address: ''
     };
   }
 }

@@ -68,13 +68,26 @@ email: string, password: string, name: string, role: string, userData: { [key: s
     // Set display name in Firebase Auth
     await updateProfile(user, { displayName: name });
     
+    // Create combined address string
+    const addressParts = [];
+    if (userData.lotBlkHouseNo) addressParts.push(`${userData.lotBlkHouseNo}`);
+    if (userData.streetName) addressParts.push(`${userData.streetName}`);
+    if (userData.subdivisionVillageZonePurok) addressParts.push(`${userData.subdivisionVillageZonePurok}`);
+    addressParts.push(`${userData.barangay}`); // Barangay is required
+    addressParts.push('Floridablanca'); // Fixed value
+    addressParts.push('Pampanga'); // Fixed value
+    if (userData.zipCode) addressParts.push(`${userData.zipCode}`);
+    
+    const combinedAddress = addressParts.join(', ');
+
     // Add user document with full data in Firestore
     await setDoc(doc(db, 'users', user.uid), {
       email: email,
       name: name,
       role: role,
       createdAt: serverTimestamp(),
-      ...userData
+      ...userData,
+      address: combinedAddress // Add the combined address
     });
 
     // Log registration event using LogService BEFORE signing out
@@ -88,10 +101,11 @@ email: string, password: string, name: string, role: string, userData: { [key: s
       details: {
         barangay: userData.barangay, // Access from userData
         contactNumber: userData.contactNumber, // Access from userData
-        lotBlkHouseNo: userData.lotBlkHouseNo, // Access from userData
-        streetName: userData.streetName, // Access from userData
-        subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok, // Access from userData
-        zipCode: userData.zipCode // Access from userData
+        address: combinedAddress, // Use the combined address
+        lotBlkHouseNo: userData.lotBlkHouseNo,
+        streetName: userData.streetName,
+        subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok,
+        zipCode: userData.zipCode
       }
     };
     console.log("Log Entry being sent to Cloud Function:", JSON.stringify(logEntry));
