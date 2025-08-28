@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { lockClosed, logInSharp, person, personCircle } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png';
 import { useAuth } from '../../contexts/AuthContext';
-import { login, getUserRole } from '../../firebaseConfig';
+import { login } from '../../firebaseConfig';
 import { logFailedLogin } from '../../utils/logger';
 
 const SuperAdminLogin: React.FC = () => {
   const router = useIonRouter();
-  const { login: authLogin } = useAuth();
+  const { login: authLogin, userRole } = useAuth();
   const [present, dismiss] = useIonLoading();
 
   const [email, setEmail] = useState('');
@@ -22,15 +22,17 @@ const SuperAdminLogin: React.FC = () => {
     try {
       const user = await login(email, password);
       if (user) {
-        const role = await getUserRole(user.uid);
-        if (role !== 'superadmin') {
-          // Log the failed login attempt
+        // Role validation is now handled by the AuthContext through custom claims
+        await authLogin(user);
+        
+        // Check if user has superadmin role after login
+        if (userRole !== 'superadmin') {
           logFailedLogin(email, 'Access denied: User is not a superadmin.');
           setError('Access denied: You are not a superadmin.');
           dismiss();
           return;
         }
-        await authLogin(user);
+        
         dismiss();
         router.push('/superadmin/dashboard', 'forward');
       } else {
