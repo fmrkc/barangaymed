@@ -39,7 +39,19 @@ const Page5: React.FC<Page5Props> = ({
   error
 }) => {
   // Combine address fields for display
-  const fullAddress = `${lotBlkHouseNo}, ${streetName}, ${subdivisionVillageZonePurok}, ${barangay}, Floridablanca, Pampanga, ${zipCode}`;
+  const addressParts = [
+  lotBlkHouseNo,
+  streetName,
+  subdivisionVillageZonePurok,
+  barangay,
+  "Floridablanca",
+  "Pampanga",
+  zipCode
+];
+
+// Filter out empty/undefined values and join them with commas
+const fullAddress = addressParts.filter(part => part && part.trim() !== "").join(", ");
+
 
   return (
     <>
