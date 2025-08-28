@@ -40,23 +40,6 @@ export async function register(email: string, password: string) {
   }
 }
 
-// New function to get user role from Firestore
-export async function getUserRole(uid: string): Promise<string | null> {
-  try {
-    const docRef = doc(db, 'users', uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return data.role || null;
-    } else {
-      console.log("No such user document!");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error getting user role:", error);
-    return null;
-  }
-}
 
 // New function to register user and add role to Firestore
 export async function registerUserWithRole(email: string, password: string, role: string) {

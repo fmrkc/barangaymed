@@ -152,3 +152,71 @@ export const logMedicineRequestStatusUpdate = (
     }
   });
 };
+
+/**
+ * Log security-related events for access control
+ * @param userId The user's ID (use 'unknown' for unauthenticated users)
+ * @param eventType The type of security event
+ * @param description Detailed description of the event
+ * @param additionalData Additional metadata for the event
+ */
+export const logSecurityEvent = (
+  userId: string,
+  eventType: string,
+  description: string,
+  additionalData?: Record<string, any>
+) => {
+  logEvent('info', `Security event: ${eventType} - ${description}`, {
+    userId,
+    metadata: {
+      action: 'security_event',
+      eventType,
+      description,
+      ...additionalData
+    }
+  });
+};
+
+/**
+ * Log unauthorized access attempts
+ * @param userId The user's ID
+ * @param attemptedRoute The route the user tried to access
+ * @param userRole The user's current role
+ * @param requiredRole The required role for the route
+ */
+export const logUnauthorizedAccess = (
+  userId: string,
+  attemptedRoute: string,
+  userRole: string,
+  requiredRole: string
+) => {
+  logSecurityEvent(
+    userId,
+    'UNAUTHORIZED_ACCESS',
+    `User with role ${userRole} attempted access to route requiring ${requiredRole}`,
+    {
+      attemptedRoute,
+      userRole,
+      requiredRole
+    }
+  );
+};
+
+/**
+ * Log authentication events
+ * @param userId The user's ID
+ * @param eventType Type of authentication event
+ * @param details Additional details about the event
+ */
+export const logAuthenticationEvent = (
+  userId: string,
+  eventType: string,
+  details: string
+) => {
+  logSecurityEvent(
+    userId,
+    'AUTHENTICATION',
+    `${eventType}: ${details}`,
+    { eventType, details }
+  );
+};
