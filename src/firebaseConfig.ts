@@ -88,7 +88,10 @@ email: string, password: string, name: string, role: string, userData: { [key: s
       details: {
         barangay: userData.barangay, // Access from userData
         contactNumber: userData.contactNumber, // Access from userData
-        address: userData.address // Access from userData
+        lotBlkHouseNo: userData.lotBlkHouseNo, // Access from userData
+        streetName: userData.streetName, // Access from userData
+        subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok, // Access from userData
+        zipCode: userData.zipCode // Access from userData
       }
     };
     console.log("Log Entry being sent to Cloud Function:", JSON.stringify(logEntry));

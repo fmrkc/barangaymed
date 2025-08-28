@@ -6,7 +6,10 @@ export interface UserData {
   middleName: string;
   lastName: string;
   suffix: string;
-  address: string;
+  lotBlkHouseNo: string;
+  streetName: string;
+  subdivisionVillageZonePurok: string;
+  zipCode: string;
   contactNumber: string;
   email: string;
   barangay: string;
@@ -32,16 +35,19 @@ export class UserService {
       const userDoc = await getDoc(doc(db, 'users', uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        return {
-          firstName: data.firstName || '',
-          middleName: data.middleName || '',
-          lastName: data.lastName || '',
-          suffix: data.suffix || '',
-          address: data.address || '',
-          contactNumber: data.contactNumber || '',
-          email: data.email || '',
-          barangay: data.barangay || ''
-        };
+      return {
+        firstName: data.firstName || '',
+        middleName: data.middleName || '',
+        lastName: data.lastName || '',
+        suffix: data.suffix || '',
+        lotBlkHouseNo: data.lotBlkHouseNo || '',
+        streetName: data.streetName || '',
+        subdivisionVillageZonePurok: data.subdivisionVillageZonePurok || '',
+        zipCode: data.zipCode || '',
+        contactNumber: data.contactNumber || '',
+        email: data.email || '',
+        barangay: data.barangay || ''
+      };
       }
       return this.getEmptyUserData();
     } catch (error) {
@@ -60,7 +66,10 @@ export class UserService {
       middleName: '',
       lastName: '',
       suffix: '',
-      address: '',
+      lotBlkHouseNo: '',
+      streetName: '',
+      subdivisionVillageZonePurok: '',
+      zipCode: '',
       contactNumber: '',
       email: '',
       barangay: ''
