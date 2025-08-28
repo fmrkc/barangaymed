@@ -8,6 +8,7 @@ interface AuthContextType {
   currentUser: FirebaseUser | null;
   userRole: string | null;
   userBarangayId: string | null;
+  emailVerified: boolean;
   loading: boolean;
   login: (user: FirebaseUser) => Promise<void>;
   logout: () => Promise<void>;
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   userRole: null,
   userBarangayId: null,
+  emailVerified: false,
   loading: true,
   login: async () => {},
   logout: async () => {},
@@ -30,6 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userBarangayId, setUserBarangayId] = useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = useState<boolean>(false); // Added
   const [loading, setLoading] = useState(true);
 
   // Function to extract claims from user
@@ -37,6 +40,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) {
       setUserRole(null);
       setUserBarangayId(null);
+      setEmailVerified(false); // Added
       return;
     }
 
@@ -46,18 +50,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       setUserRole(claims.role as string || null);
       setUserBarangayId(claims.barangayId as string || null);
+      setEmailVerified(user.emailVerified); // Added
       
       return claims;
     } catch (error) {
       console.error('Error extracting user claims:', error);
       setUserRole(null);
       setUserBarangayId(null);
+      setEmailVerified(false); // Added
     }
   };
 
   // Function to refresh user claims
   const refreshUserClaims = async () => {
     if (currentUser) {
+      await currentUser.reload(); // Explicitly reload the user object
       await extractUserClaims(currentUser);
     }
   };
@@ -124,6 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     currentUser,
     userRole,
     userBarangayId,
+    emailVerified, // Added
     loading,
     login,
     logout,

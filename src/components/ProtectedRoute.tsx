@@ -21,7 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   additionalValidation,
   enableTokenRefresh = true
 }) => {
-  const { currentUser, userRole, userBarangayId, loading, refreshUserClaims } = useAuth();
+  const { currentUser, userRole, userBarangayId, emailVerified, loading, refreshUserClaims } = useAuth(); // Added emailVerified
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
   const location = useLocation();
@@ -63,7 +63,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             currentUser.uid,
             'ACCESS_DENIED',
             `Custom validation failed for route requiring ${requiredRole}`,
-            { path: location.pathname }
+            {
+              path: location.pathname,
+              userEmail: currentUser.email || 'unknown',
+              userRole: userRole || 'unknown'
+            }
           );
           return;
         }
@@ -75,7 +79,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           currentUser.uid,
           'SECURITY_VALIDATION_ERROR',
           `Error during security validation: ${error}`,
-          { path: location.pathname }
+          {
+            path: location.pathname,
+            userEmail: currentUser.email || 'unknown',
+            userRole: userRole || 'unknown'
+          }
         );
       } finally {
         setIsValidating(false);
@@ -107,9 +115,30 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       'unknown',
       'UNAUTHENTICATED_ACCESS',
       `Attempted access to protected route: ${location.pathname}`,
-      { requiredRole, path: location.pathname }
+      {
+        requiredRole,
+        path: location.pathname,
+        userEmail: 'unknown', // Not available for unauthenticated users
+        userRole: 'unknown'    // Not available for unauthenticated users
+      }
     );
     return <Redirect to={`/user/login?returnUrl=${encodeURIComponent(location.pathname)}`} />;
+  }
+
+  // NEW: Check for email verification
+  if (!currentUser.emailVerified) {
+                                                logSecurityEvent(
+      currentUser.uid,
+      'EMAIL_NOT_VERIFIED',
+      `Attempted access to protected route with unverified email: ${location.pathname}`,
+      {
+        requiredRole,
+        path: location.pathname,
+        userEmail: currentUser.email || 'unknown', // Added
+        userRole: userRole || 'unknown' // Added
+      }
+    );
+    return <Redirect to="/user/verify-email" />; // Redirect to email verification page
   }
 
   // If validation error occurred, redirect with appropriate message
@@ -118,12 +147,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       currentUser.uid,
       'ACCESS_DENIED',
       `Access denied for ${location.pathname}: ${validationError}`,
-      { 
-        userRole, 
-        requiredRole, 
-        userBarangayId, 
+      {
+        userRole,
+        requiredRole,
+        userBarangayId,
         requiredBarangayId,
-        path: location.pathname 
+        path: location.pathname,
+        userEmail: currentUser.email || 'unknown', // Added
       }
     );
     return <Redirect to={redirectTo} />;
@@ -146,12 +176,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     currentUser.uid,
     'ACCESS_GRANTED',
     `User successfully accessed protected route: ${location.pathname}`,
-    { 
-      userRole, 
-      requiredRole, 
-      userBarangayId, 
+    {
+      userRole,
+      requiredRole,
+      userBarangayId,
       requiredBarangayId,
-      path: location.pathname 
+      path: location.pathname,
+      userEmail: currentUser.email || 'unknown', // Added
     }
   );
 

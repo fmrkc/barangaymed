@@ -38,11 +38,18 @@ const saveLogToFirestore = async (logEntry: LogEntry) => {
       ...logEntry.metadata,
     };
 
-    await logService.logActivity({
+    console.log("Log Entry being sent to Cloud Function from logger.ts:", JSON.stringify({
       action: logEntry.metadata?.action || 'general_log',
       userId: logEntry.userId,
       userEmail: logEntry.userEmail,
       role: logEntry.userRole,
+      details: filteredDetails,
+    }));
+    await logService.logActivity({
+      action: logEntry.metadata?.action || 'general_log',
+      userId: logEntry.userId,
+      userEmail: logEntry.userEmail || logEntry.metadata?.userEmail, // Get from logEntry or metadata
+      role: logEntry.userRole || logEntry.metadata?.userRole, // Get from logEntry or metadata
       details: filteredDetails,
     });
   } catch (error) {

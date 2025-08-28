@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { getFunctions } from 'firebase/functions';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { LogService } from './services/logService';
 
 const config = {
   apiKey: "AIzaSyC-xkTe-o0WJcWU-NUIwdEQaxONfpMfAFc",
@@ -40,7 +41,6 @@ export async function register(email: string, password: string) {
   }
 }
 
-
 // New function to register user and add role to Firestore
 export async function registerUserWithRole(email: string, password: string, role: string) {
   try {
@@ -73,9 +73,29 @@ email: string, password: string, name: string, role: string, userData: { [key: s
       email: email,
       name: name,
       role: role,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
       ...userData
     });
+
+    // Log registration event using LogService BEFORE signing out
+    const logService = LogService.getInstance();
+    const logEntry = {
+      action: "UserRegistration",
+      userId: user.uid,
+      userEmail: email,
+      userName: name, // Use the 'name' parameter passed to the function
+      role: role, // Use the 'role' parameter passed to the function
+      details: {
+        barangay: userData.barangay, // Access from userData
+        contactNumber: userData.contactNumber, // Access from userData
+        address: userData.address // Access from userData
+      }
+    };
+    console.log("Log Entry being sent to Cloud Function:", JSON.stringify(logEntry));
+    await logService.logActivity(logEntry);
+
+    await signOut(auth); // Sign out the user immediately after registration
+
     return user;
   } catch (error) {
     console.error("Registration with full data failed:", error);
@@ -84,5 +104,4 @@ email: string, password: string, name: string, role: string, userData: { [key: s
 }
 
 // Import and export the createAdmin Cloud Function
-import { httpsCallable } from 'firebase/functions';
 export const createAdmin = httpsCallable(functions, 'createAdmin');

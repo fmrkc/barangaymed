@@ -45,11 +45,13 @@ service cloud.firestore {
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      (isSuperAdmin() && (resource.data.role == 'admin' || resource.data.role == 'super_admin'));
 
-      // CREATE: A user can create their own profile document upon registration.
-      // We validate that the document ID matches their UID and they are setting their role to 'user'.
-      allow create: if isOwner(userId)
+      // CREATE: Allow user creation during registration. The document ID must match the UID
+      // and the role must be set to 'user'. We also validate required fields.
+      allow create: if request.auth != null && request.auth.uid == userId
                     && request.resource.data.role == 'user'
-                    && request.resource.data.createdAt == request.time;
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.email is string
+                    && request.resource.data.name is string;
 
       // UPDATE: A user can update their own profile, but cannot change their UID or role.
       allow update: if isOwner(userId)
