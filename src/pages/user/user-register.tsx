@@ -2,8 +2,8 @@ import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, 
 import { checkmarkDoneOutline } from 'ionicons/icons';
 import React from 'react';
 
-import { registerUserWithFullData, auth } from '../../firebaseConfig';
-import { signOut, sendEmailVerification } from 'firebase/auth';
+import { registerUserWithFullData } from '../../firebaseConfig';
+import { sendEmailVerification } from 'firebase/auth';
 
 import Page1 from './UserRegisterSteps/Page1';
 import Page2 from './UserRegisterSteps/Page2';
@@ -99,21 +99,6 @@ const UserRegister: React.FC = () => {
 
       await sendEmailVerification(userCredential);
 
-      // Log registration event using LogService
-      const logService = LogService.getInstance();
-      await logService.logActivity({
-        action: "UserRegistration",
-        userId: userCredential.uid,
-        userEmail: email,
-        userName: fullName,
-        role: 'user',
-        details: {
-          barangay,
-          contactNumber,
-          address
-        }
-      });
-
       console.log(JSON.stringify({
         event: "UserRegistration",
         status: "success",
@@ -123,7 +108,7 @@ const UserRegister: React.FC = () => {
         timestamp: new Date().toISOString()
       }));
       dismiss();
-      await signOut(auth);
+      // Redirect to login page after successful registration and logging
       presentToast({
         message: 'Account created! Please check your email to verify your account and then login.',
         duration: 5000,
@@ -131,7 +116,7 @@ const UserRegister: React.FC = () => {
         icon: checkmarkDoneOutline,
         position: 'top'
       });
-      router.push('/user/login', 'forward');
+      router.push('/user/verify-email', 'forward');
     } catch (err: any) {
       console.log(JSON.stringify({
         event: "UserRegistration",
@@ -210,8 +195,11 @@ const UserRegister: React.FC = () => {
     return null;
   };
 
-  const onNext = () => {
+    const onNext = () => {
     const errorMsg = validateStep(step);
+    console.log(`Current Step: ${step}`); // Debugging log
+    console.log(`First Name: ${firstName}, Last Name: ${lastName}, Address: ${address}, Contact Number: ${contactNumber}, Email: ${email}`); // Log field values
+    console.log(`Validation Error: ${errorMsg}`); // Log validation error
     if (errorMsg) {
       setError(errorMsg);
       presentToast({
