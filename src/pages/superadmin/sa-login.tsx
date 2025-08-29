@@ -8,7 +8,7 @@ import { logFailedLogin } from '../../utils/logger';
 
 const SuperAdminLogin: React.FC = () => {
   const router = useIonRouter();
-  const { login: authLogin, userRole } = useAuth();
+  const { login: authLogin } = useAuth(); // Removed userRole from here
   const [present, dismiss] = useIonLoading();
 
   const [email, setEmail] = useState('');
@@ -22,11 +22,15 @@ const SuperAdminLogin: React.FC = () => {
     try {
       const user = await login(email, password);
       if (user) {
-        // Role validation is now handled by the AuthContext through custom claims
-        await authLogin(user);
-        
-        // Check if user has superadmin role after login
-        if (userRole !== 'superadmin') {
+        // Before calling authLogin, get the role directly from the authenticated user
+        const idTokenResult = await user.getIdTokenResult(true); // Force refresh to get latest claims
+        const role = idTokenResult.claims.role as string || null;
+        console.log('sa-login: Role obtained from idTokenResult:', role); // ADD THIS LOG
+
+        await authLogin(user); // This will update the AuthContext state
+
+        // Now, check the role obtained directly from the user's claims
+        if (role !== 'superadmin') {
           logFailedLogin(email, 'Access denied: User is not a superadmin.');
           setError('Access denied: You are not a superadmin.');
           dismiss();

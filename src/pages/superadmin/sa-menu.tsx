@@ -5,6 +5,7 @@ import { Route } from 'react-router';
 import Dashboard from './sa-dashboard';
 import Admin_Management from './sa-admin-manage';
 import Admin_Register from './sa-register';
+import Super_Admin_Register from './sa-superadmin-register';
 import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-requests';
@@ -21,6 +22,7 @@ const Menu: React.FC = () => {
         { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium},
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Admin Management', url: '/superadmin/dashboard/admin-management', icon: people },
+        { name: 'Create Admin Account', url: '/superadmin/dashboard/sa-register', icon: person },
         { name: 'RHU Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
         { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
     ];
@@ -59,6 +61,15 @@ const Menu: React.FC = () => {
                       </IonItem>
                     </IonMenuToggle>
                   ))}
+
+                  {currentUser?.email === 'barangaymed@gmail.com' && (
+                    <IonMenuToggle autoHide={false}>
+                      <IonItem detail={false} routerLink="/superadmin/dashboard/sa-superadmin-register" routerDirection="none">
+                        <IonIcon slot="start" icon={person} />
+                        Create Super Admin
+                      </IonItem>
+                    </IonMenuToggle>
+                  )}
                 </div>
                 
                 <div>
@@ -111,6 +122,7 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard/medicine-requests" component={Med_Requests} />
             <Route exact path="/superadmin/dashboard/admin-management" component={Admin_Management} />
             <Route exact path="/superadmin/dashboard/sa-register" component={Admin_Register} />
+            <Route exact path="/superadmin/dashboard/sa-superadmin-register" component={Super_Admin_Register} />
             <Route exact path="/superadmin/dashboard/rhu-announcements" component={Super_Announcements} />
           </IonRouterOutlet>
         </IonSplitPane>

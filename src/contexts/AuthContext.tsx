@@ -51,6 +51,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUserRole(claims.role as string || null);
       setUserBarangayId(claims.barangayId as string || null);
       setEmailVerified(user.emailVerified); // Added
+      console.log('AuthContext: extractUserClaims - Role:', claims.role); // ADDED LOG
       
       return claims;
     } catch (error) {
@@ -85,6 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const userIP = await fetchUserIP();
     setCurrentUser(user);
     const claims = await extractUserClaims(user);
+    console.log('AuthContext: login function - Role after extractUserClaims:', claims?.role); // ADDED LOG
     
     // Log the login event
     logLogin(user.uid, user.email || 'Unknown', claims?.role as string || 'Unknown', userIP);
