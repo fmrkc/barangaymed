@@ -1,12 +1,11 @@
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRouterLink, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast } from '@ionic/react';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast } from '@ionic/react';
 import { checkmarkDoneOutline } from 'ionicons/icons';
 import React from 'react';
 
 import { createAdmin } from '../../firebaseConfig';
 import { useAuth } from '../../contexts/AuthContext';
-import { BARANGAYS } from '../../constants/barangays';
 
-const SuperRegister: React.FC = () => {
+const SuperAdminRegister: React.FC = () => {
     const { currentUser } = useAuth();
 
     const router = useIonRouter();
@@ -14,8 +13,7 @@ const SuperRegister: React.FC = () => {
 
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const [fullName, setFullName] = React.useState(''); // add fullName state
-    const [barangay, setBarangay] = React.useState('');
+    const [fullName, setFullName] = React.useState('');
     const [error, setError] = React.useState<string | null>(null);
 
     const [showToast, setShowToast] = React.useState(false);
@@ -24,19 +22,18 @@ const SuperRegister: React.FC = () => {
         event.preventDefault();
         setError(null);
 
-        // Validation: ensure all fields are filled
-        if (!fullName.trim() || !email.trim() || !password.trim() || !barangay) {
+        if (!fullName.trim() || !email.trim() || !password.trim()) {
             setError('All fields are required.');
             return dismiss();
         }
 
         await present('Creating account...');
         try {
-            await createAdmin({ email, password, fullName, role: 'admin', barangay }); // call the new Cloud Function
+            await createAdmin({ email, password, fullName, role: 'superadmin', barangay: 'N/A' });
             dismiss();
             setShowToast(true);
             setTimeout(() => {
-                    router.push('/superadmin/dashboard/adminmanagement', 'forward');
+                    router.push('/superadmin/dashboard/admin-management', 'forward');
             }, 1500);
         } catch (err) {
             dismiss();
@@ -50,9 +47,9 @@ const SuperRegister: React.FC = () => {
             <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonButtons slot='start'>
-                        <IonBackButton defaultHref='/superadmin/dashboard/adminmanagement' />
+                        <IonBackButton defaultHref='/superadmin/dashboard/admin-management' />
                     </IonButtons>
-                    <IonTitle>Create Account</IonTitle>
+                    <IonTitle>Create Super Admin</IonTitle>
                 </IonToolbar>
             </IonHeader>
             
@@ -93,30 +90,17 @@ const SuperRegister: React.FC = () => {
                                         value={password}
                                         onIonChange={e => setPassword(e.detail.value!)}
                                     />
-
-                                    <IonSelect
-                                        value={barangay}
-                                        placeholder="Select Barangay"
-                                        onIonChange={e => setBarangay(e.detail.value)}
-                                        className="ion-margin-top"
-                                    >
-                                        {BARANGAYS.map((brgy) => (
-                                            <IonSelectOption key={brgy} value={brgy}>
-                                                {brgy}
-                                            </IonSelectOption>
-                                        ))}
-                                    </IonSelect>
                                     
                                     {error && <p style={{ color: 'red' }}>{error}</p>}
                                     <IonButton type='submit' className="ion-margin-top" expand='block'>
-                                        Create account
+                                        Create Super Admin
                                     <IonIcon icon={checkmarkDoneOutline} slot="end" />
                                     </IonButton>
                                 </form>
                                 <IonToast
                                     isOpen={showToast}
                                     onDidDismiss={() => setShowToast(false)}
-                                    message="Account created successfully! Please login with your credentials."
+                                    message="Super Admin account created successfully!"
                                     duration={1500}
                                     color="success"
                                 />
@@ -131,4 +115,4 @@ const SuperRegister: React.FC = () => {
     );
 };
 
-export default SuperRegister;
+export default SuperAdminRegister;
