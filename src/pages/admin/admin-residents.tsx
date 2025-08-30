@@ -2,53 +2,34 @@ import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, Io
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 interface Resident {
     id: string;
     firstName: string;
     lastName: string;
     email: string;
-    barangay: string;
+    barangayId: string;
     role: string;
     createdAt?: any;
 }
 
 const Residents: React.FC = () => {
-    const [userBarangay, setUserBarangay] = useState<string>('');
+    const { userBarangayId } = useAuth();
     const [residents, setResidents] = useState<Resident[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
-    const { currentUser } = useAuth();
-
-    useEffect(() => {
-        const fetchAdminBarangay = async () => {
-            if (currentUser) {
-                try {
-                    const adminDoc = await getDoc(doc(db, 'users', currentUser.uid));
-                    if (adminDoc.exists()) {
-                        const adminData = adminDoc.data();
-                        setUserBarangay(adminData.barangay || '');
-                    }
-                } catch (error) {
-                    console.error("Error fetching admin barangay:", error);
-                }
-            }
-        };
-
-        fetchAdminBarangay();
-    }, [currentUser]);
 
     useEffect(() => {
         const fetchResidents = async () => {
-            if (!userBarangay) return;
+            if (!userBarangayId) return;
 
             setLoading(true);
             try {
                 const residentsRef = collection(db, 'users');
                 const q = query(
                     residentsRef, 
-                    where('barangay', '==', userBarangay),
+                    where('barangayId', '==', userBarangayId),
                     where('role', '==', 'user')
                 );
                 const querySnapshot = await getDocs(q);
@@ -65,7 +46,7 @@ const Residents: React.FC = () => {
         };
 
         fetchResidents();
-    }, [userBarangay]);
+    }, [userBarangayId]);
 
     const filteredResidents = residents.filter(resident => {
         const fullName = `${resident.firstName} ${resident.lastName}`.toLowerCase();
@@ -82,7 +63,7 @@ const Residents: React.FC = () => {
                     <IonButtons slot="start">
                         <IonMenuButton />
                     </IonButtons>
-                    <IonTitle>Barangay {userBarangay} Residents</IonTitle>
+                    <IonTitle>Barangay {userBarangayId} Residents</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
@@ -93,7 +74,7 @@ const Residents: React.FC = () => {
                     onIonChange={e => setSearchQuery(e.detail.value!)} 
                     
                 />
-                 <IonCardSubtitle className="ion-margin-bottom">Showing all residents in {userBarangay}.</IonCardSubtitle>
+                 <IonCardSubtitle className="ion-margin-bottom">Showing all residents in {userBarangayId}.</IonCardSubtitle>
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
                         <IonSpinner />

@@ -10,7 +10,7 @@ import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-requests';
 
-import { medical, medkit, megaphone, people, podium, logOut, person } from 'ionicons/icons';
+import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
@@ -21,10 +21,12 @@ const Menu: React.FC = () => {
     const paths = [
         { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium},
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
-        { name: 'Admin Management', url: '/superadmin/dashboard/admin-management', icon: people },
-        { name: 'Create Admin Account', url: '/superadmin/dashboard/sa-register', icon: person },
-        { name: 'RHU Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
+        { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
+        { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+        { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
         { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
+        { name: 'All Admins', url: '/superadmin/dashboard/admin-management', icon: people },
+        { name: 'Create Admin Account', url: '/superadmin/dashboard/sa-register', icon: personAdd },
     ];
 
     const handleLogout = async () => {
@@ -62,6 +64,11 @@ const Menu: React.FC = () => {
                     </IonMenuToggle>
                   ))}
 
+                  
+                </div>
+                
+                <div>
+                  <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>    
                   {currentUser?.email === 'barangaymed@gmail.com' && (
                     <IonMenuToggle autoHide={false}>
                       <IonItem detail={false} routerLink="/superadmin/dashboard/sa-superadmin-register" routerDirection="none">
@@ -70,10 +77,6 @@ const Menu: React.FC = () => {
                       </IonItem>
                     </IonMenuToggle>
                   )}
-                </div>
-                
-                <div>
-                  <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>    
                   <IonMenuToggle autoHide={false}>
                     <IonItem button detail={false}>
                       Profile
