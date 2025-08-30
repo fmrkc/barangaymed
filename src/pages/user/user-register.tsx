@@ -24,7 +24,10 @@ const UserRegister: React.FC = () => {
   const [middleName, setMiddleName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [suffix, setSuffix] = React.useState('');
-  const [address, setAddress] = React.useState('');
+  const [lotBlkHouseNo, setLotBlkHouseNo] = React.useState('');
+  const [streetName, setStreetName] = React.useState('');
+  const [subdivisionVillageZonePurok, setSubdivisionVillageZonePurok] = React.useState('');
+  const [zipCode, setZipCode] = React.useState('');
   const [contactNumber, setContactNumber] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -50,8 +53,17 @@ const UserRegister: React.FC = () => {
       case 'suffix':
         setSuffix(sanitizedValue);
         break;
-      case 'address':
-        setAddress(sanitizedValue);
+      case 'lotBlkHouseNo':
+        setLotBlkHouseNo(sanitizedValue);
+        break;
+      case 'streetName':
+        setStreetName(sanitizedValue);
+        break;
+      case 'subdivisionVillageZonePurok':
+        setSubdivisionVillageZonePurok(sanitizedValue);
+        break;
+      case 'zipCode':
+        setZipCode(sanitizedValue);
         break;
       case 'contactNumber':
         // Allow the formatted phone number from maskito
@@ -92,7 +104,10 @@ const UserRegister: React.FC = () => {
         middleName,
         lastName,
         suffix,
-        address,
+        lotBlkHouseNo,
+        streetName,
+        subdivisionVillageZonePurok,
+        zipCode,
         contactNumber,
         barangay // include barangay in registration data
       });
@@ -146,9 +161,9 @@ const UserRegister: React.FC = () => {
     return /^\d{10}$/.test(digitsOnly);
   };
 
-  const isValidAddress = (addr: string) => {
-    // Basic check: non-empty and at least 5 characters
-    return addr.trim().length >= 5;
+  const isValidZipCode = (zip: string) => {
+    // Basic check: non-empty and 4 digits
+    return /^\d{4}$/.test(zip);
   };
 
   const isValidBarangay = (brgy: string) => {
@@ -171,8 +186,9 @@ const UserRegister: React.FC = () => {
         if (!lastName.trim()) return 'Last name is required.';
         break;
       case 2:
-        if (!address.trim()) return 'Address is required.';
-        if (!isValidAddress(address)) return 'Address must be at least 5 characters long.';
+        if (!streetName.trim()) return 'Street Name is required.';
+        if (!zipCode.trim()) return 'Zip Code is required.';
+        if (!isValidZipCode(zipCode)) return 'Zip Code must be 4 digits.';
         if (!contactNumber.trim()) return 'Contact number is required.';
         if (!isValidContactNumber(contactNumber)) return 'Please enter a valid Philippine contact number.';
         break;
@@ -198,7 +214,7 @@ const UserRegister: React.FC = () => {
     const onNext = () => {
     const errorMsg = validateStep(step);
     console.log(`Current Step: ${step}`); // Debugging log
-    console.log(`First Name: ${firstName}, Last Name: ${lastName}, Address: ${address}, Contact Number: ${contactNumber}, Email: ${email}`); // Log field values
+    console.log(`First Name: ${firstName}, Last Name: ${lastName}, Lot/Blk/House No.: ${lotBlkHouseNo}, Street Name: ${streetName}, Subdivision/Village/Zone/Purok: ${subdivisionVillageZonePurok}, Zip Code: ${zipCode}, Contact Number: ${contactNumber}, Email: ${email}`); // Log field values
     console.log(`Validation Error: ${errorMsg}`); // Log validation error
     if (errorMsg) {
       setError(errorMsg);
@@ -247,7 +263,10 @@ const UserRegister: React.FC = () => {
                   )}
                   {step === 2 && (
                     <Page2
-                      address={address}
+                      lotBlkHouseNo={lotBlkHouseNo}
+                      streetName={streetName}
+                      subdivisionVillageZonePurok={subdivisionVillageZonePurok}
+                      zipCode={zipCode}
                       contactNumber={contactNumber}
                       onChange={onChange}
                       onNext={onNext}
@@ -278,7 +297,10 @@ const UserRegister: React.FC = () => {
                       middleName={middleName}
                       lastName={lastName}
                       suffix={suffix}
-                      address={address}
+                      lotBlkHouseNo={lotBlkHouseNo}
+                      streetName={streetName}
+                      subdivisionVillageZonePurok={subdivisionVillageZonePurok}
+                      zipCode={zipCode}
                       contactNumber={contactNumber}
                       email={email}
                       password={password}

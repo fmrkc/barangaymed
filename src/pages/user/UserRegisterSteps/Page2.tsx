@@ -5,14 +5,17 @@ import { MaskitoOptions, maskitoTransform } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
 
 interface Page2Props {
-  address: string;
+  lotBlkHouseNo: string;
+  streetName: string;
+  subdivisionVillageZonePurok: string;
+  zipCode: string;
   contactNumber: string;
   onChange: (field: string, value: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-const Page2: React.FC<Page2Props> = ({ address, contactNumber, onChange, onNext, onBack }) => {
+const Page2: React.FC<Page2Props> = ({ lotBlkHouseNo, streetName, subdivisionVillageZonePurok, zipCode, contactNumber, onChange, onNext, onBack }) => {
   const phoneMaskOptions: MaskitoOptions = {
     mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
   };
@@ -27,12 +30,48 @@ const Page2: React.FC<Page2Props> = ({ address, contactNumber, onChange, onNext,
       </IonCardTitle>
 
       <div className="ion-margin-top">
-        <IonCardSubtitle>Address *</IonCardSubtitle>
+        <IonCardSubtitle>Lot/Blk/House No. (optional)</IonCardSubtitle>
         <IonInput
-          placeholder="123 Street, Barangay"
+          placeholder="Blk 12, Lot 7"
           fill="outline"
-          value={address}
-          onIonChange={(e) => onChange("address", e.detail.value!)}
+          value={lotBlkHouseNo}
+          onIonChange={(e) => onChange("lotBlkHouseNo", e.detail.value!)}
+        >
+          <IonIcon slot="start" icon={home}></IonIcon>
+        </IonInput>
+      </div>
+
+      <div className="ion-margin-top">
+        <IonCardSubtitle>Street Name *</IonCardSubtitle>
+        <IonInput
+          placeholder="Mabini Street"
+          fill="outline"
+          value={streetName}
+          onIonChange={(e) => onChange("streetName", e.detail.value!)}
+        >
+          <IonIcon slot="start" icon={home}></IonIcon>
+        </IonInput>
+      </div>
+
+      <div className="ion-margin-top">
+        <IonCardSubtitle>Subdivision/Village/Zone/Purok (optional)</IonCardSubtitle>
+        <IonInput
+          placeholder="Purok 3"
+          fill="outline"
+          value={subdivisionVillageZonePurok}
+          onIonChange={(e) => onChange("subdivisionVillageZonePurok", e.detail.value!)}
+        >
+          <IonIcon slot="start" icon={home}></IonIcon>
+        </IonInput>
+      </div>
+
+      <div className="ion-margin-top">
+        <IonCardSubtitle>Zip Code *</IonCardSubtitle>
+        <IonInput
+          placeholder="2006"
+          fill="outline"
+          value={zipCode}
+          onIonChange={(e) => onChange("zipCode", e.detail.value!)}
         >
           <IonIcon slot="start" icon={home}></IonIcon>
         </IonInput>

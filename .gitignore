@@ -31,3 +31,4 @@ yarn-error.log*
 .eslintcache
 /.history
 /.history
+/functions/node_modules

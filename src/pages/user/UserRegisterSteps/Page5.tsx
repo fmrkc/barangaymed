@@ -7,7 +7,10 @@ interface Page5Props {
   middleName: string;
   lastName: string;
   suffix: string;
-  address: string;
+  lotBlkHouseNo: string;
+  streetName: string;
+  subdivisionVillageZonePurok: string;
+  zipCode: string;
   contactNumber: string;
   email: string;
   password: string;
@@ -23,7 +26,10 @@ const Page5: React.FC<Page5Props> = ({
   middleName,
   lastName,
   suffix,
-  address,
+  lotBlkHouseNo,
+  streetName,
+  subdivisionVillageZonePurok,
+  zipCode,
   contactNumber,
   email,
   barangay,
@@ -32,6 +38,21 @@ const Page5: React.FC<Page5Props> = ({
   loading,
   error
 }) => {
+  // Combine address fields for display
+  const addressParts = [
+  lotBlkHouseNo,
+  streetName,
+  subdivisionVillageZonePurok,
+  barangay,
+  "Floridablanca",
+  "Pampanga",
+  zipCode
+];
+
+// Filter out empty/undefined values and join them with commas
+const fullAddress = addressParts.filter(part => part && part.trim() !== "").join(", ");
+
+
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
@@ -58,7 +79,7 @@ const Page5: React.FC<Page5Props> = ({
 
         <IonItem>
           <IonIcon slot="start" icon={home} aria-hidden="true"></IonIcon>
-          <IonInput readonly value={address}></IonInput>
+          <IonInput readonly value={fullAddress}></IonInput>
         </IonItem>
 
         <IonItem>
