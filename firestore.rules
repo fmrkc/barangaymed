@@ -183,10 +183,23 @@ service cloud.firestore {
     // Managed by Admins and Super Admins.
     // =================================================================
     match /announcements/{announcementId} {
-      // READ: All authenticated users can read announcements.
-      allow read: if isAuthenticated();
-      // WRITE: Only admins and super admins can post/edit announcements.
-      allow write: if isAdmin() || isSuperAdmin();
+      // READ: Users can read announcements from their barangay. Admins can read announcements from their barangay. Super admins can read all announcements.
+      allow read: if isAuthenticated() && 
+                     ((isUserRole() && resource.data.barangay == request.auth.token.barangayId) ||
+                      (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+                      isSuperAdmin());
+      
+      // CREATE: Admins can create announcements for their barangay. Super admins can create announcements for any barangay.
+      allow create: if (isAdmin() && request.resource.data.barangay == request.auth.token.barangayId) ||
+                       isSuperAdmin();
+      
+      // UPDATE: Admins can update announcements from their barangay. Super admins can update any announcement.
+      allow update: if (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+                       isSuperAdmin();
+      
+      // DELETE: Admins can delete announcements from their barangay. Super admins can delete any announcement.
+      allow delete: if (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+                       isSuperAdmin();
     }
 
     // =================================================================

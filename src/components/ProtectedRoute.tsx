@@ -49,8 +49,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           setValidationError(accessValidation.reason || 'Access validation failed');
           logUnauthorizedAccess(
             currentUser.uid,
-            location.pathname,
+            currentUser.email || undefined,
             userRole || 'unknown',
+            location.pathname,
             requiredRole
           );
           return;
@@ -61,6 +62,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           setValidationError('Additional validation failed');
           logSecurityEvent(
             currentUser.uid,
+            currentUser.email || undefined,
+            userRole || undefined,
             'ACCESS_DENIED',
             `Custom validation failed for route requiring ${requiredRole}`,
             {
@@ -77,6 +80,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         setValidationError('Security validation failed');
         logSecurityEvent(
           currentUser.uid,
+          currentUser.email || undefined,
+          userRole || undefined,
           'SECURITY_VALIDATION_ERROR',
           `Error during security validation: ${error}`,
           {
@@ -113,6 +118,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!currentUser) {
     logSecurityEvent(
       'unknown',
+      undefined,
+      undefined,
       'UNAUTHENTICATED_ACCESS',
       `Attempted access to protected route: ${location.pathname}`,
       {
@@ -127,8 +134,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // NEW: Check for email verification
   if (!currentUser.emailVerified) {
-                                                logSecurityEvent(
+    logSecurityEvent(
       currentUser.uid,
+      currentUser.email || undefined,
+      userRole || undefined,
       'EMAIL_NOT_VERIFIED',
       `Attempted access to protected route with unverified email: ${location.pathname}`,
       {
@@ -145,6 +154,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (validationError) {
     logSecurityEvent(
       currentUser.uid,
+      currentUser.email || undefined,
+      userRole || undefined,
       'ACCESS_DENIED',
       `Access denied for ${location.pathname}: ${validationError}`,
       {
@@ -164,8 +175,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!accessCheck.isValid) {
     logUnauthorizedAccess(
       currentUser.uid,
-      location.pathname,
+      currentUser.email || undefined,
       userRole || 'unknown',
+      location.pathname,
       requiredRole
     );
     return <Redirect to={redirectTo} />;
@@ -174,6 +186,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Access granted - log successful access
   logSecurityEvent(
     currentUser.uid,
+    currentUser.email || undefined,
+    userRole || undefined,
     'ACCESS_GRANTED',
     `User successfully accessed protected route: ${location.pathname}`,
     {

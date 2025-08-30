@@ -37,7 +37,19 @@ export const validateAdminBarangayAccess = (
   userBarangayId: string | null,
   targetBarangayId: string
 ): boolean => {
-  return userRole === 'admin' && userBarangayId === targetBarangayId;
+  const hasAccess = userRole === 'admin' && userBarangayId === targetBarangayId;
+  
+  // Log detailed access check for debugging
+  if (!hasAccess) {
+    console.debug('Access denied for admin barangay access check:', {
+      userRole,
+      userBarangayId,
+      targetBarangayId,
+      hasAccess
+    });
+  }
+  
+  return hasAccess;
 };
 
 /**

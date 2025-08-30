@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions (mirroring firestore.rules)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'superadmin';
+    }
+
+    function isAdminOfBarangay(barangayId) {
+      return isAdmin() && request.auth.token.barangayId == barangayId;
+    }
+
+    // Announcement images:
+    // Path: /announcements/{barangayId}/{announcementId}/{imageName}
+    match /announcements/{barangayId}/{announcementId}/{imageName} {
+      // READ: Anyone can view announcement images (public content).
+      allow read: if true;
+
+      // WRITE (Create, Update, Delete):
+      // Only the admin of the corresponding barangay or a superadmin can upload/delete images.
+      allow write: if isAdminOfBarangay(barangayId) || isSuperAdmin();
+    }
+
+    // Other potential storage paths can be added here later.
+    // Example for user profile pictures:
+    // match /users/{userId}/profile-picture.jpg {
+    //   allow read: if true;
+    //   allow write: if request.auth.uid == userId;
+    // }
+  }
+}

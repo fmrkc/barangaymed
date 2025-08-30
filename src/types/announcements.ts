@@ -1,3 +1,10 @@
+export interface AnnouncementImage {
+  url: string;
+  name: string;
+  size: number;
+  uploadedAt: Date;
+}
+
 export interface Announcement {
   id?: string;
   title: string;
@@ -9,10 +16,12 @@ export interface Announcement {
   updatedAt?: Date;
   isActive: boolean;
   priority: 'low' | 'medium' | 'high';
+  images?: AnnouncementImage[];
 }
 
 export interface AnnouncementFormData {
   title: string;
   content: string;
   priority: 'low' | 'medium' | 'high';
+  images?: File[];
 }

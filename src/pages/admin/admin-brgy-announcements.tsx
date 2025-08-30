@@ -28,16 +28,21 @@ import {
   IonLoading,
   IonAlert,
   IonDatetime,
-  IonNote
+  IonNote,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonThumbnail
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { announcementsService } from '../../services/announcementsService';
-import { Announcement, AnnouncementFormData } from '../../types/announcements';
-import { add, create, trash, pencil, eye, eyeOff } from 'ionicons/icons';
+import { Announcement, AnnouncementFormData, AnnouncementImage } from '../../types/announcements';
+import { add, create, trash, pencil, eye, eyeOff, close } from 'ionicons/icons';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-
+import { validateAccess, validateAdminBarangayAccess } from '../../utils/securityUtils';
+import { logSecurityEvent, logEvent } from '../../utils/logger';
 
 const BarangayAnnouncements: React.FC = () => {
   const { currentUser, userRole } = useAuth();
@@ -55,6 +60,10 @@ const BarangayAnnouncements: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<AnnouncementImage[]>([]);
 
   useEffect(() => {
     if (currentUser) {
@@ -63,19 +72,41 @@ const BarangayAnnouncements: React.FC = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    if (userBarangay) {
+    if (userBarangay && userRole) {
+      // Validate access before loading announcements
+      const access = validateAdminBarangayAccess(userRole, userBarangay, userBarangay);
+      if (!access) {
+        setAccessDenied(true);
+        setToastMessage('Access denied: You do not have permission to view announcements for this barangay.');
+        setShowToast(true);
+        return;
+      }
       loadAnnouncements();
     }
-  }, [userBarangay]);
+  }, [userBarangay, userRole]);
 
   const loadUserBarangay = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.error('No current user available when loading barangay');
+      return;
+    }
     
     try {
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        setUserBarangay(data.barangay || '');
+        console.log('User document data:', data);
+        setUserBarangay(data.barangayId || '');
+        
+        if (!data.barangayId) {
+          console.error('BarangayId field is empty or missing in user document');
+          setToastMessage('Your barangay information is not set. Please contact an administrator.');
+          setShowToast(true);
+        }
+      } else {
+        console.error('User document does not exist for UID:', currentUser.uid);
+        setToastMessage('User profile not found. Please contact an administrator.');
+        setShowToast(true);
       }
     } catch (error) {
       console.error('Error loading user barangay:', error);
@@ -91,10 +122,41 @@ const BarangayAnnouncements: React.FC = () => {
     try {
       const data = await announcementsService.getAllAnnouncementsForBarangay(userBarangay);
       setAnnouncements(data);
+      
+      // Log successful load with detailed debugging info
+      if (currentUser) {
+        console.log(`Loaded ${data.length} announcements for barangay: ${userBarangay}`);
+        logEvent('info', `Loaded announcements for barangay: ${userBarangay}`, {
+          userId: currentUser.uid,
+          userEmail: currentUser.email || '',
+          userRole: userRole || '',
+          metadata: {
+            action: 'load_announcements',
+            barangay: userBarangay,
+            count: data.length,
+            announcementIds: data.map(a => a.id)
+          }
+        });
+      }
     } catch (error) {
       console.error('Error loading announcements:', error);
       setToastMessage('Error loading announcements');
       setShowToast(true);
+      
+      // Log error with detailed debugging info
+      if (currentUser) {
+        logEvent('error', 'Failed to load announcements', {
+          userId: currentUser.uid,
+          userEmail: currentUser.email || '',
+          userRole: userRole || '',
+          metadata: {
+            action: 'load_announcements_failed',
+            barangay: userBarangay,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            errorDetails: JSON.stringify(error)
+          }
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -102,13 +164,28 @@ const BarangayAnnouncements: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
-      setToastMessage('Please fill in all required fields');
+      setToastMessage('Please fill in all required fields (title and content)');
       setShowToast(true);
       return;
     }
 
     if (!currentUser || !userBarangay) {
-      setToastMessage('User information not available');
+      console.error('User information not available - currentUser:', currentUser, 'userBarangay:', userBarangay, 'userRole:', userRole);
+      setToastMessage('User information not available. Please check if your barangay is properly set in your profile.');
+      setShowToast(true);
+      return;
+    }
+
+    // Validate access before submitting
+    const accessValid = validateAdminBarangayAccess(userRole, userBarangay, userBarangay);
+    if (!accessValid) {
+      console.error('Access denied for user:', {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        userRole,
+        userBarangay
+      });
+      setToastMessage('Access denied: You do not have permission to perform this action.');
       setShowToast(true);
       return;
     }
@@ -116,16 +193,25 @@ const BarangayAnnouncements: React.FC = () => {
     setLoading(true);
     try {
       if (editingAnnouncement) {
+        const updatedData = {
+          ...formData,
+          existingImages: existingImages,
+          newImages: selectedImages
+        };
         await announcementsService.updateAnnouncement(
           editingAnnouncement.id!,
-          formData,
+          updatedData,
           currentUser.uid,
           currentUser.email || ''
         );
         setToastMessage('Announcement updated successfully');
       } else {
-        await announcementsService.createAnnouncement(
-          formData,
+        const formDataWithImages = {
+          ...formData,
+          images: selectedImages
+        };
+        const announcementId = await announcementsService.createAnnouncement(
+          formDataWithImages,
           userBarangay,
           currentUser.uid,
           currentUser.email || ''
@@ -135,9 +221,10 @@ const BarangayAnnouncements: React.FC = () => {
       
       setShowModal(false);
       resetForm();
-      loadAnnouncements();
+      await loadAnnouncements();
     } catch (error) {
-      setToastMessage('Error saving announcement');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setToastMessage(`Error saving announcement: ${errorMessage}`);
       console.error('Error saving announcement:', error);
     } finally {
       setLoading(false);
@@ -148,18 +235,30 @@ const BarangayAnnouncements: React.FC = () => {
   const handleDelete = async () => {
     if (!announcementToDelete || !currentUser) return;
 
+    // Validate access before archiving
+    const accessValid = validateAdminBarangayAccess(userRole, userBarangay, userBarangay);
+    if (!accessValid) {
+      console.error('Access denied for archiving announcement - currentUser:', currentUser, 'userRole:', userRole, 'userBarangay:', userBarangay);
+      setToastMessage('Access denied: You do not have permission to perform this action.');
+      setShowToast(true);
+      return;
+    }
+
     setLoading(true);
     try {
+      // Archive the announcement (soft delete)
       await announcementsService.deleteAnnouncement(
         announcementToDelete,
         currentUser.uid,
         currentUser.email || ''
       );
-      setToastMessage('Announcement deleted successfully');
-      loadAnnouncements();
+      setToastMessage('Announcement archived successfully');
+      
+      await loadAnnouncements();
     } catch (error) {
-      setToastMessage('Error deleting announcement');
-      console.error('Error deleting announcement:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setToastMessage(`Error archiving announcement: ${errorMessage}`);
+      console.error('Error archiving announcement:', error);
     } finally {
       setLoading(false);
       setShowToast(true);
@@ -169,12 +268,27 @@ const BarangayAnnouncements: React.FC = () => {
   };
 
   const handleEdit = (announcement: Announcement) => {
+    // Validate access before editing
+    if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
+      console.error('Access denied for editing announcement - currentUser:', currentUser, 'userRole:', userRole, 'userBarangay:', userBarangay);
+      setToastMessage('Access denied: You do not have permission to perform this action.');
+      setShowToast(true);
+      return;
+    }
+    
     setEditingAnnouncement(announcement);
     setFormData({
       title: announcement.title,
       content: announcement.content,
       priority: announcement.priority
     });
+
+    if (announcement.images) {
+      setExistingImages(announcement.images);
+    } else {
+      setExistingImages([]);
+    }
+
     setShowModal(true);
   };
 
@@ -185,9 +299,19 @@ const BarangayAnnouncements: React.FC = () => {
       priority: 'medium'
     });
     setEditingAnnouncement(null);
+    resetImageSelection();
+    setExistingImages([]);
   };
 
   const openCreateModal = () => {
+    // Validate access before creating
+    if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
+      console.error('Access denied for creating announcement - currentUser:', currentUser, 'userRole:', userRole, 'userBarangay:', userBarangay);
+      setToastMessage('Access denied: You do not have permission to perform this action.');
+      setShowToast(true);
+      return;
+    }
+    
     resetForm();
     setShowModal(true);
   };
@@ -210,6 +334,86 @@ const BarangayAnnouncements: React.FC = () => {
       minute: '2-digit'
     }).format(date);
   };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newImages: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!file.type.startsWith('image/')) {
+        setToastMessage('Please select only image files (JPEG, PNG, GIF, etc.)');
+        setShowToast(true);
+        continue;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setToastMessage(`File "${file.name}" is too large. Maximum size is 5MB.`);
+        setShowToast(true);
+        continue;
+      }
+
+      newImages.push(file);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target && e.target.result) {
+          newPreviews.push(e.target.result as string);
+          setImagePreviews(prev => [...prev, e.target!.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    setSelectedImages(prev => [...prev, ...newImages]);
+  };
+
+  const removeNewImage = (index: number) => {
+    const newSelectedImages = [...selectedImages];
+    const newImagePreviews = [...imagePreviews];
+    
+    newSelectedImages.splice(index, 1);
+    newImagePreviews.splice(index, 1);
+    
+    setSelectedImages(newSelectedImages);
+    setImagePreviews(newImagePreviews);
+  };
+
+  const removeExistingImage = (index: number) => {
+    const newExistingImages = [...existingImages];
+    newExistingImages.splice(index, 1);
+    setExistingImages(newExistingImages);
+  };
+
+  const resetImageSelection = () => {
+    setSelectedImages([]);
+    setImagePreviews([]);
+  };
+
+  if (accessDenied) {
+    return (
+      <IonPage>
+        <IonHeader  className='ion-no-border'>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonMenuButton />
+            </IonButtons>
+            <IonTitle>Barangay Announcements</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view announcements for this barangay.</p>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
 
   return (
     <IonPage>
@@ -251,6 +455,30 @@ const BarangayAnnouncements: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 <p style={{ whiteSpace: 'pre-wrap' }}>{announcement.content}</p>
+
+                {announcement.images && announcement.images.length > 0 && (
+                  <div style={{ marginTop: '15px' }}>
+                    <IonLabel>Images:</IonLabel>
+                    <IonGrid>
+                      <IonRow>
+                        {announcement.images.map((image, index) => (
+                          <IonCol size="6" key={index}>
+                            <img
+                              src={image.url}
+                              alt={`Announcement image ${index + 1}`}
+                              style={{
+                                width: '100%',
+                                height: '100px',
+                                objectFit: 'cover',
+                                borderRadius: '8px'
+                              }}
+                            />
+                          </IonCol>
+                        ))}
+                      </IonRow>
+                    </IonGrid>
+                  </div>
+                )}
                 
                 <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
                   <IonButton 
@@ -282,6 +510,13 @@ const BarangayAnnouncements: React.FC = () => {
                       color="success"
                       onClick={async () => {
                         if (!currentUser) return;
+                        
+                        if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
+                          setToastMessage('Access denied: You do not have permission to perform this action.');
+                          setShowToast(true);
+                          return;
+                        }
+                        
                         try {
                           await announcementsService.reactivateAnnouncement(
                             announcement.id!,
@@ -289,6 +524,7 @@ const BarangayAnnouncements: React.FC = () => {
                             currentUser.email || ''
                           );
                           setToastMessage('Announcement reactivated');
+                          
                           loadAnnouncements();
                         } catch (error) {
                           setToastMessage('Error reactivating announcement');
@@ -306,16 +542,6 @@ const BarangayAnnouncements: React.FC = () => {
             </IonCard>
           ))}
         </IonList>
-
-        {announcements.length === 0 && !loading && (
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <p>No announcements found for {userBarangay}</p>
-            <IonButton onClick={openCreateModal}>
-              <IonIcon icon={add} slot="start" />
-              Create First Announcement
-            </IonButton>
-          </div>
-        )}
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={openCreateModal}>
@@ -366,6 +592,102 @@ const BarangayAnnouncements: React.FC = () => {
               </IonSelect>
             </IonItem>
 
+            {editingAnnouncement && existingImages.length > 0 && (
+              <div style={{ marginTop: '15px' }}>
+                <IonLabel>Existing Images:</IonLabel>
+                <IonGrid>
+                  <IonRow>
+                    {existingImages.map((image, index) => (
+                      <IonCol size="6" key={index}>
+                        <div style={{ position: 'relative', marginBottom: '10px' }}>
+                          <img
+                            src={image.url}
+                            alt={`Existing image ${index + 1}`}
+                            style={{
+                              width: '100%',
+                              height: '100px',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
+                            }}
+                          />
+                          <IonButton
+                            fill="clear"
+                            color="danger"
+                            size="small"
+                            style={{
+                              position: 'absolute',
+                              top: '5px',
+                              right: '5px',
+                              '--padding-start': '4px',
+                              '--padding-end': '4px'
+                            }}
+                            onClick={() => removeExistingImage(index)}
+                          >
+                            <IonIcon icon={close} />
+                          </IonButton>
+                        </div>
+                      </IonCol>
+                    ))}
+                  </IonRow>
+                </IonGrid>
+              </div>
+            )}
+
+            <IonItem>
+              <IonLabel position="stacked">{editingAnnouncement ? 'Add New Images' : 'Images (Optional)'}</IonLabel>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageSelect}
+                style={{ marginTop: '10px' }}
+              />
+              <IonNote slot="helper">
+                Select up to 5 images (max 5MB each)
+              </IonNote>
+            </IonItem>
+
+            {imagePreviews.length > 0 && (
+              <div style={{ marginTop: '15px' }}>
+                <IonLabel>New Images:</IonLabel>
+                <IonGrid>
+                  <IonRow>
+                    {imagePreviews.map((preview, index) => (
+                      <IonCol size="6" key={index}>
+                        <div style={{ position: 'relative', marginBottom: '10px' }}>
+                          <img
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            style={{
+                              width: '100%',
+                              height: '100px',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
+                            }}
+                          />
+                          <IonButton
+                            fill="clear"
+                            color="danger"
+                            size="small"
+                            style={{
+                              position: 'absolute',
+                              top: '5px',
+                              right: '5px',
+                              '--padding-start': '4px',
+                              '--padding-end': '4px'
+                            }}
+                            onClick={() => removeNewImage(index)}
+                          >
+                            <IonIcon icon={close} />
+                          </IonButton>
+                        </div>
+                      </IonCol>
+                    ))}
+                  </IonRow>
+                </IonGrid>
+              </div>
+            )}
+
             <div style={{ marginTop: '20px' }}>
               <IonButton expand="block" onClick={handleSubmit}>
                 {editingAnnouncement ? 'Update' : 'Create'} Announcement
@@ -377,15 +699,15 @@ const BarangayAnnouncements: React.FC = () => {
         <IonAlert
           isOpen={showDeleteAlert}
           onDidDismiss={() => setShowDeleteAlert(false)}
-          header="Confirm Delete"
-          message="Are you sure you want to delete this announcement? This action can be undone by reactivating it."
+          header="Archive Announcement"
+          message="Are you sure you want to archive this announcement? Archived announcements can be reactivated later if needed."
           buttons={[
             {
               text: 'Cancel',
               role: 'cancel'
             },
             {
-              text: 'Delete',
+              text: 'Archive',
               role: 'confirm',
               handler: handleDelete
             }

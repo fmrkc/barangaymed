@@ -48,8 +48,8 @@ const saveLogToFirestore = async (logEntry: LogEntry) => {
     await logService.logActivity({
       action: logEntry.metadata?.action || 'general_log',
       userId: logEntry.userId,
-      userEmail: logEntry.userEmail || logEntry.metadata?.userEmail, // Get from logEntry or metadata
-      role: logEntry.userRole || logEntry.metadata?.userRole, // Get from logEntry or metadata
+      userEmail: logEntry.userEmail,
+      role: logEntry.userRole, // Use the top-level userRole field
       details: filteredDetails,
     });
   } catch (error) {
@@ -163,18 +163,24 @@ export const logMedicineRequestStatusUpdate = (
 /**
  * Log security-related events for access control
  * @param userId The user's ID (use 'unknown' for unauthenticated users)
+ * @param userEmail The user's email
+ * @param userRole The user's role
  * @param eventType The type of security event
  * @param description Detailed description of the event
  * @param additionalData Additional metadata for the event
  */
 export const logSecurityEvent = (
   userId: string,
+  userEmail: string | undefined,
+  userRole: string | undefined,
   eventType: string,
   description: string,
   additionalData?: Record<string, any>
 ) => {
   logEvent('info', `Security event: ${eventType} - ${description}`, {
     userId,
+    userEmail,
+    userRole,
     metadata: {
       action: 'security_event',
       eventType,
@@ -187,18 +193,22 @@ export const logSecurityEvent = (
 /**
  * Log unauthorized access attempts
  * @param userId The user's ID
- * @param attemptedRoute The route the user tried to access
+ * @param userEmail The user's email
  * @param userRole The user's current role
+ * @param attemptedRoute The route the user tried to access
  * @param requiredRole The required role for the route
  */
 export const logUnauthorizedAccess = (
   userId: string,
-  attemptedRoute: string,
+  userEmail: string | undefined,
   userRole: string,
+  attemptedRoute: string,
   requiredRole: string
 ) => {
   logSecurityEvent(
     userId,
+    userEmail,
+    userRole,
     'UNAUTHORIZED_ACCESS',
     `User with role ${userRole} attempted access to route requiring ${requiredRole}`,
     {
@@ -212,16 +222,22 @@ export const logUnauthorizedAccess = (
 /**
  * Log authentication events
  * @param userId The user's ID
+ * @param userEmail The user's email
+ * @param userRole The user's role
  * @param eventType Type of authentication event
  * @param details Additional details about the event
  */
 export const logAuthenticationEvent = (
   userId: string,
+  userEmail: string | undefined,
+  userRole: string | undefined,
   eventType: string,
   details: string
 ) => {
   logSecurityEvent(
     userId,
+    userEmail,
+    userRole,
     'AUTHENTICATION',
     `${eventType}: ${details}`,
     { eventType, details }
