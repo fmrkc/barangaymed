@@ -1,58 +1,60 @@
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRouterLink, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast } from '@ionic/react';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast, IonItem, IonLabel, IonText } from '@ionic/react';
 import { checkmarkDoneOutline } from 'ionicons/icons';
-import React from 'react';
-
-import { createAdmin } from '../../firebaseConfig';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from 'react';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../firebaseConfig';
 import { BARANGAYS } from '../../constants/barangays';
 
-const SuperRegister: React.FC = () => {
-    const { currentUser } = useAuth();
-
+const SuperAdminRegister: React.FC = () => {
     const router = useIonRouter();
     const [present, dismiss] = useIonLoading();
 
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [fullName, setFullName] = React.useState(''); // add fullName state
-    const [barangay, setBarangay] = React.useState('');
-    const [error, setError] = React.useState<string | null>(null);
+    const [fullName, setFullName] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [barangay, setBarangay] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [showToast, setShowToast] = useState(false);
 
-    const [showToast, setShowToast] = React.useState(false);
-
-    const doRegister = async (event: any) => {
+    const handleProvisionAdmin = async (event: any) => {
         event.preventDefault();
         setError(null);
 
-        // Validation: ensure all fields are filled
-        if (!fullName.trim() || !email.trim() || !password.trim() || !barangay) {
-            setError('All fields are required.');
-            return dismiss();
+        if (!fullName || !contactEmail || !barangay) {
+            setError('Full Name, Contact Email, and Barangay are required.');
+            return;
         }
 
-        await present('Creating account...');
+        await present('Creating Admin Account...');
         try {
-            await createAdmin({ email, password, fullName, role: 'admin', barangay }); // call the new Cloud Function
+            const provisionUserFunction = httpsCallable(functions, 'provisionUser');
+            await provisionUserFunction({
+                fullName,
+                contactEmail,
+                role: 'admin',
+                barangayId: barangay,
+            });
+            
             dismiss();
             setShowToast(true);
-            setTimeout(() => {
-                    router.push('/superadmin/dashboard/adminmanagement', 'forward');
-            }, 1500);
-        } catch (err) {
+            // Clear form
+            setFullName('');
+            setContactEmail('');
+            setBarangay('');
+
+        } catch (err: any) {
             dismiss();
-            setError('Registration failed. Please try again.');
+            setError(err.message || 'Registration failed. Please try again.');
         }
     }
-
 
     return (
         <IonPage>
             <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonButtons slot='start'>
-                        <IonBackButton defaultHref='/superadmin/dashboard/admin-manage' />
+                        <IonBackButton defaultHref='/superadmin/dashboard/admin-management' />
                     </IonButtons>
-                    <IonTitle>Create Account</IonTitle>
+                    <IonTitle>Create Admin Account</IonTitle>
                 </IonToolbar>
             </IonHeader>
             
@@ -62,62 +64,53 @@ const SuperRegister: React.FC = () => {
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
                             <IonCard>
                                 <IonCardContent>
-                                <form onSubmit={doRegister}>
-                                    <IonInput
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="Full Name"
-                                        type='text'
-                                        placeholder='Juan Dela Cruz'
-                                        value={fullName}
-                                        onIonChange={e => setFullName(e.detail.value!)}
-                                    />
-                                    <IonInput
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="E-mail"
-                                        type='email'
-                                        placeholder='juan@gmail.com'
-                                        value={email}
-                                        onIonChange={e => setEmail(e.detail.value!)}
-                                    />
-                                    <IonInput
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="Password"
-                                        type='password'
-                                        placeholder='juan123'
-                                        value={password}
-                                        onIonChange={e => setPassword(e.detail.value!)}
-                                    />
+                                <form onSubmit={handleProvisionAdmin}>
+                                    <IonItem>
+                                        <IonLabel position="stacked">Full Name</IonLabel>
+                                        <IonInput
+                                            type="text"
+                                            value={fullName}
+                                            onIonChange={e => setFullName(e.detail.value!)}
+                                            placeholder="Juan Dela Cruz"
+                                        />
+                                    </IonItem>
+                                    <IonItem>
+                                        <IonLabel position="stacked">Contact Email</IonLabel>
+                                        <IonInput
+                                            type="email"
+                                            value={contactEmail}
+                                            onIonChange={e => setContactEmail(e.detail.value!)}
+                                            placeholder="(Credentials will be sent here)"
+                                        />
+                                    </IonItem>
 
-                                    <IonSelect
-                                        value={barangay}
-                                        placeholder="Select Barangay"
-                                        onIonChange={e => setBarangay(e.detail.value)}
-                                        className="ion-margin-top"
-                                    >
-                                        {BARANGAYS.map((brgy) => (
-                                            <IonSelectOption key={brgy} value={brgy}>
-                                                {brgy}
-                                            </IonSelectOption>
-                                        ))}
-                                    </IonSelect>
+                                    <IonItem>
+                                      <IonLabel>Barangay</IonLabel>
+                                      <IonSelect
+                                          value={barangay}
+                                          placeholder="Select Barangay"
+                                          onIonChange={e => setBarangay(e.detail.value)}
+                                      >
+                                          {BARANGAYS.map((brgy) => (
+                                              <IonSelectOption key={brgy} value={brgy}>
+                                                  {brgy}
+                                              </IonSelectOption>
+                                          ))}
+                                      </IonSelect>
+                                    </IonItem>
                                     
-                                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                                    {error && <IonText color="danger"><p className="ion-padding-start">{error}</p></IonText>}
+
                                     <IonButton type='submit' className="ion-margin-top" expand='block'>
-                                        Create account
-                                    <IonIcon icon={checkmarkDoneOutline} slot="end" />
+                                        Create and Send Credentials
+                                        <IonIcon icon={checkmarkDoneOutline} slot="end" />
                                     </IonButton>
                                 </form>
                                 <IonToast
                                     isOpen={showToast}
                                     onDidDismiss={() => setShowToast(false)}
-                                    message="Account created successfully! Please login with your credentials."
-                                    duration={1500}
+                                    message="Admin account created successfully. Credentials have been sent."
+                                    duration={2500}
                                     color="success"
                                 />
                                 </IonCardContent>
@@ -131,4 +124,4 @@ const SuperRegister: React.FC = () => {
     );
 };
 
-export default SuperRegister;
+export default SuperAdminRegister;
