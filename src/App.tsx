@@ -41,7 +41,7 @@ import DashboardRedirect from './components/DashboardRedirect';
 
 import SuperAdminLogin from './pages/superadmin/sa-login';
 import SuperAdminDashboard from './pages/superadmin/sa-dashboard';
-import SuperRegister from './pages/superadmin/sa-register';
+import SuperRegister from './pages/superadmin/sa-admin-register';
 
 import ALogin from './pages/admin/admin-login';
 import AMenu from './pages/admin/admin-menu';
