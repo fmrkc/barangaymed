@@ -75,51 +75,53 @@ const SuperAdmin: React.FC = () => {
         <p>You are logged in as a super admin.</p>
 
         {/* Invitation Form */}
-        <IonCard className="ion-margin-top">
-          <IonCardHeader>
-            <IonCardTitle>Send New Invitation</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <IonItem>
-              <IonLabel position="stacked">Invitee Email</IonLabel>
-              <IonInput
-                type="email"
-                value={inviteEmail}
-                onIonChange={(e) => setInviteEmail(e.detail.value!)}
-                placeholder="email@example.com"
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Role</IonLabel>
-              <IonSelect
-                value={inviteRole}
-                placeholder="Select Role"
-                onIonChange={(e) => setInviteRole(e.detail.value!)}
-              >
-                <IonSelectOption value="admin">Admin</IonSelectOption>
-                <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
-              </IonSelect>
-            </IonItem>
-            {inviteRole === 'admin' && (
+        {currentUser?.email === 'barangaymed@gmail.com' && (
+          <IonCard className="ion-margin-top">
+            <IonCardHeader>
+              <IonCardTitle>Send New Invitation</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
               <IonItem>
-                <IonLabel position="stacked">Barangay ID (for Admin)</IonLabel>
+                <IonLabel position="stacked">Invitee Email</IonLabel>
                 <IonInput
-                  type="text"
-                  value={inviteBarangayId}
-                  onIonChange={(e) => setInviteBarangayId(e.detail.value!)}
-                  placeholder="e.g., brgy123"
+                  type="email"
+                  value={inviteEmail}
+                  onIonChange={(e) => setInviteEmail(e.detail.value!)}
+                  placeholder="email@example.com"
                 />
               </IonItem>
-            )}
+              <IonItem>
+                <IonLabel position="stacked">Role</IonLabel>
+                <IonSelect
+                  value={inviteRole}
+                  placeholder="Select Role"
+                  onIonChange={(e) => setInviteRole(e.detail.value!)}
+                >
+                  <IonSelectOption value="admin">Admin</IonSelectOption>
+                  <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
+                </IonSelect>
+              </IonItem>
+              {inviteRole === 'admin' && (
+                <IonItem>
+                  <IonLabel position="stacked">Barangay ID (for Admin)</IonLabel>
+                  <IonInput
+                    type="text"
+                    value={inviteBarangayId}
+                    onIonChange={(e) => setInviteBarangayId(e.detail.value!)}
+                    placeholder="e.g., brgy123"
+                  />
+                </IonItem>
+              )}
 
-            {inviteError && <IonText color="danger"><p>{inviteError}</p></IonText>}
-            {inviteSuccess && <IonText color="success"><p>{inviteSuccess}</p></IonText>}
+              {inviteError && <IonText color="danger"><p>{inviteError}</p></IonText>}
+              {inviteSuccess && <IonText color="success"><p>{inviteSuccess}</p></IonText>}
 
-            <IonButton expand="block" className="ion-margin-top" onClick={handleSendInvitation}>
-              Send Invitation
-            </IonButton>
-          </IonCardContent>
-        </IonCard>
+              <IonButton expand="block" className="ion-margin-top" onClick={handleSendInvitation}>
+                Send Invitation
+              </IonButton>
+            </IonCardContent>
+          </IonCard>
+        )}
 
         {/* Add your other super admin dashboard content here */}
       </IonContent>

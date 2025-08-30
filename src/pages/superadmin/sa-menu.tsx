@@ -4,7 +4,7 @@ import { Route } from 'react-router';
 
 import Dashboard from './sa-dashboard';
 import Admin_Management from './sa-admin-manage';
-import Admin_Register from './sa-register';
+import Admin_Register from './sa-admin-register';
 import Super_Admin_Register from './sa-superadmin-register';
 import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
