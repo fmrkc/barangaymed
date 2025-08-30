@@ -1,9 +1,9 @@
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast } from '@ionic/react';
-import { checkmarkDoneOutline } from 'ionicons/icons';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonItem, IonLabel, IonText } from '@ionic/react';
 import React from 'react';
 
-import { createAdmin } from '../../firebaseConfig';
 import { useAuth } from '../../contexts/AuthContext';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../firebaseConfig';
 
 const SuperAdminRegister: React.FC = () => {
     const { currentUser } = useAuth();
@@ -11,36 +11,47 @@ const SuperAdminRegister: React.FC = () => {
     const router = useIonRouter();
     const [present, dismiss] = useIonLoading();
 
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    // State for the new super admin provisioning form
     const [fullName, setFullName] = React.useState('');
+    const [contactEmail, setContactEmail] = React.useState('');
     const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
 
-    const [showToast, setShowToast] = React.useState(false);
-
-    const doRegister = async (event: any) => {
-        event.preventDefault();
+    const handleProvisionSuperAdmin = async () => {
         setError(null);
+        setSuccess(null);
 
-        if (!fullName.trim() || !email.trim() || !password.trim()) {
-            setError('All fields are required.');
-            return dismiss();
+        if (!fullName || !contactEmail) {
+            setError('Full Name and Contact Email are required.');
+            return;
         }
 
-        await present('Creating account...');
+        await present('Creating Super Admin...');
+
         try {
-            await createAdmin({ email, password, fullName, role: 'superadmin', barangay: 'N/A' });
-            dismiss();
-            setShowToast(true);
-            setTimeout(() => {
-                    router.push('/superadmin/dashboard/admin-management', 'forward');
-            }, 1500);
-        } catch (err) {
-            dismiss();
-            setError('Registration failed. Please try again.');
-        }
-    }
+            const provisionUserFunction = httpsCallable(functions, 'provisionUser');
+            const result = await provisionUserFunction({
+                fullName,
+                contactEmail,
+                role: 'superadmin', // Hardcode role to superadmin
+            });
 
+            const data = result.data as { success: boolean; message: string };
+            if (data.success) {
+                setSuccess(data.message);
+                // Clear form
+                setFullName('');
+                setContactEmail('');
+            } else {
+                setError(data.message);
+            }
+        } catch (error: any) {
+            console.error('Error provisioning user:', error);
+            setError(error.message || 'Failed to create user.');
+        } finally {
+            dismiss();
+        }
+    };
 
     return (
         <IonPage>
@@ -58,52 +69,35 @@ const SuperAdminRegister: React.FC = () => {
                     <IonRow className='ion-justify-content-center'>
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
                             <IonCard>
+                                <IonCardHeader>
+                                    <IonCardTitle>Create New Super Admin Account</IonCardTitle>
+                                </IonCardHeader>
                                 <IonCardContent>
-                                <form onSubmit={doRegister}>
-                                    <IonInput
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="Full Name"
-                                        type='text'
-                                        placeholder='Juan Dela Cruz'
-                                        value={fullName}
-                                        onIonChange={e => setFullName(e.detail.value!)}
-                                    />
-                                    <IonInput
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="E-mail"
-                                        type='email'
-                                        placeholder='juan@gmail.com'
-                                        value={email}
-                                        onIonChange={e => setEmail(e.detail.value!)}
-                                    />
-                                    <IonInput
-                                        className="ion-margin-top"
-                                        fill='outline'
-                                        labelPlacement='floating'
-                                        label="Password"
-                                        type='password'
-                                        placeholder='juan123'
-                                        value={password}
-                                        onIonChange={e => setPassword(e.detail.value!)}
-                                    />
-                                    
-                                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                                    <IonButton type='submit' className="ion-margin-top" expand='block'>
-                                        Create Super Admin
-                                    <IonIcon icon={checkmarkDoneOutline} slot="end" />
+                                    <IonItem>
+                                        <IonLabel position="stacked">Full Name</IonLabel>
+                                        <IonInput
+                                            type="text"
+                                            value={fullName}
+                                            onIonChange={(e) => setFullName(e.detail.value!)}
+                                            placeholder="Juan Dela Cruz"
+                                        />
+                                    </IonItem>
+                                    <IonItem>
+                                        <IonLabel position="stacked">Contact Email</IonLabel>
+                                        <IonInput
+                                            type="email"
+                                            value={contactEmail}
+                                            onIonChange={(e) => setContactEmail(e.detail.value!)}
+                                            placeholder="(Credentials will be sent here)"
+                                        />
+                                    </IonItem>
+
+                                    {error && <IonText color="danger"><p>{error}</p></IonText>}
+                                    {success && <IonText color="success"><p>{success}</p></IonText>}
+
+                                    <IonButton expand="block" className="ion-margin-top" onClick={handleProvisionSuperAdmin}>
+                                        Create and Send Credentials
                                     </IonButton>
-                                </form>
-                                <IonToast
-                                    isOpen={showToast}
-                                    onDidDismiss={() => setShowToast(false)}
-                                    message="Super Admin account created successfully!"
-                                    duration={1500}
-                                    color="success"
-                                />
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
