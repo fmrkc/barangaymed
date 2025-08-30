@@ -10,7 +10,7 @@ import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
 import Medicine_Requests from './admin-medicine-requests';
 
-import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield } from 'ionicons/icons';
+import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield, checkbox } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
@@ -20,7 +20,8 @@ const Menu: React.FC = () => {
 
     const paths = [
         { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
-        { name: 'Residents', url: '/admin/dashboard/residents', icon: people},
+        { name: 'All Residents', url: '/admin/dashboard/residents', icon: people},
+        { name: 'Resident Verification', url: '/admin/dashboard/residents', icon: checkbox},
         { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
         { name: 'Consultation Requests', url: '/admin/inventory', icon: calendar },
