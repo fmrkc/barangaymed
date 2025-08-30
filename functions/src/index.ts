@@ -1,11 +1,12 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 import { logger } from "firebase-functions";
 
 admin.initializeApp();
 
-export { createAdmin } from './createAdminUser';
-export { setroleonusercreate } from './auth-triggers';
+export { createAdmin } from './createAdminUser.js';
+export { setroleonusercreate } from './auth-triggers.js';
+export { sendInvitation, validateInvitation, completeInvitationRegistration } from './invitations.js';
 
 /**
  * HTTP Cloud Function to log activities securely

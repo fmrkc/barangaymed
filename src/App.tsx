@@ -55,6 +55,7 @@ import User_Requests from './pages/user/user-requests';
 import Medicine_Requests_Status from './pages/user/user-med-list';
 import Teleconsultation_Requests_Status from './pages/user/user-tele-list';
 import SAMenu from './pages/superadmin/sa-menu';
+import RegisterInvited from './pages/auth/RegisterInvited';
 
 
 setupIonicReact();
@@ -138,6 +139,11 @@ const App: React.FC = () => (
               <UserVerifyEmail />
             </Route>
             
+            {/* Invitation Registration Route */}
+            <Route exact path="/register-invited">
+              <RegisterInvited />
+            </Route>
+
             {/* Protected User Dashboard */}
             <Route path="/user/dashboard">
               <ProtectedRoute 
