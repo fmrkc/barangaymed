@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { logger } from "firebase-functions";
 
-admin.initializeApp();
+
 
 export const setroleonusercreate = functions.auth.user().onCreate(async (user) => {
   
