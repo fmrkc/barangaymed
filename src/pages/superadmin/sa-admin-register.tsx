@@ -50,7 +50,7 @@ const SuperRegister: React.FC = () => {
             <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonButtons slot='start'>
-                        <IonBackButton defaultHref='/superadmin/dashboard/adminmanagement' />
+                        <IonBackButton defaultHref='/superadmin/dashboard/admin-manage' />
                     </IonButtons>
                     <IonTitle>Create Account</IonTitle>
                 </IonToolbar>
