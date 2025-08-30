@@ -1,18 +1,30 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin"; // Corrected import style
 import { logger } from "firebase-functions";
+import * as nodemailer from 'nodemailer';
+import { randomBytes } from "crypto";
+
+// NOTE: admin.initializeApp() is called in index.ts
+
+// Helper to generate a random password
+const generatePassword = (length = 12) => {
+  return randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
+};
+
+// Helper to generate a random admin email
+const generateAdminEmail = (domain = "barangaymed.app") => {
+  const randomString = randomBytes(4).toString('hex');
+  return `admin.${randomString}@${domain}`;
+};
 
 /**
- * Callable function to create superadmin users.
- * Only callable by the designated master superadmin (barangaymed@gmail.com).
- * @param {object} data - The data passed to the function.
- * @param {string} data.email - The email of the user to create.
- * @param {string} data.password - The password for the new user.
- * @param {string} data.fullName - The full name of the new user.
+ * Callable function to provision a new admin or superadmin user.
+ * Creates a user with a random email/password and sends credentials to a contact email.
  */
-export const createAdmin = functions.https.onCall(async (data, context) => {
+export const provisionUser = functions.https.onCall(async (data, context) => {
+  // 1. Authorization Check
   if (context.auth?.token.email !== 'barangaymed@gmail.com') {
-    logger.error("Attempt to create superadmin by non-authorized user:", { 
+    logger.error("Attempt to provision user by non-authorized user:", { 
       uid: context.auth?.uid,
       email: context.auth?.token.email
     });
@@ -22,87 +34,94 @@ export const createAdmin = functions.https.onCall(async (data, context) => {
     );
   }
 
-  const { email, password, fullName } = data; // Removed role and barangay
+  const { contactEmail, role, barangayId, fullName } = data;
 
   // 2. Input Validation
-  if (!email || !password || !fullName) { // Removed role from check
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Required fields are missing: email, password, and fullName.'
-    );
+  if (!contactEmail || !role || !fullName) {
+    throw new functions.https.HttpsError('invalid-argument', 'Missing required fields: contactEmail, fullName, and role.');
   }
+  if (!['admin', 'superadmin'].includes(role)) {
+    throw new functions.https.HttpsError('invalid-argument', 'Role must be either \'admin\' or \'superadmin\'.');
+  }
+  if (role === 'admin' && !barangayId) {
+    throw new functions.https.HttpsError('invalid-argument', 'Barangay ID is required for admin role.');
+  }
+
+  const generatedEmail = generateAdminEmail();
+  const temporaryPassword = generatePassword();
 
   try {
     // 3. Create the user in Firebase Auth
     const userRecord = await admin.auth().createUser({
-      email,
-      password,
+      email: generatedEmail,
+      password: temporaryPassword,
       displayName: fullName,
-      emailVerified: false
+      emailVerified: true, // Email is system-generated, so we can consider it verified.
     });
 
-    // 4. Prepare custom claims (hardcoded to superadmin)
-    const customClaims: { role: string } = { role: 'superadmin' };
-    
-    // 5. Set custom claims
+    // 4. Set custom claims
+    const customClaims: { role: string; barangayId?: string } = { role };
+    if (role === 'admin') {
+      customClaims.barangayId = barangayId;
+    }
     await admin.auth().setCustomUserClaims(userRecord.uid, customClaims);
 
-    // 6. Create user document in Firestore (server-side, bypasses security rules)
-    const userDocData: {
-      uid: string;
-      email: string;
-      name: string;
-      role: string;
-      createdAt: admin.firestore.FieldValue;
-      createdBy: string;
-      createdByEmail: string | undefined;
-    } = {
+    // 5. Create user document in Firestore
+    await admin.firestore().collection('users').doc(userRecord.uid).set({
       uid: userRecord.uid,
-      email: email,
+      email: generatedEmail,
       name: fullName,
-      role: 'superadmin', // Hardcoded to superadmin
+      role: role,
+      barangayId: role === 'admin' ? barangayId : null,
+      contactEmail: contactEmail, // Store the contact email for reference
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       createdBy: context.auth.uid,
-      createdByEmail: context.auth.token.email
+    });
+
+    // 6. Send credentials via email using Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: functions.config().gmail.email,
+        pass: functions.config().gmail.app_password,
+      },
+    });
+
+    const mailOptions = {
+      from: `"BarangayMed+" <${functions.config().gmail.email}>`,
+      to: contactEmail,
+      subject: 'Your BarangayMed+ Account Credentials',
+      html: `
+        <p>Hello ${fullName},</p>
+        <p>An account has been created for you on BarangayMed+.</p>
+        <p><b>Role:</b> ${role}</p>
+        ${role === 'admin' ? `<p><b>Assigned Barangay:</b> ${barangayId}</p>` : ''}
+        <hr>
+        <p>You can log in using these credentials:</p>
+        <p><b>Email:</b> ${generatedEmail}</p>
+        <p><b>Temporary Password:</b> ${temporaryPassword}</p>
+        <hr>
+        <p>Please change your password after your first login.</p>
+      `,
     };
 
-    await admin.firestore().collection('users').doc(userRecord.uid).set(userDocData);
+    await transporter.sendMail(mailOptions);
 
-    // 7. Log the creation event
-    logger.log(`Successfully created superadmin user:`, {
-      email,
-      uid: userRecord.uid,
-      createdBy: context.auth.uid,
-    });
+    logger.log(`Successfully provisioned user ${generatedEmail} and sent credentials to ${contactEmail}.`);
 
     return { 
       success: true, 
-      message: `Superadmin user created successfully.`,
-      userId: userRecord.uid,
-      email: email
+      message: `User created successfully. Credentials sent to ${contactEmail}.`,
+      newUser: { uid: userRecord.uid, email: generatedEmail }
     };
+
   } catch (error) {
-    logger.error("Error creating superadmin user:", error);
-    
-    // Handle specific error cases
-    if (error instanceof Error) {
-      if (error.message.includes('email already exists')) {
-        throw new functions.https.HttpsError(
-          'already-exists',
-          'A user with this email already exists.'
-        );
-      }
-      if (error.message.includes('password')) {
-        throw new functions.https.HttpsError(
-          'invalid-argument',
-          'Password does not meet requirements.'
-        );
-      }
+    logger.error("Error provisioning user:", error);
+    // Attempt to delete the user if creation failed after the fact
+    const user = await admin.auth().getUserByEmail(generatedEmail).catch(() => null);
+    if (user) {
+      await admin.auth().deleteUser(user.uid);
     }
-    
-    throw new functions.https.HttpsError(
-      'internal',
-      'An error occurred while creating the user.'
-    );
+    throw new functions.https.HttpsError('internal', 'An error occurred while creating the user.');
   }
 });

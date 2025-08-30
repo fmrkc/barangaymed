@@ -1,57 +1,51 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonMenuButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton, useIonLoading, IonText } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonMenuButton, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, IonButton, useIonLoading, IonText } from '@ionic/react';
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import LogoutButton from '../../components/LogoutButton';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../firebaseConfig'; // Assuming firebaseConfig exports 'functions'
+import { functions } from '../../firebaseConfig';
 
-const SuperAdmin: React.FC = () => {
+const SuperAdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const [present, dismiss] = useIonLoading();
 
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'superadmin' | ''>('');
-  const [inviteBarangayId, setInviteBarangayId] = useState('');
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+  // State for the new super admin provisioning form
+  const [fullName, setFullName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSendInvitation = async () => {
-    setInviteError(null);
-    setInviteSuccess(null);
-    await present('Sending invitation...');
+  const handleProvisionSuperAdmin = async () => {
+    setError(null);
+    setSuccess(null);
 
-    if (!inviteEmail || !inviteRole) {
-      setInviteError('Email and Role are required.');
-      dismiss();
+    if (!fullName || !contactEmail) {
+      setError('Full Name and Contact Email are required.');
       return;
     }
 
-    if (inviteRole === 'admin' && !inviteBarangayId) {
-      setInviteError('Barangay ID is required for Admin role.');
-      dismiss();
-      return;
-    }
+    await present('Creating Super Admin...');
 
     try {
-      const sendInvitationFunction = httpsCallable(functions, 'sendInvitation');
-      const result = await sendInvitationFunction({
-        email: inviteEmail,
-        role: inviteRole,
-        barangayId: inviteRole === 'admin' ? inviteBarangayId : undefined,
+      const provisionUserFunction = httpsCallable(functions, 'provisionUser');
+      const result = await provisionUserFunction({
+        fullName,
+        contactEmail,
+        role: 'superadmin', // Hardcode role to superadmin
       });
 
       const data = result.data as { success: boolean; message: string };
       if (data.success) {
-        setInviteSuccess(data.message);
-        setInviteEmail('');
-        setInviteRole('');
-        setInviteBarangayId('');
+        setSuccess(data.message);
+        // Clear form
+        setFullName('');
+        setContactEmail('');
       } else {
-        setInviteError(data.message);
+        setError(data.message);
       }
     } catch (error: any) {
-      console.error('Error sending invitation:', error);
-      setInviteError(error.message || 'Failed to send invitation.');
+      console.error('Error provisioning user:', error);
+      setError(error.message || 'Failed to create user.');
     } finally {
       dismiss();
     }
@@ -74,50 +68,37 @@ const SuperAdmin: React.FC = () => {
         <h1>Welcome, {currentUser?.email}!</h1>
         <p>You are logged in as a super admin.</p>
 
-        {/* Invitation Form */}
+        {/* Super Admin Provisioning Form */}
         {currentUser?.email === 'barangaymed@gmail.com' && (
           <IonCard className="ion-margin-top">
             <IonCardHeader>
-              <IonCardTitle>Send New Invitation</IonCardTitle>
+              <IonCardTitle>Create New Super Admin Account</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
               <IonItem>
-                <IonLabel position="stacked">Invitee Email</IonLabel>
+                <IonLabel position="stacked">Full Name</IonLabel>
                 <IonInput
-                  type="email"
-                  value={inviteEmail}
-                  onIonChange={(e) => setInviteEmail(e.detail.value!)}
-                  placeholder="email@example.com"
+                  type="text"
+                  value={fullName}
+                  onIonChange={(e) => setFullName(e.detail.value!)}
+                  placeholder="Juan Dela Cruz"
                 />
               </IonItem>
               <IonItem>
-                <IonLabel position="stacked">Role</IonLabel>
-                <IonSelect
-                  value={inviteRole}
-                  placeholder="Select Role"
-                  onIonChange={(e) => setInviteRole(e.detail.value!)}
-                >
-                  <IonSelectOption value="admin">Admin</IonSelectOption>
-                  <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
-                </IonSelect>
+                <IonLabel position="stacked">Contact Email</IonLabel>
+                <IonInput
+                  type="email"
+                  value={contactEmail}
+                  onIonChange={(e) => setContactEmail(e.detail.value!)}
+                  placeholder="(Credentials will be sent here)"
+                />
               </IonItem>
-              {inviteRole === 'admin' && (
-                <IonItem>
-                  <IonLabel position="stacked">Barangay ID (for Admin)</IonLabel>
-                  <IonInput
-                    type="text"
-                    value={inviteBarangayId}
-                    onIonChange={(e) => setInviteBarangayId(e.detail.value!)}
-                    placeholder="e.g., brgy123"
-                  />
-                </IonItem>
-              )}
 
-              {inviteError && <IonText color="danger"><p>{inviteError}</p></IonText>}
-              {inviteSuccess && <IonText color="success"><p>{inviteSuccess}</p></IonText>}
+              {error && <IonText color="danger"><p>{error}</p></IonText>}
+              {success && <IonText color="success"><p>{success}</p></IonText>}
 
-              <IonButton expand="block" className="ion-margin-top" onClick={handleSendInvitation}>
-                Send Invitation
+              <IonButton expand="block" className="ion-margin-top" onClick={handleProvisionSuperAdmin}>
+                Create and Send Credentials
               </IonButton>
             </IonCardContent>
           </IonCard>
@@ -129,4 +110,4 @@ const SuperAdmin: React.FC = () => {
   );
 };
 
-export default SuperAdmin;
+export default SuperAdminDashboard;
