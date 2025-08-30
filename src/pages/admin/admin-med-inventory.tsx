@@ -43,12 +43,11 @@ import { medkit, warning, checkmarkCircle, closeCircle, notifications, notificat
 import './admin-med-inventory.css';
 
 const Admin_Med_Inventory: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userBarangayId } = useAuth();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [userBarangay, setUserBarangay] = useState<string>('');
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -74,15 +73,11 @@ const Admin_Med_Inventory: React.FC = () => {
     try {
       setLoading(true);
       
-      // Get user barangay from user profile
-      if (currentUser) {
-        const userDoc = await medicineService.getUserBarangay(currentUser.uid);
-        if (userDoc) {
-          setUserBarangay(userDoc.barangay || '');
-          const medicinesData = await medicineService.getMedicinesByBarangay(userDoc.barangay);
-          setMedicines(medicinesData);
-          setFilteredMedicines(medicinesData);
-        }
+      // Get user barangay from auth context
+      if (userBarangayId) {
+        const medicinesData = await medicineService.getMedicinesByBarangay(userBarangayId);
+        setMedicines(medicinesData);
+        setFilteredMedicines(medicinesData);
       }
     } catch (error) {
       console.error('Error loading medicines:', error);
@@ -92,21 +87,6 @@ const Admin_Med_Inventory: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Add method to get user barangay to MedicineService
-  const getUserBarangay = async (uid: string) => {
-    const { getDoc, doc } = await import('firebase/firestore');
-    const { db } = await import('../../firebaseConfig');
-    
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    return userDoc.data() || {};
-  };
-
-  // Extend MedicineService with getUserBarangay method
-  useEffect(() => {
-    const extendedService = MedicineService.getInstance() as any;
-    extendedService.getUserBarangay = getUserBarangay;
-  }, []);
 
   useEffect(() => {
     filterMedicines();
@@ -192,7 +172,7 @@ const Admin_Med_Inventory: React.FC = () => {
       const requestData = {
         adminId: currentUser?.uid,
         adminEmail: currentUser?.email,
-        barangay: userBarangay,
+        barangay: userBarangayId,
         medicineId: medicine.id,
         medicineName: medicine.name,
         medicineType: medicine.type,
@@ -200,7 +180,7 @@ const Admin_Med_Inventory: React.FC = () => {
         status: 'pending',
         requestDate: serverTimestamp(),
         requestType: 'shortage_notification',
-        notes: `Barangay ${userBarangay} has a shortage of ${medicine.name} (${medicine.type}). Current stock: ${medicine.quantity} units.`
+        notes: `Barangay ${userBarangayId} has a shortage of ${medicine.name} (${medicine.type}). Current stock: ${medicine.quantity} units.`
       };
 
       await addDoc(collection(db, 'adminMedicineRequests'), requestData);
@@ -252,7 +232,7 @@ const Admin_Med_Inventory: React.FC = () => {
           <IonButtons slot='start'>
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>Barangay {userBarangay} Inventory</IonTitle>
+          <IonTitle>Barangay {userBarangayId} Inventory</IonTitle>
           <IonButtons slot='end'>
             <IonButton shape='round'>
               <IonIcon icon={albums} slot="start" />
@@ -272,7 +252,7 @@ const Admin_Med_Inventory: React.FC = () => {
           debounce={300}
           animated
         />
-        <IonCardSubtitle>Showing all medicines currently in stock in {userBarangay}.</IonCardSubtitle>
+        <IonCardSubtitle>Showing all medicines currently in stock in {userBarangayId}.</IonCardSubtitle>
 
         {loading ? (
           <div className="ion-text-center ion-padding">

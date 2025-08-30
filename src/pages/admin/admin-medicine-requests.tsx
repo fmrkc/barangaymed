@@ -48,7 +48,7 @@ interface MedicineRequest {
 }
 
 const AdminMedicineRequests: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userBarangayId } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -61,7 +61,10 @@ const AdminMedicineRequests: React.FC = () => {
   // Fetch data
   useEffect(() => {
     const fetchRequests = async () => {
-      const querySnapshot = await getDocs(collection(db, 'medicineRequests'));
+      if (!currentUser || !userBarangayId) return;
+      const { query, where, getDocs, collection } = await import('firebase/firestore');
+      const q = query(collection(db, 'medicineRequests'), where('barangayId', '==', userBarangayId));
+      const querySnapshot = await getDocs(q);
       const data: MedicineRequest[] = [];
       querySnapshot.forEach((docSnap) => {
         data.push({ id: docSnap.id, ...docSnap.data() } as MedicineRequest);
@@ -69,7 +72,7 @@ const AdminMedicineRequests: React.FC = () => {
       setRequests(data);
     };
     fetchRequests();
-  }, []);
+  }, [currentUser, userBarangayId]);
 
   // Update status in Firestore
   const updateStatus = async (status: 'approved' | 'cancelled') => {
