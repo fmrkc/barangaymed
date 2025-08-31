@@ -162,6 +162,17 @@ const BarangayAnnouncements: React.FC = () => {
     }
   };
 
+  const handleFormChange = (e: CustomEvent) => {
+    const name = (e.target as HTMLElement).getAttribute('name');
+    const value = e.detail.value;
+    if (name) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
       setToastMessage('Please fill in all required fields (title and content)');
@@ -564,8 +575,9 @@ const BarangayAnnouncements: React.FC = () => {
             <IonItem>
               <IonLabel position="stacked">Title *</IonLabel>
               <IonInput
+                name="title"
                 value={formData.title}
-                onIonChange={(e) => setFormData({ ...formData, title: e.detail.value! })}
+                onIonChange={handleFormChange}
                 placeholder="Enter announcement title"
               />
             </IonItem>
@@ -573,8 +585,9 @@ const BarangayAnnouncements: React.FC = () => {
             <IonItem>
               <IonLabel position="stacked">Content *</IonLabel>
               <IonTextarea
+                name="content"
                 value={formData.content}
-                onIonChange={(e) => setFormData({ ...formData, content: e.detail.value! })}
+                onIonChange={handleFormChange}
                 placeholder="Enter announcement content"
                 rows={6}
               />
@@ -583,8 +596,9 @@ const BarangayAnnouncements: React.FC = () => {
             <IonItem>
               <IonLabel position="stacked">Priority</IonLabel>
               <IonSelect
+                name="priority"
                 value={formData.priority}
-                onIonChange={(e) => setFormData({ ...formData, priority: e.detail.value })}
+                onIonChange={handleFormChange}
               >
                 <IonSelectOption value="low">Low</IonSelectOption>
                 <IonSelectOption value="medium">Medium</IonSelectOption>
