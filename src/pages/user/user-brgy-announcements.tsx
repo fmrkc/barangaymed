@@ -21,7 +21,10 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonLabel
+  IonLabel,
+  IonFooter,
+  IonItem,
+  IonItemDivider
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -29,7 +32,7 @@ import { announcementsService } from '../../services/announcementsService';
 import { Announcement } from '../../types/announcements';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-import { megaphone, calendar, person, close } from 'ionicons/icons';
+import { megaphone, calendar, person, close, pencil, colorFill } from 'ionicons/icons';
 
 const UserAnnouncements: React.FC = () => {
   const { currentUser, userRole, loading: authLoading } = useAuth();
@@ -214,12 +217,12 @@ const UserAnnouncements: React.FC = () => {
                     <>
                       <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
                       <IonCardHeader>
-                        <IonCardTitle style={{ fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
+                        <IonCardTitle style={{ color: 'white', fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
                       </IonCardHeader>
                     </>
                   ) : (
                     <IonCardHeader style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      <IonCardTitle>{announcement.title}</IonCardTitle>
+                      <IonCardTitle style={{ color: 'white' }}>{announcement.title}</IonCardTitle>
                     </IonCardHeader>
                   )}
                 </IonCard>
@@ -239,7 +242,7 @@ const UserAnnouncements: React.FC = () => {
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>{selectedAnnouncement?.title}</IonTitle>
+              <IonTitle>Announcement Details</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowModal(false)}>
                   <IonIcon icon={close} />
@@ -247,17 +250,18 @@ const UserAnnouncements: React.FC = () => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="ion-padding">
+          <IonContent>
             {selectedAnnouncement && (
               <>
                 <IonCardHeader>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <IonCardTitle>{selectedAnnouncement.title}</IonCardTitle>
+                        <IonCardTitle style={{ color: 'white' }}>{selectedAnnouncement.title}</IonCardTitle>
                         <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
                             {selectedAnnouncement.priority.toUpperCase()}
                         </IonChip>
                     </div>
                 </IonCardHeader>
+                
                 <IonCardContent>
                     <div style={{ marginBottom: '15px' }}>
                         <IonText>
@@ -269,17 +273,17 @@ const UserAnnouncements: React.FC = () => {
 
                     {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
                       <div style={{ marginTop: '15px' }}>
-                        <IonLabel>Images:</IonLabel>
+                        <IonLabel color={'medium'}>Images:</IonLabel>
                         <IonGrid>
                           <IonRow>
                             {selectedAnnouncement.images.map((image, index) => (
-                              <IonCol size="6" key={index}>
+                              <IonCol size="12" key={index}>
                                 <img
                                   src={image.url}
                                   alt={`Announcement image ${index + 1}`}
                                   style={{
                                     width: '100%',
-                                    height: '100px',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     borderRadius: '8px'
                                   }}
@@ -291,37 +295,30 @@ const UserAnnouncements: React.FC = () => {
                       </div>
                     )}
 
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '15px', 
-                        fontSize: '0.9em', 
-                        color: 'gray',
-                        flexWrap: 'wrap',
-                        marginTop: '20px'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <IonIcon icon={person} style={{ fontSize: '16px' }} />
-                            <span>{selectedAnnouncement.createdByEmail}</span>
-                        </div>
-                        
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <IonIcon icon={calendar} style={{ fontSize: '16px' }} />
-                            <span>{getRelativeTime(selectedAnnouncement.createdAt)}</span>
-                        </div>
-                    </div>
-
-                    {selectedAnnouncement.updatedAt && (
-                        <div style={{ marginTop: '10px', fontSize: '0.8em', color: 'gray' }}>
-                            <IonNote>Updated {getRelativeTime(selectedAnnouncement.updatedAt)}</IonNote>
-                        </div>
-                    )}
                 </IonCardContent>
               </>
             )}
           </IonContent>
+          <IonFooter>
+            <IonToolbar>
+           
+             {selectedAnnouncement?.updatedAt && (
+              <IonItem>
+                  <IonIcon icon={pencil} slot="start" />
+                Last updated: {getRelativeTime(selectedAnnouncement?.createdAt)}
+              </IonItem>
+             )}
+                  <IonItem>
+                <IonIcon icon={calendar} slot="start" />
+                Created: {getRelativeTime(selectedAnnouncement?.createdAt)}
+              </IonItem>
+                 <IonItem>
+                <IonIcon icon={person} slot="start" />
+                Created by: {selectedAnnouncement?.createdByEmail}
+                </IonItem>
+            </IonToolbar>
+          </IonFooter>
         </IonModal>
-
       </IonContent>
     </>
   );
