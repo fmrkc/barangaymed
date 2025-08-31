@@ -29,6 +29,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.role == 'superadmin';
     }
 
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
+
     // Checks if the user is an admin for a specific barangay.
     // This assumes the admin's assigned barangayId is stored in custom claims
     function isAdminOfBarangay(barangayId) {
@@ -170,7 +174,7 @@ service cloud.firestore {
     // =================================================================
     match /rhuInventory/{barangayId}/{medicineId} {
       // READ: Users can read their own barangay's inventory. Admins can read their own. Super admins can read all.
-      allow read: if (isUserRole() && barangayId == request.auth.token.barangayId) ||
+      allow read: if (isUserRole() && barangayId == getUserData(request.auth.uid).barangay) ||
                      isAdminOfBarangay(barangayId) ||
                      isSuperAdmin();
 
@@ -184,10 +188,9 @@ service cloud.firestore {
     // =================================================================
     match /announcements/{announcementId} {
       // READ: Users can read announcements from their barangay. Admins can read announcements from their barangay. Super admins can read all announcements.
-      allow read: if isAuthenticated() && 
-                     ((isUserRole() && resource.data.barangay == request.auth.token.barangayId) ||
-                      (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
-                      isSuperAdmin());
+      allow read: if (isUserRole() && resource.data.barangay == getUserData(request.auth.uid).barangay) ||
+                     (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+                     isSuperAdmin();
       
       // CREATE: Admins can create announcements for their barangay. Super admins can create announcements for any barangay.
       allow create: if (isAdmin() && request.resource.data.barangay == request.auth.token.barangayId) ||

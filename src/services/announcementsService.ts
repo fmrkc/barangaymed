@@ -244,6 +244,51 @@ export class AnnouncementsService {
   }
 
   /**
+   * Get all ACTIVE announcements for a given barangay (for user view)
+   */
+  async getActiveAnnouncementsForBarangay(barangay: string): Promise<Announcement[]> {
+    try {
+      const q = query(
+        collection(db, this.collectionName),
+        where('barangay', '==', barangay),
+        where('isActive', '==', true),
+        orderBy('createdAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      const announcements: Announcement[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        announcements.push({
+          id: doc.id,
+          title: data.title,
+          content: data.content,
+          barangay: data.barangay,
+          createdBy: data.createdBy,
+          createdByEmail: data.createdByEmail,
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt?.toDate(),
+          isActive: data.isActive,
+          priority: data.priority,
+          images: data.images || []
+        });
+      });
+
+      return announcements;
+    } catch (error) {
+      logEvent('error', 'Failed to fetch active announcements for user', {
+        metadata: {
+          action: 'fetch_active_announcements_failed',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          barangay
+        }
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Update an announcement
    */
   async updateAnnouncement(

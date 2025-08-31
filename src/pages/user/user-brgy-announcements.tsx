@@ -68,14 +68,13 @@ const UserAnnouncements: React.FC = () => {
   };
 
   const loadAnnouncements = async () => {
+    if (!userBarangay) return;
+
     setLoading(true);
     setError(null);
     try {
-      const data = await announcementsService.getAnnouncementsByBarangay(
-        currentUser?.uid,
-        currentUser?.email || undefined,
-        userRole || undefined
-      );
+      const data = await announcementsService.getActiveAnnouncementsForBarangay(userBarangay);
+      console.log("Fetched announcements for user:", JSON.stringify(data, null, 2));
       setAnnouncements(data);
     } catch (error) {
       console.error('Error loading announcements:', error);
@@ -179,7 +178,7 @@ const UserAnnouncements: React.FC = () => {
           <IonTitle>Barangay {userBarangay} Announcements</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent className="ion-padding with-tab-padding">
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
