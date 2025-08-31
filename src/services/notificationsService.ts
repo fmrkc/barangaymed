@@ -22,18 +22,16 @@ export class NotificationsService {
   public getUserNotifications(userId: string, callback: (notifications: Notification[]) => void): () => void {
     const q = query(
       collection(db, 'logs'),
-      where('metadata.requestId', '!=', null),
       where('userId', '==', userId),
       orderBy('timestamp', 'desc')
     );
 
     this.unsubscribe = onSnapshot(q, (querySnapshot) => {
       const notifications: Notification[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        
-        // Only include medicine request status updates
+
         if (data.metadata?.action === 'medicine_request_status_update') {
           const notification: Notification = {
             id: doc.id,
@@ -52,9 +50,25 @@ export class NotificationsService {
             }
           };
           notifications.push(notification);
+        } else if (data.metadata?.action === 'new_announcement') {
+          const notification: Notification = {
+            id: doc.id,
+            userId: data.userId,
+            userEmail: data.userEmail,
+            type: 'announcement',
+            title: `New Announcement`,
+            message: `A new announcement has been posted: ${data.metadata.announcementTitle}`,
+            timestamp: data.timestamp.toDate(),
+            read: false,
+            metadata: {
+              announcementId: data.metadata.announcementId,
+              announcementTitle: data.metadata.announcementTitle
+            }
+          };
+          notifications.push(notification);
         }
       });
-      
+
       callback(notifications);
     });
 
@@ -73,36 +87,53 @@ export class NotificationsService {
   public async getUserNotificationsOnce(userId: string): Promise<Notification[]> {
     const q = query(
       collection(db, 'logs'),
-      where('metadata.action', '==', 'medicine_request_status_update'),
       where('userId', '==', userId),
       orderBy('timestamp', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
     const notifications: Notification[] = [];
-    
+
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      
-      const notification: Notification = {
-        id: doc.id,
-        userId: data.userId,
-        userEmail: data.userEmail,
-        type: 'status_change',
-        title: `Request Status Updated`,
-        message: `Your request for ${data.metadata.medicineName || 'medicine'} has been updated from ${data.metadata.oldStatus} to ${data.metadata.newStatus}`,
-        timestamp: data.timestamp.toDate(),
-        read: false,
-        metadata: {
-          requestId: data.metadata.requestId,
-          oldStatus: data.metadata.oldStatus,
-          newStatus: data.metadata.newStatus,
-          medicineName: data.metadata.medicineName
-        }
-      };
-      notifications.push(notification);
+
+      if (data.metadata?.action === 'medicine_request_status_update') {
+        const notification: Notification = {
+          id: doc.id,
+          userId: data.userId,
+          userEmail: data.userEmail,
+          type: 'status_change',
+          title: `Request Status Updated`,
+          message: `Your request for ${data.metadata.medicineName || 'medicine'} has been updated from ${data.metadata.oldStatus} to ${data.metadata.newStatus}`,
+          timestamp: data.timestamp.toDate(),
+          read: false,
+          metadata: {
+            requestId: data.metadata.requestId,
+            oldStatus: data.metadata.oldStatus,
+            newStatus: data.metadata.newStatus,
+            medicineName: data.metadata.medicineName
+          }
+        };
+        notifications.push(notification);
+      } else if (data.metadata?.action === 'new_announcement') {
+        const notification: Notification = {
+          id: doc.id,
+          userId: data.userId,
+          userEmail: data.userEmail,
+          type: 'announcement',
+          title: `New Announcement`,
+          message: `A new announcement has been posted: ${data.metadata.announcementTitle}`,
+          timestamp: data.timestamp.toDate(),
+          read: false,
+          metadata: {
+            announcementId: data.metadata.announcementId,
+            announcementTitle: data.metadata.announcementTitle
+          }
+        };
+        notifications.push(notification);
+      }
     });
-    
+
     return notifications;
   }
 

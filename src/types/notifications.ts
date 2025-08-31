@@ -2,7 +2,7 @@ export interface Notification {
   id: string;
   userId: string;
   userEmail: string;
-  type: 'status_change' | 'admin_note' | 'system';
+  type: 'status_change' | 'admin_note' | 'system' | 'announcement';
   title: string;
   message: string;
   timestamp: Date;
@@ -13,6 +13,8 @@ export interface Notification {
     newStatus?: string;
     adminNotes?: string;
     medicineName?: string;
+    announcementId?: string;
+    announcementTitle?: string;
   };
 }
 

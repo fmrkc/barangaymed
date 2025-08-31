@@ -17,6 +17,7 @@ import { httpsCallable } from 'firebase/functions';
 import { db, storage, functions } from '../firebaseConfig';
 import { Announcement, AnnouncementFormData, AnnouncementImage } from '../types/announcements';
 import { logEvent } from '../utils/logger';
+import { UserService } from './userService';
 
 export class AnnouncementsService {
   private collectionName = 'announcements';
@@ -146,6 +147,9 @@ export class AnnouncementsService {
           imageCount: uploadedImages.length
         }
       });
+
+      // Create notifications for all users in the barangay
+      this.createNotificationsForAnnouncement(docRef.id, data.title, barangay);
 
       return docRef.id;
     } catch (error) {
@@ -391,8 +395,8 @@ export class AnnouncementsService {
    * Reactivate a deleted announcement
    */
   async reactivateAnnouncement(
-    announcementId: string, 
-    userId: string, 
+    announcementId: string,
+    userId: string,
     userEmail: string
   ): Promise<void> {
     try {
@@ -423,6 +427,33 @@ export class AnnouncementsService {
         }
       });
       throw error;
+    }
+  }
+
+  /**
+   * Create notifications for all users in the barangay when a new announcement is created
+   */
+  private async createNotificationsForAnnouncement(announcementId: string, announcementTitle: string, barangay: string): Promise<void> {
+    try {
+      const userService = UserService.getInstance();
+      const users = await userService.getUsersByBarangay(barangay);
+
+      // Create a log entry for each user to trigger notification
+      for (const user of users) {
+        logEvent('info', `New announcement: ${announcementTitle}`, {
+          userId: user.uid,
+          userEmail: user.email,
+          userRole: 'user', // Recipients are users
+          metadata: {
+            action: 'new_announcement',
+            announcementId,
+            announcementTitle
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error creating notifications for announcement:', error);
+      // Don't throw error to avoid breaking announcement creation
     }
   }
 }

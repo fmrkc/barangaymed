@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 export interface UserData {
   firstName: string;
@@ -77,5 +77,32 @@ export class UserService {
       barangay: '',
       address: ''
     };
+  }
+
+  /**
+   * Gets all users in a specific barangay
+   * @param barangay The barangay to filter users by
+   * @returns Promise resolving to array of user IDs and emails
+   */
+  public async getUsersByBarangay(barangay: string): Promise<{ uid: string; email: string }[]> {
+    try {
+      const q = query(
+        collection(db, 'users'),
+        where('barangayId', '==', barangay)
+      );
+      const querySnapshot = await getDocs(q);
+      const users: { uid: string; email: string }[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        users.push({
+          uid: doc.id,
+          email: data.email || ''
+        });
+      });
+      return users;
+    } catch (error) {
+      console.error('Error fetching users by barangay:', error);
+      return [];
+    }
   }
 }
