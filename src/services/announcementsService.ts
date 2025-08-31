@@ -1,19 +1,20 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
+import {
+  collection,
+  addDoc,
+  getDocs,
   getDoc,
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  query, 
-  where, 
-  orderBy, 
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  orderBy,
   Timestamp,
-  serverTimestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db, storage } from '../firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
+import { db, storage, functions } from '../firebaseConfig';
 import { Announcement, AnnouncementFormData, AnnouncementImage } from '../types/announcements';
 import { logEvent } from '../utils/logger';
 
@@ -164,44 +165,35 @@ export class AnnouncementsService {
   }
 
   /**
-   * Get all announcements for a specific barangay
+   * Get all announcements for the current user's barangay using Cloud Function
    */
-  async getAnnouncementsByBarangay(barangay: string): Promise<Announcement[]> {
+  async getAnnouncementsByBarangay(userId?: string, userEmail?: string, userRole?: string): Promise<Announcement[]> {
     try {
-      const q = query(
-        collection(db, this.collectionName),
-        where('barangay', '==', barangay),
-        where('isActive', '==', true),
-        orderBy('createdAt', 'desc')
-      );
+      const getAnnouncementsFunction = httpsCallable(functions, 'getAnnouncementsByBarangay');
+      const result = await getAnnouncementsFunction();
 
-      const querySnapshot = await getDocs(q);
-      const announcements: Announcement[] = [];
+      const announcements = result.data.announcements as Announcement[];
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        announcements.push({
-          id: doc.id,
-          title: data.title,
-          content: data.content,
-          barangay: data.barangay,
-          createdBy: data.createdBy,
-          createdByEmail: data.createdByEmail,
-          createdAt: data.createdAt.toDate(),
-          updatedAt: data.updatedAt?.toDate(),
-          isActive: data.isActive,
-          priority: data.priority,
-          images: data.images || []
-        });
+      // Log successful fetch
+      logEvent('info', 'Announcements fetched successfully', {
+        userId,
+        userEmail,
+        userRole,
+        metadata: {
+          action: 'fetch_announcements',
+          count: announcements.length
+        }
       });
 
       return announcements;
     } catch (error) {
       logEvent('error', 'Failed to fetch announcements', {
+        userId,
+        userEmail,
+        userRole,
         metadata: {
           action: 'fetch_announcements_failed',
-          error: error instanceof Error ? error.message : 'Unknown error',
-          barangay
+          error: error instanceof Error ? error.message : 'Unknown error'
         }
       });
       throw error;

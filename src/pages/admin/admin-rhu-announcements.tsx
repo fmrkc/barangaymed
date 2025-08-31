@@ -80,11 +80,31 @@ const ARHUAnnouncements: React.FC = () => {
     }).format(date);
   };
 
-  const getRelativeTime = (date: Date) => {
+  const getRelativeTime = (date: any) => {
     const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
+    let targetDate: Date;
+
+    // Handle different date formats
+    if (date instanceof Date) {
+      targetDate = date;
+    } else if (typeof date === 'string') {
+      targetDate = new Date(date);
+    } else if (date && typeof date.toDate === 'function') {
+      // Firestore Timestamp
+      targetDate = date.toDate();
+    } else {
+      // Fallback
+      targetDate = new Date(date);
+    }
+
+    // Check if date is valid
+    if (isNaN(targetDate.getTime())) {
+      return 'Invalid date';
+    }
+
+    const diffInMs = now.getTime() - targetDate.getTime();
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) {
       const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
       if (diffInHours === 0) {
@@ -97,7 +117,7 @@ const ARHUAnnouncements: React.FC = () => {
     } else if (diffInDays < 7) {
       return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
     } else {
-      return formatDate(date);
+      return formatDate(targetDate);
     }
   };
 

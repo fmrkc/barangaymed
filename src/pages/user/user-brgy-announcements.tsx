@@ -26,7 +26,7 @@ import { db } from '../../firebaseConfig';
 import { megaphone, calendar, person } from 'ionicons/icons';
 
 const UserAnnouncements: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userRole, loading: authLoading } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [userBarangay, setUserBarangay] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -60,12 +60,14 @@ const UserAnnouncements: React.FC = () => {
   };
 
   const loadAnnouncements = async () => {
-    if (!userBarangay) return;
-    
     setLoading(true);
     setError(null);
     try {
-      const data = await announcementsService.getAnnouncementsByBarangay(userBarangay);
+      const data = await announcementsService.getAnnouncementsByBarangay(
+        currentUser?.uid,
+        currentUser?.email || undefined,
+        userRole || undefined
+      );
       setAnnouncements(data);
     } catch (error) {
       console.error('Error loading announcements:', error);
@@ -106,11 +108,31 @@ const UserAnnouncements: React.FC = () => {
     }).format(date);
   };
 
-  const getRelativeTime = (date: Date) => {
+  const getRelativeTime = (date: any) => {
     const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
+    let targetDate: Date;
+
+    // Handle different date formats
+    if (date instanceof Date) {
+      targetDate = date;
+    } else if (typeof date === 'string') {
+      targetDate = new Date(date);
+    } else if (date && typeof date.toDate === 'function') {
+      // Firestore Timestamp
+      targetDate = date.toDate();
+    } else {
+      // Fallback
+      targetDate = new Date(date);
+    }
+
+    // Check if date is valid
+    if (isNaN(targetDate.getTime())) {
+      return 'Invalid date';
+    }
+
+    const diffInMs = now.getTime() - targetDate.getTime();
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) {
       const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
       if (diffInHours === 0) {
@@ -123,9 +145,21 @@ const UserAnnouncements: React.FC = () => {
     } else if (diffInDays < 7) {
       return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
     } else {
-      return formatDate(date);
+      return formatDate(targetDate);
     }
   };
+
+  // Show loading spinner while auth is loading
+  if (authLoading) {
+    return (
+      <IonContent className="ion-padding">
+        <div style={{ textAlign: 'center', marginTop: '50px' }}>
+          <IonSpinner />
+          <p>Loading...</p>
+        </div>
+      </IonContent>
+    );
+  }
 
   return (
     <>
@@ -203,7 +237,7 @@ const UserAnnouncements: React.FC = () => {
                 </div>
               </div>
 
-              {announcement.updatedAt && announcement.updatedAt.getTime() !== announcement.createdAt.getTime() && (
+              {announcement.updatedAt && (
                 <div style={{ marginTop: '10px', fontSize: '0.8em', color: 'gray' }}>
                   <IonNote>Updated {getRelativeTime(announcement.updatedAt)}</IonNote>
                 </div>

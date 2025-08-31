@@ -118,6 +118,76 @@ export const setUserRole = functions.https.onCall(async (data, context) => {
 });
 
 /**
+ * Callable function to get announcements for a user's barangay.
+ * Accessible by authenticated users.
+ */
+export const getAnnouncementsByBarangay = functions.https.onCall(async (data, context) => {
+  // Validate authentication
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Only authenticated users can fetch announcements'
+    );
+  }
+
+  try {
+    // Get the user's barangay from their document
+    const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'User document not found'
+      );
+    }
+    const userData = userDoc.data();
+    const userBarangay = userData?.barangay;
+
+    if (!userBarangay) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'User barangay not found'
+      );
+    }
+
+    // Query announcements for the user's barangay
+    const announcementsRef = admin.firestore().collection('announcements');
+    const snapshot = await announcementsRef
+      .where('barangay', '==', userBarangay)
+      .where('isActive', '==', true)
+      .orderBy('createdAt', 'desc')
+      .get();
+
+    const announcements = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        content: data.content,
+        barangay: data.barangay,
+        createdBy: data.createdBy,
+        createdByEmail: data.createdByEmail,
+        createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : new Date(data.createdAt),
+        updatedAt: data.updatedAt && typeof data.updatedAt.toDate === 'function' ? data.updatedAt.toDate() : data.updatedAt ? new Date(data.updatedAt) : undefined,
+        isActive: data.isActive,
+        priority: data.priority,
+        images: data.images || []
+      };
+    });
+
+    return { announcements };
+  } catch (error) {
+    logger.error('Error fetching announcements:', error);
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    throw new functions.https.HttpsError(
+      'internal',
+      'Failed to fetch announcements'
+    );
+  }
+});
+
+/**
  * Example of a protected callable function.
  * Only accessible by users with 'admin' or 'superadmin' roles.
  */
@@ -134,7 +204,7 @@ export const adminOnlyOperation = functions.https.onCall((data, context) => {
 
   // If the check passes, proceed with the function's logic.
   logger.log(`Admin operation performed by:`, { uid: context.auth?.uid, role: role });
-  
+
   // Example: Return some data only admins should see.
   return {
     success: true,
