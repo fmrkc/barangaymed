@@ -15,7 +15,13 @@ import {
   IonText,
   IonIcon,
   IonBackButton,
-  IonButtons
+  IonButtons,
+  IonModal,
+  IonButton,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonLabel
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,7 +29,7 @@ import { announcementsService } from '../../services/announcementsService';
 import { Announcement } from '../../types/announcements';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-import { megaphone, calendar, person } from 'ionicons/icons';
+import { megaphone, calendar, person, close } from 'ionicons/icons';
 
 const UserAnnouncements: React.FC = () => {
   const { currentUser, userRole, loading: authLoading } = useAuth();
@@ -32,6 +38,8 @@ const UserAnnouncements: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -89,6 +97,11 @@ const UserAnnouncements: React.FC = () => {
     }
   };
 
+  const handleViewDetails = (announcement: Announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowModal(true);
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'danger';
@@ -112,20 +125,16 @@ const UserAnnouncements: React.FC = () => {
     const now = new Date();
     let targetDate: Date;
 
-    // Handle different date formats
     if (date instanceof Date) {
       targetDate = date;
     } else if (typeof date === 'string') {
       targetDate = new Date(date);
     } else if (date && typeof date.toDate === 'function') {
-      // Firestore Timestamp
       targetDate = date.toDate();
     } else {
-      // Fallback
       targetDate = new Date(date);
     }
 
-    // Check if date is valid
     if (isNaN(targetDate.getTime())) {
       return 'Invalid date';
     }
@@ -149,7 +158,6 @@ const UserAnnouncements: React.FC = () => {
     }
   };
 
-  // Show loading spinner while auth is loading
   if (authLoading) {
     return (
       <IonContent className="ion-padding">
@@ -184,7 +192,6 @@ const UserAnnouncements: React.FC = () => {
         )}
 
         <div className="ion-margin-bottom">
-          
           <IonNote>Showing all active announcements for your barangay.</IonNote>
         </div>
 
@@ -199,52 +206,28 @@ const UserAnnouncements: React.FC = () => {
           </div>
         )}
 
-        {announcements.map((announcement) => (
-          <IonCard key={announcement.id}>
-            <IonCardHeader>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <IonCardTitle>{announcement.title}</IonCardTitle>
-                <IonChip color={getPriorityColor(announcement.priority)}>
-                  {announcement.priority.toUpperCase()}
-                </IonChip>
-              </div>
-            </IonCardHeader>
-            <IonCardContent>
-              <div style={{ marginBottom: '15px' }}>
-                <IonText>
-                  <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                    {announcement.content}
-                  </p>
-                </IonText>
-              </div>
-
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '15px', 
-                fontSize: '0.9em', 
-                color: 'gray',
-                flexWrap: 'wrap'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <IonIcon icon={person} style={{ fontSize: '16px' }} />
-                  <span>{announcement.createdByEmail}</span>
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <IonIcon icon={calendar} style={{ fontSize: '16px' }} />
-                  <span>{getRelativeTime(announcement.createdAt)}</span>
-                </div>
-              </div>
-
-              {announcement.updatedAt && (
-                <div style={{ marginTop: '10px', fontSize: '0.8em', color: 'gray' }}>
-                  <IonNote>Updated {getRelativeTime(announcement.updatedAt)}</IonNote>
-                </div>
-              )}
-            </IonCardContent>
-          </IonCard>
-        ))}
+        <IonGrid>
+          <IonRow>
+            {announcements.map((announcement) => (
+              <IonCol size="12" size-md="6" size-lg="4" key={announcement.id}>
+                <IonCard onClick={() => handleViewDetails(announcement)} style={{ cursor: 'pointer' }}>
+                  {announcement.images && announcement.images.length > 0 ? (
+                    <>
+                      <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                      <IonCardHeader>
+                        <IonCardTitle style={{ fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
+                      </IonCardHeader>
+                    </>
+                  ) : (
+                    <IonCardHeader style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <IonCardTitle>{announcement.title}</IonCardTitle>
+                    </IonCardHeader>
+                  )}
+                </IonCard>
+              </IonCol>
+            ))}
+          </IonRow>
+        </IonGrid>
 
         {announcements.length > 0 && (
           <div style={{ textAlign: 'center', marginTop: '20px', color: 'gray' }}>
@@ -253,6 +236,93 @@ const UserAnnouncements: React.FC = () => {
             </IonNote>
           </div>
         )}
+
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>{selectedAnnouncement?.title}</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowModal(false)}>
+                  <IonIcon icon={close} />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            {selectedAnnouncement && (
+              <>
+                <IonCardHeader>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <IonCardTitle>{selectedAnnouncement.title}</IonCardTitle>
+                        <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
+                            {selectedAnnouncement.priority.toUpperCase()}
+                        </IonChip>
+                    </div>
+                </IonCardHeader>
+                <IonCardContent>
+                    <div style={{ marginBottom: '15px' }}>
+                        <IonText>
+                            <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                                {selectedAnnouncement.content}
+                            </p>
+                        </IonText>
+                    </div>
+
+                    {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
+                      <div style={{ marginTop: '15px' }}>
+                        <IonLabel>Images:</IonLabel>
+                        <IonGrid>
+                          <IonRow>
+                            {selectedAnnouncement.images.map((image, index) => (
+                              <IonCol size="6" key={index}>
+                                <img
+                                  src={image.url}
+                                  alt={`Announcement image ${index + 1}`}
+                                  style={{
+                                    width: '100%',
+                                    height: '100px',
+                                    objectFit: 'cover',
+                                    borderRadius: '8px'
+                                  }}
+                                />
+                              </IonCol>
+                            ))}
+                          </IonRow>
+                        </IonGrid>
+                      </div>
+                    )}
+
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '15px', 
+                        fontSize: '0.9em', 
+                        color: 'gray',
+                        flexWrap: 'wrap',
+                        marginTop: '20px'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <IonIcon icon={person} style={{ fontSize: '16px' }} />
+                            <span>{selectedAnnouncement.createdByEmail}</span>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <IonIcon icon={calendar} style={{ fontSize: '16px' }} />
+                            <span>{getRelativeTime(selectedAnnouncement.createdAt)}</span>
+                        </div>
+                    </div>
+
+                    {selectedAnnouncement.updatedAt && (
+                        <div style={{ marginTop: '10px', fontSize: '0.8em', color: 'gray' }}>
+                            <IonNote>Updated {getRelativeTime(selectedAnnouncement.updatedAt)}</IonNote>
+                        </div>
+                    )}
+                </IonCardContent>
+              </>
+            )}
+          </IonContent>
+        </IonModal>
+
       </IonContent>
     </>
   );
