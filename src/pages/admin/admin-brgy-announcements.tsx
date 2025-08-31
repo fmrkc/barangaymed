@@ -505,20 +505,20 @@ const BarangayAnnouncements: React.FC = () => {
                     <IonButton 
                       fill="outline" 
                       size="small" 
-                      color="danger"
+                      color="success"
                       onClick={() => {
                         setAnnouncementToDelete(announcement.id!);
                         setShowDeleteAlert(true);
                       }}
                     >
-                      <IonIcon icon={trash} slot="start" />
-                      Delete
+                      <IonIcon icon={eye} slot="start" />
+                      Public
                     </IonButton>
                   ) : (
                     <IonButton 
                       fill="outline" 
                       size="small" 
-                      color="success"
+                      color="medium"
                       onClick={async () => {
                         if (!currentUser) return;
                         
@@ -544,8 +544,8 @@ const BarangayAnnouncements: React.FC = () => {
                         }
                       }}
                     >
-                      <IonIcon icon={eye} slot="start" />
-                      Reactivate
+                      <IonIcon icon={eyeOff} slot="start" />
+                      Privated
                     </IonButton>
                   )}
                 </div>

@@ -23,10 +23,24 @@ Firebase Storage security rules have been enhanced to provide server-side enforc
 
 These rules are enforced by Firebase itself and cannot be bypassed by a malicious client.
 
-### Phase 2: Advanced Protection (Future Implementation)
+### Phase 2: Advanced Protection (Implemented)
 
-For more advanced protection against high-volume uploads and inappropriate content, the following measures are recommended for future implementation using Cloud Functions:
+To provide a deeper layer of security, a Cloud Function (`moderateAnnouncementImage`) has been implemented. This function automatically runs every time a new image is uploaded to the `announcements/` path in Firebase Storage.
 
--   **Upload Quotas:** A Cloud Function triggered on file upload can count the number of images within an announcement's folder and automatically delete any that exceed the established limit (e.g., 5 images).
--   **Rate Limiting:** A Cloud Function can track the frequency of uploads per user (e.g., storing timestamps in Firestore) and temporarily block users who exceed a reasonable rate.
--   **Content Moderation:** A Cloud Function can integrate with the **Google Cloud Vision API** to automatically scan images for inappropriate content (e.g., violence, adult content) and flag or delete them accordingly.
+The function performs the following actions:
+
+1.  **Content Moderation:**
+    -   The image is sent to the **Google Cloud Vision API** for Safe Search analysis.
+    -   If the image is flagged as `LIKELY` or `VERY_LIKELY` to contain `adult` or `violence`, it is automatically deleted from storage.
+    -   A record of the deletion and the Vision API result is saved to an `audit_logs` collection in Firestore for administrative review.
+
+2.  **Upload Quota Enforcement:**
+    -   After an image passes moderation, the function checks the total number of images in the announcement's storage directory.
+    -   If the number of images exceeds the maximum limit (5), the newly uploaded image is automatically deleted.
+    -   This event is also logged to the `audit_logs` collection.
+
+These server-side controls provide robust protection against users bypassing client-side rules.
+
+### Future Enhancements
+
+-   **Rate Limiting:** To prevent spam or abuse from a single user, a Cloud Function can be developed to track the frequency of uploads per user (e.g., storing timestamps in Firestore) and temporarily block users who exceed a reasonable rate.
