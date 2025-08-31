@@ -24,7 +24,9 @@ import {
   IonLabel,
   IonFooter,
   IonItem,
-  IonItemDivider
+  IonItemDivider,
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -43,6 +45,7 @@ const UserAnnouncements: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState('details');
 
   useEffect(() => {
     if (currentUser) {
@@ -251,19 +254,34 @@ const UserAnnouncements: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {selectedAnnouncement && (
+            <IonSegment value={selectedSegment} onIonChange={(e) => setSelectedSegment(e.detail.value as string)}>
+              <IonSegmentButton value="details">
+                <IonLabel>Details</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="history">
+                <IonLabel>History</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+
+            {selectedSegment === 'details' && selectedAnnouncement && (
               <>
                 <IonCardHeader>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <IonCardTitle style={{ color: 'white' }}>{selectedAnnouncement.title}</IonCardTitle>
-                        <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
-                            {selectedAnnouncement.priority.toUpperCase()}
-                        </IonChip>
-                    </div>
+                  <IonLabel color={'medium'}>
+                    <h3>Title:</h3>
+                  </IonLabel>
+                  <IonCardTitle style={{ color: 'white' }}>{selectedAnnouncement.title}</IonCardTitle>
                 </IonCardHeader>
-                
+
                 <IonCardContent>
-                    <div style={{ marginBottom: '15px' }}>
+                  Priority:
+                  <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
+                    {selectedAnnouncement.priority.toUpperCase()}
+                  </IonChip>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <IonLabel color={'medium'}>
+                        <h3>Content:</h3>
+                      </IonLabel>
                         <IonText>
                             <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                                 {selectedAnnouncement.content}
@@ -298,26 +316,26 @@ const UserAnnouncements: React.FC = () => {
                 </IonCardContent>
               </>
             )}
-          </IonContent>
-          <IonFooter>
-            <IonToolbar>
-           
-             {selectedAnnouncement?.updatedAt && (
-              <IonItem>
-                  <IonIcon icon={pencil} slot="start" />
-                Last updated: {getRelativeTime(selectedAnnouncement?.createdAt)}
-              </IonItem>
-             )}
+
+            {selectedSegment === 'history' && selectedAnnouncement && (
+              <>
+                {selectedAnnouncement.updatedAt && (
                   <IonItem>
-                <IonIcon icon={calendar} slot="start" />
-                Created: {getRelativeTime(selectedAnnouncement?.createdAt)}
-              </IonItem>
-                 <IonItem>
-                <IonIcon icon={person} slot="start" />
-                Created by: {selectedAnnouncement?.createdByEmail}
+                    <IonIcon icon={pencil} slot="start" />
+                    Last updated: {getRelativeTime(selectedAnnouncement.updatedAt)}
+                  </IonItem>
+                )}
+                <IonItem>
+                  <IonIcon icon={calendar} slot="start" />
+                  Created: {getRelativeTime(selectedAnnouncement.createdAt)}
                 </IonItem>
-            </IonToolbar>
-          </IonFooter>
+                <IonItem>
+                  <IonIcon icon={person} slot="start" />
+                  Created by: {selectedAnnouncement.createdByEmail}
+                </IonItem>
+              </>
+            )}
+          </IonContent>
         </IonModal>
       </IonContent>
     </>
