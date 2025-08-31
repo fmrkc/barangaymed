@@ -32,13 +32,17 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonThumbnail
+  IonThumbnail,
+  IonItemDivider,
+  IonFooter,
+  IonSegment,
+  IonSegmentButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { announcementsService } from '../../services/announcementsService';
 import { Announcement, AnnouncementFormData, AnnouncementImage } from '../../types/announcements';
-import { add, create, trash, pencil, eye, eyeOff, close } from 'ionicons/icons';
+import { add, create, trash, pencil, eye, eyeOff, close, image, calendar, person, closeCircle, closeCircleSharp } from 'ionicons/icons';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { validateAccess, validateAdminBarangayAccess } from '../../utils/securityUtils';
@@ -61,9 +65,13 @@ const BarangayAnnouncements: React.FC = () => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<AnnouncementImage[]>([]);
+  const [selectedSegment, setSelectedSegment] = useState('details');
+  const [selectedEditSegment, setSelectedEditSegment] = useState('details');
 
   useEffect(() => {
     if (currentUser) {
@@ -159,6 +167,17 @@ const BarangayAnnouncements: React.FC = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFormChange = (e: CustomEvent) => {
+    const name = (e.target as HTMLElement).getAttribute('name');
+    const value = e.detail.value;
+    if (name) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
 
@@ -394,6 +413,11 @@ const BarangayAnnouncements: React.FC = () => {
     setImagePreviews([]);
   };
 
+  const handleViewDetails = (announcement: Announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowDetailsModal(true);
+  };
+
   if (accessDenied) {
     return (
       <IonPage>
@@ -429,21 +453,24 @@ const BarangayAnnouncements: React.FC = () => {
         <IonLoading isOpen={loading} message="Please wait..." />
         
         <div className="ion-margin-bottom">
-          <h2>Manage Announcements for {userBarangay}</h2>
-          <IonNote>All announcements are specific to your barangay</IonNote>
+          <IonNote>Showing all announcements for Barangay {userBarangay}.</IonNote>
         </div>
 
-        <IonList>
+        
           {announcements.map((announcement) => (
-            <IonCard key={announcement.id}>
+            <IonCard
+              key={announcement.id}
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleViewDetails(announcement)}
+            >
               <IonCardHeader>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <IonCardTitle>{announcement.title}</IonCardTitle>
+                  <IonCardTitle style={{ color: 'white' }} >{announcement.title}</IonCardTitle>
                   <IonChip color={getPriorityColor(announcement.priority)}>
                     {announcement.priority.toUpperCase()}
                   </IonChip>
                 </div>
-                <div style={{ fontSize: '0.8em', color: 'gray', marginTop: '5px' }}>
+                <div style={{ fontSize: '0.8em', color: 'gray', marginTop: '15px' }}>
                   By {announcement.createdByEmail} • {formatDate(announcement.createdAt)}
                   {!announcement.isActive && (
                     <IonBadge color="medium" style={{ marginLeft: '10px' }}>
@@ -454,69 +481,61 @@ const BarangayAnnouncements: React.FC = () => {
                 </div>
               </IonCardHeader>
               <IonCardContent>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{announcement.content}</p>
+                <p style={{ whiteSpace: 'pre-wrap', marginBottom: '15px' }}>
+                  {announcement.content.length > 150
+                    ? `${announcement.content.substring(0, 100)}...`
+                    : announcement.content
+                  }
+                </p>
 
                 {announcement.images && announcement.images.length > 0 && (
-                  <div style={{ marginTop: '15px' }}>
-                    <IonLabel>Images:</IonLabel>
-                    <IonGrid>
-                      <IonRow>
-                        {announcement.images.map((image, index) => (
-                          <IonCol size="6" key={index}>
-                            <img
-                              src={image.url}
-                              alt={`Announcement image ${index + 1}`}
-                              style={{
-                                width: '100%',
-                                height: '100px',
-                                objectFit: 'cover',
-                                borderRadius: '8px'
-                              }}
-                            />
-                          </IonCol>
-                        ))}
-                      </IonRow>
-                    </IonGrid>
+                  <div>
+                    <IonLabel><IonIcon icon={image} slot="start" /> {announcement.images.length} image{announcement.images.length > 1 ? 's' : ''} attached.</IonLabel>
                   </div>
                 )}
-                
-                <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
-                  <IonButton 
-                    fill="outline" 
+
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                  <IonButton
+                    fill="outline"
                     size="small"
-                    onClick={() => handleEdit(announcement)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(announcement);
+                    }}
                   >
                     <IonIcon icon={pencil} slot="start" />
                     Edit
                   </IonButton>
-                  
+
                   {announcement.isActive ? (
-                    <IonButton 
-                      fill="outline" 
-                      size="small" 
-                      color="danger"
-                      onClick={() => {
+                    <IonButton
+                      fill="outline"
+                      size="small"
+                      color="success"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setAnnouncementToDelete(announcement.id!);
                         setShowDeleteAlert(true);
                       }}
                     >
-                      <IonIcon icon={trash} slot="start" />
-                      Delete
+                      <IonIcon icon={eye} slot="start" />
+                      Public
                     </IonButton>
                   ) : (
-                    <IonButton 
-                      fill="outline" 
-                      size="small" 
-                      color="success"
-                      onClick={async () => {
+                    <IonButton
+                      fill="outline"
+                      size="small"
+                      color="medium"
+                      onClick={async (e) => {
+                        e.stopPropagation();
                         if (!currentUser) return;
-                        
+
                         if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
                           setToastMessage('Access denied: You do not have permission to perform this action.');
                           setShowToast(true);
                           return;
                         }
-                        
+
                         try {
                           await announcementsService.reactivateAnnouncement(
                             announcement.id!,
@@ -524,7 +543,7 @@ const BarangayAnnouncements: React.FC = () => {
                             currentUser.email || ''
                           );
                           setToastMessage('Announcement reactivated');
-                          
+
                           loadAnnouncements();
                         } catch (error) {
                           setToastMessage('Error reactivating announcement');
@@ -533,15 +552,17 @@ const BarangayAnnouncements: React.FC = () => {
                         }
                       }}
                     >
-                      <IonIcon icon={eye} slot="start" />
-                      Reactivate
+                      <IonIcon icon={eyeOff} slot="start" />
+                      Privated
                     </IonButton>
                   )}
                 </div>
               </IonCardContent>
-            </IonCard>
+              
+            </IonCard>  
           ))}
-        </IonList>
+          
+      
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={openCreateModal}>
@@ -560,140 +581,289 @@ const BarangayAnnouncements: React.FC = () => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="ion-padding">
-            <IonItem>
-              <IonLabel position="stacked">Title *</IonLabel>
-              <IonInput
-                value={formData.title}
-                onIonChange={(e) => setFormData({ ...formData, title: e.detail.value! })}
-                placeholder="Enter announcement title"
-              />
-            </IonItem>
+          <IonContent>
+            <IonSegment value={selectedEditSegment} onIonChange={(e) => setSelectedEditSegment(e.detail.value as string)}>
+              <IonSegmentButton value="details">
+                <IonLabel>Details</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="images">
+                <IonLabel>Images</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
 
-            <IonItem>
-              <IonLabel position="stacked">Content *</IonLabel>
-              <IonTextarea
-                value={formData.content}
-                onIonChange={(e) => setFormData({ ...formData, content: e.detail.value! })}
-                placeholder="Enter announcement content"
-                rows={6}
-              />
-            </IonItem>
+            {selectedEditSegment === 'details' && (
+              <div className='ion-padding'>
+                <IonItem>
+                  <IonLabel position="stacked">Title *</IonLabel>
+                  <IonInput
+                    name="title"
+                    value={formData.title}
+                    onIonChange={handleFormChange}
+                    placeholder="Enter announcement title"
+                  />
+                </IonItem>
+                 <IonItem>
+                  <IonLabel position="stacked">Priority</IonLabel>
+                  <IonSelect
+                    name="priority"
+                    value={formData.priority}
+                    onIonChange={handleFormChange}
+                  >
+                    <IonSelectOption value="low">Low</IonSelectOption>
+                    <IonSelectOption value="medium">Medium</IonSelectOption>
+                    <IonSelectOption value="high">High</IonSelectOption>
+                  </IonSelect>
+                </IonItem>
+                <IonItem>
+                  <IonLabel position="stacked">Content *</IonLabel>
+                  <IonTextarea
+                    
+                    name="content"
+                    value={formData.content}
+                    onIonChange={handleFormChange}
+                    placeholder="Enter announcement content"
+                    rows={15}
+                  />
+                </IonItem>
 
-            <IonItem>
-              <IonLabel position="stacked">Priority</IonLabel>
-              <IonSelect
-                value={formData.priority}
-                onIonChange={(e) => setFormData({ ...formData, priority: e.detail.value })}
-              >
-                <IonSelectOption value="low">Low</IonSelectOption>
-                <IonSelectOption value="medium">Medium</IonSelectOption>
-                <IonSelectOption value="high">High</IonSelectOption>
-              </IonSelect>
-            </IonItem>
-
-            {editingAnnouncement && existingImages.length > 0 && (
-              <div style={{ marginTop: '15px' }}>
-                <IonLabel>Existing Images:</IonLabel>
-                <IonGrid>
-                  <IonRow>
-                    {existingImages.map((image, index) => (
-                      <IonCol size="6" key={index}>
-                        <div style={{ position: 'relative', marginBottom: '10px' }}>
-                          <img
-                            src={image.url}
-                            alt={`Existing image ${index + 1}`}
-                            style={{
-                              width: '100%',
-                              height: '100px',
-                              objectFit: 'cover',
-                              borderRadius: '8px'
-                            }}
-                          />
-                          <IonButton
-                            fill="clear"
-                            color="danger"
-                            size="small"
-                            style={{
-                              position: 'absolute',
-                              top: '5px',
-                              right: '5px',
-                              '--padding-start': '4px',
-                              '--padding-end': '4px'
-                            }}
-                            onClick={() => removeExistingImage(index)}
-                          >
-                            <IonIcon icon={close} />
-                          </IonButton>
-                        </div>
-                      </IonCol>
-                    ))}
-                  </IonRow>
-                </IonGrid>
+               
               </div>
             )}
 
-            <IonItem>
-              <IonLabel position="stacked">{editingAnnouncement ? 'Add New Images' : 'Images (Optional)'}</IonLabel>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageSelect}
-                style={{ marginTop: '10px' }}
-              />
-              <IonNote slot="helper">
-                Select up to 5 images (max 5MB each)
-              </IonNote>
-            </IonItem>
+            {selectedEditSegment === 'images' && (
+              <>
+                {editingAnnouncement && existingImages.length > 0 && (
+                  <div className='ion-padding'>
+                    <IonLabel>Existing Images:</IonLabel>
+                    <IonGrid>
+                      <IonRow>
+                        {existingImages.map((image, index) => (
+                          <IonCol size="6" key={index}>
+                            <div style={{ position: 'relative', marginBottom: '10px' }}>
+                              <img
+                                src={image.url}
+                                alt={`Existing image ${index + 1}`}
+                                style={{
+                                  width: '100%',
+                                  height: '100px',
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <IonButton
+                                fill="clear"
+                                color="danger"
+                                size="small"
+                                style={{
+                                  position: 'absolute',
+                                  top: '5px',
+                                  right: '5px',
+                                  '--padding-start': '4px',
+                                  '--padding-end': '4px'
+                                }}
+                                onClick={() => removeExistingImage(index)}
+                              >
+                                <IonIcon icon={closeCircleSharp} />
+                              </IonButton>
+                            </div>
+                          </IonCol>
+                        ))}
+                      </IonRow>
+                    </IonGrid>
+                  </div>
+                )}
 
-            {imagePreviews.length > 0 && (
-              <div style={{ marginTop: '15px' }}>
-                <IonLabel>New Images:</IonLabel>
-                <IonGrid>
-                  <IonRow>
-                    {imagePreviews.map((preview, index) => (
-                      <IonCol size="6" key={index}>
-                        <div style={{ position: 'relative', marginBottom: '10px' }}>
-                          <img
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            style={{
-                              width: '100%',
-                              height: '100px',
-                              objectFit: 'cover',
-                              borderRadius: '8px'
-                            }}
-                          />
-                          <IonButton
-                            fill="clear"
-                            color="danger"
-                            size="small"
-                            style={{
-                              position: 'absolute',
-                              top: '5px',
-                              right: '5px',
-                              '--padding-start': '4px',
-                              '--padding-end': '4px'
-                            }}
-                            onClick={() => removeNewImage(index)}
-                          >
-                            <IonIcon icon={close} />
-                          </IonButton>
-                        </div>
-                      </IonCol>
-                    ))}
-                  </IonRow>
-                </IonGrid>
-              </div>
+                <IonItem>
+                  <IonLabel position="stacked">{editingAnnouncement ? 'Add New Images: Select up to 5 images (max 5MB each)' : 'Images (Optional)'}</IonLabel>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    style={{ marginTop: '10px' }}
+                  />
+                  <IonNote slot="helper">
+                    
+                  </IonNote>
+                </IonItem>
+
+                {imagePreviews.length > 0 && (
+                  <div style={{ marginTop: '15px' }}>
+                    <IonLabel>New Images:</IonLabel>
+                    <IonGrid>
+                      <IonRow>
+                        {imagePreviews.map((preview, index) => (
+                          <IonCol size="6" key={index}>
+                            <div style={{ position: 'relative', marginBottom: '10px' }}>
+                              <img
+                                src={preview}
+                                alt={`Preview ${index + 1}`}
+                                style={{
+                                  width: '100%',
+                                  height: '100px',
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <IonButton
+                                fill="clear"
+                                color="danger"
+                                size="small"
+                                style={{
+                                  position: 'absolute',
+                                  top: '5px',
+                                  right: '5px',
+                                  '--padding-start': '4px',
+                                  '--padding-end': '4px'
+                                }}
+                                onClick={() => removeNewImage(index)}
+                              >
+                                <IonIcon icon={close} />
+                              </IonButton>
+                            </div>
+                          </IonCol>
+                        ))}
+                      </IonRow>
+                    </IonGrid>
+                  </div>
+                )}
+              </>
             )}
 
-            <div style={{ marginTop: '20px' }}>
-              <IonButton expand="block" onClick={handleSubmit}>
+          </IonContent>
+          <IonFooter className='ion-padding'>
+            <IonToolbar>
+              <IonButton shape='round' expand="block" onClick={handleSubmit}>
+                <IonIcon icon={editingAnnouncement ? pencil : create} slot="start" />
                 {editingAnnouncement ? 'Update' : 'Create'} Announcement
               </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
+        <IonModal
+          isOpen={showDetailsModal}
+          onDidDismiss={() => {
+            setShowDetailsModal(false);
+            setSelectedAnnouncement(null);
+          }}
+        >
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Announcement Details</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowDetailsModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+           
+            {selectedAnnouncement && (
+              <>
+                <IonSegment value={selectedSegment} onIonChange={(e) => setSelectedSegment(e.detail.value as string)}>
+                  <IonSegmentButton value="details">
+                    <IonLabel>Details</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="history">
+                    <IonLabel>History</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
+               <div className='ion-padding'>
+              {selectedSegment === 'details' && (
+                  <>
+                    <div style={{ marginBottom: '20px' }}>
+                      <IonLabel color={'medium'}>
+                        <h3>Title:</h3>
+                      </IonLabel>
+                      <h2 style={{ marginBottom: '10px' }}>{selectedAnnouncement.title}</h2>
+                      Priority:
+                      <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
+                        {selectedAnnouncement.priority.toUpperCase()}
+                      </IonChip>
+                    </div>
+                    <div style={{ marginBottom: '20px' }}>
+                      <IonLabel color={'medium'}>
+                        <h3>Content:</h3>
+                      </IonLabel>
+                      <p style={{ whiteSpace: 'pre-wrap', marginTop: '10px', lineHeight: '1.5' }}>
+                        {selectedAnnouncement.content}
+                      </p>
+                    </div>
+
+                    {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
+                      <div style={{ marginBottom: '20px' }}>
+                        <IonLabel color={'medium'}>
+                          <h3>Images: ({selectedAnnouncement.images.length})</h3>
+                        </IonLabel>
+                        <IonGrid style={{ marginTop: '10px' }}>
+                          <IonRow>
+                            {selectedAnnouncement.images.map((image, index) => (
+                              <IonCol size="12" sizeMd="6" key={index}>
+                                <div style={{ marginBottom: '15px' }}>
+                                  <img
+                                    src={image.url}
+                                    alt={`Announcement image ${index + 1}`}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                      borderRadius: '8px'
+                                    }}
+                                  />
+                                  <div style={{ marginTop: '5px', fontSize: '0.8em', color: 'gray' }}>
+                                    {image.name} ({(image.size / 1024 / 1024).toFixed(2)} MB)
+                                  </div>
+                                </div>
+                              </IonCol>
+                            ))}
+                          </IonRow>
+                        </IonGrid>
+                      </div>
+                    )}
+                  </>
+                )}
             </div>
+                
+
+                {selectedSegment === 'history' && (
+                  <>
+                    {selectedAnnouncement.updatedAt && (
+                      <IonItem>
+                        <IonIcon icon={pencil} slot="start" />
+                        Last updated: {formatDate(selectedAnnouncement.updatedAt)}
+                      </IonItem>
+                    )}
+                    <IonItem>
+                      <IonIcon icon={calendar} slot="start" />
+                      Created: {formatDate(selectedAnnouncement.createdAt)}
+                    </IonItem>
+                    <IonItem>
+                      <IonIcon icon={person} slot="start" />
+                      Created by: {selectedAnnouncement.createdByEmail}
+                    </IonItem>
+                  </>
+                )}
+              </>
+            )}
           </IonContent>
+          <IonFooter className='ion-padding'>
+            <IonToolbar>
+                  <IonButton
+                    expand="block"
+                    shape='round'
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      if (selectedAnnouncement) {
+                        handleEdit(selectedAnnouncement);
+                      }
+                    }}
+                  >
+                    <IonIcon icon={pencil} slot="start" />
+                    Edit Announcement
+                  </IonButton>
+               
+            </IonToolbar>
+          </IonFooter>
         </IonModal>
 
         <IonAlert

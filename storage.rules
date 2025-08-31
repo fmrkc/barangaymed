@@ -27,8 +27,12 @@ service firebase.storage {
       allow read: if true;
 
       // WRITE (Create, Update, Delete):
-      // Only the admin of the corresponding barangay or a superadmin can upload/delete images.
-      allow write: if isAdminOfBarangay(barangayId) || isSuperAdmin();
+      // - Must be an admin of the corresponding barangay or a superadmin.
+      // - File size must be less than 5MB.
+      // - File must be an allowed image type.
+      allow write: if (isAdminOfBarangay(barangayId) || isSuperAdmin())
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
     }
 
     // Other potential storage paths can be added here later.
