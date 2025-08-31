@@ -171,8 +171,7 @@ export class AnnouncementsService {
     try {
       const getAnnouncementsFunction = httpsCallable(functions, 'getAnnouncementsByBarangay');
       const result = await getAnnouncementsFunction();
-
-      const announcements = result.data.announcements as Announcement[];
+      const announcements = (result.data as any).announcements as Announcement[];
 
       // Log successful fetch
       logEvent('info', 'Announcements fetched successfully', {
