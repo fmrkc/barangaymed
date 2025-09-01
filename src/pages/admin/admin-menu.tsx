@@ -9,6 +9,7 @@ import Inventory from './admin-med-inventory';
 import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
 import Medicine_Requests from './admin-medicine-requests';
+import Teleconsultation_Requests from './admin-tele-requests';
 
 import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield, checkbox } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,7 +26,7 @@ const Menu: React.FC = () => {
         { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
         { name: 'OTC Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
         { name: 'Receipt Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
-        { name: 'Consultation Requests', url: '/admin/inventory', icon: calendar },
+        { name: 'Teleconsultation Requests', url: '/admin/dashboard/teleconsultation-requests', icon: calendar },
         { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
         { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
@@ -116,6 +117,7 @@ const Menu: React.FC = () => {
             <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
             <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
             <Route exact path="/admin/dashboard/medicine-requests" component={Medicine_Requests} />
+            <Route exact path="/admin/dashboard/teleconsultation-requests" component={Teleconsultation_Requests} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>

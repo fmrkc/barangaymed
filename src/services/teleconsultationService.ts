@@ -88,11 +88,54 @@ export class TeleconsultationService {
    */
   public async getUserRequestsByStatus(userId: string, status: string): Promise<TeleconsultationRequest[]> {
     const allRequests = await this.getUserTeleconsultationRequests(userId);
-    
+
     if (status === 'all') {
       return allRequests;
     }
-    
+
     return allRequests.filter(request => request.status === status);
+  }
+
+  /**
+   * Fetches all teleconsultation requests for a specific barangay
+   * @param barangay The barangay to filter by
+   * @returns Promise resolving to an array of TeleconsultationRequest objects
+   */
+  public async getTeleconsultationRequestsByBarangay(barangay: string): Promise<TeleconsultationRequest[]> {
+    const q = query(
+      collection(db, 'teleconsultationRequests'),
+      where('userBarangay', '==', barangay)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const requests: TeleconsultationRequest[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      requests.push({
+        id: doc.id,
+        userId: data.userId,
+        userEmail: data.userEmail,
+        userName: data.userName,
+        userPhone: data.userPhone,
+        userAddress: data.userAddress,
+        userBarangay: data.userBarangay,
+        preferredDate: data.preferredDate?.toDate(),
+        preferredTime: data.preferredTime,
+        symptoms: data.symptoms,
+        additionalNotes: data.additionalNotes,
+        status: data.status,
+        requestDate: data.requestDate?.toDate(),
+        confirmedDate: data.confirmedDate?.toDate(),
+        completedDate: data.completedDate?.toDate(),
+        doctorAssigned: data.doctorAssigned,
+        meetingLink: data.meetingLink,
+        notes: data.notes
+      } as TeleconsultationRequest);
+    });
+
+    return requests.sort((a, b) =>
+      new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()
+    );
   }
 }
