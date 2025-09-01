@@ -125,6 +125,9 @@ export class AnnouncementsService {
       // Upload images if any
       let uploadedImages: AnnouncementImage[] = [];
       if (data.images && data.images.length > 0) {
+        if (data.images.length > this.maxImagesPerAnnouncement) {
+          throw new Error(`Maximum ${this.maxImagesPerAnnouncement} images allowed per announcement`);
+        }
         uploadedImages = await this.uploadImages(data.images, barangay, docRef.id, userId, userEmail);
         
         // Update the announcement with image URLs
@@ -318,7 +321,13 @@ export class AnnouncementsService {
         if (!announcementData) {
           throw new Error('Announcement not found');
         }
-        const barangay = announcementData.barangayId;
+
+        const existingImageCount = (existingImages || []).length;
+        if (existingImageCount + newImages.length > this.maxImagesPerAnnouncement) {
+          throw new Error(`Maximum ${this.maxImagesPerAnnouncement} images allowed per announcement`);
+        }
+
+        const barangay = announcementData.barangay;
         const uploadedImages = await this.uploadImages(newImages, barangay, announcementId, userId, userEmail);
 
         updateData.images = (updateData.images || []).concat(uploadedImages);
