@@ -53,7 +53,7 @@ interface TeleconsultationRequest {
 }
 
 const AdminTeleRequests: React.FC = () => {
-  const { currentUser, userBarangayId } = useAuth();
+  const { currentUser, barangayId } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -65,12 +65,12 @@ const AdminTeleRequests: React.FC = () => {
   // Fetch data filtered by admin's barangay
   useEffect(() => {
     const fetchRequests = async () => {
-      if (!userBarangayId) return;
-      const requestsByBarangay = await teleconsultationService.getTeleconsultationRequestsByBarangay(userBarangayId);
+      if (!barangayId) return;
+      const requestsByBarangay = await teleconsultationService.getTeleconsultationRequestsByBarangay(barangayId);
       setRequests(requestsByBarangay);
     };
     fetchRequests();
-  }, [userBarangayId]);
+  }, [barangayId]);
 
   // Update status in Firestore
   const updateStatus = async (status: 'approved' | 'cancelled' | 'completed') => {

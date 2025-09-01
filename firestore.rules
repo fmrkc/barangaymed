@@ -83,8 +83,6 @@ service cloud.firestore {
       // CREATE: A user can create a request for themselves. Validate required fields.
       allow create: if isOwner(request.resource.data.userId) && isUserRole()
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt is timestamp
-                    && request.resource.data.medicines is list
                     && request.resource.data.barangayId is string;
 
 

@@ -52,7 +52,7 @@ const RHUMedicineModal: React.FC<{
         quantity: parseInt(quantity),
         expiryDate: new Date(expiryDate),
         location: 'rhu',
-        barangay: 'rhu',
+        barangayId: 'rhu',
       };
 
       const medicineId = await medicineService.addMedicine(newMedicine);

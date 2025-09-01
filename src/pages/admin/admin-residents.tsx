@@ -15,21 +15,21 @@ interface Resident {
 }
 
 const Residents: React.FC = () => {
-    const { userBarangayId } = useAuth();
+    const { barangayId } = useAuth();
     const [residents, setResidents] = useState<Resident[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchResidents = async () => {
-            if (!userBarangayId) return;
+            if (!barangayId) return;
 
             setLoading(true);
             try {
                 const residentsRef = collection(db, 'users');
                 const q = query(
                     residentsRef, 
-                    where('barangayId', '==', userBarangayId),
+                    where('barangayId', '==', barangayId),
                     where('role', '==', 'user')
                 );
                 const querySnapshot = await getDocs(q);
@@ -46,7 +46,7 @@ const Residents: React.FC = () => {
         };
 
         fetchResidents();
-    }, [userBarangayId]);
+    }, [barangayId]);
 
     const filteredResidents = residents.filter(resident => {
         const fullName = `${resident.firstName} ${resident.lastName}`.toLowerCase();
@@ -63,7 +63,7 @@ const Residents: React.FC = () => {
                     <IonButtons slot="start">
                         <IonMenuButton />
                     </IonButtons>
-                    <IonTitle>Barangay {userBarangayId} Residents</IonTitle>
+                    <IonTitle>Barangay {barangayId} Residents</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
@@ -74,7 +74,7 @@ const Residents: React.FC = () => {
                     onIonChange={e => setSearchQuery(e.detail.value!)} 
                     
                 />
-                 <IonCardSubtitle className="ion-margin-bottom">Showing all residents in {userBarangayId}.</IonCardSubtitle>
+                 <IonCardSubtitle className="ion-margin-bottom">Showing all residents in {barangayId}.</IonCardSubtitle>
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
                         <IonSpinner />

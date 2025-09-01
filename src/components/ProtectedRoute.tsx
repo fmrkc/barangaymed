@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
   requiredRole: string;
   redirectTo: string;
   requiredBarangayId?: string;
-  additionalValidation?: (user: any, userRole: string | null, userBarangayId: string | null) => boolean;
+  additionalValidation?: (user: any, userRole: string | null, barangayId: string | null) => boolean;
   enableTokenRefresh?: boolean;
 }
 
@@ -21,7 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   additionalValidation,
   enableTokenRefresh = true
 }) => {
-  const { currentUser, userRole, userBarangayId, emailVerified, loading, refreshUserClaims } = useAuth(); // Added emailVerified
+  const { currentUser, userRole, barangayId, emailVerified, loading, refreshUserClaims } = useAuth(); // Added emailVerified
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
   const location = useLocation();
@@ -44,7 +44,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         await refreshUserClaims();
 
         // Validate basic access requirements
-        const accessValidation = validateAccess(userRole, userBarangayId, requiredRole, requiredBarangayId);
+        const accessValidation = validateAccess(userRole, barangayId, requiredRole, requiredBarangayId);
         if (!accessValidation.isValid) {
           setValidationError(accessValidation.reason || 'Access validation failed');
           logUnauthorizedAccess(
@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         }
 
         // Additional custom validation if provided
-        if (additionalValidation && !additionalValidation(currentUser, userRole, userBarangayId)) {
+        if (additionalValidation && !additionalValidation(currentUser, userRole, barangayId)) {
           setValidationError('Additional validation failed');
           logSecurityEvent(
             currentUser.uid,
@@ -96,7 +96,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     };
 
     validateAccessWithSecurity();
-  }, [currentUser, loading, requiredRole, requiredBarangayId, refreshUserClaims, additionalValidation, enableTokenRefresh, location.pathname, userRole, userBarangayId]);
+  }, [currentUser, loading, requiredRole, requiredBarangayId, refreshUserClaims, additionalValidation, enableTokenRefresh, location.pathname, userRole, barangayId]);
 
   // Show loading state while validating
   if (loading || isValidating) {
@@ -161,7 +161,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       {
         userRole,
         requiredRole,
-        userBarangayId,
+        barangayId,
         requiredBarangayId,
         path: location.pathname,
         userEmail: currentUser.email || 'unknown', // Added
@@ -171,7 +171,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // If user doesn't have the required role, log and redirect
-  const accessCheck = validateAccess(userRole, userBarangayId, requiredRole, requiredBarangayId);
+  const accessCheck = validateAccess(userRole, barangayId, requiredRole, requiredBarangayId);
   if (!accessCheck.isValid) {
     logUnauthorizedAccess(
       currentUser.uid,
@@ -193,7 +193,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     {
       userRole,
       requiredRole,
-      userBarangayId,
+      barangayId,
       requiredBarangayId,
       path: location.pathname,
       userEmail: currentUser.email || 'unknown', // Added

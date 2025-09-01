@@ -150,7 +150,7 @@ export class MedicineService {
    * @param uid The user ID to get barangay for.
    * @returns Promise resolving to an object containing user data including barangay.
    */
-  public async getUserBarangay(uid: string): Promise<{ barangay: string }> {
+  public async getbarangayId(uid: string): Promise<{ barangay: string }> {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const data = userDoc.data();

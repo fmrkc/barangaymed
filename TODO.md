@@ -2,7 +2,7 @@
 
 ## Type Definitions Updates
 - [x] src/types/medicineRequests.ts: Update Medicine interface `barangay` → `barangayId`
-- [x] src/types/teleconsultationRequests.ts: Update TeleconsultationRequest `userBarangay` → `barangayId` (already correct)
+- [x] src/types/teleconsultationRequests.ts: Update TeleconsultationRequest `barangayId` → `barangayId` (already correct)
 - [x] src/types/announcements.ts: Update Announcement interface `barangay` → `barangayId`
 
 ## Service Layer Updates
