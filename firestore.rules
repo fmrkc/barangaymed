@@ -43,7 +43,7 @@ service cloud.firestore {
     // Collection: users
     // Stores public user profile information.
     // =================================================================
-    match /users/{userId} {
+        match /users/{userId} {
       // READ: Users can read their own profile. Admins can read profiles of users in their barangay. Super admins can read other admins/super admins.
       allow read: if isOwner(userId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
@@ -64,6 +64,12 @@ service cloud.firestore {
 
       // DELETE: Disallowed from client. Handle through a Cloud Function if needed.
       allow delete: if false;
+
+      // Subcollection: notifications
+      match /notifications/{notificationId} {
+        allow read: if isOwner(userId); // Only the owner can read their notifications
+        allow write: if false; // Notifications are written by Cloud Functions, not directly by clients
+      }
     }
 
     // =================================================================

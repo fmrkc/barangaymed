@@ -113,9 +113,9 @@ const Notifications: React.FC = () => {
     return format(date, 'MMM dd, yyyy • h:mm a');
   };
 
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = async (notificationId: string, userId: string) => {
     try {
-      await notificationsService.markAsRead(notificationId);
+      await notificationsService.markAsRead(notificationId, currentUser!.uid);
       setNotifications(prev =>
         prev.map(n =>
           n.id === notificationId ? { ...n, read: true } : n
@@ -173,7 +173,7 @@ const Notifications: React.FC = () => {
               key={notification.id}
               button
               detail={false}
-              onClick={() => markAsRead(notification.id)}
+              onClick={() => markAsRead(notification.id, currentUser!.uid)}
               className={!notification.read ? 'unread-notification' : ''}
             >
               <IonIcon
