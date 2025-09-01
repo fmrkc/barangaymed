@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IonButton, IonInput, IonRow, IonCol, IonText, IonCardSubtitle, IonCardTitle, IonIcon } from '@ionic/react';
-import { arrowBack, arrowForward, lockClosed, mail } from 'ionicons/icons';
+import { arrowBack, arrowForward, lockClosed, mail, eye, eyeOff } from 'ionicons/icons';
 
 interface Page4Props {
   email: string;
@@ -12,6 +12,7 @@ interface Page4Props {
 }
 
 const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange, onNext, onBack }) => {
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
@@ -36,12 +37,18 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
         <IonCardSubtitle>Password *</IonCardSubtitle>
         <IonInput
           fill="outline"
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Enter your password"
           value={password}
           onIonChange={e => onChange('password', e.detail.value!)}
         >
           <IonIcon slot="start" icon={lockClosed}></IonIcon>
+          <IonIcon
+            icon={showPassword ? eyeOff : eye}
+            slot="end"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ cursor: "pointer" }}
+          />
         </IonInput>
       </div>
 
@@ -49,12 +56,18 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
         <IonCardSubtitle>Confirm Password *</IonCardSubtitle>
         <IonInput
           fill="outline"
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Re-enter your password"
           value={confirmPassword}
           onIonChange={e => onChange('confirmPassword', e.detail.value!)}
         >
           <IonIcon slot="start" icon={lockClosed}></IonIcon>
+          <IonIcon
+            icon={showPassword ? eyeOff : eye}
+            slot="end"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ cursor: "pointer" }}
+          />
         </IonInput>
       </div>
      

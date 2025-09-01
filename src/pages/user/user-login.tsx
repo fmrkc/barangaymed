@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline } from 'ionicons/icons';
+import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline, eye, eyeOff } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
 import Intro from '../../components/Intro';
 import { Preferences } from '@capacitor/preferences';
@@ -20,6 +20,7 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const checkStorage = async () => {
@@ -122,12 +123,18 @@ const Login: React.FC = () => {
                           <IonInput
                             mode="md"
                             fill="outline"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="juan123"
                             value={password}
                             onIonChange={(e) => setPassword(e.detail.value!)}
                           >
                             <IonIcon icon={lockClosed} slot="start" />
+                            <IonIcon
+                              icon={showPassword ? eyeOff : eye}
+                              slot="end"
+                              onClick={() => setShowPassword(!showPassword)}
+                              style={{ cursor: "pointer" }}
+                            />
                           </IonInput>
                           {error && <p style={{ color: "red" }}>{error}</p>}
                           <IonButton

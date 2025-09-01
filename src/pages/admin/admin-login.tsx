@@ -1,6 +1,6 @@
 import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonPage, IonRow, IonInput, IonIcon, useIonLoading, useIonRouter, IonCardSubtitle, IonText } from '@ionic/react';
 import React, { useState } from 'react';
-import { lockClosed, logInSharp, person, personCircle } from 'ionicons/icons';
+import { lockClosed, logInSharp, person, personCircle, eye, eyeOff } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png';
 import { useAuth } from '../../contexts/AuthContext';
 import { login } from '../../firebaseConfig';
@@ -14,6 +14,7 @@ const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const doLogin = async (event: any) => {
     event.preventDefault();
@@ -97,12 +98,18 @@ const AdminLogin: React.FC = () => {
                     <IonInput
                       mode="md"
                       fill="outline"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="admin123"
                       value={password}
                       onIonChange={(e) => setPassword(e.detail.value!)}
                        >
                                                 <IonIcon icon={lockClosed} slot="start" />
+                                                <IonIcon
+                                                  icon={showPassword ? eyeOff : eye}
+                                                  slot="end"
+                                                  onClick={() => setShowPassword(!showPassword)}
+                                                  style={{ cursor: "pointer" }}
+                                                />
                                               </IonInput>
                     {error && <p style={{ color: "red" }}>{error}</p>}
                     <IonButton
