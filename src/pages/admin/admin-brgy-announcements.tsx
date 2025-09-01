@@ -363,6 +363,15 @@ const BarangayAnnouncements: React.FC = () => {
     const files = event.target.files;
     if (!files) return;
 
+    const totalImages = existingImages.length + selectedImages.length + files.length;
+    if (totalImages > 5) {
+      setToastMessage('You can upload a maximum of 5 images per announcement.');
+      setShowToast(true);
+      return;
+    }
+
+    let totalSize = selectedImages.reduce((acc, file) => acc + file.size, 0);
+
     const newImages: File[] = [];
     const newPreviews: string[] = [];
 
@@ -375,12 +384,13 @@ const BarangayAnnouncements: React.FC = () => {
         continue;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
-        setToastMessage(`File "${file.name}" is too large. Maximum size is 5MB.`);
+      if (totalSize + file.size > 5 * 1024 * 1024) {
+        setToastMessage(`Adding "${file.name}" would exceed the 5MB total size limit.`);
         setShowToast(true);
         continue;
       }
 
+      totalSize += file.size;
       newImages.push(file);
       
       const reader = new FileReader();
