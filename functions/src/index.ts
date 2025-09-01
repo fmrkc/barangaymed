@@ -6,6 +6,7 @@ admin.initializeApp();
 
 export { provisionUser } from './createAdminUser.js';
 export { setroleonusercreate } from './auth-triggers.js';
+export { sendAnnouncementNotification } from './sendAnnouncementNotification.js';
 
 
 /**

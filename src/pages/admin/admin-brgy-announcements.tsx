@@ -64,6 +64,8 @@ const BarangayAnnouncements: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
+  const [showUnprivateAlert, setShowUnprivateAlert] = useState(false);
+  const [announcementToUnprivate, setAnnouncementToUnprivate] = useState<Announcement | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
@@ -227,7 +229,8 @@ const BarangayAnnouncements: React.FC = () => {
       } else {
         const formDataWithImages = {
           ...formData,
-          images: selectedImages
+          images: selectedImages,
+          isActive: false // New announcements are private by default
         };
         const announcementId = await announcementsService.createAnnouncement(
           formDataWithImages,
@@ -235,7 +238,7 @@ const BarangayAnnouncements: React.FC = () => {
           currentUser.uid,
           currentUser.email || ''
         );
-        setToastMessage('Announcement created successfully');
+        setToastMessage('Announcement created successfully. It is currently private.');
       }
       
       setShowModal(false);
@@ -526,7 +529,7 @@ const BarangayAnnouncements: React.FC = () => {
                       fill="outline"
                       size="small"
                       color="medium"
-                      onClick={async (e) => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         if (!currentUser) return;
 
@@ -535,21 +538,8 @@ const BarangayAnnouncements: React.FC = () => {
                           setShowToast(true);
                           return;
                         }
-
-                        try {
-                          await announcementsService.reactivateAnnouncement(
-                            announcement.id!,
-                            currentUser.uid,
-                            currentUser.email || ''
-                          );
-                          setToastMessage('Announcement reactivated');
-
-                          loadAnnouncements();
-                        } catch (error) {
-                          setToastMessage('Error reactivating announcement');
-                        } finally {
-                          setShowToast(true);
-                        }
+                        setAnnouncementToUnprivate(announcement);
+                        setShowUnprivateAlert(true);
                       }}
                     >
                       <IonIcon icon={eyeOff} slot="start" />
@@ -889,6 +879,44 @@ const BarangayAnnouncements: React.FC = () => {
           onDidDismiss={() => setShowToast(false)}
           message={toastMessage}
           duration={3000}
+        />
+
+        <IonAlert
+          isOpen={showUnprivateAlert}
+          onDidDismiss={() => setShowUnprivateAlert(false)}
+          header="Unprivate Announcement"
+          message="Are you sure you want to unprivate this announcement? This action will make the announcement public and notify all users in your barangay."
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            },
+            {
+              text: 'Unprivate',
+              role: 'confirm',
+              handler: async () => {
+                if (!announcementToUnprivate || !currentUser) return;
+
+                setLoading(true);
+                try {
+                  await announcementsService.reactivateAnnouncement(
+                    announcementToUnprivate.id!,
+                    currentUser.uid,
+                    currentUser.email || ''
+                  );
+                  setToastMessage('Announcement unprivated and users will be notified.');
+                  loadAnnouncements();
+                } catch (error) {
+                  setToastMessage('Error unprivating announcement');
+                  console.error('Error unprivating announcement:', error);
+                } finally {
+                  setLoading(false);
+                  setShowToast(true);
+                  setAnnouncementToUnprivate(null);
+                }
+              }
+            }
+          ]}
         />
       </IonContent>
     </IonPage>

@@ -90,6 +90,7 @@ const Notifications: React.FC = () => {
       case 'status_change':
         return checkmarkCircle;
       case 'admin_note':
+      case 'new_announcement': // Handle new announcement type
         return mailOutline;
       default:
         return alertCircle;
@@ -101,6 +102,7 @@ const Notifications: React.FC = () => {
       case 'status_change':
         return 'success';
       case 'admin_note':
+      case 'new_announcement': // Handle new announcement type
         return 'primary';
       default:
         return 'warning';

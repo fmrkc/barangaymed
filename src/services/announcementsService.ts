@@ -400,7 +400,23 @@ export class AnnouncementsService {
     userEmail: string
   ): Promise<void> {
     try {
-      await updateDoc(doc(db, this.collectionName, announcementId), {
+      // Get announcement details before reactivating
+      const announcementDocRef = doc(db, this.collectionName, announcementId);
+      const announcementDoc = await getDoc(announcementDocRef);
+
+      if (!announcementDoc.exists()) {
+        throw new Error('Announcement not found.');
+      }
+
+      const announcementData = announcementDoc.data();
+      const announcementTitle = announcementData?.title || 'Untitled Announcement';
+      const barangay = announcementData?.barangay;
+
+      if (!barangay) {
+        throw new Error('Barangay information missing for announcement.');
+      }
+
+      await updateDoc(announcementDocRef, {
         isActive: true,
         updatedAt: serverTimestamp()
       });
@@ -415,6 +431,26 @@ export class AnnouncementsService {
           announcementId
         }
       });
+
+      // Call the Cloud Function to send notifications
+      const sendNotification = httpsCallable(functions, 'sendAnnouncementNotification');
+      await sendNotification({
+        announcementId,
+        announcementTitle,
+        barangayId: barangay
+      });
+
+      logEvent('info', 'Announcement reactivation notification sent', {
+        userId,
+        userEmail,
+        userRole: 'admin',
+        metadata: {
+          action: 'send_announcement_notification',
+          announcementId,
+          barangay
+        }
+      });
+
     } catch (error) {
       logEvent('error', 'Failed to reactivate announcement', {
         userId,

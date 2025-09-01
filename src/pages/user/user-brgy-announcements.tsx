@@ -218,7 +218,7 @@ const UserAnnouncements: React.FC = () => {
                 <IonCard onClick={() => handleViewDetails(announcement)} style={{ cursor: 'pointer' }}>
                   {announcement.images && announcement.images.length > 0 ? (
                     <>
-                      <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                      <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <IonCardHeader>
                         <IonCardTitle style={{ color: 'white', fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
                       </IonCardHeader>
