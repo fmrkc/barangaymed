@@ -59,7 +59,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     email: '',
     phone: '',
     address: '',
-    barangay: '',
+    barangayId: '',
   });
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           email: userData.email,
           phone: userData.contactNumber,
           address: userData.address,
-          barangay: userData.barangay,
+          barangayId: userData.barangayId,
         }));
 
         // Check for existing pending teleconsultation requests
@@ -134,7 +134,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         userName: formData.fullName,
         userPhone: formData.phone,
         userAddress: formData.address,
-        userBarangay: formData.barangay,
+        barangayId: formData.barangayId,
         preferredDate: new Date(formData.preferredDate),
         preferredTime: formData.preferredTime,
         symptoms: formData.symptoms,
@@ -297,7 +297,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <p><strong>Email:</strong> {formData.email}</p>
                         <p><strong>Phone:</strong> {formData.phone}</p>
                         <p><strong>Address:</strong> {formData.address}</p>
-                        <p><strong>Barangay:</strong> {formData.barangay}</p>
+                        <p><strong>Barangay:</strong> {formData.barangayId}</p>
                       </IonText>
 
                       <div className="ion-margin-top">

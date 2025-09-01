@@ -28,7 +28,7 @@ export class MedicineService {
         quantity: data.quantity,
         expiryDate: data.expiryDate.toDate(),
         location: data.location,
-        barangay: data.barangay,
+        barangayId: data.barangayId,
         createdAt: data.createdAt?.toDate(), // Assuming createdAt and updatedAt might be missing in old data
         updatedAt: data.updatedAt?.toDate(),
       } as Medicine);
@@ -44,7 +44,7 @@ export class MedicineService {
   public async getMedicinesByBarangay(barangay: string): Promise<Medicine[]> {
     const q = query(
       collection(db, 'medicines'),
-      where('barangay', '==', barangay)
+      where('barangayId', '==', barangay)
     );
     const querySnapshot = await getDocs(q);
     const medicines: Medicine[] = [];
@@ -57,7 +57,7 @@ export class MedicineService {
         quantity: data.quantity,
         expiryDate: data.expiryDate.toDate(),
         location: data.location,
-        barangay: data.barangay,
+        barangayId: data.barangayId,
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
       } as Medicine);
@@ -83,7 +83,7 @@ export class MedicineService {
         quantity: data.quantity,
         expiryDate: data.expiryDate.toDate(),
         location: data.location,
-        barangay: data.barangay,
+        barangayId: data.barangayId,
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
       } as Medicine;
@@ -154,7 +154,7 @@ export class MedicineService {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const data = userDoc.data();
-      return { barangay: data.barangay || '' };
+      return { barangay: data.barangayId || '' };
     }
     return { barangay: '' };
   }

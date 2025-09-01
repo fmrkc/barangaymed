@@ -38,7 +38,7 @@ interface TeleconsultationRequest {
   userName: string;
   userPhone: string;
   userAddress: string;
-  userBarangay: string;
+  barangayId: string;
   preferredDate: Date;
   preferredTime: string;
   symptoms: string;
@@ -120,7 +120,7 @@ const AdminTeleRequests: React.FC = () => {
                 <div>
                   <IonLabel className="request-info">
                     <h2>{req.userName}</h2>
-                    <p className="user-name">Barangay: {req.userBarangay}</p>
+                    <p className="user-name">Barangay: {req.barangayId}</p>
                     <p className="pickup-date">Requested: {req.requestDate?.toDateString?.()}</p>
                     {req.doctorAssigned && <p>Doctor: {req.doctorAssigned}</p>}
                   </IonLabel>
@@ -188,7 +188,7 @@ const AdminTeleRequests: React.FC = () => {
                   </IonItem>
 
                   <IonItem>
-                    <IonInput label="Barangay" labelPlacement="floating" readonly value={selectedRequest.userBarangay}></IonInput>
+                    <IonInput label="Barangay" labelPlacement="floating" readonly value={selectedRequest.barangayId}></IonInput>
                   </IonItem>
 
                   <IonItem>

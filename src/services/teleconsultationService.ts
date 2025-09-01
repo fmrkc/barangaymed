@@ -35,7 +35,7 @@ export class TeleconsultationService {
         userName: data.userName,
         userPhone: data.userPhone,
         userAddress: data.userAddress,
-        userBarangay: data.userBarangay,
+        barangayId: data.barangayId,
         preferredDate: data.preferredDate?.toDate(),
         preferredTime: data.preferredTime,
         symptoms: data.symptoms,
@@ -104,7 +104,7 @@ export class TeleconsultationService {
   public async getTeleconsultationRequestsByBarangay(barangay: string): Promise<TeleconsultationRequest[]> {
     const q = query(
       collection(db, 'teleconsultationRequests'),
-      where('userBarangay', '==', barangay)
+      where('barangayId', '==', barangay)
     );
 
     const querySnapshot = await getDocs(q);
@@ -119,7 +119,7 @@ export class TeleconsultationService {
         userName: data.userName,
         userPhone: data.userPhone,
         userAddress: data.userAddress,
-        userBarangay: data.userBarangay,
+        barangayId: data.barangayId,
         preferredDate: data.preferredDate?.toDate(),
         preferredTime: data.preferredTime,
         symptoms: data.symptoms,

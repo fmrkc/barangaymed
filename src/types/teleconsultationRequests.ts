@@ -5,7 +5,7 @@ export interface TeleconsultationRequest {
   userName: string;
   userPhone: string;
   userAddress: string;
-  userBarangay: string;
+  barangayId: string;
   preferredDate: Date;
   preferredTime: string;
   symptoms: string;

@@ -49,7 +49,7 @@ const TelePage3: React.FC<TelePage3Props> = ({ step1Data, step2Data }) => {
         userName: step2Data.fullName,
         userPhone: step2Data.phone,
         userAddress: step2Data.address,
-        userBarangay: step2Data.barangay,
+        barangayId: step2Data.barangay,
         preferredDate: new Date(step1Data.preferredDate),
         preferredTime: step1Data.preferredTime,
         symptoms: step1Data.symptoms,

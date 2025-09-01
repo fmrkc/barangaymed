@@ -73,11 +73,11 @@ email: string, password: string, name: string, role: string, userData: { [key: s
     if (userData.lotBlkHouseNo) addressParts.push(`${userData.lotBlkHouseNo}`);
     if (userData.streetName) addressParts.push(`${userData.streetName}`);
     if (userData.subdivisionVillageZonePurok) addressParts.push(`${userData.subdivisionVillageZonePurok}`);
-    addressParts.push(`${userData.barangay}`); // Barangay is required
+    addressParts.push(`${userData.barangayId}`); // Barangay is required
     addressParts.push('Floridablanca'); // Fixed value
     addressParts.push('Pampanga'); // Fixed value
     if (userData.zipCode) addressParts.push(`${userData.zipCode}`);
-    
+
     const combinedAddress = addressParts.join(', ');
 
     // Add user document with full data in Firestore
@@ -99,7 +99,7 @@ email: string, password: string, name: string, role: string, userData: { [key: s
       userName: name, // Use the 'name' parameter passed to the function
       role: role, // Use the 'role' parameter passed to the function
       details: {
-        barangay: userData.barangay, // Access from userData
+        barangay: userData.barangayId, // Access from userData
         contactNumber: userData.contactNumber, // Access from userData
         address: combinedAddress, // Use the combined address
         lotBlkHouseNo: userData.lotBlkHouseNo,

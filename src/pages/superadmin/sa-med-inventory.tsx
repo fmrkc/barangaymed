@@ -166,7 +166,7 @@ const Medicine_Inventory: React.FC = () => {
       if (selectedSegment === 'rhu') {
         filtered = filtered.filter(med => med.location === 'rhu');
       } else {
-        filtered = filtered.filter(med => med.barangay === selectedSegment);
+        filtered = filtered.filter(med => med.barangayId === selectedSegment);
       }
     }
 
@@ -209,7 +209,7 @@ const Medicine_Inventory: React.FC = () => {
         quantity: parseInt(quantity),
         expiryDate: new Date(expiryDate),
         location: selectedLocation,
-        barangay: selectedLocation === 'barangay' ? selectedBarangay : undefined,
+        barangayId: selectedLocation === 'barangay' ? selectedBarangay : undefined,
       };
 
       const medicineId = await medicineService.addMedicine(newMedicine);
@@ -226,7 +226,7 @@ const Medicine_Inventory: React.FC = () => {
             type: newMedicine.type,
             quantity: newMedicine.quantity,
             location: newMedicine.location,
-            barangay: newMedicine.barangay,
+            barangay: newMedicine.barangayId,
             message: `Added ${newMedicine.quantity} units of ${newMedicine.name} to inventory.`
           }
         });
@@ -267,7 +267,7 @@ const Medicine_Inventory: React.FC = () => {
         quantity: parseInt(quantity),
         expiryDate: new Date(expiryDate),
         location: 'rhu',
-        barangay: undefined,
+        barangayId: undefined,
       };
 
       const medicineId = await medicineService.addMedicine(newMedicine);
@@ -744,7 +744,7 @@ const Medicine_Inventory: React.FC = () => {
                 <IonItem>
                   <IonLabel>
                     <h3>Location</h3>
-                    <p>{selectedMedicine.location === 'rhu' ? 'RHU' : selectedMedicine.barangay}</p>
+                    <p>{selectedMedicine.location === 'rhu' ? 'RHU' : selectedMedicine.barangayId}</p>
                   </IonLabel>
                 </IonItem>
                 

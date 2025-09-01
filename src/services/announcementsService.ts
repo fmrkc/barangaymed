@@ -111,7 +111,7 @@ export class AnnouncementsService {
       const announcementData = {
         title: data.title,
         content: data.content,
-        barangay,
+        barangayId: barangay,
         createdBy: userId,
         createdByEmail: userEmail,
         createdAt: serverTimestamp(),
@@ -210,7 +210,7 @@ export class AnnouncementsService {
     try {
       const q = query(
         collection(db, this.collectionName),
-        where('barangay', '==', barangay),
+        where('barangayId', '==', barangay),
         orderBy('createdAt', 'desc')
       );
 
@@ -223,7 +223,7 @@ export class AnnouncementsService {
           id: doc.id,
           title: data.title,
           content: data.content,
-          barangay: data.barangay,
+          barangayId: data.barangayId,
           createdBy: data.createdBy,
           createdByEmail: data.createdByEmail,
           createdAt: data.createdAt.toDate(),
@@ -254,7 +254,7 @@ export class AnnouncementsService {
     try {
       const q = query(
         collection(db, this.collectionName),
-        where('barangay', '==', barangay),
+        where('barangayId', '==', barangay),
         where('isActive', '==', true),
         orderBy('createdAt', 'desc')
       );
@@ -268,7 +268,7 @@ export class AnnouncementsService {
           id: doc.id,
           title: data.title,
           content: data.content,
-          barangay: data.barangay,
+          barangayId: data.barangayId,
           createdBy: data.createdBy,
           createdByEmail: data.createdByEmail,
           createdAt: data.createdAt.toDate(),
@@ -318,9 +318,9 @@ export class AnnouncementsService {
         if (!announcementData) {
           throw new Error('Announcement not found');
         }
-        const barangay = announcementData.barangay;
+        const barangay = announcementData.barangayId;
         const uploadedImages = await this.uploadImages(newImages, barangay, announcementId, userId, userEmail);
-        
+
         updateData.images = (updateData.images || []).concat(uploadedImages);
       }
 
@@ -410,7 +410,7 @@ export class AnnouncementsService {
 
       const announcementData = announcementDoc.data();
       const announcementTitle = announcementData?.title || 'Untitled Announcement';
-      const barangay = announcementData?.barangay;
+      const barangay = announcementData?.barangayId;
 
       if (!barangay) {
         throw new Error('Barangay information missing for announcement.');

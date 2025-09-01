@@ -33,7 +33,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
   const [userDetails, setUserDetails] = useState({
     name: '',
     address: '',
-    barangay: ''
+    barangayId: ''
   });
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [hasTooManyPendingRequests, setHasTooManyPendingRequests] = useState(false);
@@ -46,10 +46,10 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
   }, [currentUser]);
 
   useEffect(() => {
-    if (currentUser && userDetails.barangay) {
+    if (currentUser && userDetails.barangayId) {
       fetchMedicines();
     }
-  }, [currentUser, userDetails.barangay]);
+  }, [currentUser, userDetails.barangayId]);
 
   const checkPendingRequests = async () => {
     if (!currentUser) return;
@@ -65,8 +65,8 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
 
   const fetchMedicines = async () => {
     try {
-      const userBarangay = userDetails.barangay;
-      const medicineData = await medicineService.getMedicinesByBarangay(userBarangay);
+      const barangayId = userDetails.barangayId;
+      const medicineData = await medicineService.getMedicinesByBarangay(barangayId);
       setMedicines(medicineData);
     } catch (error) {
       console.error('Error fetching medicines:', error);
@@ -77,7 +77,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
     setUserDetails({
       name: currentUser?.displayName || currentUser?.email || '',
       address: '',
-      barangay: 'Apalit'
+      barangayId: 'Apalit'
     });
   };
 
@@ -173,7 +173,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
         userEmail: currentUser.email,
         userName: userDetails.name,
         userAddress: userDetails.address,
-        userBarangay: userDetails.barangay,
+        barangayId: userDetails.barangayId,
         medicineId: selectedMedicine.id,
         medicineName: selectedMedicine.name,
         medicineType: selectedMedicine.type,

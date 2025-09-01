@@ -12,7 +12,7 @@ export interface UserData {
   zipCode: string;
   contactNumber: string;
   email: string;
-  barangay: string;
+  barangayId: string;
   address: string;
 }
 
@@ -47,7 +47,7 @@ export class UserService {
         zipCode: data.zipCode || '',
         contactNumber: data.contactNumber || '',
         email: data.email || '',
-        barangay: data.barangay || '',
+        barangayId: data.barangayId || '',
         address: data.address || ''
       };
       }
@@ -74,7 +74,7 @@ export class UserService {
       zipCode: '',
       contactNumber: '',
       email: '',
-      barangay: '',
+      barangayId: '',
       address: ''
     };
   }
