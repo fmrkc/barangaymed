@@ -6,7 +6,8 @@ admin.initializeApp();
 
 export { provisionUser } from './createAdminUser.js';
 export { setroleonusercreate } from './auth-triggers.js';
-export { moderateAnnouncementImage } from './storage-triggers.js';
+export { sendAnnouncementNotification } from './sendAnnouncementNotification.js';
+
 
 /**
  * HTTP Cloud Function to log activities securely

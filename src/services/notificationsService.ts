@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig';
-import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { Notification } from '../types/notifications';
 
 export class NotificationsService {
@@ -21,8 +21,7 @@ export class NotificationsService {
    */
   public getUserNotifications(userId: string, callback: (notifications: Notification[]) => void): () => void {
     const q = query(
-      collection(db, 'logs'),
-      where('userId', '==', userId),
+      collection(db, 'users', userId, 'notifications'),
       orderBy('timestamp', 'desc')
     );
 
@@ -31,42 +30,17 @@ export class NotificationsService {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-
-        if (data.metadata?.action === 'medicine_request_status_update') {
-          const notification: Notification = {
-            id: doc.id,
-            userId: data.userId,
-            userEmail: data.userEmail,
-            type: 'status_change',
-            title: `Request Status Updated`,
-            message: `Your request for ${data.metadata.medicineName || 'medicine'} has been updated from ${data.metadata.oldStatus} to ${data.metadata.newStatus}`,
-            timestamp: data.timestamp.toDate(),
-            read: false, // Default to unread
-            metadata: {
-              requestId: data.metadata.requestId,
-              oldStatus: data.metadata.oldStatus,
-              newStatus: data.metadata.newStatus,
-              medicineName: data.metadata.medicineName
-            }
-          };
-          notifications.push(notification);
-        } else if (data.metadata?.action === 'new_announcement') {
-          const notification: Notification = {
-            id: doc.id,
-            userId: data.userId,
-            userEmail: data.userEmail,
-            type: 'announcement',
-            title: `New Announcement`,
-            message: `A new announcement has been posted: ${data.metadata.announcementTitle}`,
-            timestamp: data.timestamp.toDate(),
-            read: false,
-            metadata: {
-              announcementId: data.metadata.announcementId,
-              announcementTitle: data.metadata.announcementTitle
-            }
-          };
-          notifications.push(notification);
-        }
+        notifications.push({
+          id: doc.id,
+          userId: data.userId,
+          userEmail: data.userEmail,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          timestamp: data.timestamp.toDate(),
+          read: data.read,
+          metadata: data.metadata || {}
+        });
       });
 
       callback(notifications);
@@ -86,8 +60,7 @@ export class NotificationsService {
    */
   public async getUserNotificationsOnce(userId: string): Promise<Notification[]> {
     const q = query(
-      collection(db, 'logs'),
-      where('userId', '==', userId),
+      collection(db, 'users', userId, 'notifications'),
       orderBy('timestamp', 'desc')
     );
 
@@ -96,42 +69,17 @@ export class NotificationsService {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-
-      if (data.metadata?.action === 'medicine_request_status_update') {
-        const notification: Notification = {
-          id: doc.id,
-          userId: data.userId,
-          userEmail: data.userEmail,
-          type: 'status_change',
-          title: `Request Status Updated`,
-          message: `Your request for ${data.metadata.medicineName || 'medicine'} has been updated from ${data.metadata.oldStatus} to ${data.metadata.newStatus}`,
-          timestamp: data.timestamp.toDate(),
-          read: false,
-          metadata: {
-            requestId: data.metadata.requestId,
-            oldStatus: data.metadata.oldStatus,
-            newStatus: data.metadata.newStatus,
-            medicineName: data.metadata.medicineName
-          }
-        };
-        notifications.push(notification);
-      } else if (data.metadata?.action === 'new_announcement') {
-        const notification: Notification = {
-          id: doc.id,
-          userId: data.userId,
-          userEmail: data.userEmail,
-          type: 'announcement',
-          title: `New Announcement`,
-          message: `A new announcement has been posted: ${data.metadata.announcementTitle}`,
-          timestamp: data.timestamp.toDate(),
-          read: false,
-          metadata: {
-            announcementId: data.metadata.announcementId,
-            announcementTitle: data.metadata.announcementTitle
-          }
-        };
-        notifications.push(notification);
-      }
+      notifications.push({
+        id: doc.id,
+        userId: data.userId,
+        userEmail: data.userEmail,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        timestamp: data.timestamp.toDate(),
+        read: data.read,
+        metadata: data.metadata || {}
+      });
     });
 
     return notifications;
@@ -165,9 +113,16 @@ export class NotificationsService {
    * Mark notification as read
    * @param notificationId The notification ID
    */
-  public async markAsRead(notificationId: string): Promise<void> {
-    // In a real implementation, you might want to store read status
-    // For now, we'll handle this in the component state
-    console.log(`Marking notification ${notificationId} as read`);
+  public async markAsRead(notificationId: string, userId: string): Promise<void> {
+    try {
+      const notificationRef = doc(db, 'users', userId, 'notifications', notificationId);
+      await updateDoc(notificationRef, {
+        read: true,
+      });
+      console.log(`Notification ${notificationId} marked as read for user ${userId}`);
+    } catch (error) {
+      console.error(`Error marking notification ${notificationId} as read:`, error);
+      throw error;
+    }
   }
 }
