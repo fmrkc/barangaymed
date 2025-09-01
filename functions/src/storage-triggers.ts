@@ -10,7 +10,7 @@ const visionClient = new ImageAnnotatorClient();
  * 
  * Triggered when a new file is uploaded to Firebase Storage.
  */
-export const moderateAnnouncementImage = functions.storage.bucket('barangaymed.appspot.com').object().onFinalize(async (object) => {
+export const moderateAnnouncementImage = functions.storage.bucket('barangaymed.firebasestorage.app').object().onFinalize(async (object) => {
     const filePath = object.name;
     const contentType = object.contentType;
     const bucket = object.bucket;
