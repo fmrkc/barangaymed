@@ -36,7 +36,9 @@ import {
   IonItemDivider,
   IonFooter,
   IonSegment,
-  IonSegmentButton
+  IonSegmentButton,
+  IonRefresher,
+  IonRefresherContent
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -416,6 +418,11 @@ const BarangayAnnouncements: React.FC = () => {
     setImagePreviews([]);
   };
 
+  const handleRefresh = async (event: CustomEvent) => {
+    await loadAnnouncements();
+    event.detail.complete();
+  };
+
   const handleViewDetails = (announcement: Announcement) => {
     setSelectedAnnouncement(announcement);
     setShowDetailsModal(true);
@@ -453,8 +460,12 @@ const BarangayAnnouncements: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
+
         <IonLoading isOpen={loading} message="Please wait..." />
-        
+
         <div className="ion-margin-bottom">
           <IonNote>Showing all announcements for Barangay {userBarangay}.</IonNote>
         </div>
