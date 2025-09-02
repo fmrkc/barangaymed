@@ -329,8 +329,8 @@ const UserRegister: React.FC = () => {
                   shape='round'
                   onClick={onNext}
                   >
-                    <IonText className='ion-padding-vertical'>Next</IonText>
-                    <IonIcon slot="end" icon={chevronForward} />
+                    <IonText className='ion-padding-vertical' color={'light'} >Next</IonText>
+                    <IonIcon slot="end" icon={chevronForward} color='light' />
                   </IonButton>
                 )}
                 {step === 5 && (
