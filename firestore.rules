@@ -83,9 +83,8 @@ service cloud.firestore {
       // CREATE: A user can create a request for themselves. Validate required fields.
       allow create: if isOwner(request.resource.data.userId) && isUserRole()
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt == request.time
-                    && request.resource.data.medicines is list
                     && request.resource.data.barangayId is string;
+
 
       // UPDATE: A user can cancel their own pending request. An admin can update the status of a request in their barangay.
       allow update: if (isOwner(resource.data.userId) && request.resource.data.status == 'cancelled' && resource.data.status == 'pending') ||

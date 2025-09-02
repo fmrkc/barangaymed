@@ -39,7 +39,7 @@ import { megaphone, calendar, person, close, pencil, colorFill } from 'ionicons/
 const UserAnnouncements: React.FC = () => {
   const { currentUser, userRole, loading: authLoading } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [userBarangay, setUserBarangay] = useState<string>('');
+  const [barangayId, setbarangayId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,24 +49,24 @@ const UserAnnouncements: React.FC = () => {
 
   useEffect(() => {
     if (currentUser) {
-      loadUserBarangay();
+      loadbarangayId();
     }
   }, [currentUser]);
 
   useEffect(() => {
-    if (userBarangay) {
+    if (barangayId) {
       loadAnnouncements();
     }
-  }, [userBarangay]);
+  }, [barangayId]);
 
-  const loadUserBarangay = async () => {
+  const loadbarangayId = async () => {
     if (!currentUser) return;
     
     try {
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        setUserBarangay(data.barangay || '');
+        setbarangayId(data.barangay || '');
       }
     } catch (error) {
       console.error('Error loading user barangay:', error);
@@ -74,12 +74,12 @@ const UserAnnouncements: React.FC = () => {
   };
 
   const loadAnnouncements = async () => {
-    if (!userBarangay) return;
+    if (!barangayId) return;
 
     setLoading(true);
     setError(null);
     try {
-      const data = await announcementsService.getActiveAnnouncementsForBarangay(userBarangay);
+      const data = await announcementsService.getActiveAnnouncementsForBarangay(barangayId);
       console.log("Fetched announcements for user:", JSON.stringify(data, null, 2));
       setAnnouncements(data);
     } catch (error) {
@@ -181,7 +181,7 @@ const UserAnnouncements: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref='/user/dashboard' />
           </IonButtons>
-          <IonTitle>Barangay {userBarangay} Announcements</IonTitle>
+          <IonTitle>Barangay {barangayId} Announcements</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding with-tab-padding">
@@ -207,7 +207,7 @@ const UserAnnouncements: React.FC = () => {
               style={{ fontSize: '48px', color: 'gray', marginBottom: '20px' }} 
             />
             <h3>No Announcements</h3>
-            <p>There are no active announcements for {userBarangay} at this time.</p>
+            <p>There are no active announcements for {barangayId} at this time.</p>
           </div>
         )}
 

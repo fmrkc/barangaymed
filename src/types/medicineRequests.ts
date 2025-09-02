@@ -4,7 +4,7 @@ export interface MedicineRequest {
   userEmail: string;
   userName: string;
   userAddress: string;
-  userBarangay: string;
+  barangayId: string;
   medicineId: string;
   medicineName: string;
   medicineType: string;
@@ -25,7 +25,7 @@ export interface Medicine {
   quantity: number;
   expiryDate: Date;
   location: string;
-  barangay?: string;
+  barangayId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

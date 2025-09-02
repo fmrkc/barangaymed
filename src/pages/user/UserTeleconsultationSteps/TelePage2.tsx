@@ -64,7 +64,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
           email: userData.email,
           phone: userData.contactNumber,
           address: userData.address,
-          barangay: userData.barangay,
+          barangay: userData.barangayId,
           notes: '', // Initialize notes field
         });
         setError(null);

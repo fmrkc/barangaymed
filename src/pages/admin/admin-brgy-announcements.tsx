@@ -60,7 +60,7 @@ const BarangayAnnouncements: React.FC = () => {
     content: '',
     priority: 'medium'
   });
-  const [userBarangay, setUserBarangay] = useState<string>('');
+  const [barangayId, setbarangayId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -79,14 +79,14 @@ const BarangayAnnouncements: React.FC = () => {
 
   useEffect(() => {
     if (currentUser) {
-      loadUserBarangay();
+      loadbarangayId();
     }
   }, [currentUser]);
 
   useEffect(() => {
-    if (userBarangay && userRole) {
+    if (barangayId && userRole) {
       // Validate access before loading announcements
-      const access = validateAdminBarangayAccess(userRole, userBarangay, userBarangay);
+      const access = validateAdminBarangayAccess(userRole, barangayId, barangayId);
       if (!access) {
         setAccessDenied(true);
         setToastMessage('Access denied: You do not have permission to view announcements for this barangay.');
@@ -95,9 +95,9 @@ const BarangayAnnouncements: React.FC = () => {
       }
       loadAnnouncements();
     }
-  }, [userBarangay, userRole]);
+  }, [barangayId, userRole]);
 
-  const loadUserBarangay = async () => {
+  const loadbarangayId = async () => {
     if (!currentUser) {
       console.error('No current user available when loading barangay');
       return;
@@ -108,7 +108,7 @@ const BarangayAnnouncements: React.FC = () => {
       if (userDoc.exists()) {
         const data = userDoc.data();
         console.log('User document data:', data);
-        setUserBarangay(data.barangayId || '');
+        setbarangayId(data.barangayId || '');
         
         if (!data.barangayId) {
           console.error('BarangayId field is empty or missing in user document');
@@ -128,23 +128,23 @@ const BarangayAnnouncements: React.FC = () => {
   };
 
   const loadAnnouncements = async () => {
-    if (!userBarangay) return;
+    if (!barangayId) return;
     
     setLoading(true);
     try {
-      const data = await announcementsService.getAllAnnouncementsForBarangay(userBarangay);
+      const data = await announcementsService.getAllAnnouncementsForBarangay(barangayId);
       setAnnouncements(data);
       
       // Log successful load with detailed debugging info
       if (currentUser) {
-        console.log(`Loaded ${data.length} announcements for barangay: ${userBarangay}`);
-        logEvent('info', `Loaded announcements for barangay: ${userBarangay}`, {
+        console.log(`Loaded ${data.length} announcements for barangay: ${barangayId}`);
+        logEvent('info', `Loaded announcements for barangay: ${barangayId}`, {
           userId: currentUser.uid,
           userEmail: currentUser.email || '',
           userRole: userRole || '',
           metadata: {
             action: 'load_announcements',
-            barangay: userBarangay,
+            barangayId: barangayId,
             count: data.length,
             announcementIds: data.map(a => a.id)
           }
@@ -163,7 +163,7 @@ const BarangayAnnouncements: React.FC = () => {
           userRole: userRole || '',
           metadata: {
             action: 'load_announcements_failed',
-            barangay: userBarangay,
+            barangay: barangayId,
             error: error instanceof Error ? error.message : 'Unknown error',
             errorDetails: JSON.stringify(error)
           }
@@ -192,21 +192,21 @@ const BarangayAnnouncements: React.FC = () => {
       return;
     }
 
-    if (!currentUser || !userBarangay) {
-      console.error('User information not available - currentUser:', currentUser, 'userBarangay:', userBarangay, 'userRole:', userRole);
+    if (!currentUser || !barangayId) {
+      console.error('User information not available - currentUser:', currentUser, 'barangayId:', barangayId, 'userRole:', userRole);
       setToastMessage('User information not available. Please check if your barangay is properly set in your profile.');
       setShowToast(true);
       return;
     }
 
     // Validate access before submitting
-    const accessValid = validateAdminBarangayAccess(userRole, userBarangay, userBarangay);
+    const accessValid = validateAdminBarangayAccess(userRole, barangayId, barangayId);
     if (!accessValid) {
       console.error('Access denied for user:', {
         uid: currentUser.uid,
         email: currentUser.email,
         userRole,
-        userBarangay
+        barangayId
       });
       setToastMessage('Access denied: You do not have permission to perform this action.');
       setShowToast(true);
@@ -236,7 +236,7 @@ const BarangayAnnouncements: React.FC = () => {
         };
         const announcementId = await announcementsService.createAnnouncement(
           formDataWithImages,
-          userBarangay,
+          barangayId,
           currentUser.uid,
           currentUser.email || ''
         );
@@ -260,9 +260,9 @@ const BarangayAnnouncements: React.FC = () => {
     if (!announcementToDelete || !currentUser) return;
 
     // Validate access before archiving
-    const accessValid = validateAdminBarangayAccess(userRole, userBarangay, userBarangay);
+    const accessValid = validateAdminBarangayAccess(userRole, barangayId, barangayId);
     if (!accessValid) {
-      console.error('Access denied for archiving announcement - currentUser:', currentUser, 'userRole:', userRole, 'userBarangay:', userBarangay);
+      console.error('Access denied for archiving announcement - currentUser:', currentUser, 'userRole:', userRole, 'barangayId:', barangayId);
       setToastMessage('Access denied: You do not have permission to perform this action.');
       setShowToast(true);
       return;
@@ -293,8 +293,8 @@ const BarangayAnnouncements: React.FC = () => {
 
   const handleEdit = (announcement: Announcement) => {
     // Validate access before editing
-    if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
-      console.error('Access denied for editing announcement - currentUser:', currentUser, 'userRole:', userRole, 'userBarangay:', userBarangay);
+    if (!validateAdminBarangayAccess(userRole, barangayId, barangayId)) {
+      console.error('Access denied for editing announcement - currentUser:', currentUser, 'userRole:', userRole, 'barangayId:', barangayId);
       setToastMessage('Access denied: You do not have permission to perform this action.');
       setShowToast(true);
       return;
@@ -329,8 +329,8 @@ const BarangayAnnouncements: React.FC = () => {
 
   const openCreateModal = () => {
     // Validate access before creating
-    if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
-      console.error('Access denied for creating announcement - currentUser:', currentUser, 'userRole:', userRole, 'userBarangay:', userBarangay);
+    if (!validateAdminBarangayAccess(userRole, barangayId, barangayId)) {
+      console.error('Access denied for creating announcement - currentUser:', currentUser, 'userRole:', userRole, 'barangayId:', barangayId);
       setToastMessage('Access denied: You do not have permission to perform this action.');
       setShowToast(true);
       return;
@@ -477,7 +477,7 @@ const BarangayAnnouncements: React.FC = () => {
         <IonLoading isOpen={loading} message="Please wait..." />
 
         <div className="ion-margin-bottom">
-          <IonNote>Showing all announcements for Barangay {userBarangay}.</IonNote>
+          <IonNote>Showing all announcements for Barangay {barangayId}.</IonNote>
         </div>
 
         
@@ -554,7 +554,7 @@ const BarangayAnnouncements: React.FC = () => {
                         e.stopPropagation();
                         if (!currentUser) return;
 
-                        if (!validateAdminBarangayAccess(userRole, userBarangay, userBarangay)) {
+                        if (!validateAdminBarangayAccess(userRole, barangayId, barangayId)) {
                           setToastMessage('Access denied: You do not have permission to perform this action.');
                           setShowToast(true);
                           return;

@@ -9,7 +9,7 @@ export interface Announcement {
   id?: string;
   title: string;
   content: string;
-  barangay: string;
+  barangayId: string;
   createdBy: string;
   createdByEmail: string;
   createdAt: Date;

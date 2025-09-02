@@ -18,7 +18,7 @@ interface Page3Props {
   userDetails: {
     name: string;
     address: string;
-    barangay: string;
+    barangayId: string;
   };
   selectedMedicine: any;
   quantity: number;

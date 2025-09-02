@@ -44,7 +44,7 @@ interface MedicineRequest {
   userEmail: string;
   userName: string;
   userAddress: string;
-  userBarangay: string;
+  barangayId: string;
   medicineId: string;
   medicineName: string;
   medicineType: string;
@@ -100,7 +100,7 @@ const UserRequests: React.FC = () => {
           userEmail: data.userEmail,
           userName: data.userName,
           userAddress: data.userAddress,
-          userBarangay: data.userBarangay,
+          barangayId: data.barangayId,
           medicineId: data.medicineId,
           medicineName: data.medicineName,
           medicineType: data.medicineType,
@@ -274,7 +274,7 @@ const UserRequests: React.FC = () => {
           userEmail: data.userEmail,
           userName: data.userName,
           userAddress: data.userAddress,
-          userBarangay: data.userBarangay,
+          barangayId: data.barangayId,
           medicineId: data.medicineId,
           medicineName: data.medicineName,
           medicineType: data.medicineType,
@@ -470,7 +470,7 @@ const UserRequests: React.FC = () => {
                 {detailedRequest.completedDate && <IonItem><IonLabel><p>Completed Date</p><h3>{formatDate(detailedRequest.completedDate)}</h3></IonLabel></IonItem>}
                 <IonItem><IonLabel><p>Status</p><h3>{detailedRequest.status.toUpperCase()}</h3></IonLabel></IonItem>
                 <IonItem><IonLabel><p>User</p><h3>{detailedRequest.userName} ({detailedRequest.userEmail})</h3></IonLabel></IonItem>
-                <IonItem><IonLabel><p>Address</p><h3>{detailedRequest.userAddress}, {detailedRequest.userBarangay}</h3></IonLabel></IonItem>
+                <IonItem><IonLabel><p>Address</p><h3>{detailedRequest.userAddress}, {detailedRequest.barangayId}</h3></IonLabel></IonItem>
                 {detailedRequest.notes && <IonItem><IonLabel><p>User Notes</p><IonNote>{detailedRequest.notes}</IonNote></IonLabel></IonItem>}
                 {detailedRequest.adminNotes && <IonItem><IonLabel><p>Admin Notes</p><IonNote>{detailedRequest.adminNotes}</IonNote></IonLabel></IonItem>}
               </IonList>

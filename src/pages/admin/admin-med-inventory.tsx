@@ -43,7 +43,7 @@ import { medkit, warning, checkmarkCircle, closeCircle, notifications, notificat
 import './admin-med-inventory.css';
 
 const Admin_Med_Inventory: React.FC = () => {
-  const { currentUser, userBarangayId } = useAuth();
+  const { currentUser, barangayId } = useAuth();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,8 +74,8 @@ const Admin_Med_Inventory: React.FC = () => {
       setLoading(true);
       
       // Get user barangay from auth context
-      if (userBarangayId) {
-        const medicinesData = await medicineService.getMedicinesByBarangay(userBarangayId);
+      if (barangayId) {
+        const medicinesData = await medicineService.getMedicinesByBarangay(barangayId);
         setMedicines(medicinesData);
         setFilteredMedicines(medicinesData);
       }
@@ -172,7 +172,7 @@ const Admin_Med_Inventory: React.FC = () => {
       const requestData = {
         adminId: currentUser?.uid,
         adminEmail: currentUser?.email,
-        barangay: userBarangayId,
+        barangayId: barangayId,
         medicineId: medicine.id,
         medicineName: medicine.name,
         medicineType: medicine.type,
@@ -180,7 +180,7 @@ const Admin_Med_Inventory: React.FC = () => {
         status: 'pending',
         requestDate: serverTimestamp(),
         requestType: 'shortage_notification',
-        notes: `Barangay ${userBarangayId} has a shortage of ${medicine.name} (${medicine.type}). Current stock: ${medicine.quantity} units.`
+        notes: `Barangay ${barangayId} has a shortage of ${medicine.name} (${medicine.type}). Current stock: ${medicine.quantity} units.`
       };
 
       await addDoc(collection(db, 'adminMedicineRequests'), requestData);
@@ -232,7 +232,7 @@ const Admin_Med_Inventory: React.FC = () => {
           <IonButtons slot='start'>
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>Barangay {userBarangayId} Inventory</IonTitle>
+          <IonTitle>Barangay {barangayId} Inventory</IonTitle>
           <IonButtons slot='end'>
             <IonButton shape='round'>
               <IonIcon icon={albums} slot="start" />
@@ -252,7 +252,7 @@ const Admin_Med_Inventory: React.FC = () => {
           debounce={300}
           animated
         />
-        <IonCardSubtitle>Showing all medicines currently in stock in {userBarangayId}.</IonCardSubtitle>
+        <IonCardSubtitle>Showing all medicines currently in stock in {barangayId}.</IonCardSubtitle>
 
         {loading ? (
           <div className="ion-text-center ion-padding">

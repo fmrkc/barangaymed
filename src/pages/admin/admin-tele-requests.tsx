@@ -38,7 +38,7 @@ interface TeleconsultationRequest {
   userName: string;
   userPhone: string;
   userAddress: string;
-  userBarangay: string;
+  barangayId: string;
   preferredDate: Date;
   preferredTime: string;
   symptoms: string;
@@ -53,7 +53,7 @@ interface TeleconsultationRequest {
 }
 
 const AdminTeleRequests: React.FC = () => {
-  const { currentUser, userBarangayId } = useAuth();
+  const { currentUser, barangayId } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -65,12 +65,12 @@ const AdminTeleRequests: React.FC = () => {
   // Fetch data filtered by admin's barangay
   useEffect(() => {
     const fetchRequests = async () => {
-      if (!userBarangayId) return;
-      const requestsByBarangay = await teleconsultationService.getTeleconsultationRequestsByBarangay(userBarangayId);
+      if (!barangayId) return;
+      const requestsByBarangay = await teleconsultationService.getTeleconsultationRequestsByBarangay(barangayId);
       setRequests(requestsByBarangay);
     };
     fetchRequests();
-  }, [userBarangayId]);
+  }, [barangayId]);
 
   // Update status in Firestore
   const updateStatus = async (status: 'approved' | 'cancelled' | 'completed') => {
@@ -120,7 +120,7 @@ const AdminTeleRequests: React.FC = () => {
                 <div>
                   <IonLabel className="request-info">
                     <h2>{req.userName}</h2>
-                    <p className="user-name">Barangay: {req.userBarangay}</p>
+                    <p className="user-name">Barangay: {req.barangayId}</p>
                     <p className="pickup-date">Requested: {req.requestDate?.toDateString?.()}</p>
                     {req.doctorAssigned && <p>Doctor: {req.doctorAssigned}</p>}
                   </IonLabel>
@@ -188,7 +188,7 @@ const AdminTeleRequests: React.FC = () => {
                   </IonItem>
 
                   <IonItem>
-                    <IonInput label="Barangay" labelPlacement="floating" readonly value={selectedRequest.userBarangay}></IonInput>
+                    <IonInput label="Barangay" labelPlacement="floating" readonly value={selectedRequest.barangayId}></IonInput>
                   </IonItem>
 
                   <IonItem>

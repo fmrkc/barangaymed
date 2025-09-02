@@ -12,7 +12,7 @@ export interface UserData {
   zipCode: string;
   contactNumber: string;
   email: string;
-  barangay: string;
+  barangayId: string;
   address: string;
 }
 
@@ -47,7 +47,7 @@ export class UserService {
         zipCode: data.zipCode || '',
         contactNumber: data.contactNumber || '',
         email: data.email || '',
-        barangay: data.barangay || '',
+        barangayId: data.barangayId || '',
         address: data.address || ''
       };
       }
@@ -74,7 +74,7 @@ export class UserService {
       zipCode: '',
       contactNumber: '',
       email: '',
-      barangay: '',
+      barangayId: '',
       address: ''
     };
   }
@@ -84,11 +84,11 @@ export class UserService {
    * @param barangay The barangay to filter users by
    * @returns Promise resolving to array of user IDs and emails
    */
-  public async getUsersByBarangay(barangay: string): Promise<{ uid: string; email: string }[]> {
+  public async getUsersByBarangay(barangayId: string): Promise<{ uid: string; email: string }[]> {
     try {
       const q = query(
         collection(db, 'users'),
-        where('barangayId', '==', barangay)
+        where('barangayId', '==', barangayId)
       );
       const querySnapshot = await getDocs(q);
       const users: { uid: string; email: string }[] = [];

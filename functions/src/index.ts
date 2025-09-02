@@ -142,9 +142,9 @@ export const getAnnouncementsByBarangay = functions.https.onCall(async (data, co
       );
     }
     const userData = userDoc.data();
-    const userBarangay = userData?.barangay;
+    const barangayId = userData?.barangayId;
 
-    if (!userBarangay) {
+    if (!barangayId) {
       throw new functions.https.HttpsError(
         'failed-precondition',
         'User barangay not found'
@@ -154,7 +154,7 @@ export const getAnnouncementsByBarangay = functions.https.onCall(async (data, co
     // Query announcements for the user's barangay
     const announcementsRef = admin.firestore().collection('announcements');
     const snapshot = await announcementsRef
-      .where('barangay', '==', userBarangay)
+      .where('barangayId', '==', barangayId)
       .where('isActive', '==', true)
       .orderBy('createdAt', 'desc')
       .get();
@@ -165,7 +165,7 @@ export const getAnnouncementsByBarangay = functions.https.onCall(async (data, co
         id: doc.id,
         title: data.title,
         content: data.content,
-        barangay: data.barangay,
+        barangayId: data.barangayId,
         createdBy: data.createdBy,
         createdByEmail: data.createdByEmail,
         createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : new Date(data.createdAt),
@@ -213,7 +213,7 @@ export const adminOnlyOperation = functions.https.onCall((data, context) => {
     message: "Welcome, admin! Here is the secret data.",
     data: {
       superSecretValue: 12345,
-      requestingUserBarangay: context.auth?.token.barangayId || 'N/A'
+      requestingbarangayId: context.auth?.token.barangayId || 'N/A'
     }
   };
 });

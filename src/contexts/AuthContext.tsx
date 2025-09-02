@@ -7,7 +7,7 @@ import { logLogin, logLogout } from '../utils/logger';
 interface AuthContextType {
   currentUser: FirebaseUser | null;
   userRole: string | null;
-  userBarangayId: string | null;
+  barangayId: string | null;
   emailVerified: boolean;
   loading: boolean;
   login: (user: FirebaseUser) => Promise<void>;
@@ -19,7 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   userRole: null,
-  userBarangayId: null,
+  barangayId: null,
   emailVerified: false,
   loading: true,
   login: async () => {},
@@ -31,7 +31,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userBarangayId, setUserBarangayId] = useState<string | null>(null);
+  const [barangayId, setbarangayId] = useState<string | null>(null);
   const [emailVerified, setEmailVerified] = useState<boolean>(false); // Added
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const extractUserClaims = async (user: FirebaseUser | null) => {
     if (!user) {
       setUserRole(null);
-      setUserBarangayId(null);
+      setbarangayId(null);
       setEmailVerified(false); // Added
       return;
     }
@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const claims = tokenResult.claims;
       
       setUserRole(claims.role as string || null);
-      setUserBarangayId(claims.barangayId as string || null);
+      setbarangayId(claims.barangayId as string || null);
       setEmailVerified(user.emailVerified); // Added
       console.log('AuthContext: extractUserClaims - Role:', claims.role); // ADDED LOG
       
@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch (error) {
       console.error('Error extracting user claims:', error);
       setUserRole(null);
-      setUserBarangayId(null);
+      setbarangayId(null);
       setEmailVerified(false); // Added
     }
   };
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await firebaseSignOut(auth);
       setCurrentUser(null);
       setUserRole(null);
-      setUserBarangayId(null);
+      setbarangayId(null);
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         setCurrentUser(null);
         setUserRole(null);
-        setUserBarangayId(null);
+        setbarangayId(null);
       }
       setLoading(false);
     });
@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const value = {
     currentUser,
     userRole,
-    userBarangayId,
+    barangayId,
     emailVerified, // Added
     loading,
     login,

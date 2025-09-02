@@ -17,33 +17,33 @@ export const validateUserRole = (userRole: string | null, requiredRole: string):
 
 /**
  * Validates if a user has access to a specific barangay
- * @param userBarangayId The user's barangay ID
+ * @param barangayId The user's barangay ID
  * @param requiredBarangayId The required barangay ID for access
  * @returns boolean indicating if access should be granted
  */
-export const validateBarangayAccess = (userBarangayId: string | null, requiredBarangayId: string): boolean => {
-  return userBarangayId === requiredBarangayId;
+export const validateBarangayAccess = (barangayId: string | null, requiredBarangayId: string): boolean => {
+  return barangayId === requiredBarangayId;
 };
 
 /**
  * Checks if a user has admin privileges for a specific barangay
  * @param userRole The user's role
- * @param userBarangayId The user's barangay ID
+ * @param barangayId The user's barangay ID
  * @param targetBarangayId The target barangay ID to check access for
  * @returns boolean indicating if admin access should be granted
  */
 export const validateAdminBarangayAccess = (
   userRole: string | null,
-  userBarangayId: string | null,
+  barangayId: string | null,
   targetBarangayId: string
 ): boolean => {
-  const hasAccess = userRole === 'admin' && userBarangayId === targetBarangayId;
+  const hasAccess = userRole === 'admin' && barangayId === targetBarangayId;
   
   // Log detailed access check for debugging
   if (!hasAccess) {
     console.debug('Access denied for admin barangay access check:', {
       userRole,
-      userBarangayId,
+      barangayId,
       targetBarangayId,
       hasAccess
     });
@@ -78,14 +78,14 @@ export const forceTokenRefresh = async (user: any): Promise<void> => {
 /**
  * Comprehensive access validation function
  * @param userRole User's current role
- * @param userBarangayId User's barangay ID
+ * @param barangayId User's barangay ID
  * @param requiredRole Required role for access
  * @param requiredBarangayId Required barangay ID (if applicable)
  * @returns Validation result object
  */
 export const validateAccess = (
   userRole: string | null,
-  userBarangayId: string | null,
+  barangayId: string | null,
   requiredRole: string,
   requiredBarangayId?: string
 ): { isValid: boolean; reason?: string } => {
@@ -98,10 +98,10 @@ export const validateAccess = (
   }
 
   // If barangay-specific access is required, validate it
-  if (requiredBarangayId && !validateBarangayAccess(userBarangayId, requiredBarangayId)) {
+  if (requiredBarangayId && !validateBarangayAccess(barangayId, requiredBarangayId)) {
     return {
       isValid: false,
-      reason: `User barangay ${userBarangayId} does not match required barangay ${requiredBarangayId}`
+      reason: `User barangay ${barangayId} does not match required barangay ${requiredBarangayId}`
     };
   }
 
