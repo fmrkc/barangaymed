@@ -192,21 +192,21 @@ service cloud.firestore {
     // Managed by Admins and Super Admins.
     // =================================================================
     match /announcements/{announcementId} {
-      // READ: Users can read announcements from their barangay. Admins can read announcements from their barangay. Super admins can read all announcements.
-      allow read: if (isUserRole() && resource.data.barangay == getUserData(request.auth.uid).barangay) ||
-                     (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+      // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.
+      allow read: if (isUserRole() && resource.data.barangayId == getUserData(request.auth.uid).barangayId) ||
+                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      isSuperAdmin();
       
       // CREATE: Admins can create announcements for their barangay. Super admins can create announcements for any barangay.
-      allow create: if (isAdmin() && request.resource.data.barangay == request.auth.token.barangayId) ||
+      allow create: if (isAdmin() && request.resource.data.barangayId == request.auth.token.barangayId) ||
                        isSuperAdmin();
       
       // UPDATE: Admins can update announcements from their barangay. Super admins can update any announcement.
-      allow update: if (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+      allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                        isSuperAdmin();
       
       // DELETE: Admins can delete announcements from their barangay. Super admins can delete any announcement.
-      allow delete: if (isAdmin() && resource.data.barangay == request.auth.token.barangayId) ||
+      allow delete: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                        isSuperAdmin();
     }
 
