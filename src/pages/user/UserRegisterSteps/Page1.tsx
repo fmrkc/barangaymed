@@ -8,10 +8,10 @@ interface Page1Props {
   lastName: string;
   suffix: string;
   onChange: (field: string, value: string) => void;
-  onNext: () => void;
+  onNext?: () => void;
 }
 
-const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, onChange, onNext }) => {
+const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, onChange }) => {
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
@@ -63,12 +63,10 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
         >
           <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
         </IonInput>
+        <br />
       </div>
 
-      <IonButton expand="block" className="ion-padding-vertical ion-margin-top" shape='round' onClick={onNext}>
-        Next
-        <IonIcon icon={arrowForward} slot="end" />
-      </IonButton>
+    
     </>
   );
 };

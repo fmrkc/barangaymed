@@ -1,5 +1,5 @@
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonPage, IonRouterLink, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast } from '@ionic/react';
-import { checkmarkDoneOutline } from 'ionicons/icons';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonPage, IonRouterLink, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast, IonText } from '@ionic/react';
+import { checkmarkDoneOutline, chevronBack, chevronForward } from 'ionicons/icons';
 import React from 'react';
 
 import { registerUserWithFullData } from '../../firebaseConfig';
@@ -258,7 +258,6 @@ const UserRegister: React.FC = () => {
                       lastName={lastName}
                       suffix={suffix}
                       onChange={onChange}
-                      onNext={onNext}
                     />
                   )}
                   {step === 2 && (
@@ -269,16 +268,12 @@ const UserRegister: React.FC = () => {
                       zipCode={zipCode}
                       contactNumber={contactNumber}
                       onChange={onChange}
-                      onNext={onNext}
-                      onBack={onBack}
                     />
                   )}
                   {step === 3 && (
                     <Page3
                       barangayId={barangayId}
                       onBarangayChange={setBarangay}
-                      onNext={onNext}
-                      onBack={onBack}
                     />
                   )}
                   {step === 4 && (
@@ -287,8 +282,6 @@ const UserRegister: React.FC = () => {
                       password={password}
                       confirmPassword={confirmPassword}
                       onChange={onChange}
-                      onNext={onNext}
-                      onBack={onBack}
                     />
                   )}
                   {step === 5 && (
@@ -315,6 +308,48 @@ const UserRegister: React.FC = () => {
           </IonRow>
         </IonGrid>
       </IonContent>
+      <IonFooter>
+        <IonToolbar>
+          <IonGrid>
+            <IonRow className="ion-justify-content-between">
+              <IonCol size="auto">
+                {step > 1 && (
+                  <IonButton 
+                  fill="outline"
+                  shape='round'
+                  onClick={onBack}
+                  >
+                    <IonText className='ion-padding-vertical'>Back</IonText>
+                    <IonIcon slot="start" icon={chevronBack} />
+                  </IonButton>
+                )}
+              </IonCol>
+              <IonCol size="auto">
+                {step < 5 && (
+                  <IonButton 
+                  shape='round'
+                  onClick={onNext}
+                  >
+                    <IonText className='ion-padding-vertical' color={'light'} >Next</IonText>
+                    <IonIcon slot="end" icon={chevronForward} color='light' />
+                  </IonButton>
+                )}
+                {step === 5 && (
+                  <IonButton 
+                  onClick={doRegister}
+                  shape='round'
+                  color='success'
+                  
+                  >
+                    <IonText className='ion-padding-vertical'>Register</IonText>
+                    <IonIcon slot="end" icon={checkmarkDoneOutline} />
+                  </IonButton>
+                )}
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonFooter>
     </IonPage>
   );
 };
