@@ -5,13 +5,13 @@ import { BARANGAYS } from '../../../constants/barangays';
 import { arrowBack, arrowForward, cloudUpload } from 'ionicons/icons';
 
 interface Page3Props {
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
   barangay: string;
   onBarangayChange: (value: string) => void;
 }
 
-const Page3: React.FC<Page3Props> = ({ onNext, onBack, barangay, onBarangayChange }) => {
+const Page3: React.FC<Page3Props> = ({ barangay, onBarangayChange }) => {
   return (
     <>
     <IonCardTitle className="ion-padding-vertical">
@@ -61,20 +61,7 @@ const Page3: React.FC<Page3Props> = ({ onNext, onBack, barangay, onBarangayChang
           </IonCol>
         </IonRow>
 
-        <IonRow className="ion-justify-content-between ion-margin-top">
-                <IonCol size="5">
-                  <IonButton fill='outline' expand="block" onClick={onBack} shape='round' className='ion-padding-vertical'>
-                    Back
-                    <IonIcon icon={arrowBack} slot="start" />
-                  </IonButton>
-                </IonCol>
-                <IonCol size="5">
-                  <IonButton expand="block" onClick={onNext} shape='round' className='ion-padding-vertical'>
-                    Next
-                    <IonIcon icon={arrowForward} slot="end" />
-                  </IonButton>
-                </IonCol>
-              </IonRow>
+        
       </IonGrid>
     </>
   );

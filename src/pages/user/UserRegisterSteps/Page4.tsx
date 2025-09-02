@@ -7,11 +7,11 @@ interface Page4Props {
   password: string;
   confirmPassword?: string; // Make it optional to avoid breaking changes if not passed
   onChange: (field: string, value: string) => void;
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
 }
 
-const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange, onNext, onBack }) => {
+const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -71,20 +71,7 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
         </IonInput>
       </div>
      
-      <IonRow className="ion-justify-content-between ion-margin-top">
-        <IonCol size="5">
-          <IonButton fill='outline' expand="block" onClick={onBack} shape='round' className='ion-padding-vertical'>
-            Back
-            <IonIcon icon={arrowBack} slot="start" />
-          </IonButton>
-        </IonCol>
-        <IonCol size="5">
-          <IonButton expand="block" onClick={onNext} shape='round' className='ion-padding-vertical'>
-            Next
-            <IonIcon icon={arrowForward} slot="end" />
-          </IonButton>
-        </IonCol>
-      </IonRow>
+      
     </>
   );
 };
