@@ -93,34 +93,7 @@ const fullAddress = addressParts.filter(part => part && part.trim() !== "").join
         </IonItem>
       </IonList>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <IonGrid>
-        <IonRow className="ion-justify-content-between ion-margin-top">
-          <IonCol size="5">
-            <IonButton
-              expand="block"
-              onClick={onBack}
-              shape="round"
-              className="ion-padding-vertical"
-              fill='outline'
-            >
-              Back
-              <IonIcon icon={arrowBack} slot="start" />
-            </IonButton>
-          </IonCol>
-          <IonCol size="5">
-            <IonButton
-              expand="block"
-              onClick={onSubmit}
-              disabled={loading}
-              shape="round"
-              className="ion-padding-vertical"
-            >
-              {loading ? "Creating Account..." : "Create Account"}
-              <IonIcon icon={personAdd} slot="end" />
-            </IonButton>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
+      
     </>
   );
 };

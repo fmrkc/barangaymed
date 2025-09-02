@@ -61,20 +61,7 @@ const Page3: React.FC<Page3Props> = ({ onNext, onBack, barangayId, onBarangayCha
           </IonCol>
         </IonRow>
 
-        <IonRow className="ion-justify-content-between ion-margin-top">
-                <IonCol size="5">
-                  <IonButton fill='outline' expand="block" onClick={onBack} shape='round' className='ion-padding-vertical'>
-                    Back
-                    <IonIcon icon={arrowBack} slot="start" />
-                  </IonButton>
-                </IonCol>
-                <IonCol size="5">
-                  <IonButton expand="block" onClick={onNext} shape='round' className='ion-padding-vertical'>
-                    Next
-                    <IonIcon icon={arrowForward} slot="end" />
-                  </IonButton>
-                </IonCol>
-              </IonRow>
+        
       </IonGrid>
     </>
   );

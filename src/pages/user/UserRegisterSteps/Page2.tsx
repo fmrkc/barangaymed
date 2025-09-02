@@ -11,11 +11,11 @@ interface Page2Props {
   zipCode: string;
   contactNumber: string;
   onChange: (field: string, value: string) => void;
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
 }
 
-const Page2: React.FC<Page2Props> = ({ lotBlkHouseNo, streetName, subdivisionVillageZonePurok, zipCode, contactNumber, onChange, onNext, onBack }) => {
+const Page2: React.FC<Page2Props> = ({ lotBlkHouseNo, streetName, subdivisionVillageZonePurok, zipCode, contactNumber, onChange }) => {
   const phoneMaskOptions: MaskitoOptions = {
     mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
   };
@@ -96,31 +96,7 @@ const Page2: React.FC<Page2Props> = ({ lotBlkHouseNo, streetName, subdivisionVil
         </IonInput>
       </div>
 
-      <IonRow className="ion-justify-content-between ion-margin-top">
-        <IonCol size="5">
-          <IonButton
-            expand="block"
-            onClick={onBack}
-            shape="round"
-            className="ion-padding-vertical"
-            fill='outline'
-          >
-            Back
-            <IonIcon icon={arrowBack} slot="start" />
-          </IonButton>
-        </IonCol>
-        <IonCol size="5">
-          <IonButton
-            expand="block"
-            onClick={onNext}
-            shape="round"
-            className="ion-padding-vertical"
-          >
-            Next
-            <IonIcon icon={arrowForward} slot="end" />
-          </IonButton>
-        </IonCol>
-      </IonRow>
+      
     </>
   );
 };
