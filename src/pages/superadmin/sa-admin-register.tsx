@@ -11,7 +11,7 @@ const SuperAdminRegister: React.FC = () => {
 
     const [fullName, setFullName] = useState('');
     const [contactEmail, setContactEmail] = useState('');
-    const [barangay, setBarangay] = useState('');
+    const [barangayId, setBarangay] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
 
@@ -19,7 +19,7 @@ const SuperAdminRegister: React.FC = () => {
         event.preventDefault();
         setError(null);
 
-        if (!fullName || !contactEmail || !barangay) {
+        if (!fullName || !contactEmail || !barangayId) {
             setError('Full Name, Contact Email, and Barangay are required.');
             return;
         }
@@ -31,7 +31,7 @@ const SuperAdminRegister: React.FC = () => {
                 fullName,
                 contactEmail,
                 role: 'admin',
-                barangayId: barangay,
+                barangayId: barangayId,
             });
             
             dismiss();
@@ -87,7 +87,7 @@ const SuperAdminRegister: React.FC = () => {
                                     <IonItem>
                                       <IonLabel>Barangay</IonLabel>
                                       <IonSelect
-                                          value={barangay}
+                                          value={barangayId}
                                           placeholder="Select Barangay"
                                           onIonChange={e => setBarangay(e.detail.value)}
                                       >

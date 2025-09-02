@@ -99,7 +99,7 @@ email: string, password: string, name: string, role: string, userData: { [key: s
       userName: name, // Use the 'name' parameter passed to the function
       role: role, // Use the 'role' parameter passed to the function
       details: {
-        barangay: userData.barangayId, // Access from userData
+        barangayId: userData.barangayId, // Access from userData
         contactNumber: userData.contactNumber, // Access from userData
         address: combinedAddress, // Use the combined address
         lotBlkHouseNo: userData.lotBlkHouseNo,

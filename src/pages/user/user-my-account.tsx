@@ -79,7 +79,7 @@ const Account: React.FC = () => {
           setEditEmail(userData.email || currentUser.email || "");
           setFullName([userData.firstName, userData.middleName, userData.lastName, userData.suffix].filter(Boolean).join(' '));
           
-          setEditBarangay(userData.barangay || "");
+          setEditBarangay(userData.barangayId || "");
           setEditAddress(userData.address || "");
           setEditContactNumber(userData.contactNumber || "");
         }
@@ -179,7 +179,7 @@ const Account: React.FC = () => {
           setEditLastName(userData.lastName || "");
           setEditSuffix(userData.suffix || "");
           setEditEmail(userData.email || currentUser.email || "");
-          setEditBarangay(userData.barangay || "");
+          setEditBarangay(userData.barangayId || "");
           setEditAddress(userData.address || "");
           setEditContactNumber(userData.contactNumber || "");
         }

@@ -38,13 +38,13 @@ export class MedicineService {
 
   /**
    * Fetches medicines from the 'medicines' collection filtered by barangay.
-   * @param barangay The barangay to filter by.
+   * @param barangayId The barangay to filter by.
    * @returns Promise resolving to an array of Medicine objects.
    */
-  public async getMedicinesByBarangay(barangay: string): Promise<Medicine[]> {
+  public async getMedicinesByBarangay(barangayId: string): Promise<Medicine[]> {
     const q = query(
       collection(db, 'medicines'),
-      where('barangayId', '==', barangay)
+      where('barangayId', '==', barangayId)
     );
     const querySnapshot = await getDocs(q);
     const medicines: Medicine[] = [];
@@ -150,13 +150,13 @@ export class MedicineService {
    * @param uid The user ID to get barangay for.
    * @returns Promise resolving to an object containing user data including barangay.
    */
-  public async getbarangayId(uid: string): Promise<{ barangay: string }> {
+  public async getbarangayId(uid: string): Promise<{ barangayId: string }> {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const data = userDoc.data();
-      return { barangay: data.barangayId || '' };
+      return { barangayId: data.barangayId || '' };
     }
-    return { barangay: '' };
+    return { barangayId: '' };
   }
 
   /**

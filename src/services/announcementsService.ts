@@ -27,7 +27,7 @@ export class AnnouncementsService {
   /**
    * Upload images to Firebase Storage and return their URLs
    */
-  private async uploadImages(images: File[], barangay: string, announcementId: string, userId: string, userEmail: string): Promise<AnnouncementImage[]> {
+  private async uploadImages(images: File[], barangayId: string, announcementId: string, userId: string, userEmail: string): Promise<AnnouncementImage[]> {
     if (!images || images.length === 0) return [];
 
     // Validate image count
@@ -52,7 +52,7 @@ export class AnnouncementsService {
         // Create storage path
         const timestamp = Date.now();
         const imageName = `${timestamp}_${image.name}`;
-        const storagePath = `announcements/${barangay}/${announcementId}/${imageName}`;
+        const storagePath = `announcements/${barangayId}/${announcementId}/${imageName}`;
         const storageRef = ref(storage, storagePath);
 
         // Upload image
@@ -103,7 +103,7 @@ export class AnnouncementsService {
    */
   async createAnnouncement(
     data: AnnouncementFormData, 
-    barangay: string, 
+    barangayId: string, 
     userId: string, 
     userEmail: string
   ): Promise<string> {
@@ -111,7 +111,7 @@ export class AnnouncementsService {
       const announcementData = {
         title: data.title,
         content: data.content,
-        barangayId: barangay,
+        barangayId: barangayId,
         createdBy: userId,
         createdByEmail: userEmail,
         createdAt: serverTimestamp(),
@@ -128,7 +128,7 @@ export class AnnouncementsService {
         if (data.images.length > this.maxImagesPerAnnouncement) {
           throw new Error(`Maximum ${this.maxImagesPerAnnouncement} images allowed per announcement`);
         }
-        uploadedImages = await this.uploadImages(data.images, barangay, docRef.id, userId, userEmail);
+        uploadedImages = await this.uploadImages(data.images, barangayId, docRef.id, userId, userEmail);
         
         // Update the announcement with image URLs
         await updateDoc(doc(db, this.collectionName, docRef.id), {
@@ -144,7 +144,7 @@ export class AnnouncementsService {
         metadata: {
           action: 'create_announcement',
           announcementId: docRef.id,
-          barangay,
+          barangayId,
           title: data.title,
           priority: data.priority,
           imageCount: uploadedImages.length
@@ -152,7 +152,7 @@ export class AnnouncementsService {
       });
 
       // Create notifications for all users in the barangay
-      this.createNotificationsForAnnouncement(docRef.id, data.title, barangay);
+      this.createNotificationsForAnnouncement(docRef.id, data.title, barangayId);
 
       return docRef.id;
     } catch (error) {
@@ -163,7 +163,7 @@ export class AnnouncementsService {
         metadata: {
           action: 'create_announcement_failed',
           error: error instanceof Error ? error.message : 'Unknown error',
-          barangay,
+          barangayId,
           title: data.title
         }
       });
@@ -209,11 +209,11 @@ export class AnnouncementsService {
   /**
    * Get all announcements for admin management (includes inactive ones)
    */
-  async getAllAnnouncementsForBarangay(barangay: string): Promise<Announcement[]> {
+  async getAllAnnouncementsForBarangay(barangayId: string): Promise<Announcement[]> {
     try {
       const q = query(
         collection(db, this.collectionName),
-        where('barangayId', '==', barangay),
+        where('barangayId', '==', barangayId),
         orderBy('createdAt', 'desc')
       );
 
@@ -243,7 +243,7 @@ export class AnnouncementsService {
         metadata: {
           action: 'fetch_all_announcements_failed',
           error: error instanceof Error ? error.message : 'Unknown error',
-          barangay
+          barangayId
         }
       });
       throw error;
@@ -253,11 +253,11 @@ export class AnnouncementsService {
   /**
    * Get all ACTIVE announcements for a given barangay (for user view)
    */
-  async getActiveAnnouncementsForBarangay(barangay: string): Promise<Announcement[]> {
+  async getActiveAnnouncementsForBarangay(barangayId: string): Promise<Announcement[]> {
     try {
       const q = query(
         collection(db, this.collectionName),
-        where('barangayId', '==', barangay),
+        where('barangayId', '==', barangayId),
         where('isActive', '==', true),
         orderBy('createdAt', 'desc')
       );
@@ -288,7 +288,7 @@ export class AnnouncementsService {
         metadata: {
           action: 'fetch_active_announcements_failed',
           error: error instanceof Error ? error.message : 'Unknown error',
-          barangay
+          barangayId
         }
       });
       throw error;
@@ -327,8 +327,8 @@ export class AnnouncementsService {
           throw new Error(`Maximum ${this.maxImagesPerAnnouncement} images allowed per announcement`);
         }
 
-        const barangay = announcementData.barangay;
-        const uploadedImages = await this.uploadImages(newImages, barangay, announcementId, userId, userEmail);
+        const barangayId = announcementData.barangayId;
+        const uploadedImages = await this.uploadImages(newImages, barangayId, announcementId, userId, userEmail);
 
         updateData.images = (updateData.images || []).concat(uploadedImages);
       }
@@ -419,9 +419,9 @@ export class AnnouncementsService {
 
       const announcementData = announcementDoc.data();
       const announcementTitle = announcementData?.title || 'Untitled Announcement';
-      const barangay = announcementData?.barangayId;
+      const barangayId = announcementData?.barangayId;
 
-      if (!barangay) {
+      if (!barangayId) {
         throw new Error('Barangay information missing for announcement.');
       }
 
@@ -446,7 +446,7 @@ export class AnnouncementsService {
       await sendNotification({
         announcementId,
         announcementTitle,
-        barangayId: barangay
+        barangayId: barangayId
       });
 
       logEvent('info', 'Announcement reactivation notification sent', {
@@ -456,7 +456,7 @@ export class AnnouncementsService {
         metadata: {
           action: 'send_announcement_notification',
           announcementId,
-          barangay
+          barangayId
         }
       });
 
@@ -478,10 +478,10 @@ export class AnnouncementsService {
   /**
    * Create notifications for all users in the barangay when a new announcement is created
    */
-  private async createNotificationsForAnnouncement(announcementId: string, announcementTitle: string, barangay: string): Promise<void> {
+  private async createNotificationsForAnnouncement(announcementId: string, announcementTitle: string, barangayId: string): Promise<void> {
     try {
       const userService = UserService.getInstance();
-      const users = await userService.getUsersByBarangay(barangay);
+      const users = await userService.getUsersByBarangay(barangayId);
 
       // Create a log entry for each user to trigger notification
       for (const user of users) {

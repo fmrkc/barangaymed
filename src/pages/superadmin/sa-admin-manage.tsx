@@ -11,7 +11,7 @@ interface AdminUser {
     email: string;
     name: string;
     role: string;
-    barangay?: string;
+    barangayId?: string;
     createdAt?: any;
 }
 
@@ -44,7 +44,7 @@ const adminmanagement: React.FC = () => {
                         email: data.email,
                         name: data.name,
                         role: data.role,
-                        barangay: data.barangay,
+                        barangayId: data.barangayId,
                         createdAt: data.createdAt
                     });
                 }
@@ -74,7 +74,7 @@ const adminmanagement: React.FC = () => {
             setEditName(admin.name);
             setEditEmail(admin.email);
             setEditRole(admin.role);
-            setEditBarangay(admin.barangay || '');
+            setEditBarangay(admin.barangayId || '');
             setEditModalOpen(true);
         }
     };
@@ -96,14 +96,14 @@ const adminmanagement: React.FC = () => {
                 name: editName,
                 email: editEmail,
                 role: editRole,
-                barangay: editBarangay,
+                barangayId: editBarangay,
                 updatedAt: new Date()
             });
 
             // Update local state
             setAdmins(admins.map(admin => 
                 admin.id === selectedAdmin.id 
-                    ? { ...admin, name: editName, email: editEmail, role: editRole, barangay: editBarangay }
+                    ? { ...admin, name: editName, email: editEmail, role: editRole, barangayId: editBarangay }
                     : admin
             ));
 
@@ -185,7 +185,7 @@ const adminmanagement: React.FC = () => {
                                                         <h2>{admin.name}</h2>
                                                         <p>{admin.email}</p>
                                                         <p>Role: {admin.role}</p>
-                                                        {admin.barangay && <p>Barangay: {admin.barangay}</p>}
+                                                        {admin.barangayId && <p>Barangay: {admin.barangayId}</p>}
                                                         <p>Created: {formatDate(admin.createdAt)}</p>
                                                     </IonLabel>
                                                     <IonIcon icon={ellipsisVertical} slot="end" />
