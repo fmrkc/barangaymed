@@ -1,4 +1,4 @@
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, useIonLoading, useIonRouter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, IonTitle, useIonLoading, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline, eye, eyeOff } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
@@ -80,6 +80,7 @@ const Login: React.FC = () => {
           <Intro onFinish={finishIntro} />
         ) : (
           <IonPage>
+            <IonTitle>Login</IonTitle>
             <IonContent scrollY={false}>
               <IonGrid
                 fixed

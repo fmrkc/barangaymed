@@ -274,6 +274,8 @@ const UserRegister: React.FC = () => {
                     <Page3
                       barangayId={barangayId}
                       onBarangayChange={setBarangay}
+                      onNext={onNext}
+                      onBack={onBack}
                     />
                   )}
                   {step === 4 && (
