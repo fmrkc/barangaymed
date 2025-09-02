@@ -1,5 +1,5 @@
 import { IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router';
 
 import Dashboard from './sa-dashboard';
@@ -40,6 +40,10 @@ const Menu: React.FC = () => {
         setShowLoading(false);
       }
     };
+
+    useEffect(() => {
+    document.title = 'Super Admin Dashboard - BarangayMed+';
+  }, []);
 
     return (
       <IonPage>

@@ -1,5 +1,5 @@
 import { IonButton, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonPage, IonRow, IonInput, IonIcon, useIonLoading, useIonRouter, IonCardSubtitle, IonText } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lockClosed, logInSharp, person, personCircle, eye, eyeOff } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png';
 import { useAuth } from '../../contexts/AuthContext';
@@ -53,6 +53,10 @@ const SuperAdminLogin: React.FC = () => {
       setError('Login failed. Please check your email/password.');
     }
   };
+
+  useEffect(() => {
+    document.title = 'Super Admin Login - BarangayMed+';
+  }, []);
 
   return (
     <IonPage>

@@ -1,6 +1,6 @@
 import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonPage, IonRouterLink, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast, IonText } from '@ionic/react';
-import { checkmarkDoneOutline, chevronBack, chevronForward } from 'ionicons/icons';
-import React from 'react';
+import { checkmarkDoneOutline, chevronBack, chevronForward, close } from 'ionicons/icons';
+import React, { useEffect } from 'react';
 
 import { registerUserWithFullData } from '../../firebaseConfig';
 import { sendEmailVerification } from 'firebase/auth';
@@ -234,12 +234,16 @@ const UserRegister: React.FC = () => {
     setStep(prev => Math.max(prev - 1, 1));
   };
 
+
+
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" color={'primary'}  />
+          <IonButtons slot="end">
+            <IonButton routerLink="/user/login" routerDirection="back">
+              <IonIcon slot="icon-only" icon={close} />
+            </IonButton>
           </IonButtons>
           <IonTitle>Create Account</IonTitle>
         </IonToolbar>

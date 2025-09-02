@@ -1,5 +1,5 @@
 import { IonPage, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -18,6 +18,10 @@ import { clipboard, home, notifications, person } from 'ionicons/icons';
 const UserDashboard: React.FC = () => {
   const { currentUser } = useAuth();
   const [selectedTab, setSelectedTab] = useState('home'); // State to track selected tab
+
+  useEffect(() => {
+    document.title = 'User Dashboard - BarangayMed+';
+  }, []);
 
   return (
       <IonTabs>

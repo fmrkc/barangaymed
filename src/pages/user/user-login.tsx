@@ -74,13 +74,17 @@ const Login: React.FC = () => {
         Preferences.remove({ key:INTR0_KEY });
     }; 
 
+    useEffect(() => {
+    document.title = 'BarangayMed+';
+  }, []);
+
     return (
       <>
         {!introSeen ? (
           <Intro onFinish={finishIntro} />
         ) : (
           <IonPage>
-            <IonTitle>Login</IonTitle>
+         
             <IonContent scrollY={false}>
               <IonGrid
                 fixed
