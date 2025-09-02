@@ -158,9 +158,9 @@ const SA_Med_Requests: React.FC = () => {
                     <IonCardContent>
                       <IonText color="medium">
                         <IonText color="medium">
-                          <p>Requesting from: Brgy. {request.barangay}</p>
+                          <p>Requesting from: Brgy. {request.barangayId}</p>
                           <p></p>
-                          <p>Brgy. {request.barangay} currently has: {request.currentQuantity} units</p>
+                          <p>Brgy. {request.barangayId} currently has: {request.currentQuantity} units</p>
                         </IonText>
                       </IonText>
                       <div style={{ marginTop: '16px', textAlign: 'right' }}>

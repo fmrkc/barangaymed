@@ -49,7 +49,7 @@ const TelePage3: React.FC<TelePage3Props> = ({ step1Data, step2Data }) => {
         userName: step2Data.fullName,
         userPhone: step2Data.phone,
         userAddress: step2Data.address,
-        barangayId: step2Data.barangay,
+        barangayId: step2Data.barangayId,
         preferredDate: new Date(step1Data.preferredDate),
         preferredTime: step1Data.preferredTime,
         symptoms: step1Data.symptoms,
@@ -112,7 +112,7 @@ const TelePage3: React.FC<TelePage3Props> = ({ step1Data, step2Data }) => {
                     <p><strong>Email:</strong> {step2Data.email}</p>
                     <p><strong>Phone:</strong> {step2Data.phone}</p>
                     <p><strong>Address:</strong> {step2Data.address}</p>
-                    <p><strong>Barangay:</strong> {step2Data.barangay}</p>
+                    <p><strong>Barangay:</strong> {step2Data.barangayId}</p>
                   </IonText>
 
                   <div className="ion-margin-top">

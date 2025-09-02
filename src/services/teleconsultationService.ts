@@ -98,13 +98,13 @@ export class TeleconsultationService {
 
   /**
    * Fetches all teleconsultation requests for a specific barangay
-   * @param barangay The barangay to filter by
+   * @param barangayId The barangay to filter by
    * @returns Promise resolving to an array of TeleconsultationRequest objects
    */
-  public async getTeleconsultationRequestsByBarangay(barangay: string): Promise<TeleconsultationRequest[]> {
+  public async getTeleconsultationRequestsByBarangay(barangayId: string): Promise<TeleconsultationRequest[]> {
     const q = query(
       collection(db, 'teleconsultationRequests'),
-      where('barangayId', '==', barangay)
+      where('barangayId', '==', barangayId)
     );
 
     const querySnapshot = await getDocs(q);

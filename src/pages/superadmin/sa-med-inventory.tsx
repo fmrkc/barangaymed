@@ -209,7 +209,7 @@ const Medicine_Inventory: React.FC = () => {
         quantity: parseInt(quantity),
         expiryDate: new Date(expiryDate),
         location: selectedLocation,
-        barangayId: selectedLocation === 'barangay' ? selectedBarangay : undefined,
+        barangayId: selectedLocation === 'barangayId' ? selectedBarangay : undefined,
       };
 
       const medicineId = await medicineService.addMedicine(newMedicine);
@@ -226,7 +226,7 @@ const Medicine_Inventory: React.FC = () => {
             type: newMedicine.type,
             quantity: newMedicine.quantity,
             location: newMedicine.location,
-            barangay: newMedicine.barangayId,
+            barangayId: newMedicine.barangayId,
             message: `Added ${newMedicine.quantity} units of ${newMedicine.name} to inventory.`
           }
         });
@@ -468,8 +468,8 @@ const Medicine_Inventory: React.FC = () => {
           >
             <IonSelectOption value="rhu">RHU Inventory</IonSelectOption>
            
-            {BARANGAYS.map(barangay => (
-              <IonSelectOption key={barangay} value={barangay}>{barangay}</IonSelectOption>
+            {BARANGAYS.map(barangayId => (
+              <IonSelectOption key={barangayId} value={barangayId}>{barangayId}</IonSelectOption>
             ))}
              <IonSelectOption value="all">All Barangays</IonSelectOption>
           </IonSelect>
@@ -556,8 +556,8 @@ const Medicine_Inventory: React.FC = () => {
             {
               text: 'Specific Barangay Inventory',
               handler: () => {
-                setSelectedLocationBeforeModal('barangay');
-                setSelectedLocation('barangay');
+                setSelectedLocationBeforeModal('barangayId');
+                setSelectedLocation('barangayId');
                 setShowModal(true);
               }
             },
@@ -645,11 +645,11 @@ const Medicine_Inventory: React.FC = () => {
                   onIonChange={(e) => setSelectedLocation(e.detail.value)}
                 >
                   <IonSelectOption value="rhu">RHU (Default)</IonSelectOption>
-                  <IonSelectOption value="barangay">Specific Barangay</IonSelectOption>
+                  <IonSelectOption value="barangayId">Specific Barangay</IonSelectOption>
                 </IonSelect>
               </IonItem>
 
-              {selectedLocation === 'barangay' && (
+              {selectedLocation === 'barangayId' && (
                 <IonItem>
                   <IonLabel position="stacked">Select Barangay *</IonLabel>
                   <IonSelect 
@@ -657,8 +657,8 @@ const Medicine_Inventory: React.FC = () => {
                     onIonChange={(e) => setSelectedBarangay(e.detail.value)}
                     placeholder="Choose barangay"
                   >
-                    {BARANGAYS.map(barangay => (
-                      <IonSelectOption key={barangay} value={barangay}>{barangay}</IonSelectOption>
+                    {BARANGAYS.map(barangayId => (
+                      <IonSelectOption key={barangayId} value={barangayId}>{barangayId}</IonSelectOption>
                     ))}
                   </IonSelect>
                 </IonItem>
@@ -788,7 +788,7 @@ const Medicine_Inventory: React.FC = () => {
                     {medicineRequests.map((request) => (
                       <IonItem key={request.id}>
                         <IonLabel>
-                          <h3>Request from {request.barangay}</h3>
+                          <h3>Request from {request.barangayId}</h3>
                           <p>Quantity: {request.quantity} units</p>
                           <p>Status: 
                             <IonChip color={getStatusColor(request.status)}>

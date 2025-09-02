@@ -81,7 +81,7 @@ export class UserService {
 
   /**
    * Gets all users in a specific barangay
-   * @param barangay The barangay to filter users by
+   * @param barangayId The barangay to filter users by
    * @returns Promise resolving to array of user IDs and emails
    */
   public async getUsersByBarangay(barangayId: string): Promise<{ uid: string; email: string }[]> {

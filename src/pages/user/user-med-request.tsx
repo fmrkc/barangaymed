@@ -77,7 +77,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
     setUserDetails({
       name: currentUser?.displayName || currentUser?.email || '',
       address: '',
-      barangayId: 'Apalit'
+      barangayId: 'Apalit' // 'Apalit'
     });
   };
 
@@ -141,91 +141,92 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
     setPickupDate('');
   };
 
-  const submitRequest = async () => {
-    if (!selectedMedicine || !currentUser) return;
+const submitRequest = async () => {
+  if (!selectedMedicine || !currentUser) return;
 
-    // Check if user has too many pending requests
-    if (hasTooManyPendingRequests) {
+  if (hasTooManyPendingRequests) {
+    presentToast({
+      message: `You have ${pendingRequestsCount} pending requests. Please wait until they are fulfilled before making new requests.`,
+      duration: 3000,
+      color: 'danger'
+    });
+    return;
+  }
+
+  await present('Submitting request...');
+  try {
+    const latestMedicine = await medicineService.getMedicineById(selectedMedicine.id!);
+    if (!latestMedicine || quantity > latestMedicine.quantity) {
+      dismiss();
       presentToast({
-        message: `You have ${pendingRequestsCount} pending requests. Please wait until they are fulfilled before making new requests.`,
+        message: 'Not enough stock available. Please check the quantity.',
         duration: 3000,
         color: 'danger'
       });
       return;
     }
 
-    await present('Submitting request...');
-    try {
-      // Check quantity again before final submission to prevent race conditions
-      const latestMedicine = await medicineService.getMedicineById(selectedMedicine.id!);
-      if (!latestMedicine || quantity > latestMedicine.quantity) {
-        dismiss();
-        presentToast({
-          message: 'Not enough stock available. Please check the quantity.',
-          duration: 3000,
-          color: 'danger'
-        });
-        return;
-      }
+    const requestData = {
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      userName: userDetails.name,
+      userAddress: userDetails.address,
+      barangayId: userDetails.barangayId,
+      medicineId: selectedMedicine.id,
+      medicineName: selectedMedicine.name,
+      medicineType: selectedMedicine.type,
+      quantity,
+      pickupDate: new Date(pickupDate),
+      status: 'pending',
+      requestDate: serverTimestamp(),
+      notes: ''
+    };
 
-      const requestData = {
-        userId: currentUser.uid,
-        userEmail: currentUser.email,
-        userName: userDetails.name,
-        userAddress: userDetails.address,
-        barangayId: userDetails.barangayId,
-        medicineId: selectedMedicine.id,
-        medicineName: selectedMedicine.name,
-        medicineType: selectedMedicine.type,
-        quantity: quantity,
-        pickupDate: new Date(pickupDate),
-        status: 'pending',
-        requestDate: serverTimestamp(),
-        notes: ''
-      };
+    // Save request
+    const docRef = await addDoc(collection(db, 'medicineRequests'), requestData);
+    console.log("✅ Request saved:", docRef.id);
 
-      await addDoc(collection(db, 'medicineRequests'), requestData);
+    // 🔴 TEMPORARILY DISABLED
+    // await medicineService.decrementMedicineQuantity(selectedMedicine.id!, quantity);
+    // console.log("✅ Medicine quantity decremented");
 
-      // Decrement medicine quantity
-      await medicineService.decrementMedicineQuantity(selectedMedicine.id!, quantity);
+    // 🔴 TEMPORARILY DISABLED
+    // await logService.logActivity({
+    //   action: 'medicine_inventory_update',
+    //   userId: currentUser.uid,
+    //   userEmail: currentUser.email || 'unknown@email.com',
+    //   userName: userDetails.name,
+    //   role: 'user',
+    //   details: {
+    //     medicineId: selectedMedicine.id,
+    //     medicineName: selectedMedicine.name,
+    //     quantityChange: -quantity,
+    //     reason: 'request_fulfilled',
+    //     requestId: docRef.id,
+    //     newQuantity: latestMedicine.quantity - quantity
+    //   }
+    // });
+    // console.log("✅ Activity logged");
 
-      // Log inventory change
-      await logService.logActivity({
-        action: 'medicine_inventory_update',
-        userId: currentUser.uid,
-        userEmail: currentUser.email || 'unknown@email.com',
-        userName: userDetails.name,
-        role: 'user',
-        details: {
-          medicineId: selectedMedicine.id,
-          medicineName: selectedMedicine.name,
-          quantityChange: -quantity,
-          reason: 'request_fulfilled',
-          requestId: requestData.medicineId, // Link to the request
-          newQuantity: latestMedicine.quantity - quantity // This will be the quantity after decrement
-        }
-      });
+    dismiss();
+    presentToast({
+      message: 'Medicine request submitted successfully!',
+      duration: 3000,
+      color: 'success'
+    });
 
-      dismiss();
-      presentToast({
-        message: 'Medicine request submitted successfully!',
-        duration: 3000,
-        color: 'success'
-      });
-      
-      // Close modal and reset form
-      onDidDismiss();
-      resetForm();
-    } catch (error) {
-      dismiss();
-      presentToast({
-        message: 'Error submitting request',
-        duration: 3000,
-        color: 'danger'
-      });
-      console.error('Error submitting request:', error);
-    }
-  };
+    onDidDismiss();
+    resetForm();
+  } catch (error) {
+    dismiss();
+    presentToast({
+      message: 'Error submitting request',
+      duration: 4000,
+      color: 'danger'
+    });
+    console.error('🚨 Final error handler:', error);
+  }
+};
 
   return (
     <IonModal 

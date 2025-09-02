@@ -14,7 +14,7 @@ interface Page5Props {
   contactNumber: string;
   email: string;
   password: string;
-  barangay: string;
+  barangayId: string;
   onBack: () => void;
   onSubmit: () => void;
   loading: boolean;
@@ -32,7 +32,7 @@ const Page5: React.FC<Page5Props> = ({
   zipCode,
   contactNumber,
   email,
-  barangay,
+  barangayId,
   onBack,
   onSubmit,
   loading,
@@ -43,7 +43,7 @@ const Page5: React.FC<Page5Props> = ({
   lotBlkHouseNo,
   streetName,
   subdivisionVillageZonePurok,
-  barangay,
+  barangayId,
   "Floridablanca",
   "Pampanga",
   zipCode
@@ -84,7 +84,7 @@ const fullAddress = addressParts.filter(part => part && part.trim() !== "").join
 
         <IonItem>
           <IonIcon slot="start" icon={map} aria-hidden="true"></IonIcon>
-          <IonInput readonly value={barangay}></IonInput>
+          <IonInput readonly value={barangayId}></IonInput>
         </IonItem>
 
         <IonItem>

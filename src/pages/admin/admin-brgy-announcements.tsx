@@ -163,7 +163,7 @@ const BarangayAnnouncements: React.FC = () => {
           userRole: userRole || '',
           metadata: {
             action: 'load_announcements_failed',
-            barangay: barangayId,
+            barangayId: barangayId,
             error: error instanceof Error ? error.message : 'Unknown error',
             errorDetails: JSON.stringify(error)
           }

@@ -66,7 +66,7 @@ const UserAnnouncements: React.FC = () => {
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        setbarangayId(data.barangay || '');
+        setbarangayId(data.barangayId || '');
       }
     } catch (error) {
       console.error('Error loading user barangay:', error);

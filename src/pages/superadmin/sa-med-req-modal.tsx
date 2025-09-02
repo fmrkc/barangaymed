@@ -34,7 +34,7 @@ const SA_Med_Request_Modal: React.FC<SA_Med_Request_ModalProps> = ({ isOpen, onC
       </IonHeader>
       <IonContent className="ion-padding">
         <IonText>
-          <h2>Brgy. {request.barangay} is requesting:</h2>
+          <h2>Brgy. {request.barangayId} is requesting:</h2>
           <IonText color={'primary'}><h2> {request.medicineName} ({request.medicineType})</h2></IonText>
         </IonText>
 
@@ -50,7 +50,7 @@ const SA_Med_Request_Modal: React.FC<SA_Med_Request_ModalProps> = ({ isOpen, onC
 
         <IonItem>
           <IonLabel>
-            <p>Current Stock of {request.medicineName} ({request.medicineType}) in {request.barangay}:</p>
+            <p>Current Stock of {request.medicineName} ({request.medicineType}) in {request.barangayId}:</p>
             <h3>{request.currentQuantity} units</h3>
           </IonLabel>
         </IonItem>

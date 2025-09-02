@@ -39,7 +39,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
     email: '',
     phone: '',
     address: '',
-    barangay: '',
+    barangayId: '',
     notes: '',
   });
 
@@ -64,7 +64,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
           email: userData.email,
           phone: userData.contactNumber,
           address: userData.address,
-          barangay: userData.barangayId,
+          barangayId: userData.barangayId,
           notes: '', // Initialize notes field
         });
         setError(null);
@@ -80,7 +80,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
   }, [currentUser]);
 
   const handleNext = () => {
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangay) {
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangayId) {
       alert('Please fill in all required fields');
       return;
     }
@@ -165,8 +165,8 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                       <IonItem>
                         <IonLabel position="stacked">Barangay *</IonLabel>
                         <IonInput
-                          value={formData.barangay}
-                          onIonChange={(e) => setFormData({ ...formData, barangay: e.detail.value! })}
+                          value={formData.barangayId}
+                          onIonChange={(e) => setFormData({ ...formData, barangayId: e.detail.value! })}
                           placeholder="Enter your barangay"
                         />
                       </IonItem>
@@ -190,7 +190,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                     <IonButton 
                       expand="block" 
                       onClick={handleNext}
-                      disabled={!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangay}
+                      disabled={!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangayId}
                     >
                       Next
                     </IonButton>

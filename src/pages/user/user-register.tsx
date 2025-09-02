@@ -33,7 +33,7 @@ const UserRegister: React.FC = () => {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [role] = React.useState('user'); // fixed role
-  const [barangay, setBarangay] = React.useState(''); // new state for barangay
+  const [barangayId, setBarangay] = React.useState(''); // new state for barangay
   const [error, setError] = React.useState<string | null>(null);
 
   const onChange = (field: string, value: string) => {
@@ -109,7 +109,7 @@ const UserRegister: React.FC = () => {
         subdivisionVillageZonePurok,
         zipCode,
         contactNumber,
-        barangay // include barangay in registration data
+        barangayId // include barangay in registration data
       });
 
       await sendEmailVerification(userCredential);
@@ -193,8 +193,8 @@ const UserRegister: React.FC = () => {
         if (!isValidContactNumber(contactNumber)) return 'Please enter a valid Philippine contact number.';
         break;
       case 3:
-        if (!barangay.trim()) return 'Barangay is required.';
-        if (!isValidBarangay(barangay)) return 'Please select a valid barangay from the list.';
+        if (!barangayId.trim()) return 'Barangay is required.';
+        if (!isValidBarangay(barangayId)) return 'Please select a valid barangay from the list.';
         break;
       case 4:
         if (!email.trim()) return 'Email is required.';
@@ -275,7 +275,7 @@ const UserRegister: React.FC = () => {
                   )}
                   {step === 3 && (
                     <Page3
-                      barangay={barangay}
+                      barangayId={barangayId}
                       onBarangayChange={setBarangay}
                       onNext={onNext}
                       onBack={onBack}
@@ -304,7 +304,7 @@ const UserRegister: React.FC = () => {
                       contactNumber={contactNumber}
                       email={email}
                       password={password}
-                      barangay={barangay} // pass barangay to summary page
+                      barangayId={barangayId} // pass barangay to summary page
                       onBack={onBack}
                       onSubmit={doRegister}
                       error={error} loading={false}                    />
