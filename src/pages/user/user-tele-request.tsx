@@ -36,7 +36,6 @@ import { LogService } from '../../services/logService';
 import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
-import { BARANGAYS } from '../../constants/barangays';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -58,8 +57,14 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     fullName: '',
     email: '',
     phone: '',
-    address: '',
+    selectedRegion: '',
+    selectedProvince: '',
+    selectedCityMunicipality: '',
     barangayId: '',
+    zipCode: '',
+    lotBlkHouseNo: '',
+    streetName: '',
+    subdivisionVillageZonePurok: '',
   });
 
   useEffect(() => {
@@ -82,8 +87,14 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           fullName: fullName,
           email: userData.email,
           phone: userData.contactNumber,
-          address: userData.address,
-          barangayId: userData.barangayId,
+          selectedRegion: userData.selectedRegion || '',
+          selectedProvince: userData.selectedProvince || '',
+          selectedCityMunicipality: userData.selectedCityMunicipality || '',
+          barangayId: userData.barangayId || '',
+          zipCode: userData.zipCode || '',
+          lotBlkHouseNo: userData.lotBlkHouseNo || '',
+          streetName: userData.streetName || '',
+          subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok || '',
         }));
 
         // Check for existing pending teleconsultation requests
@@ -128,13 +139,24 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     }
 
     try {
+      const userAddressString = [
+        formData.lotBlkHouseNo,
+        formData.streetName,
+        formData.subdivisionVillageZonePurok,
+        formData.barangayId,
+        formData.selectedCityMunicipality,
+        formData.selectedProvince,
+        formData.selectedRegion,
+        formData.zipCode,
+      ].filter(Boolean).join(', ');
+
       const teleconsultationData: Omit<TeleconsultationRequest, 'id'> = {
         userId: currentUser.uid,
         userEmail: formData.email,
         userName: formData.fullName,
         userPhone: formData.phone,
-        userAddress: formData.address,
-        barangayId: formData.barangayId,
+        userAddress: userAddressString, // Use the constructed detailed address string
+        barangayId: formData.barangayId, // Keep barangayId for filtering/admin purposes
         preferredDate: new Date(formData.preferredDate),
         preferredTime: formData.preferredTime,
         symptoms: formData.symptoms,
@@ -296,8 +318,14 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         <p><strong>Name:</strong> {formData.fullName}</p>
                         <p><strong>Email:</strong> {formData.email}</p>
                         <p><strong>Phone:</strong> {formData.phone}</p>
-                        <p><strong>Address:</strong> {formData.address}</p>
+                        <p><strong>Region:</strong> {formData.selectedRegion}</p>
+                        <p><strong>Province:</strong> {formData.selectedProvince}</p>
+                        <p><strong>City/Municipality:</strong> {formData.selectedCityMunicipality}</p>
                         <p><strong>Barangay:</strong> {formData.barangayId}</p>
+                        <p><strong>Zip Code:</strong> {formData.zipCode}</p>
+                        <p><strong>Lot/Blk/House No.:</strong> {formData.lotBlkHouseNo}</p>
+                        <p><strong>Street Name:</strong> {formData.streetName}</p>
+                        <p><strong>Subdivision/Village/Zone/Purok:</strong> {formData.subdivisionVillageZonePurok}</p>
                       </IonText>
 
                       <div className="ion-margin-top">

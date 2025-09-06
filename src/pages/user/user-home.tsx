@@ -6,10 +6,11 @@ import UserMedRequestModal from './user-med-request';
 import UserTeleRequest from './user-tele-request';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+import { useHistory } from 'react-router-dom';
 
 
 const Home: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, verificationStatus } = useAuth();
     const [firstName, setFirstName] = useState("");
     const [isLoadingUserData, setIsLoadingUserData] = useState(true);
       
@@ -41,6 +42,8 @@ const Home: React.FC = () => {
     const [showMedicineModal, setShowMedicineModal] = useState(false);
     const [showTeleconsultationModal, setShowTeleconsultationModal] = useState(false);
 
+    const isVerified = verificationStatus === 'verified';
+
     return (
         <>
             <IonHeader className='ion-no-border'>
@@ -53,13 +56,18 @@ const Home: React.FC = () => {
                     <IonRow>
                         <IonCol size="12"  className="ion-text-center">   
                             <h1><IonText style={{ fontWeight: 'bold' }} color={'primary'}>Welcome {firstName}!</IonText></h1>
+                            {!isVerified && (
+                              <p style={{ color: 'red', fontWeight: 'bold' }}>
+                                Your account is not verified. Some features may be restricted.
+                              </p>
+                            )}
                             <p>Access BarangayMed's features below:</p>
                         </IonCol>
                     </IonRow>
 
                     <IonRow>
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
+                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowMedicineModal(true) : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
@@ -69,13 +77,19 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     <IonText>
                                         Request over-the-counter medicines from your barangay.
+                                        {!isVerified && (
+                                            <>
+                                                <br />
+                                                <small style={{ color: 'red' }}>Verification required</small>
+                                            </>
+                                        )}
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
 
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowMedicineModal(true)}>
+                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowMedicineModal(true) : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={receipt} style={{ marginRight: '8px' }} />
@@ -85,6 +99,12 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     <IonText>
                                         Upload your prescription here and we'll try to fulfill it.
+                                        {!isVerified && (
+                                            <>
+                                                <br />
+                                                <small style={{ color: 'red' }}>Verification required</small>
+                                            </>
+                                        )}
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
@@ -92,7 +112,7 @@ const Home: React.FC = () => {
 
                         
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button onClick={() => setShowTeleconsultationModal(true)}>
+                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowTeleconsultationModal(true) : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
@@ -100,13 +120,21 @@ const Home: React.FC = () => {
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    <IonText>Book appointments for teleconsultation with healthcare professionals.</IonText> 
+                                    <IonText>
+                                        Book appointments for teleconsultation with healthcare professionals.
+                                        {!isVerified && (
+                                            <>
+                                                <br />
+                                                <small style={{ color: 'red' }}>Verification required</small>
+                                            </>
+                                        )}
+                                    </IonText>
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
 
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={'primary'} button routerLink="/user/dashboard/announcements">
+                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} routerLink={isVerified ? "/user/dashboard/announcements" : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonText>
@@ -116,8 +144,16 @@ const Home: React.FC = () => {
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    <IonText>View the latest announcements from your barangay.</IonText>
-                                    
+                                    <IonText>
+                                        View the latest announcements from your barangay.
+                                        {!isVerified && (
+                                            <>
+                                                <br />
+                                                <small style={{ color: 'red' }}>Verification required</small>
+                                            </>
+                                        )}
+                                    </IonText>
+
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>

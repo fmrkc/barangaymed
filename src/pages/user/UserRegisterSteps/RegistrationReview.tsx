@@ -7,6 +7,7 @@ interface Page5Props {
   middleName: string;
   lastName: string;
   suffix: string;
+  birthdate: string;
   lotBlkHouseNo: string;
   streetName: string;
   subdivisionVillageZonePurok: string;
@@ -31,8 +32,10 @@ const Page5: React.FC<Page5Props> = ({
   subdivisionVillageZonePurok,
   zipCode,
   contactNumber,
-  email,
+    email,
+  password,
   barangayId,
+  birthdate,
   onBack,
   onSubmit,
   loading,
@@ -65,6 +68,14 @@ const fullAddress = addressParts.filter(part => part && part.trim() !== "").join
           <IonInput
             readonly
             value={`${firstName} ${middleName} ${lastName} ${suffix}`}
+          ></IonInput>
+        </IonItem>
+
+        <IonItem>
+          <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
+          <IonInput
+            readonly
+            value={`Birthdate: ${birthdate}`}
           ></IonInput>
         </IonItem>
 

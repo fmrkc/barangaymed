@@ -2,16 +2,24 @@ import React from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle, IonIcon, IonText } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { clipboard, medkit, megaphone } from 'ionicons/icons';
+import { useAuth } from '../../contexts/AuthContext';
 
 const UserRequests: React.FC = () => {
   const history = useHistory();
+  const { verificationStatus } = useAuth();
+
+  const isVerified = verificationStatus === 'verified';
 
   const handleMedicineRequest = () => {
-    history.push('/user/dashboard/requests/medicine');
+    if (isVerified) {
+      history.push('/user/dashboard/requests/medicine');
+    }
   };
 
   const handleTeleconsultationRequest = () => {
-    history.push('/user/dashboard/requests/teleconsultation');
+    if (isVerified) {
+      history.push('/user/dashboard/requests/teleconsultation');
+    }
   };
 
   return (

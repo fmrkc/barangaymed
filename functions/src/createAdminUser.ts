@@ -1,6 +1,6 @@
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import admin from "firebase-admin"; // Corrected import style
-import { logger } from "firebase-functions";
+import { logger, config } from "firebase-functions"; // Import config
 import * as nodemailer from 'nodemailer';
 import { randomBytes } from "crypto";
 
@@ -21,30 +21,30 @@ const generateAdminEmail = (domain = "barangaymed.app") => {
  * Callable function to provision a new admin or superadmin user.
  * Creates a user with a random email/password and sends credentials to a contact email.
  */
-export const provisionUser = functions.https.onCall(async (data, context) => {
+export const provisionUser = onCall(async (request) => {
   // 1. Authorization Check
-  if (context.auth?.token.email !== 'barangaymed@gmail.com') {
+  if (request.auth?.token.email !== 'barangaymed@gmail.com') {
     logger.error("Attempt to provision user by non-authorized user:", { 
-      uid: context.auth?.uid,
-      email: context.auth?.token.email
+      uid: request.auth?.uid,
+      email: request.auth?.token.email
     });
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'permission-denied',
       'You are not authorized to perform this action.'
     );
   }
 
-  const { contactEmail, role, barangayId, fullName } = data;
+  const { contactEmail, role, barangayId, fullName } = request.data;
 
   // 2. Input Validation
   if (!contactEmail || !role || !fullName) {
-    throw new functions.https.HttpsError('invalid-argument', 'Missing required fields: contactEmail, fullName, and role.');
+    throw new HttpsError('invalid-argument', 'Missing required fields: contactEmail, fullName, and role.');
   }
   if (!['admin', 'superadmin'].includes(role)) {
-    throw new functions.https.HttpsError('invalid-argument', 'Role must be either \'admin\' or \'superadmin\'.');
+    throw new HttpsError('invalid-argument', 'Role must be either \'admin\' or \'superadmin\'.');
   }
   if (role === 'admin' && !barangayId) {
-    throw new functions.https.HttpsError('invalid-argument', 'Barangay ID is required for admin role.');
+    throw new HttpsError('invalid-argument', 'Barangay ID is required for admin role.');
   }
 
   const generatedEmail = generateAdminEmail();
@@ -75,20 +75,20 @@ export const provisionUser = functions.https.onCall(async (data, context) => {
       barangayId: role === 'admin' ? barangayId : null,
       contactEmail: contactEmail, // Store the contact email for reference
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      createdBy: context.auth.uid,
+      createdBy: request.auth.uid,
     });
 
     // 6. Send credentials via email using Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: functions.config().gmail.email,
-        pass: functions.config().gmail.app_password,
+        user: config().gmail.email,
+        pass: config().gmail.app_password,
       },
     });
 
     const mailOptions = {
-      from: `"BarangayMed+" <${functions.config().gmail.email}>`,
+      from: `"BarangayMed+" <${config().gmail.email}>`,
       to: contactEmail,
       subject: 'Your BarangayMed+ Account Credentials',
       html: `
@@ -122,6 +122,6 @@ export const provisionUser = functions.https.onCall(async (data, context) => {
     if (user) {
       await admin.auth().deleteUser(user.uid);
     }
-    throw new functions.https.HttpsError('internal', 'An error occurred while creating the user.');
+    throw new HttpsError('internal', 'An error occurred while creating the user.');
   }
 });

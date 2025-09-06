@@ -4,6 +4,7 @@ import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/fir
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { LogService } from './services/logService';
+import { UserData } from './types/users';
 
 const config = {
   apiKey: "AIzaSyC-xkTe-o0WJcWU-NUIwdEQaxONfpMfAFc",
@@ -60,7 +61,7 @@ export async function registerUserWithRole(email: string, password: string, role
 }
 
 export async function registerUserWithFullData(
-email: string, password: string, name: string, role: string, userData: { [key: string]: any; }) {
+email: string, password: string, name: string, role: string, userData: UserData) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -74,8 +75,6 @@ email: string, password: string, name: string, role: string, userData: { [key: s
     if (userData.streetName) addressParts.push(`${userData.streetName}`);
     if (userData.subdivisionVillageZonePurok) addressParts.push(`${userData.subdivisionVillageZonePurok}`);
     addressParts.push(`${userData.barangayId}`); // Barangay is required
-    addressParts.push('Floridablanca'); // Fixed value
-    addressParts.push('Pampanga'); // Fixed value
     if (userData.zipCode) addressParts.push(`${userData.zipCode}`);
 
     const combinedAddress = addressParts.join(', ');
@@ -85,6 +84,7 @@ email: string, password: string, name: string, role: string, userData: { [key: s
       email: email,
       name: name,
       role: role,
+      verificationStatus: 'unverified', // Set initial verification status
       createdAt: serverTimestamp(),
       ...userData,
       address: combinedAddress // Add the combined address

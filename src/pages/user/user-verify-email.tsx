@@ -32,13 +32,17 @@ const UserVerifyEmail: React.FC = () => {
 
   const handleRefreshStatus = async () => {
     await refreshUserClaims(); // This will reload the user and update emailVerified status in AuthContext
-    if (currentUser?.emailVerified) {
+
+    // Get the latest user object directly from Firebase Auth
+    const latestUser = auth.currentUser;
+
+    if (latestUser?.emailVerified) {
       presentToast({
         message: 'Email successfully verified!',
         duration: 3000,
         color: 'success',
       });
-      history.push('/user/dashboard'); // Redirect to dashboard or appropriate page
+      history.push('/user/login'); // Redirect to dashboard or appropriate page
     } else {
       presentToast({
         message: 'Email not yet verified. Please check your inbox.',

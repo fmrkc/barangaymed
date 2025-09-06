@@ -17,8 +17,14 @@ import { checkmarkCircle, chevronBack, cube, home, medkit, person } from 'ionico
 interface Page3Props {
   userDetails: {
     name: string;
-    address: string;
+    selectedRegion: string;
+    selectedProvince: string;
+    selectedCityMunicipality: string;
     barangayId: string;
+    zipCode: string;
+    lotBlkHouseNo: string;
+    streetName: string;
+    subdivisionVillageZonePurok: string;
   };
   selectedMedicine: any;
   quantity: number;
@@ -67,7 +73,6 @@ const Page3: React.FC<Page3Props> = ({
       
           <IonItem>
             <IonInput
-
               label='Requesting:'
               labelPlacement='floating'
               readonly
@@ -97,6 +102,15 @@ const Page3: React.FC<Page3Props> = ({
             </IonInput>
           </IonItem>
 
+          <IonItem>
+            <IonLabel position="stacked">Pickup Location:</IonLabel>
+            <IonText>
+              <p>{userDetails.lotBlkHouseNo && `${userDetails.lotBlkHouseNo}, `}{userDetails.streetName}</p>
+              <p>{userDetails.subdivisionVillageZonePurok && `${userDetails.subdivisionVillageZonePurok}, `}{userDetails.barangayId}</p>
+              <p>{userDetails.selectedCityMunicipality}, {userDetails.selectedProvince}</p>
+              <p>{userDetails.selectedRegion} {userDetails.zipCode}</p>
+            </IonText>
+          </IonItem>
        
         </IonList>
 

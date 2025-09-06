@@ -1,0 +1,5417 @@
+[
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Batac",
+    "ZIPCODE": "2906"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Laoag ",
+    "ZIPCODE": "2900"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Candon",
+    "ZIPCODE": "2706"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Vigan ",
+    "ZIPCODE": "2700"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of San Fernando ",
+    "ZIPCODE": "2500"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Alaminos",
+    "ZIPCODE": "2404"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Dagupan",
+    "ZIPCODE": "2400"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of San Carlos",
+    "ZIPCODE": "2420"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "City of Urdaneta",
+    "ZIPCODE": "2428"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Tuguegarao City ",
+    "ZIPCODE": "3500"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "City of Cauayan",
+    "ZIPCODE": "3304"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "City of Ilagan ",
+    "ZIPCODE": "3300"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "City of Santiago",
+    "ZIPCODE": "3306"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Balanga ",
+    "ZIPCODE": "2100"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Baliwag",
+    "ZIPCODE": "3006"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Malolos ",
+    "ZIPCODE": "3000"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Meycauayan",
+    "ZIPCODE": "3020"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of San Jose Del Monte",
+    "ZIPCODE": "3023"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Cabanatuan",
+    "ZIPCODE": "3100"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Gapan",
+    "ZIPCODE": "3103"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Science City of MuÃ±oz",
+    "ZIPCODE": "3119"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Palayan ",
+    "ZIPCODE": "3120"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Jose City",
+    "ZIPCODE": "3116"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Angeles",
+    "ZIPCODE": "2009"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Mabalacat City",
+    "ZIPCODE": "2010"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of San Fernando ",
+    "ZIPCODE": "2000"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Tarlac ",
+    "ZIPCODE": "2300"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "City of Olongapo",
+    "ZIPCODE": "2200"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Batangas City ",
+    "ZIPCODE": "4200"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Calaca",
+    "ZIPCODE": "4218"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Lipa",
+    "ZIPCODE": "4217"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Sto. Tomas",
+    "ZIPCODE": "4234"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Tanauan",
+    "ZIPCODE": "4232"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Bacoor",
+    "ZIPCODE": "4102"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Cavite",
+    "ZIPCODE": "4100"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of DasmariÃ±as",
+    "ZIPCODE": "4114"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of General Trias",
+    "ZIPCODE": "4107"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Imus",
+    "ZIPCODE": "4103"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Tagaytay",
+    "ZIPCODE": "4120"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Trece Martires ",
+    "ZIPCODE": "4107"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of BiÃ±an",
+    "ZIPCODE": "4024"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Cabuyao",
+    "ZIPCODE": "4025"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Calamba",
+    "ZIPCODE": "4027"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of San Pablo",
+    "ZIPCODE": "4000"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of San Pedro",
+    "ZIPCODE": "4023"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Santa Rosa",
+    "ZIPCODE": "4026"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Lucena ",
+    "ZIPCODE": "4301"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Tayabas",
+    "ZIPCODE": "4320"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "City of Antipolo ",
+    "ZIPCODE": "1870"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "City of Calapan ",
+    "ZIPCODE": "5200"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "City of Puerto Princesa ",
+    "ZIPCODE": "5300"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Legazpi ",
+    "ZIPCODE": "4500"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Ligao",
+    "ZIPCODE": "4520"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Tabaco",
+    "ZIPCODE": "4511"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Iriga",
+    "ZIPCODE": "4427"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Naga",
+    "ZIPCODE": "4400"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Masbate ",
+    "ZIPCODE": "5400"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "City of Sorsogon ",
+    "ZIPCODE": "4700"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Roxas ",
+    "ZIPCODE": "5800"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Iloilo ",
+    "ZIPCODE": "5000"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Passi",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Bacolod ",
+    "ZIPCODE": "6100"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Bago",
+    "ZIPCODE": "6104"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Cadiz",
+    "ZIPCODE": "6122"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Escalante",
+    "ZIPCODE": "6127"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Himamaylan",
+    "ZIPCODE": "6130"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Kabankalan",
+    "ZIPCODE": "6110"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of La Carlota",
+    "ZIPCODE": "6127"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Sagay",
+    "ZIPCODE": "6122"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of San Carlos",
+    "ZIPCODE": "6127"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Silay",
+    "ZIPCODE": "6116"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Sipalay",
+    "ZIPCODE": "6128"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Talisay",
+    "ZIPCODE": "6115"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "City of Victorias",
+    "ZIPCODE": "6129"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Tagbilaran ",
+    "ZIPCODE": "6300"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Bogo",
+    "ZIPCODE": "6011"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Carcar",
+    "ZIPCODE": "6042"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Cebu ",
+    "ZIPCODE": "6000"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Danao City",
+    "ZIPCODE": "6006"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Lapu-Lapu",
+    "ZIPCODE": "6015"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Mandaue",
+    "ZIPCODE": "6014"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Naga",
+    "ZIPCODE": "6037"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Talisay",
+    "ZIPCODE": "6045"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Toledo",
+    "ZIPCODE": "6030"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Bais",
+    "ZIPCODE": "6202"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Bayawan",
+    "ZIPCODE": "6210"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Canlaon",
+    "ZIPCODE": "6217"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Dumaguete ",
+    "ZIPCODE": "6200"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Guihulngan",
+    "ZIPCODE": "6212"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "City of Tanjay",
+    "ZIPCODE": "6204"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "City of Borongan ",
+    "ZIPCODE": "6800"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "City of Baybay",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Ormoc City",
+    "ZIPCODE": "6540"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "City of Tacloban ",
+    "ZIPCODE": "6500"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "City of Calbayog",
+    "ZIPCODE": "6710"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "City of Catbalogan ",
+    "ZIPCODE": "6700"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "City of Maasin ",
+    "ZIPCODE": "6600"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "City of Dapitan",
+    "ZIPCODE": "7101"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "City of Dipolog ",
+    "ZIPCODE": "7100"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "City of Pagadian ",
+    "ZIPCODE": "7015"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "City of Zamboanga",
+    "ZIPCODE": "7000"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Malaybalay ",
+    "ZIPCODE": "8700"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Valencia",
+    "ZIPCODE": "8709"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Iligan",
+    "ZIPCODE": "9200"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Oroquieta ",
+    "ZIPCODE": "7207"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Ozamiz",
+    "ZIPCODE": "7200"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Tangub",
+    "ZIPCODE": "7208"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Cagayan De Oro ",
+    "ZIPCODE": "9000"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of El Salvador",
+    "ZIPCODE": "9007"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "City of Gingoog",
+    "ZIPCODE": "9002"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "City of Panabo",
+    "ZIPCODE": "8105"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Island Garden City of Samal",
+    "ZIPCODE": "8103"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "City of Tagum ",
+    "ZIPCODE": "8100"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "City of Davao",
+    "ZIPCODE": "8000"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "City of Digos ",
+    "ZIPCODE": "8002"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "City of Mati ",
+    "ZIPCODE": "8200"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "City of Kidapawan ",
+    "ZIPCODE": "9400"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "City of General Santos",
+    "ZIPCODE": "9500"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "City of Koronadal ",
+    "ZIPCODE": "9506"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "City of Tacurong",
+    "ZIPCODE": "9804"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "City of Mandaluyong",
+    "ZIPCODE": "1550"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "City of Marikina",
+    "ZIPCODE": "1800"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "City of Pasig",
+    "ZIPCODE": "1600"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "City of Muntinlupa",
+    "ZIPCODE": "1770"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "City of ParaÃ±aque",
+    "ZIPCODE": "1700"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "Pasay City",
+    "ZIPCODE": "1300"
+  },
+  {
+    "REGION": "National Capital Region (NCR)",
+    "MUNICIPALITY/CITY": "City of Taguig",
+    "ZIPCODE": "1630"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "City of Baguio",
+    "ZIPCODE": "2600"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "City of Tabuk ",
+    "ZIPCODE": "3800"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "City of Butuan ",
+    "ZIPCODE": "8600"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "City of Cabadbaran",
+    "ZIPCODE": "8610"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "City of Bayugan",
+    "ZIPCODE": "8609"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "City of Surigao ",
+    "ZIPCODE": "8400"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "City of Bislig",
+    "ZIPCODE": "8306"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "City of Tandag ",
+    "ZIPCODE": "8300"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "City of Lamitan ",
+    "ZIPCODE": "7302"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "City of Marawi ",
+    "ZIPCODE": "9700"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "City of Cotabato",
+    "ZIPCODE": "9600"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bacarra",
+    "ZIPCODE": "2902"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Badoc",
+    "ZIPCODE": "2905"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bangui",
+    "ZIPCODE": "2903"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Burgos",
+    "ZIPCODE": "2905"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Carasi",
+    "ZIPCODE": "2909"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Currimao",
+    "ZIPCODE": "2916"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Dumalneg",
+    "ZIPCODE": "2908"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Pagudpud",
+    "ZIPCODE": "2905"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Paoay",
+    "ZIPCODE": "2903"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Pasuquin",
+    "ZIPCODE": "2903"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Piddig",
+    "ZIPCODE": "2903"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Pinili",
+    "ZIPCODE": "2905"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Sarrat",
+    "ZIPCODE": "2906"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Solsona",
+    "ZIPCODE": "2913"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Vintar",
+    "ZIPCODE": "2908"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Alilem",
+    "ZIPCODE": "2727"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bantay",
+    "ZIPCODE": "2701"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Burgos",
+    "ZIPCODE": "2711"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Cabugao",
+    "ZIPCODE": "2727"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Cervantes",
+    "ZIPCODE": "2728"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Gregorio del Pilar",
+    "ZIPCODE": "2727"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Lidlidda",
+    "ZIPCODE": "2727"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Magsingal",
+    "ZIPCODE": "2716"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Nagbukel",
+    "ZIPCODE": "2713"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Narvacan",
+    "ZIPCODE": "2715"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "San Emilio",
+    "ZIPCODE": "2721"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "San Juan",
+    "ZIPCODE": "2722"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Santa",
+    "ZIPCODE": "2719"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Santa Cruz",
+    "ZIPCODE": "2732"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Santa Maria",
+    "ZIPCODE": "2716"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Sigay",
+    "ZIPCODE": "2719"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Sinait",
+    "ZIPCODE": "2716"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Sugpon",
+    "ZIPCODE": "2716"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Tagudin",
+    "ZIPCODE": "2721"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Agoo",
+    "ZIPCODE": "2504"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Aringay",
+    "ZIPCODE": "2516"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bacnotan",
+    "ZIPCODE": "2511"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Balaoan",
+    "ZIPCODE": "2512"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bauang",
+    "ZIPCODE": "2516"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Caba",
+    "ZIPCODE": "2514"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Luna",
+    "ZIPCODE": "2513"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Naguilian",
+    "ZIPCODE": "2512"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Pugo",
+    "ZIPCODE": "2515"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Rosario",
+    "ZIPCODE": "2514"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "San Juan",
+    "ZIPCODE": "2514"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Santo Tomas",
+    "ZIPCODE": "2511"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Sudipen",
+    "ZIPCODE": "2516"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Anda",
+    "ZIPCODE": "2414"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Asingan",
+    "ZIPCODE": "2428"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bani",
+    "ZIPCODE": "2413"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bayambang",
+    "ZIPCODE": "2427"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Binalonan",
+    "ZIPCODE": "2424"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Binmaley",
+    "ZIPCODE": "2411"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bolinao",
+    "ZIPCODE": "2406"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Bugallon",
+    "ZIPCODE": "2428"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Burgos",
+    "ZIPCODE": "2427"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Calasiao",
+    "ZIPCODE": "2412"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Dasol",
+    "ZIPCODE": "2428"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Infanta",
+    "ZIPCODE": "2414"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Lingayen ",
+    "ZIPCODE": "2401"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Malasiqui",
+    "ZIPCODE": "2426"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Manaoag",
+    "ZIPCODE": "2436"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Mangaldan",
+    "ZIPCODE": "2417"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Mangatarem",
+    "ZIPCODE": "2426"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Mapandan",
+    "ZIPCODE": "2426"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Pozorrubio",
+    "ZIPCODE": "2415"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Rosales",
+    "ZIPCODE": "2426"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "San Fabian",
+    "ZIPCODE": "2427"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "San Nicolas",
+    "ZIPCODE": "2414"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Santa Maria",
+    "ZIPCODE": "2425"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Santo Tomas",
+    "ZIPCODE": "2426"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Sison",
+    "ZIPCODE": "2427"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Tayug",
+    "ZIPCODE": "2432"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Umingan",
+    "ZIPCODE": "2427"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Urbiztondo",
+    "ZIPCODE": "2429"
+  },
+  {
+    "REGION": "Region I (Ilocos Region)",
+    "MUNICIPALITY/CITY": "Villasis",
+    "ZIPCODE": "2427"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Basco ",
+    "ZIPCODE": "3900"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Itbayat",
+    "ZIPCODE": "3905"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Ivana",
+    "ZIPCODE": "3901"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Mahatao",
+    "ZIPCODE": "3903"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Sabtang",
+    "ZIPCODE": "3905"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Uyugan",
+    "ZIPCODE": "3905"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Abulug",
+    "ZIPCODE": "3521"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Alcala",
+    "ZIPCODE": "3514"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Allacapan",
+    "ZIPCODE": "3504"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Amulung",
+    "ZIPCODE": "3504"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Aparri",
+    "ZIPCODE": "3504"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Baggao",
+    "ZIPCODE": "3513"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Ballesteros",
+    "ZIPCODE": "3526"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Buguey",
+    "ZIPCODE": "3521"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Calayan",
+    "ZIPCODE": "3508"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Claveria",
+    "ZIPCODE": "3515"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Gonzaga",
+    "ZIPCODE": "3523"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Iguig",
+    "ZIPCODE": "3511"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Lal-Lo",
+    "ZIPCODE": "3504"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Piat",
+    "ZIPCODE": "3506"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Sanchez-Mira",
+    "ZIPCODE": "3521"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Santa Ana",
+    "ZIPCODE": "3522"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Tuao",
+    "ZIPCODE": "3504"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Alicia",
+    "ZIPCODE": "3315"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Angadanan",
+    "ZIPCODE": "3313"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Aurora",
+    "ZIPCODE": "3305"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Benito Soliven",
+    "ZIPCODE": "3322"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Cabagan",
+    "ZIPCODE": "3321"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Echague",
+    "ZIPCODE": "3306"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Mallig",
+    "ZIPCODE": "3327"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Quezon",
+    "ZIPCODE": "3319"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "San Guillermo",
+    "ZIPCODE": "3323"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "San Manuel",
+    "ZIPCODE": "3317"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "San Mateo",
+    "ZIPCODE": "3322"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Santa Maria",
+    "ZIPCODE": "3331"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Tumauini",
+    "ZIPCODE": "3319"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Ambaguio",
+    "ZIPCODE": "3708"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Aritao",
+    "ZIPCODE": "3705"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Bagabag",
+    "ZIPCODE": "3711"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Bambang",
+    "ZIPCODE": "3706"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Bayombong ",
+    "ZIPCODE": "3700"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Diadi",
+    "ZIPCODE": "3704"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Kayapa",
+    "ZIPCODE": "3721"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Quezon",
+    "ZIPCODE": "3713"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Santa Fe",
+    "ZIPCODE": "3717"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Solano",
+    "ZIPCODE": "3710"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Aglipay",
+    "ZIPCODE": "3405"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Cabarroguis ",
+    "ZIPCODE": "3401"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Diffun",
+    "ZIPCODE": "3404"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Maddela",
+    "ZIPCODE": "3403"
+  },
+  {
+    "REGION": "Region II (Cagayan Valley)",
+    "MUNICIPALITY/CITY": "Nagtipunan",
+    "ZIPCODE": "3409"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Abucay",
+    "ZIPCODE": "2105"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Bagac",
+    "ZIPCODE": "2107"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Dinalupihan",
+    "ZIPCODE": "2103"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Hermosa",
+    "ZIPCODE": "2107"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Limay",
+    "ZIPCODE": "2105"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Mariveles",
+    "ZIPCODE": "2105"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Morong",
+    "ZIPCODE": "2106"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Orani",
+    "ZIPCODE": "2106"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Orion",
+    "ZIPCODE": "2109"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Pilar",
+    "ZIPCODE": "2106"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Angat",
+    "ZIPCODE": "3014"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Balagtas",
+    "ZIPCODE": "3016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Bocaue",
+    "ZIPCODE": "3016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Bustos",
+    "ZIPCODE": "3014"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Calumpit",
+    "ZIPCODE": "3014"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Guiguinto",
+    "ZIPCODE": "3015"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Hagonoy",
+    "ZIPCODE": "3018"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Marilao",
+    "ZIPCODE": "3019"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Norzagaray",
+    "ZIPCODE": "3013"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Obando",
+    "ZIPCODE": "3016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Pandi",
+    "ZIPCODE": "3016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Paombong",
+    "ZIPCODE": "3012"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Plaridel",
+    "ZIPCODE": "3015"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Pulilan",
+    "ZIPCODE": "3016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Miguel",
+    "ZIPCODE": "3011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Rafael",
+    "ZIPCODE": "3011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Santa Maria",
+    "ZIPCODE": "3022"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "DoÃ±a Remedios Trinidad",
+    "ZIPCODE": "3019"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Aliaga",
+    "ZIPCODE": "3116"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Bongabon",
+    "ZIPCODE": "3126"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Cabiao",
+    "ZIPCODE": "3114"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Cuyapo",
+    "ZIPCODE": "3126"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Gabaldon",
+    "ZIPCODE": "3126"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "General Tinio",
+    "ZIPCODE": "3121"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Laur",
+    "ZIPCODE": "3121"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Licab",
+    "ZIPCODE": "3117"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Llanera",
+    "ZIPCODE": "3122"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Lupao",
+    "ZIPCODE": "3126"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "PeÃ±aranda",
+    "ZIPCODE": "3119"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Rizal",
+    "ZIPCODE": "3121"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Leonardo",
+    "ZIPCODE": "3121"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Santa Rosa",
+    "ZIPCODE": "3117"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Talavera",
+    "ZIPCODE": "3111"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Zaragoza",
+    "ZIPCODE": "3131"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Apalit",
+    "ZIPCODE": "2014"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Arayat",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Bacolor",
+    "ZIPCODE": "2001"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Candaba",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Floridablanca",
+    "ZIPCODE": "2013"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Guagua",
+    "ZIPCODE": "2003"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Lubao",
+    "ZIPCODE": "2018"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Macabebe",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Magalang",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Masantol",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Mexico",
+    "ZIPCODE": "2006"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Porac",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Luis",
+    "ZIPCODE": "2016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Simon",
+    "ZIPCODE": "2015"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Santa Ana",
+    "ZIPCODE": "2016"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Sasmuan",
+    "ZIPCODE": "2011"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Anao",
+    "ZIPCODE": "2311"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Bamban",
+    "ZIPCODE": "2314"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Camiling",
+    "ZIPCODE": "2317"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Capas",
+    "ZIPCODE": "2317"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Mayantoc",
+    "ZIPCODE": "2315"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Moncada",
+    "ZIPCODE": "2316"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Paniqui",
+    "ZIPCODE": "2315"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Ramos",
+    "ZIPCODE": "2316"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Clemente",
+    "ZIPCODE": "2316"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Santa Ignacia",
+    "ZIPCODE": "2317"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Victoria",
+    "ZIPCODE": "2315"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Jose",
+    "ZIPCODE": "2316"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Botolan",
+    "ZIPCODE": "2208"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Cabangan",
+    "ZIPCODE": "2208"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Candelaria",
+    "ZIPCODE": "2206"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Castillejos",
+    "ZIPCODE": "2207"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Iba ",
+    "ZIPCODE": "2201"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Masinloc",
+    "ZIPCODE": "2206"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Palauig",
+    "ZIPCODE": "2208"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Marcelino",
+    "ZIPCODE": "2209"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Narciso",
+    "ZIPCODE": "2205"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Santa Cruz",
+    "ZIPCODE": "2206"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Subic",
+    "ZIPCODE": "2200"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Baler ",
+    "ZIPCODE": "3200"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Casiguran",
+    "ZIPCODE": "3209"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Dilasag",
+    "ZIPCODE": "3208"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Dinalungan",
+    "ZIPCODE": "3203"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Dingalan",
+    "ZIPCODE": "3206"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "Dipaculao",
+    "ZIPCODE": "3204"
+  },
+  {
+    "REGION": "Region III (Central Luzon)",
+    "MUNICIPALITY/CITY": "San Luis",
+    "ZIPCODE": "3204"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Agoncillo",
+    "ZIPCODE": "4205"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Balayan",
+    "ZIPCODE": "4207"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Balete",
+    "ZIPCODE": "4217"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Bauan",
+    "ZIPCODE": "4205"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Ibaan",
+    "ZIPCODE": "4231"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Lemery",
+    "ZIPCODE": "4217"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Lian",
+    "ZIPCODE": "4217"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Lobo",
+    "ZIPCODE": "4228"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Mabini",
+    "ZIPCODE": "4208"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Malvar",
+    "ZIPCODE": "4233"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Mataasnakahoy",
+    "ZIPCODE": "4211"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Nasugbu",
+    "ZIPCODE": "4230"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Padre Garcia",
+    "ZIPCODE": "4222"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Rosario",
+    "ZIPCODE": "4216"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "San Juan",
+    "ZIPCODE": "4228"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Taal",
+    "ZIPCODE": "4208"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Talisay",
+    "ZIPCODE": "4236"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Taysan",
+    "ZIPCODE": "4231"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Tingloy",
+    "ZIPCODE": "4208"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Tuy",
+    "ZIPCODE": "4208"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Alfonso",
+    "ZIPCODE": "4122"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Amadeo",
+    "ZIPCODE": "4122"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Carmona",
+    "ZIPCODE": "4107"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "General Emilio Aguinaldo",
+    "ZIPCODE": "4111"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Indang",
+    "ZIPCODE": "4122"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Kawit",
+    "ZIPCODE": "4104"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Maragondon",
+    "ZIPCODE": "4112"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Naic",
+    "ZIPCODE": "4105"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Noveleta",
+    "ZIPCODE": "4106"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Rosario",
+    "ZIPCODE": "4106"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Silang",
+    "ZIPCODE": "4118"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Tanza",
+    "ZIPCODE": "4108"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Ternate",
+    "ZIPCODE": "4117"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Gen. Mariano Alvarez",
+    "ZIPCODE": "4117"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Alaminos",
+    "ZIPCODE": "4004"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Bay",
+    "ZIPCODE": "4004"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Calauan",
+    "ZIPCODE": "4004"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Cavinti",
+    "ZIPCODE": "4018"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Famy",
+    "ZIPCODE": "4010"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Kalayaan",
+    "ZIPCODE": "4014"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Liliw",
+    "ZIPCODE": "4017"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Los BaÃ±os",
+    "ZIPCODE": "4030"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Luisiana",
+    "ZIPCODE": "4018"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Lumban",
+    "ZIPCODE": "4015"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Mabitac",
+    "ZIPCODE": "4004"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Majayjay",
+    "ZIPCODE": "4018"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Nagcarlan",
+    "ZIPCODE": "4001"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Paete",
+    "ZIPCODE": "4018"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Pagsanjan",
+    "ZIPCODE": "4418"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Pakil",
+    "ZIPCODE": "4006"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Pila",
+    "ZIPCODE": "4005"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Santa Cruz ",
+    "ZIPCODE": "4004"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Victoria",
+    "ZIPCODE": "4018"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Agdangan",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Alabat",
+    "ZIPCODE": "4321"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Atimonan",
+    "ZIPCODE": "4328"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Burdeos",
+    "ZIPCODE": "4329"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Calauag",
+    "ZIPCODE": "4316"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Candelaria",
+    "ZIPCODE": "4323"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Catanauan",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "General Nakar",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Guinayangan",
+    "ZIPCODE": "4328"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Gumaca",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Infanta",
+    "ZIPCODE": "4318"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Jomalig",
+    "ZIPCODE": "4328"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Lucban",
+    "ZIPCODE": "4306"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Macalelon",
+    "ZIPCODE": "4324"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Mauban",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Mulanay",
+    "ZIPCODE": "4327"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Padre Burgos",
+    "ZIPCODE": "4322"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Pagbilao",
+    "ZIPCODE": "4318"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Panukulan",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Patnanungan",
+    "ZIPCODE": "4329"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Pitogo",
+    "ZIPCODE": "4329"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Plaridel",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Polillo",
+    "ZIPCODE": "4328"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Real",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "San Narciso",
+    "ZIPCODE": "4322"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Sariaya",
+    "ZIPCODE": "4326"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Tiaong",
+    "ZIPCODE": "4320"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Angono",
+    "ZIPCODE": "1930"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Baras",
+    "ZIPCODE": "1870"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Binangonan",
+    "ZIPCODE": "1940"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Cainta",
+    "ZIPCODE": "1900"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Cardona",
+    "ZIPCODE": "1923"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Jala-Jala",
+    "ZIPCODE": "1924"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Rodriguez",
+    "ZIPCODE": "1870"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Morong",
+    "ZIPCODE": "1948"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "San Mateo",
+    "ZIPCODE": "1850"
+  },
+  {
+    "REGION": "Region IV-A (CALABARZON)",
+    "MUNICIPALITY/CITY": "Taytay",
+    "ZIPCODE": "1920"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Boac ",
+    "ZIPCODE": "4900"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Buenavista",
+    "ZIPCODE": "4901"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Gasan",
+    "ZIPCODE": "4903"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Mogpog",
+    "ZIPCODE": "4906"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Santa Cruz",
+    "ZIPCODE": "4904"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Torrijos",
+    "ZIPCODE": "4904"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Abra De Ilog",
+    "ZIPCODE": "5104"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Calintaan",
+    "ZIPCODE": "5106"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Lubang",
+    "ZIPCODE": "5104"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Mamburao ",
+    "ZIPCODE": "5100"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Rizal",
+    "ZIPCODE": "5104"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Sablayan",
+    "ZIPCODE": "5108"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "San Jose",
+    "ZIPCODE": "5109"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Baco",
+    "ZIPCODE": "5201"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Bansud",
+    "ZIPCODE": "5218"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Bongabong",
+    "ZIPCODE": "5211"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Mansalay",
+    "ZIPCODE": "5209"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Naujan",
+    "ZIPCODE": "5106"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Pinamalayan",
+    "ZIPCODE": "5215"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Puerto Galera",
+    "ZIPCODE": "5203"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Socorro",
+    "ZIPCODE": "5208"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Victoria",
+    "ZIPCODE": "5203"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Aborlan",
+    "ZIPCODE": "5313"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Balabac",
+    "ZIPCODE": "5308"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Bataraza",
+    "ZIPCODE": "5307"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Brooke'S Point",
+    "ZIPCODE": "5309"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Busuanga",
+    "ZIPCODE": "5315"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Coron",
+    "ZIPCODE": "5316"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Dumaran",
+    "ZIPCODE": "5313"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "El Nido",
+    "ZIPCODE": "5313"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Linapacan",
+    "ZIPCODE": "5313"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Narra",
+    "ZIPCODE": "5313"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Roxas",
+    "ZIPCODE": "5307"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "San Vicente",
+    "ZIPCODE": "5314"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Taytay",
+    "ZIPCODE": "5311"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Kalayaan",
+    "ZIPCODE": "5319"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Culion",
+    "ZIPCODE": "5315"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Rizal",
+    "ZIPCODE": "5308"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Sofronio EspaÃ±ola",
+    "ZIPCODE": "5311"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Alcantara",
+    "ZIPCODE": "5508"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Cajidiocan",
+    "ZIPCODE": "5506"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Calatrava",
+    "ZIPCODE": "5504"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Concepcion",
+    "ZIPCODE": "5506"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Corcuera",
+    "ZIPCODE": "5408"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Looc",
+    "ZIPCODE": "5505"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Magdiwang",
+    "ZIPCODE": "5511"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Odiongan",
+    "ZIPCODE": "5508"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Romblon ",
+    "ZIPCODE": "5500"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "San Fernando",
+    "ZIPCODE": "5506"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Ferrol",
+    "ZIPCODE": "5517"
+  },
+  {
+    "REGION": "MIMAROPA Region",
+    "MUNICIPALITY/CITY": "Santa Maria",
+    "ZIPCODE": "5506"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Bacacay",
+    "ZIPCODE": "4511"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Camalig",
+    "ZIPCODE": "4506"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Daraga",
+    "ZIPCODE": "4508"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Guinobatan",
+    "ZIPCODE": "4521"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Jovellar",
+    "ZIPCODE": "4514"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Malilipot",
+    "ZIPCODE": "4508"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Malinao",
+    "ZIPCODE": "4514"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Manito",
+    "ZIPCODE": "4523"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Oas",
+    "ZIPCODE": "4521"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Polangui",
+    "ZIPCODE": "4503"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Rapu-Rapu",
+    "ZIPCODE": "4529"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Santo Domingo",
+    "ZIPCODE": "4511"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Tiwi",
+    "ZIPCODE": "4521"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Basud",
+    "ZIPCODE": "2911"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Daet ",
+    "ZIPCODE": "4600"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Jose Panganiban",
+    "ZIPCODE": "4620"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Labo",
+    "ZIPCODE": "4618"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Santa Elena",
+    "ZIPCODE": "4619"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Talisay",
+    "ZIPCODE": "2913"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Vinzons",
+    "ZIPCODE": "4705"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Baao",
+    "ZIPCODE": "4419"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Balatan",
+    "ZIPCODE": "4417"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Bato",
+    "ZIPCODE": "4415"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Buhi",
+    "ZIPCODE": "4421"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Cabusao",
+    "ZIPCODE": "4418"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Calabanga",
+    "ZIPCODE": "4414"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Camaligan",
+    "ZIPCODE": "4419"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Canaman",
+    "ZIPCODE": "4411"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Caramoan",
+    "ZIPCODE": "4436"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Gainza",
+    "ZIPCODE": "4405"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Garchitorena",
+    "ZIPCODE": "4427"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Libmanan",
+    "ZIPCODE": "4418"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Lupi",
+    "ZIPCODE": "4427"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Milaor",
+    "ZIPCODE": "4417"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Nabua",
+    "ZIPCODE": "4418"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Ocampo",
+    "ZIPCODE": "4417"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Pamplona",
+    "ZIPCODE": "4419"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Pasacao",
+    "ZIPCODE": "4417"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Pili ",
+    "ZIPCODE": "4418"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "SagÃ±ay",
+    "ZIPCODE": "4429"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "San Jose",
+    "ZIPCODE": "4416"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Sipocot",
+    "ZIPCODE": "4419"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Tinambac",
+    "ZIPCODE": "4418"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Bagamanoc",
+    "ZIPCODE": "4801"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Baras",
+    "ZIPCODE": "4801"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Bato",
+    "ZIPCODE": "4803"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Caramoran",
+    "ZIPCODE": "4805"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Gigmoto",
+    "ZIPCODE": "4809"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Pandan",
+    "ZIPCODE": "4804"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Panganiban",
+    "ZIPCODE": "4802"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "San Miguel",
+    "ZIPCODE": "4806"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Viga",
+    "ZIPCODE": "4809"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Virac ",
+    "ZIPCODE": "4800"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Aroroy",
+    "ZIPCODE": "5414"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Baleno",
+    "ZIPCODE": "5412"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Balud",
+    "ZIPCODE": "5411"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Cawayan",
+    "ZIPCODE": "5313"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Dimasalang",
+    "ZIPCODE": "5414"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Esperanza",
+    "ZIPCODE": "5311"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Mandaon",
+    "ZIPCODE": "5211"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Milagros",
+    "ZIPCODE": "5318"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Placer",
+    "ZIPCODE": "5311"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "San Pascual",
+    "ZIPCODE": "5311"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Castilla",
+    "ZIPCODE": "4706"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Donsol",
+    "ZIPCODE": "4708"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Gubat",
+    "ZIPCODE": "4706"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Irosin",
+    "ZIPCODE": "4716"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Juban",
+    "ZIPCODE": "4705"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Matnog",
+    "ZIPCODE": "4705"
+  },
+  {
+    "REGION": "Region V (Bicol Region)",
+    "MUNICIPALITY/CITY": "Pilar",
+    "ZIPCODE": "4708"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Altavas",
+    "ZIPCODE": "5611"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Banga",
+    "ZIPCODE": "5606"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Batan",
+    "ZIPCODE": "5604"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Buruanga",
+    "ZIPCODE": "5603"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Ibajay",
+    "ZIPCODE": "5605"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Kalibo ",
+    "ZIPCODE": "5600"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Lezo",
+    "ZIPCODE": "5604"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Libacao",
+    "ZIPCODE": "5606"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Madalag",
+    "ZIPCODE": "5612"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Makato",
+    "ZIPCODE": "5606"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Malay",
+    "ZIPCODE": "5608"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Nabas",
+    "ZIPCODE": "5614"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "New Washington",
+    "ZIPCODE": "5604"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Numancia",
+    "ZIPCODE": "5612"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Tangalan",
+    "ZIPCODE": "5612"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Belison",
+    "ZIPCODE": "5713"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Culasi",
+    "ZIPCODE": "5713"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Tobias Fornier",
+    "ZIPCODE": "5711"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Pandan",
+    "ZIPCODE": "5712"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Patnongon",
+    "ZIPCODE": "5713"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Jose ",
+    "ZIPCODE": "5700"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Remigio",
+    "ZIPCODE": "5713"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Sebaste",
+    "ZIPCODE": "5714"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Sibalom",
+    "ZIPCODE": "5720"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Tibiao",
+    "ZIPCODE": "5711"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Cuartero",
+    "ZIPCODE": "5805"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Dumarao",
+    "ZIPCODE": "5806"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Ivisan",
+    "ZIPCODE": "5813"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Jamindan",
+    "ZIPCODE": "5805"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Mambusao",
+    "ZIPCODE": "5812"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Panitan",
+    "ZIPCODE": "5808"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Pilar",
+    "ZIPCODE": "5814"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Sapi-An",
+    "ZIPCODE": "5800"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Alimodian",
+    "ZIPCODE": "5051"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Badiangan",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Balasan",
+    "ZIPCODE": "5027"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Banate",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Barotac Nuevo",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Barotac Viejo",
+    "ZIPCODE": "5034"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Bingawan",
+    "ZIPCODE": "5032"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Cabatuan",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Calinog",
+    "ZIPCODE": "5033"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Carles",
+    "ZIPCODE": "5029"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Dingle",
+    "ZIPCODE": "5030"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "DueÃ±as",
+    "ZIPCODE": "5032"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Guimbal",
+    "ZIPCODE": "5033"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Igbaras",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Janiuay",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Lambunao",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Leganes",
+    "ZIPCODE": "5034"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Miagao",
+    "ZIPCODE": "5023"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Mina",
+    "ZIPCODE": "5037"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "New Lucena",
+    "ZIPCODE": "5034"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Oton",
+    "ZIPCODE": "5008"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Pavia",
+    "ZIPCODE": "5005"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Pototan",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Dionisio",
+    "ZIPCODE": "5056"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Enrique",
+    "ZIPCODE": "5037"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Joaquin",
+    "ZIPCODE": "5032"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Santa Barbara",
+    "ZIPCODE": "5023"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Sara",
+    "ZIPCODE": "5031"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Tigbauan",
+    "ZIPCODE": "5021"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Tubungan",
+    "ZIPCODE": "5037"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Zarraga",
+    "ZIPCODE": "5032"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Calatrava",
+    "ZIPCODE": "6126"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Candoni",
+    "ZIPCODE": "6115"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Cauayan",
+    "ZIPCODE": "6126"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Enrique B. Magalona",
+    "ZIPCODE": "6114"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Hinigaran",
+    "ZIPCODE": "6117"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Ilog",
+    "ZIPCODE": "6117"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "La Castellana",
+    "ZIPCODE": "6128"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Moises Padilla",
+    "ZIPCODE": "6127"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Murcia",
+    "ZIPCODE": "6129"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Pontevedra",
+    "ZIPCODE": "6119"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Pulupandan",
+    "ZIPCODE": "6118"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Enrique",
+    "ZIPCODE": "6117"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Valladolid",
+    "ZIPCODE": "6130"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Salvador Benedicto",
+    "ZIPCODE": "6127"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Buenavista",
+    "ZIPCODE": "5041"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Jordan ",
+    "ZIPCODE": "5040"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Nueva Valencia",
+    "ZIPCODE": "5042"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "San Lorenzo",
+    "ZIPCODE": "5044"
+  },
+  {
+    "REGION": "Region VI (Western Visayas)",
+    "MUNICIPALITY/CITY": "Sibunag",
+    "ZIPCODE": "5044"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Alburquerque",
+    "ZIPCODE": "6342"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Alicia",
+    "ZIPCODE": "6318"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Anda",
+    "ZIPCODE": "6319"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Antequera",
+    "ZIPCODE": "6312"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Baclayon",
+    "ZIPCODE": "6308"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Balilihan",
+    "ZIPCODE": "6340"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Calape",
+    "ZIPCODE": "6340"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Candijay",
+    "ZIPCODE": "6318"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Carmen",
+    "ZIPCODE": "6317"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Catigbian",
+    "ZIPCODE": "6318"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Corella",
+    "ZIPCODE": "6341"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Dauis",
+    "ZIPCODE": "6331"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Dimiao",
+    "ZIPCODE": "6308"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Duero",
+    "ZIPCODE": "6315"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Garcia Hernandez",
+    "ZIPCODE": "6313"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Guindulman",
+    "ZIPCODE": "6314"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Inabanga",
+    "ZIPCODE": "6321"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Jagna",
+    "ZIPCODE": "6309"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Getafe",
+    "ZIPCODE": "6319"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Loay",
+    "ZIPCODE": "6306"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Loboc",
+    "ZIPCODE": "6308"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Mabini",
+    "ZIPCODE": "6327"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Panglao",
+    "ZIPCODE": "6340"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sagbayan",
+    "ZIPCODE": "6314"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sevilla",
+    "ZIPCODE": "6331"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sierra Bullones",
+    "ZIPCODE": "6317"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sikatuna",
+    "ZIPCODE": "6314"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Talibon",
+    "ZIPCODE": "6320"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Trinidad",
+    "ZIPCODE": "6344"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Tubigon",
+    "ZIPCODE": "6311"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Ubay",
+    "ZIPCODE": "6315"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Valencia",
+    "ZIPCODE": "6313"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Alcoy",
+    "ZIPCODE": "6044"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Aloguinsan",
+    "ZIPCODE": "6031"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Argao",
+    "ZIPCODE": "6025"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Asturias",
+    "ZIPCODE": "6026"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Badian",
+    "ZIPCODE": "6031"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Balamban",
+    "ZIPCODE": "6041"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Bantayan",
+    "ZIPCODE": "6040"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Barili",
+    "ZIPCODE": "6042"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Boljoon",
+    "ZIPCODE": "6030"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Borbon",
+    "ZIPCODE": "6008"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Catmon",
+    "ZIPCODE": "6009"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Compostela",
+    "ZIPCODE": "6017"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Consolacion",
+    "ZIPCODE": "6013"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Cordova",
+    "ZIPCODE": "6017"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Daanbantayan",
+    "ZIPCODE": "6013"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Dalaguete",
+    "ZIPCODE": "6032"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Dumanjug",
+    "ZIPCODE": "6026"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Ginatilan",
+    "ZIPCODE": "6026"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Liloan",
+    "ZIPCODE": "6015"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Madridejos",
+    "ZIPCODE": "6041"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Malabuyoc",
+    "ZIPCODE": "6032"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Medellin",
+    "ZIPCODE": "6012"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Minglanilla",
+    "ZIPCODE": "6045"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Moalboal",
+    "ZIPCODE": "6032"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Oslob",
+    "ZIPCODE": "6029"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Pinamungajan",
+    "ZIPCODE": "6048"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Poro",
+    "ZIPCODE": "6015"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Ronda",
+    "ZIPCODE": "6033"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Samboan",
+    "ZIPCODE": "6027"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "San Francisco",
+    "ZIPCODE": "6018"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "San Remigio",
+    "ZIPCODE": "6027"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Santa Fe",
+    "ZIPCODE": "6040"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sibonga",
+    "ZIPCODE": "6044"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sogod",
+    "ZIPCODE": "6027"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Tuburan",
+    "ZIPCODE": "6045"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Tudela",
+    "ZIPCODE": "6019"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Amlan",
+    "ZIPCODE": "6204"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Ayungon",
+    "ZIPCODE": "6212"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Bacong",
+    "ZIPCODE": "6208"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Basay",
+    "ZIPCODE": "6218"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Bindoy",
+    "ZIPCODE": "6213"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Dauin",
+    "ZIPCODE": "6211"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Jimalalud",
+    "ZIPCODE": "6211"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Mabinay",
+    "ZIPCODE": "6217"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Manjuyod",
+    "ZIPCODE": "6215"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Pamplona",
+    "ZIPCODE": "6216"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Santa Catalina",
+    "ZIPCODE": "6212"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Siaton",
+    "ZIPCODE": "6217"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Sibulan",
+    "ZIPCODE": "6200"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Valencia",
+    "ZIPCODE": "6213"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Zamboanguita",
+    "ZIPCODE": "6211"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Enrique Villanueva",
+    "ZIPCODE": "6228"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Larena",
+    "ZIPCODE": "6228"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Lazi",
+    "ZIPCODE": "6225"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Maria",
+    "ZIPCODE": "6227"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "San Juan",
+    "ZIPCODE": "6223"
+  },
+  {
+    "REGION": "Region VII (Central Visayas)",
+    "MUNICIPALITY/CITY": "Siquijor ",
+    "ZIPCODE": "6225"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Balangiga",
+    "ZIPCODE": "6712"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Giporlos",
+    "ZIPCODE": "6713"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Guiuan",
+    "ZIPCODE": "6812"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Llorente",
+    "ZIPCODE": "6805"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Maslog",
+    "ZIPCODE": "6812"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Maydolong",
+    "ZIPCODE": "6814"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Oras",
+    "ZIPCODE": "6812"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Salcedo",
+    "ZIPCODE": "6813"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "San Julian",
+    "ZIPCODE": "6806"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "San Policarpo",
+    "ZIPCODE": "6718"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Abuyog",
+    "ZIPCODE": "6605"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Albuera",
+    "ZIPCODE": "6524"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Barugo",
+    "ZIPCODE": "6525"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Burauen",
+    "ZIPCODE": "6527"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Calubian",
+    "ZIPCODE": "6545"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Carigara",
+    "ZIPCODE": "6528"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Dagami",
+    "ZIPCODE": "6527"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Dulag",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Hilongos",
+    "ZIPCODE": "6530"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Hindang",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Isabel",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Kananga",
+    "ZIPCODE": "6525"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Leyte",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Mahaplag",
+    "ZIPCODE": "6526"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Matalom",
+    "ZIPCODE": "6512"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Merida",
+    "ZIPCODE": "6522"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Palo",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Palompon",
+    "ZIPCODE": "6530"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Pastrana",
+    "ZIPCODE": "6527"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Santa Fe",
+    "ZIPCODE": "6523"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Tabango",
+    "ZIPCODE": "6523"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Tanauan",
+    "ZIPCODE": "6521"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Tolosa",
+    "ZIPCODE": "6525"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Tunga",
+    "ZIPCODE": "6526"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Villaba",
+    "ZIPCODE": "6526"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Allen",
+    "ZIPCODE": "6406"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Biri",
+    "ZIPCODE": "6403"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Bobon",
+    "ZIPCODE": "6408"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Capul",
+    "ZIPCODE": "6406"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Catarman ",
+    "ZIPCODE": "6400"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Catubig",
+    "ZIPCODE": "6406"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Laoang",
+    "ZIPCODE": "6403"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Lavezares",
+    "ZIPCODE": "6408"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Mapanas",
+    "ZIPCODE": "6408"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Palapag",
+    "ZIPCODE": "6408"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Pambujan",
+    "ZIPCODE": "6409"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Rosario",
+    "ZIPCODE": "6407"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "San Antonio",
+    "ZIPCODE": "6409"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "San Vicente",
+    "ZIPCODE": "6409"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Silvino Lobos",
+    "ZIPCODE": "6409"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Victoria",
+    "ZIPCODE": "6409"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Calbiga",
+    "ZIPCODE": "6706"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Gandara",
+    "ZIPCODE": "6713"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Pinabacdao",
+    "ZIPCODE": "6707"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Santo NiÃ±o",
+    "ZIPCODE": "6712"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Talalora",
+    "ZIPCODE": "6716"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Anahawan",
+    "ZIPCODE": "6622"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Hinunangan",
+    "ZIPCODE": "6606"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Libagon",
+    "ZIPCODE": "6613"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Macrohon",
+    "ZIPCODE": "6616"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Malitbog",
+    "ZIPCODE": "6611"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Pintuyan",
+    "ZIPCODE": "6628"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Saint Bernard",
+    "ZIPCODE": "6616"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "San Francisco",
+    "ZIPCODE": "6614"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Sogod",
+    "ZIPCODE": "6610"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Tomas Oppus",
+    "ZIPCODE": "6622"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Limasawa",
+    "ZIPCODE": "6609"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Almeria",
+    "ZIPCODE": "6542"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Caibiran",
+    "ZIPCODE": "6542"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Culaba",
+    "ZIPCODE": "6543"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Kawayan",
+    "ZIPCODE": "6545"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Maripipi",
+    "ZIPCODE": "6544"
+  },
+  {
+    "REGION": "Region VIII (Eastern Visayas)",
+    "MUNICIPALITY/CITY": "Naval ",
+    "ZIPCODE": "6541"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Labason",
+    "ZIPCODE": "7113"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Liloy",
+    "ZIPCODE": "7112"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Manukan",
+    "ZIPCODE": "7106"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "PiÃ±an",
+    "ZIPCODE": "7113"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Polanco",
+    "ZIPCODE": "7104"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Rizal",
+    "ZIPCODE": "7117"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Siayan",
+    "ZIPCODE": "7111"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Sibuco",
+    "ZIPCODE": "7118"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Sibutad",
+    "ZIPCODE": "7118"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Sindangan",
+    "ZIPCODE": "7117"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Siocon",
+    "ZIPCODE": "7119"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Tampilisan",
+    "ZIPCODE": "7113"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Baliguian",
+    "ZIPCODE": "7119"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Godod",
+    "ZIPCODE": "7113"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Bacungan",
+    "ZIPCODE": "7100"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Aurora",
+    "ZIPCODE": "7015"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Bayog",
+    "ZIPCODE": "7011"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Dumalinao",
+    "ZIPCODE": "7019"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Dumingag",
+    "ZIPCODE": "7005"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Kumalarang",
+    "ZIPCODE": "7104"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Mahayag",
+    "ZIPCODE": "7011"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Margosatubig",
+    "ZIPCODE": "7011"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Molave",
+    "ZIPCODE": "7016"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Ramon Magsaysay",
+    "ZIPCODE": "7015"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "San Pablo",
+    "ZIPCODE": "7011"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Tambulig",
+    "ZIPCODE": "7015"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Pitogo",
+    "ZIPCODE": "7015"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Buug",
+    "ZIPCODE": "7011"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Diplahan",
+    "ZIPCODE": "7028"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Ipil ",
+    "ZIPCODE": "7001"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Kabasalan",
+    "ZIPCODE": "7005"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Malangas",
+    "ZIPCODE": "7005"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Siay",
+    "ZIPCODE": "7017"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Titay",
+    "ZIPCODE": "7021"
+  },
+  {
+    "REGION": "Region IX (Zamboanga Peninsula)",
+    "MUNICIPALITY/CITY": "Tungawan",
+    "ZIPCODE": "7025"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Baungon",
+    "ZIPCODE": "8712"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Dangcagan",
+    "ZIPCODE": "8713"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Don Carlos",
+    "ZIPCODE": "8714"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Impasug-ong",
+    "ZIPCODE": "8710"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Kadingilan",
+    "ZIPCODE": "8711"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Kibawe",
+    "ZIPCODE": "8712"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Kitaotao",
+    "ZIPCODE": "8711"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Lantapan",
+    "ZIPCODE": "8711"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Libona",
+    "ZIPCODE": "8712"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Malitbog",
+    "ZIPCODE": "8714"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Manolo Fortich",
+    "ZIPCODE": "8705"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Maramag",
+    "ZIPCODE": "8710"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Pangantucan",
+    "ZIPCODE": "8711"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Quezon",
+    "ZIPCODE": "8714"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "San Fernando",
+    "ZIPCODE": "8712"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Sumilao",
+    "ZIPCODE": "8711"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Talakag",
+    "ZIPCODE": "8712"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Cabanglasan",
+    "ZIPCODE": "8716"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Catarman",
+    "ZIPCODE": "9103"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Guinsiliban",
+    "ZIPCODE": "9106"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Mahinog",
+    "ZIPCODE": "9104"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Mambajao ",
+    "ZIPCODE": "9102"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Sagay",
+    "ZIPCODE": "9109"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Bacolod",
+    "ZIPCODE": "9211"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Kapatagan",
+    "ZIPCODE": "9211"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Sultan Naga Dimaporo",
+    "ZIPCODE": "9211"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Kolambugan",
+    "ZIPCODE": "9210"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Lala",
+    "ZIPCODE": "9214"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Linamon",
+    "ZIPCODE": "9205"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Maigo",
+    "ZIPCODE": "9216"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Matungao",
+    "ZIPCODE": "9212"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Nunungan",
+    "ZIPCODE": "9212"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Pantao Ragat",
+    "ZIPCODE": "9205"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Tubod ",
+    "ZIPCODE": "9201"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Aloran",
+    "ZIPCODE": "7204"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Baliangao",
+    "ZIPCODE": "7203"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Bonifacio",
+    "ZIPCODE": "7209"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Calamba",
+    "ZIPCODE": "7204"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Clarin",
+    "ZIPCODE": "7203"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Concepcion",
+    "ZIPCODE": "7205"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Lopez Jaena",
+    "ZIPCODE": "7206"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Plaridel",
+    "ZIPCODE": "7209"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Sinacaban",
+    "ZIPCODE": "7208"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Tudela",
+    "ZIPCODE": "7203"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Alubijid",
+    "ZIPCODE": "9004"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Balingasag",
+    "ZIPCODE": "9002"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Claveria",
+    "ZIPCODE": "9004"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Gitagum",
+    "ZIPCODE": "9001"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Jasaan",
+    "ZIPCODE": "9002"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Kinoguitan",
+    "ZIPCODE": "9008"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Laguindingan",
+    "ZIPCODE": "9006"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Lugait",
+    "ZIPCODE": "9017"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Manticao",
+    "ZIPCODE": "9009"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Medina",
+    "ZIPCODE": "9003"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Opol",
+    "ZIPCODE": "9009"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Tagoloan",
+    "ZIPCODE": "9004"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Talisayan",
+    "ZIPCODE": "9008"
+  },
+  {
+    "REGION": "Region X (Northern Mindanao)",
+    "MUNICIPALITY/CITY": "Villanueva",
+    "ZIPCODE": "9009"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Asuncion",
+    "ZIPCODE": "8111"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Carmen",
+    "ZIPCODE": "8109"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Kapalong",
+    "ZIPCODE": "8511"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Braulio E. Dujali",
+    "ZIPCODE": "8109"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Bansalan",
+    "ZIPCODE": "8012"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Hagonoy",
+    "ZIPCODE": "8004"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Kiblawan",
+    "ZIPCODE": "8013"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Magsaysay",
+    "ZIPCODE": "8011"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Malalag",
+    "ZIPCODE": "8014"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Matanao",
+    "ZIPCODE": "8011"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Padada",
+    "ZIPCODE": "8013"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Santa Cruz",
+    "ZIPCODE": "8012"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Sulop",
+    "ZIPCODE": "8013"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Baganga",
+    "ZIPCODE": "8205"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Banaybanay",
+    "ZIPCODE": "8204"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Cateel",
+    "ZIPCODE": "8306"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Governor Generoso",
+    "ZIPCODE": "8213"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Lupon",
+    "ZIPCODE": "8205"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Compostela",
+    "ZIPCODE": "8308"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Maragusan",
+    "ZIPCODE": "8714"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Monkayo",
+    "ZIPCODE": "8711"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Nabunturan ",
+    "ZIPCODE": "8300"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Pantukan",
+    "ZIPCODE": "8308"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Don Marcelino",
+    "ZIPCODE": "8023"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Jose Abad Santos",
+    "ZIPCODE": "8011"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Malita ",
+    "ZIPCODE": "8014"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Santa Maria",
+    "ZIPCODE": "8014"
+  },
+  {
+    "REGION": "Region XI (Davao Region)",
+    "MUNICIPALITY/CITY": "Sarangani",
+    "ZIPCODE": "8013"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Alamada",
+    "ZIPCODE": "9411"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Kabacan",
+    "ZIPCODE": "9410"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Libungan",
+    "ZIPCODE": "9416"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Magpet",
+    "ZIPCODE": "9414"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Makilala",
+    "ZIPCODE": "9404"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Matalam",
+    "ZIPCODE": "9411"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Midsayap",
+    "ZIPCODE": "9410"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "M'Lang",
+    "ZIPCODE": "9411"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Pigkawayan",
+    "ZIPCODE": "9412"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Pikit",
+    "ZIPCODE": "9412"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "President Roxas",
+    "ZIPCODE": "9412"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Tulunan",
+    "ZIPCODE": "9417"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Antipas",
+    "ZIPCODE": "9411"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Banisilan",
+    "ZIPCODE": "9412"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Aleosan",
+    "ZIPCODE": "9414"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Arakan",
+    "ZIPCODE": "9409"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Norala",
+    "ZIPCODE": "9412"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Polomolok",
+    "ZIPCODE": "9508"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Surallah",
+    "ZIPCODE": "9504"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Tampakan",
+    "ZIPCODE": "9515"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "T'Boli",
+    "ZIPCODE": "9508"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Tupi",
+    "ZIPCODE": "9504"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Lake Sebu",
+    "ZIPCODE": "9504"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Columbio",
+    "ZIPCODE": "9806"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Esperanza",
+    "ZIPCODE": "9804"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Isulan ",
+    "ZIPCODE": "9800"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Kalamansig",
+    "ZIPCODE": "9806"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Lutayan",
+    "ZIPCODE": "9805"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Lambayong",
+    "ZIPCODE": "9804"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Alabel ",
+    "ZIPCODE": "9506"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Glan",
+    "ZIPCODE": "9502"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Kiamba",
+    "ZIPCODE": "9504"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Maitum",
+    "ZIPCODE": "9503"
+  },
+  {
+    "REGION": "Region XII (SOCCSKSARGEN)",
+    "MUNICIPALITY/CITY": "Malungon",
+    "ZIPCODE": "9504"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Bangued ",
+    "ZIPCODE": "2800"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Bucay",
+    "ZIPCODE": "2816"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "La Paz",
+    "ZIPCODE": "2804"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Lacub",
+    "ZIPCODE": "2809"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Lagangilang",
+    "ZIPCODE": "2804"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Lagayan",
+    "ZIPCODE": "2806"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Licuan-Baay",
+    "ZIPCODE": "2805"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Luba",
+    "ZIPCODE": "2801"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Manabo",
+    "ZIPCODE": "2804"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Pidigan",
+    "ZIPCODE": "2805"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Sallapadan",
+    "ZIPCODE": "2808"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Tayum",
+    "ZIPCODE": "2804"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Tineg",
+    "ZIPCODE": "2806"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Atok",
+    "ZIPCODE": "2604"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Buguias",
+    "ZIPCODE": "2607"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Itogon",
+    "ZIPCODE": "2603"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Kapangan",
+    "ZIPCODE": "2606"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "La Trinidad ",
+    "ZIPCODE": "2601"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Mankayan",
+    "ZIPCODE": "2602"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Sablan",
+    "ZIPCODE": "2603"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Tuba",
+    "ZIPCODE": "2602"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Tublay",
+    "ZIPCODE": "2608"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Banaue",
+    "ZIPCODE": "3604"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Hungduan",
+    "ZIPCODE": "3614"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Kiangan",
+    "ZIPCODE": "3604"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Lagawe ",
+    "ZIPCODE": "3604"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Lamut",
+    "ZIPCODE": "3614"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Alfonso Lista",
+    "ZIPCODE": "3609"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Asipulo",
+    "ZIPCODE": "3603"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Balbalan",
+    "ZIPCODE": "3803"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Lubuagan",
+    "ZIPCODE": "3802"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Pasil",
+    "ZIPCODE": "3806"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Rizal",
+    "ZIPCODE": "3805"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Tanudan",
+    "ZIPCODE": "3804"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Barlig",
+    "ZIPCODE": "2611"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Bauko",
+    "ZIPCODE": "2621"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Bontoc ",
+    "ZIPCODE": "2608"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Natonin",
+    "ZIPCODE": "2628"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Sabangan",
+    "ZIPCODE": "2611"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Sadanga",
+    "ZIPCODE": "2612"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Sagada",
+    "ZIPCODE": "2619"
+  },
+  {
+    "REGION": "Cordillera Administrative Region (CAR)",
+    "MUNICIPALITY/CITY": "Santa Marcela",
+    "ZIPCODE": "2608"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Buenavista",
+    "ZIPCODE": "8604"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Kitcharao",
+    "ZIPCODE": "8614"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Nasipit",
+    "ZIPCODE": "8609"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Santiago",
+    "ZIPCODE": "8513"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Tubay",
+    "ZIPCODE": "8614"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Bunawan",
+    "ZIPCODE": "8506"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Esperanza",
+    "ZIPCODE": "8609"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Prosperidad ",
+    "ZIPCODE": "8508"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Rosario",
+    "ZIPCODE": "8607"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "San Luis",
+    "ZIPCODE": "8514"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Talacogon",
+    "ZIPCODE": "8606"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Sibagat",
+    "ZIPCODE": "8515"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Alegria",
+    "ZIPCODE": "8427"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Bacuag",
+    "ZIPCODE": "8415"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Burgos",
+    "ZIPCODE": "8412"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Claver",
+    "ZIPCODE": "8422"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Dapa",
+    "ZIPCODE": "8411"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "General Luna",
+    "ZIPCODE": "8419"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Gigaquit",
+    "ZIPCODE": "8411"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Mainit",
+    "ZIPCODE": "8416"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Malimono",
+    "ZIPCODE": "8413"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Pilar",
+    "ZIPCODE": "8411"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Placer",
+    "ZIPCODE": "8414"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "San Francisco",
+    "ZIPCODE": "8419"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "San Isidro",
+    "ZIPCODE": "8413"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Santa Monica",
+    "ZIPCODE": "8419"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Sison",
+    "ZIPCODE": "8417"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Socorro",
+    "ZIPCODE": "8419"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Tagana-An",
+    "ZIPCODE": "8417"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Tubod",
+    "ZIPCODE": "8419"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Barobo",
+    "ZIPCODE": "8312"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Cagwait",
+    "ZIPCODE": "8314"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Cantilan",
+    "ZIPCODE": "8311"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Carrascal",
+    "ZIPCODE": "8312"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Hinatuan",
+    "ZIPCODE": "8314"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Lanuza",
+    "ZIPCODE": "8312"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Tagbina",
+    "ZIPCODE": "8316"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "San Jose ",
+    "ZIPCODE": "8416"
+  },
+  {
+    "REGION": "Region XIII (Caraga)",
+    "MUNICIPALITY/CITY": "Tubajon",
+    "ZIPCODE": "8416"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Lantawan",
+    "ZIPCODE": "7305"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Maluso",
+    "ZIPCODE": "7304"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Sumisip",
+    "ZIPCODE": "7304"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Tipo-Tipo",
+    "ZIPCODE": "7305"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Al-Barka",
+    "ZIPCODE": "7305"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Hadji Mohammad Ajul",
+    "ZIPCODE": "7305"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Balindong",
+    "ZIPCODE": "9709"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Binidayan",
+    "ZIPCODE": "9713"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Butig",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Malabang",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Marantao",
+    "ZIPCODE": "9709"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Pagayawan",
+    "ZIPCODE": "9709"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Pualas",
+    "ZIPCODE": "9708"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Ditsaan-Ramain",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Saguiaran",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Tamparan",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Taraka",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Tugaya",
+    "ZIPCODE": "9709"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Maguing",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Kapatagan",
+    "ZIPCODE": "9704"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Jolo ",
+    "ZIPCODE": "7400"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Maimbung",
+    "ZIPCODE": "7425"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Talipao",
+    "ZIPCODE": "7505"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Lugus",
+    "ZIPCODE": "7429"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Pandami",
+    "ZIPCODE": "7427"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Panglima Sugala",
+    "ZIPCODE": "7504"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Bongao ",
+    "ZIPCODE": "7500"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Simunul",
+    "ZIPCODE": "7505"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Tandubas",
+    "ZIPCODE": "7507"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Sapa-Sapa",
+    "ZIPCODE": "7506"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Buldon",
+    "ZIPCODE": "9605"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Datu Odin Sinsuat",
+    "ZIPCODE": "9602"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Buluan",
+    "ZIPCODE": "9805"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Datu Paglas",
+    "ZIPCODE": "9807"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Datu Piang",
+    "ZIPCODE": "9604"
+  },
+  {
+    "REGION": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+    "MUNICIPALITY/CITY": "Datu Saudi Ampatuan",
+    "ZIPCODE": "9609"
+  }
+]

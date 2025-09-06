@@ -33,6 +33,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(userId)).data;
     }
 
+    function isVerifiedUser() {
+      return isAuthenticated() && getUserData(request.auth.uid).verificationStatus == 'verified';
+    }
+
     // Checks if the user is an admin for a specific barangay.
     // This assumes the admin's assigned barangayId is stored in custom claims
     function isAdminOfBarangay(barangayId) {
@@ -57,10 +61,12 @@ service cloud.firestore {
                     && request.resource.data.email is string
                     && request.resource.data.name is string;
 
-      // UPDATE: A user can update their own profile, but cannot change their UID or role.
-      allow update: if isOwner(userId)
-                    && request.resource.data.uid == resource.data.uid
-                    && request.resource.data.role == resource.data.role;
+      // UPDATE: A user can update their own profile to submit full registration.
+      // Once verified, they cannot change their profile data.
+      // An admin can update the verificationStatus.
+      allow update: if (isOwner(userId) && resource.data.verificationStatus != 'verified') ||
+                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.keys().hasOnly(['verificationStatus'])) ||
+                    (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId']));
 
       // DELETE: Disallowed from client. Handle through a Cloud Function if needed.
       allow delete: if false;
@@ -78,10 +84,10 @@ service cloud.firestore {
     // =================================================================
     match /medicineRequests/{requestId} {
       // READ: The owner or the admin of the barangay can read.
-      allow read: if isOwner(resource.data.userId) || isAdminOfBarangay(resource.data.barangayId);
+      allow read: if (isOwner(resource.data.userId) && isVerifiedUser()) || isAdminOfBarangay(resource.data.barangayId);
 
       // CREATE: A user can create a request for themselves. Validate required fields.
-      allow create: if isOwner(request.resource.data.userId) && isUserRole()
+      allow create: if isOwner(request.resource.data.userId) && isUserRole() && isVerifiedUser()
                     && request.resource.data.status == 'pending'
                     && request.resource.data.medicineId is string
                     && request.resource.data.barangayId is string;
@@ -121,10 +127,10 @@ service cloud.firestore {
     // =================================================================
     match /teleconsultationRequests/{teleRequestId} {
       // READ: The owner or the admin of the barangay can read.
-      allow read: if isOwner(resource.data.userId) || isAdminOfBarangay(resource.data.barangayId);
+      allow read: if (isOwner(resource.data.userId) && isVerifiedUser()) || isAdminOfBarangay(resource.data.barangayId);
 
       // CREATE: A user can create a request for themselves.
-      allow create: if isOwner(request.resource.data.userId) && isUserRole()
+      allow create: if isOwner(request.resource.data.userId) && isUserRole() && isVerifiedUser()
                     && request.resource.data.status == 'pending'
                     && request.resource.data.symptoms is string;
 
@@ -153,7 +159,7 @@ service cloud.firestore {
     // =================================================================
     match /medicalRecords/{recordId} {
       // READ: The patient (owner) or the admin of the barangay.
-      allow read: if isOwner(resource.data.userId) || isAdminOfBarangay(resource.data.barangayId);
+      allow read: if (isOwner(resource.data.userId) && isVerifiedUser()) || isAdminOfBarangay(resource.data.barangayId);
 
       // WRITE: Only admins of the corresponding barangay or super admins can create/update records.
       allow write: if isAdminOfBarangay(request.resource.data.barangayId) || isSuperAdmin();
@@ -179,7 +185,7 @@ service cloud.firestore {
     // =================================================================
     match /rhuInventory/{barangayId}/{medicineId} {
       // READ: Users can read their own barangay's inventory. Admins can read their own. Super admins can read all.
-      allow read: if (isUserRole() && barangayId == getUserData(request.auth.uid).barangay) ||
+      allow read: if (isUserRole() && isVerifiedUser() && barangayId == getUserData(request.auth.uid).barangay) ||
                      isAdminOfBarangay(barangayId) ||
                      isSuperAdmin();
 
@@ -193,7 +199,7 @@ service cloud.firestore {
     // =================================================================
     match /announcements/{announcementId} {
       // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.
-      allow read: if (isUserRole() && resource.data.barangayId == getUserData(request.auth.uid).barangayId) ||
+      allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == getUserData(request.auth.uid).barangayId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      isSuperAdmin();
       

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser, getIdTokenResult } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig';
 import { logLogin, logLogout } from '../utils/logger';
+import { doc, getDoc } from 'firebase/firestore';
 
 // Define the shape of our auth context
 interface AuthContextType {
@@ -9,6 +10,7 @@ interface AuthContextType {
   userRole: string | null;
   barangayId: string | null;
   emailVerified: boolean;
+  verificationStatus: string | null;
   loading: boolean;
   login: (user: FirebaseUser) => Promise<void>;
   logout: () => Promise<void>;
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   userRole: null,
   barangayId: null,
   emailVerified: false,
+  verificationStatus: null,
   loading: true,
   login: async () => {},
   logout: async () => {},
@@ -33,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userRole, setUserRole] = useState<string | null>(null);
   const [barangayId, setbarangayId] = useState<string | null>(null);
   const [emailVerified, setEmailVerified] = useState<boolean>(false); // Added
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Function to extract claims from user
@@ -41,24 +45,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUserRole(null);
       setbarangayId(null);
       setEmailVerified(false); // Added
+      setVerificationStatus(null);
       return;
     }
 
     try {
       const tokenResult = await getIdTokenResult(user, true); // Force refresh to get latest claims
       const claims = tokenResult.claims;
-      
-      setUserRole(claims.role as string || null);
+
       setbarangayId(claims.barangayId as string || null);
       setEmailVerified(user.emailVerified); // Added
       console.log('AuthContext: extractUserClaims - Role:', claims.role); // ADDED LOG
-      
+
+      // Fetch verificationStatus from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        setVerificationStatus(data.verificationStatus || null);
+        // Prioritize role from claims, fallback to Firestore if claims.role is undefined
+        setUserRole((claims.role as string) || data.role || null); // Modified line
+      } else {
+        setVerificationStatus(null);
+        setUserRole(null); // Ensure role is null if user doc doesn't exist
+      }
+
       return claims;
     } catch (error) {
       console.error('Error extracting user claims:', error);
       setUserRole(null);
       setbarangayId(null);
       setEmailVerified(false); // Added
+      setVerificationStatus(null);
     }
   };
 
@@ -101,11 +118,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (currentUser) {
         logLogout(currentUser.uid, currentUser.email || 'Unknown', userRole || 'Unknown');
       }
-      
+
       await firebaseSignOut(auth);
       setCurrentUser(null);
       setUserRole(null);
       setbarangayId(null);
+      setVerificationStatus(null);
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -122,6 +140,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(null);
         setUserRole(null);
         setbarangayId(null);
+        setVerificationStatus(null);
       }
       setLoading(false);
     });
@@ -134,6 +153,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     userRole,
     barangayId,
     emailVerified, // Added
+    verificationStatus,
     loading,
     login,
     logout,

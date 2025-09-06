@@ -1,11 +1,9 @@
-import * as functions from "firebase-functions";
+import { beforeUserCreated } from "firebase-functions/v2/identity";
 import * as admin from "firebase-admin";
 import { logger } from "firebase-functions";
 
-
-
-export const setroleonusercreate = functions.auth.user().onCreate(async (user) => {
-  
+export const setroleonusercreate = beforeUserCreated(async (event) => {
+  const user = event.data;
   try {
     // Get the user document from Firestore
     const userDoc = await admin.firestore().collection('users').doc(user.uid).get();

@@ -1,17 +1,16 @@
-import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonPage, IonRouterLink, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast, IonText } from '@ionic/react';
+import { IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonPage, IonRouterLink, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, useIonToast, IonText, IonProgressBar } from '@ionic/react';
 import { checkmarkDoneOutline, chevronBack, chevronForward, close } from 'ionicons/icons';
 import React, { useEffect } from 'react';
 
-import { registerUserWithFullData } from '../../firebaseConfig';
+import { registerUserWithFullData } from '../../../firebaseConfig';
 import { sendEmailVerification } from 'firebase/auth';
 
-import Page1 from './UserRegisterSteps/Page1';
-import Page2 from './UserRegisterSteps/Page2';
-import Page3 from './UserRegisterSteps/Page3';
-import Page4 from './UserRegisterSteps/Page4';
-import Page5 from './UserRegisterSteps/Page5';
-import { LogService } from '../../services/logService';
-import { BARANGAYS } from '../../constants/barangays';
+import PartialRegistrationStep1 from './PartialRegistrationStep1';
+import PartialRegistrationStep2 from './PartialRegistrationStep2';
+import FullRegistrationStep1 from './FullRegistrationStep1';
+import FullRegistrationStep2 from './FullRegistrationStep2';
+import RegistrationReview from './RegistrationReview';
+import { LogService } from '../../../services/logService';
 
 const UserRegister: React.FC = () => {
   const router = useIonRouter();
@@ -19,11 +18,13 @@ const UserRegister: React.FC = () => {
   const [presentToast] = useIonToast();
 
   const [step, setStep] = React.useState(1);
+  const [registrationPhase, setRegistrationPhase] = React.useState<'partial' | 'full'>('partial');
 
   const [firstName, setFirstName] = React.useState('');
   const [middleName, setMiddleName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [suffix, setSuffix] = React.useState('');
+  const [birthdate, setBirthdate] = React.useState(new Date().toISOString());
   const [lotBlkHouseNo, setLotBlkHouseNo] = React.useState('');
   const [streetName, setStreetName] = React.useState('');
   const [subdivisionVillageZonePurok, setSubdivisionVillageZonePurok] = React.useState('');
@@ -34,6 +35,9 @@ const UserRegister: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [role] = React.useState('user'); // fixed role
   const [barangayId, setBarangay] = React.useState(''); // new state for barangay
+  const [selectedRegion, setSelectedRegion] = React.useState('');
+  const [selectedProvince, setSelectedProvince] = React.useState('');
+  const [selectedCityMunicipality, setSelectedCityMunicipality] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
 
   const onChange = (field: string, value: string) => {
@@ -62,12 +66,12 @@ const UserRegister: React.FC = () => {
       case 'subdivisionVillageZonePurok':
         setSubdivisionVillageZonePurok(sanitizedValue);
         break;
-      case 'zipCode':
-        setZipCode(sanitizedValue);
-        break;
       case 'contactNumber':
         // Allow the formatted phone number from maskito
         setContactNumber(sanitizedValue);
+        break;
+      case 'birthdate':
+        setBirthdate(sanitizedValue);
         break;
       case 'email':
         setEmail(sanitizedValue);
@@ -78,9 +82,26 @@ const UserRegister: React.FC = () => {
       case 'confirmPassword':
         setConfirmPassword(value); // Don't sanitize password
         break;
+      case 'selectedRegion':
+        setSelectedRegion(sanitizedValue);
+        setSelectedProvince(''); // Reset province and city/municipality when region changes
+        setSelectedCityMunicipality('');
+        break;
+      case 'selectedProvince':
+        setSelectedProvince(sanitizedValue);
+        setSelectedCityMunicipality(''); // Reset city/municipality when province changes
+        break;
+      case 'selectedCityMunicipality':
+        setSelectedCityMunicipality(sanitizedValue);
+        break;
       default:
         break;
     }
+  };
+
+  const onAddressChange = (brgyCode: string, zip: string) => {
+    setBarangay(brgyCode);
+    setZipCode(zip);
   };
 
   const doRegister = async () => {
@@ -104,12 +125,16 @@ const UserRegister: React.FC = () => {
         middleName,
         lastName,
         suffix,
+        birthdate,
         lotBlkHouseNo,
         streetName,
         subdivisionVillageZonePurok,
         zipCode,
         contactNumber,
-        barangayId // include barangay in registration data
+        barangayId, // include barangay in registration data
+        selectedRegion,
+        selectedProvince,
+        selectedCityMunicipality,
       });
 
       await sendEmailVerification(userCredential);
@@ -166,10 +191,6 @@ const UserRegister: React.FC = () => {
     return /^\d{4}$/.test(zip);
   };
 
-  const isValidBarangay = (brgy: string) => {
-    return BARANGAYS.includes(brgy as any);
-  };
-
   const isStrongPassword = (password: string): boolean => {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -184,17 +205,20 @@ const UserRegister: React.FC = () => {
       case 1:
         if (!firstName.trim()) return 'First name is required.';
         if (!lastName.trim()) return 'Last name is required.';
+        if (!birthdate.trim()) return 'Birthdate is required.';
         break;
       case 2:
+        if (!selectedRegion) return 'Region is required.';
+        if (!selectedProvince) return 'Province is required.';
+        if (!selectedCityMunicipality) return 'City/Municipality is required.';
         if (!streetName.trim()) return 'Street Name is required.';
-        if (!zipCode.trim()) return 'Zip Code is required.';
-        if (!isValidZipCode(zipCode)) return 'Zip Code must be 4 digits.';
         if (!contactNumber.trim()) return 'Contact number is required.';
         if (!isValidContactNumber(contactNumber)) return 'Please enter a valid Philippine contact number.';
         break;
       case 3:
         if (!barangayId.trim()) return 'Barangay is required.';
-        if (!isValidBarangay(barangayId)) return 'Please select a valid barangay from the list.';
+        if (!zipCode.trim()) return 'Zip Code is required.';
+        if (!isValidZipCode(zipCode)) return 'Zip Code must be 4 digits.';
         break;
       case 4:
         if (!email.trim()) return 'Email is required.';
@@ -227,11 +251,28 @@ const UserRegister: React.FC = () => {
       return;
     }
     setError(null);
-    setStep(prev => Math.min(prev + 1, 5));
+
+    // For partial registration, skip steps 2 and 3, go directly from step 1 to step 4
+    if (registrationPhase === 'partial') {
+      if (step === 1) {
+        setStep(4); // Skip to step 4 (account details)
+      } else if (step === 4) {
+        // Stay on step 4 for registration
+      }
+    }
+    else if (registrationPhase === 'full') {
+      setStep(prev => Math.min(prev + 1, 5));
+    }
   };
 
   const onBack = () => {
-    setStep(prev => Math.max(prev - 1, 1));
+    if (registrationPhase === 'partial') {
+      if (step === 4) {
+        setStep(1); // Go back to step 1 from step 4
+      }
+    } else {
+      setStep(prev => Math.max(prev - 1, 1));
+    }
   };
 
 
@@ -247,6 +288,7 @@ const UserRegister: React.FC = () => {
           </IonButtons>
           <IonTitle>Create Account</IonTitle>
         </IonToolbar>
+        <IonProgressBar value={step / 5}></IonProgressBar>
       </IonHeader>
 
       <IonContent scrollY={false}>
@@ -256,34 +298,36 @@ const UserRegister: React.FC = () => {
               <IonCard>
                 <IonCardContent>
                   {step === 1 && (
-                    <Page1
+                    <PartialRegistrationStep1
                       firstName={firstName}
                       middleName={middleName}
                       lastName={lastName}
                       suffix={suffix}
+                      birthdate={birthdate}
                       onChange={onChange}
                     />
                   )}
                   {step === 2 && (
-                    <Page2
+                    <FullRegistrationStep1
                       lotBlkHouseNo={lotBlkHouseNo}
                       streetName={streetName}
                       subdivisionVillageZonePurok={subdivisionVillageZonePurok}
-                      zipCode={zipCode}
                       contactNumber={contactNumber}
+                      selectedRegion={selectedRegion}
+                      selectedProvince={selectedProvince}
+                      selectedCityMunicipality={selectedCityMunicipality}
                       onChange={onChange}
                     />
                   )}
                   {step === 3 && (
-                    <Page3
+                    <FullRegistrationStep2
                       barangayId={barangayId}
-                      onBarangayChange={setBarangay}
-                      onNext={onNext}
-                      onBack={onBack}
+                      selectedCityMunicipality={selectedCityMunicipality}
+                      onAddressChange={onAddressChange}
                     />
                   )}
                   {step === 4 && (
-                    <Page4
+                    <PartialRegistrationStep2
                       email={email}
                       password={password}
                       confirmPassword={confirmPassword}
@@ -291,11 +335,12 @@ const UserRegister: React.FC = () => {
                     />
                   )}
                   {step === 5 && (
-                    <Page5
+                    <RegistrationReview
                       firstName={firstName}
                       middleName={middleName}
                       lastName={lastName}
                       suffix={suffix}
+                      birthdate={birthdate}
                       lotBlkHouseNo={lotBlkHouseNo}
                       streetName={streetName}
                       subdivisionVillageZonePurok={subdivisionVillageZonePurok}
@@ -319,8 +364,8 @@ const UserRegister: React.FC = () => {
           <IonGrid>
             <IonRow className="ion-justify-content-between">
               <IonCol size="auto">
-                {step > 1 && (
-                  <IonButton 
+                {((registrationPhase === 'partial' && step === 4) || (registrationPhase === 'full' && step > 1)) && (
+                  <IonButton
                   fill="outline"
                   shape='round'
                   onClick={onBack}
@@ -331,8 +376,8 @@ const UserRegister: React.FC = () => {
                 )}
               </IonCol>
               <IonCol size="auto">
-                {step < 5 && (
-                  <IonButton 
+                {registrationPhase === 'partial' && step === 1 && (
+                  <IonButton
                   shape='round'
                   onClick={onNext}
                   >
@@ -340,14 +385,32 @@ const UserRegister: React.FC = () => {
                     <IonIcon slot="end" icon={chevronForward} color='light' />
                   </IonButton>
                 )}
-                {step === 5 && (
-                  <IonButton 
+                {registrationPhase === 'partial' && step === 4 && (
+                  <IonButton
                   onClick={doRegister}
                   shape='round'
                   color='success'
-                  
                   >
-                    <IonText className='ion-padding-vertical'>Register</IonText>
+                    <IonText className='ion-padding-vertical'>Create Account</IonText>
+                    <IonIcon slot="end" icon={checkmarkDoneOutline} />
+                  </IonButton>
+                )}
+                {registrationPhase === 'full' && step < 5 && (
+                  <IonButton
+                  shape='round'
+                  onClick={onNext}
+                  >
+                    <IonText className='ion-padding-vertical' color={'light'} >Next</IonText>
+                    <IonIcon slot="end" icon={chevronForward} color='light' />
+                  </IonButton>
+                )}
+                {registrationPhase === 'full' && step === 5 && (
+                  <IonButton
+                  onClick={doRegister}
+                  shape='round'
+                  color='success'
+                  >
+                    <IonText className='ion-padding-vertical' color={'light'}>Register</IonText>
                     <IonIcon slot="end" icon={checkmarkDoneOutline} />
                   </IonButton>
                 )}

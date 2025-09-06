@@ -3,8 +3,14 @@ export interface MedicineRequest {
   userId: string;
   userEmail: string;
   userName: string;
-  userAddress: string;
-  barangayId: string;
+  userSelectedRegion: string;
+  userSelectedProvince: string;
+  userSelectedCityMunicipality: string;
+  userBarangayId: string;
+  userZipCode: string;
+  userLotBlkHouseNo: string;
+  userStreetName: string;
+  userSubdivisionVillageZonePurok: string;
   medicineId: string;
   medicineName: string;
   medicineType: string;

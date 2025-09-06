@@ -1,34 +1,35 @@
-import * as functions from 'firebase-functions';
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import admin from 'firebase-admin';
+import { logger } from "firebase-functions";
 
 /**
  * Callable function to send notifications to all users in a specific barangay
  * about a new or unprivated announcement.
  */
-export const sendAnnouncementNotification = functions.https.onCall(async (data, context) => {
+export const sendAnnouncementNotification = onCall(async (request) => {
   // 1. Authentication and Authorization Check (Optional, depending on who can trigger this)
   // For now, assuming this is called by an admin action from the client, 
   // so we might want to check if the caller is an admin.
-  if (!context.auth || (context.auth.token.role !== 'admin' && context.auth.token.role !== 'superadmin')) {
-    functions.logger.error('Permission denied: Non-admin/superadmin attempted to send announcement notifications.', { uid: context.auth?.uid });
-    throw new functions.https.HttpsError(
+  if (!request.auth || (request.auth.token.role !== 'admin' && request.auth.token.role !== 'superadmin')) {
+    logger.error('Permission denied: Non-admin/superadmin attempted to send announcement notifications.', { uid: request.auth?.uid });
+    throw new HttpsError(
       'permission-denied',
       'Only authenticated admins or superadmins can send announcement notifications.'
     );
   }
 
-  const { announcementId, announcementTitle, barangayId } = data;
+  const { announcementId, announcementTitle, barangayId } = request.data;
 
   // 2. Input Validation
   if (!announcementId || !announcementTitle || !barangayId) {
-    functions.logger.error('Invalid argument: Missing required fields for sendAnnouncementNotification.', { announcementId, announcementTitle, barangayId });
-    throw new functions.https.HttpsError(
+    logger.error('Invalid argument: Missing required fields for sendAnnouncementNotification.', { announcementId, announcementTitle, barangayId });
+    throw new HttpsError(
       'invalid-argument',
       'Missing required fields: announcementId, announcementTitle, or barangayId.'
     );
   }
 
-  functions.logger.info(`Received request to send notification for announcement ${announcementId} in barangay ${barangayId}.`);
+  logger.info(`Received request to send notification for announcement ${announcementId} in barangay ${barangayId}.`);
 
   try {
     // 3. Query users in the specified barangay
@@ -36,10 +37,10 @@ export const sendAnnouncementNotification = functions.https.onCall(async (data, 
     const q = usersRef.where('barangayId', '==', barangayId);
     const querySnapshot = await q.get();
 
-    functions.logger.info(`Found ${querySnapshot.size} users in barangay ${barangayId}.`);
+    logger.info(`Found ${querySnapshot.size} users in barangay ${barangayId}.`);
 
     if (querySnapshot.empty) {
-      functions.logger.info(`No users found in barangay ${barangayId} to notify.`);
+      logger.info(`No users found in barangay ${barangayId} to notify.`);
       return { success: true, message: 'No users to notify.' };
     }
 
@@ -62,12 +63,12 @@ export const sendAnnouncementNotification = functions.https.onCall(async (data, 
 
     await notificationsBatch.commit();
 
-    functions.logger.info(`Successfully sent new announcement notification to ${querySnapshot.size} users in barangay ${barangayId}.`);
+    logger.info(`Successfully sent new announcement notification to ${querySnapshot.size} users in barangay ${barangayId}.`);
     return { success: true, message: `Notifications sent to ${querySnapshot.size} users.` };
 
   } catch (error) {
-    functions.logger.error('Error sending announcement notifications:', error, { announcementId, announcementTitle, barangayId });
-    throw new functions.https.HttpsError(
+    logger.error('Error sending announcement notifications:', error, { announcementId, announcementTitle, barangayId });
+    throw new HttpsError(
       'internal',
       'Failed to send announcement notifications.',
       error

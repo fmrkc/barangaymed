@@ -43,10 +43,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineService } from '../../services/medicineService'; // Import MedicineService
 import { LogService } from '../../services/logService'; // Import LogService
-import { BARANGAYS } from '../../constants/barangays';
 import { Medicine } from '../../types/medicineRequests'; // Import Medicine interface
 import { Notification } from '../../types/notifications'; // Import Notification interface
 import RHUMedicineModal from '../../components/RHUMedicineModal'; // Import RHU Medicine Modal
+import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, Region, Province, CityMunicipality, Barangay } from '../../services/addressService';
 
 const medicineService = MedicineService.getInstance();
 const logService = LogService.getInstance();
@@ -110,6 +110,16 @@ const Medicine_Inventory: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedBarangay, setSelectedBarangay] = useState('');
 
+  // Address states for adding medicine
+  const [addRegion, setAddRegion] = useState('');
+  const [addProvince, setAddProvince] = useState('');
+  const [addCityMunicipality, setAddCityMunicipality] = useState('');
+
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
+  const [barangays, setBarangays] = useState<Barangay[]>([]);
+
   const medicineTypes = [
     'Tablet',
     'Capsule',
@@ -125,11 +135,60 @@ const Medicine_Inventory: React.FC = () => {
 
   useEffect(() => {
     fetchMedicines();
+    const loadRegions = async () => {
+      setRegions(await getRegions());
+    };
+    loadRegions();
   }, []);
 
   useEffect(() => {
     filterMedicines();
   }, [medicines, searchText, selectedSegment]);
+
+  useEffect(() => {
+    const loadProvinces = async () => {
+      if (addRegion) {
+        setProvinces(await getProvincesByRegion(addRegion));
+        setAddProvince('');
+        setAddCityMunicipality('');
+        setSelectedBarangay('');
+      } else {
+        setProvinces([]);
+        setAddProvince('');
+        setAddCityMunicipality('');
+        setSelectedBarangay('');
+      }
+    };
+    loadProvinces();
+  }, [addRegion]);
+
+  useEffect(() => {
+    const loadCitiesMunicipalities = async () => {
+      if (addProvince) {
+        setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(addProvince));
+        setAddCityMunicipality('');
+        setSelectedBarangay('');
+      } else {
+        setCitiesMunicipalities([]);
+        setAddCityMunicipality('');
+        setSelectedBarangay('');
+      }
+    };
+    loadCitiesMunicipalities();
+  }, [addProvince]);
+
+  useEffect(() => {
+    const loadBarangays = async () => {
+      if (addCityMunicipality) {
+        setBarangays(await getBarangaysByCityMunicipality(addCityMunicipality));
+        setSelectedBarangay('');
+      } else {
+        setBarangays([]);
+        setSelectedBarangay('');
+      }
+    };
+    loadBarangays();
+  }, [addCityMunicipality]);
 
   const fetchMedicines = async () => {
     setLoading(true);
@@ -191,6 +250,12 @@ const Medicine_Inventory: React.FC = () => {
   const handleAddMedicine = async () => {
     if (!medicineName || !medicineType || !quantity || !expiryDate) {
       setToastMessage('Please fill all required fields');
+      setShowToast(true);
+      return;
+    }
+
+    if (selectedLocation === 'barangayId' && (!addRegion || !addProvince || !addCityMunicipality || !selectedBarangay)) {
+      setToastMessage('Please select a complete address for the barangay inventory.');
       setShowToast(true);
       return;
     }
@@ -310,6 +375,9 @@ const Medicine_Inventory: React.FC = () => {
     setExpiryDate('');
     setSelectedLocation('rhu');
     setSelectedBarangay('');
+    setAddRegion('');
+    setAddProvince('');
+    setAddCityMunicipality('');
   };
 
   const formatDate = (date: Date) => {
@@ -467,9 +535,8 @@ const Medicine_Inventory: React.FC = () => {
             placeholder="Choose a location"
           >
             <IonSelectOption value="rhu">RHU Inventory</IonSelectOption>
-           
-            {BARANGAYS.map(barangayId => (
-              <IonSelectOption key={barangayId} value={barangayId}>{barangayId}</IonSelectOption>
+            {barangays.map(barangay => (
+              <IonSelectOption key={barangay.code} value={barangay.code}>{barangay.name}</IonSelectOption>
             ))}
              <IonSelectOption value="all">All Barangays</IonSelectOption>
           </IonSelect>
@@ -650,18 +717,68 @@ const Medicine_Inventory: React.FC = () => {
               </IonItem>
 
               {selectedLocation === 'barangayId' && (
-                <IonItem>
-                  <IonLabel position="stacked">Select Barangay *</IonLabel>
-                  <IonSelect 
-                    value={selectedBarangay}
-                    onIonChange={(e) => setSelectedBarangay(e.detail.value)}
-                    placeholder="Choose barangay"
-                  >
-                    {BARANGAYS.map(barangayId => (
-                      <IonSelectOption key={barangayId} value={barangayId}>{barangayId}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
+                <>
+                  <IonItem>
+                    <IonLabel position="stacked">Region *</IonLabel>
+                    <IonSelect
+                      value={addRegion}
+                      placeholder="Select Region"
+                      onIonChange={(e) => setAddRegion(e.detail.value)}
+                    >
+                      {regions.map((region) => (
+                        <IonSelectOption key={region.code} value={region.code}>
+                          {region.name}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonLabel position="stacked">Province *</IonLabel>
+                    <IonSelect
+                      value={addProvince}
+                      placeholder="Select Province"
+                      onIonChange={(e) => setAddProvince(e.detail.value)}
+                      disabled={!addRegion}
+                    >
+                      {provinces.map((province) => (
+                        <IonSelectOption key={province.code} value={province.code}>
+                          {province.name}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonLabel position="stacked">City/Municipality *</IonLabel>
+                    <IonSelect
+                      value={addCityMunicipality}
+                      placeholder="Select City/Municipality"
+                      onIonChange={(e) => setAddCityMunicipality(e.detail.value)}
+                      disabled={!addProvince}
+                    >
+                      {citiesMunicipalities.map((cityMun) => (
+                        <IonSelectOption key={cityMun.code} value={cityMun.code}>
+                          {cityMun.name}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonLabel position="stacked">Select Barangay *</IonLabel>
+                    <IonSelect 
+                      value={selectedBarangay}
+                      onIonChange={(e) => setSelectedBarangay(e.detail.value)}
+                      placeholder="Choose barangay"
+                      disabled={!addCityMunicipality}
+                    >
+                      {barangays.map(barangay => (
+                        <IonSelectOption key={barangay.code} value={barangay.code}>{barangay.name}</IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+                </>
               )}
             </IonList>
 

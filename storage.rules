@@ -41,5 +41,20 @@ service firebase.storage {
     //   allow read: if true;
     //   allow write: if request.auth.uid == userId;
     // }
+
+    // User documents (e.g., ID, certificates)
+    // Path: /user-documents/{userId}/{fileName}
+    match /user-documents/{userId}/{fileName} {
+      // READ: Only the owner can read their own documents.
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // WRITE: Only the owner can upload, update, or delete their own documents.
+      // - File size must be less than 5MB (matching client-side validation).
+      // - File must be an allowed type (matching client-side validation).
+      allow write: if isAuthenticated()
+                    && request.auth.uid == userId
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/(jpeg|png|webp|gif)|application/pdf');
+    }
   }
 }

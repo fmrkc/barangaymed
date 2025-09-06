@@ -37,7 +37,7 @@ import { db } from '../../firebaseConfig';
 import { megaphone, calendar, person, close, pencil, colorFill } from 'ionicons/icons';
 
 const UserAnnouncements: React.FC = () => {
-  const { currentUser, userRole, loading: authLoading } = useAuth();
+  const { currentUser, userRole, loading: authLoading, verificationStatus } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [barangayId, setbarangayId] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -169,6 +169,23 @@ const UserAnnouncements: React.FC = () => {
         <div style={{ textAlign: 'center', marginTop: '50px' }}>
           <IonSpinner />
           <p>Loading...</p>
+        </div>
+      </IonContent>
+    );
+  }
+
+  const isVerified = verificationStatus === 'verified';
+
+  if (!isVerified) {
+    return (
+      <IonContent className="ion-padding">
+        <div style={{ textAlign: 'center', marginTop: '50px' }}>
+          <IonIcon
+            icon={megaphone}
+            style={{ fontSize: '48px', color: 'gray', marginBottom: '20px' }}
+          />
+          <h3>Access Restricted</h3>
+          <p>Your account is not verified. Please complete the verification process to access barangay announcements.</p>
         </div>
       </IonContent>
     );

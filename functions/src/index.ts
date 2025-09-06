@@ -1,39 +1,88 @@
-import * as functions from "firebase-functions";
+import { onRequest, onCall } from "firebase-functions/v2/https";
 import admin from "firebase-admin";
 import { logger } from "firebase-functions";
+import * as functions from "firebase-functions"; // Import config
+import express from 'express';
+import cors from 'cors';
+
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Load addressesData synchronously using fs.readFileSync
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const addressesDataPath = path.resolve(__dirname, '../philippine-addresses.json');
+const addressesData: AddressesDataType = JSON.parse(fs.readFileSync(addressesDataPath, 'utf8'));
+
+interface BarangayData {
+  code: string;
+  name: string;
+}
+
+interface CityMunData {
+  name: string;
+  barangay_list: BarangayData[];
+}
+
+interface ProvinceData {
+  name: string;
+  municipality_list: { [key: string]: CityMunData };
+}
+
+interface RegionData {
+  region_name: string;
+  province_list: { [key: string]: ProvinceData };
+}
+
+interface AddressesDataType {
+  [key: string]: RegionData;
+}
 
 admin.initializeApp();
 
-export { provisionUser } from './createAdminUser.js';
-export { setroleonusercreate } from './auth-triggers.js';
-export { sendAnnouncementNotification } from './sendAnnouncementNotification.js';
+const app = express();
+const allowedOrigins = [
+  'http://localhost:8100',
+  'http://localhost:8101',
+  'https://barangaymed.web.app',
+  'https://api-gy7oflie2a-uc.a.run.app'
+];
 
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+app.use(express.json());
 
-/**
- * HTTP Cloud Function to log activities securely
- * This function accepts log data and writes it to Firestore with server-side permissions
- */
-export const logActivity = functions.https.onCall(async (data, context) => {
-  // Validate that the request is authenticated
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      'unauthenticated',
-      'Only authenticated users can log activities'
-    );
-  }
+// Individual functions are now handled by the Express app routes
+// No need to export them separately
 
-  // Validate required fields
-  const { action, userId, userEmail, role, details } = data;
-  
-  if (!action || !userId || !userEmail || !role || !details) {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Missing required fields: action, userId, userEmail, role, details'
-    );
-  }
-
+// Log Activity route
+app.post('/logActivityV2', async (req, res) => {
   try {
-    // Create the log entry with server timestamp
+    // Authentication check (simplified)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { action, userId, userEmail, role, details } = req.body;
+    if (!action || !userId || !userEmail || !role || !details) {
+      res.status(400).json({ error: 'Missing required fields: action, userId, userEmail, role, details' });
+      return;
+    }
+
     const logEntry = {
       action,
       userId,
@@ -41,62 +90,41 @@ export const logActivity = functions.https.onCall(async (data, context) => {
       role,
       details,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      // Add additional metadata for security
-      authUid: context.auth.uid,
       authTime: new Date().toISOString()
     };
 
-    // Write to Firestore
     await admin.firestore().collection('logs').add(logEntry);
-    
-    return { success: true, message: 'Activity logged successfully' };
+    res.json({ success: true, message: 'Activity logged successfully' });
   } catch (error) {
     logger.error('Error logging activity:', error);
-    throw new functions.https.HttpsError(
-      'internal',
-      'Failed to log activity'
-    );
+    res.status(500).json({ error: 'Failed to log activity' });
   }
 });
 
-/**
- * Callable function to set a user's role.
- * Only callable by users with the 'superadmin' role.
- * @param {object} data - The data passed to the function.
- * @param {string} data.email - The email of the user to modify.
- * @param {string} data.newRole - The new role to assign ('admin' or 'user').
- * @param {string} [data.barangayId] - The barangayId, required if the new role is 'admin'.
- */
-export const setUserRole = functions.https.onCall(async (data, context) => {
-  // 1. Authentication and Authorization Check
-  // Ensure the user is authenticated and is a superadmin.
-  if (context.auth?.token.role !== 'superadmin') {
-    logger.error("Attempt to set role by non-superadmin:", { uid: context.auth?.uid });
-    throw new functions.https.HttpsError(
-      'permission-denied',
-      'You must be a superadmin to perform this action.'
-    );
-  }
-
-  const { email, newRole, barangayId } = data;
-
-  // 2. Input Validation
-  if (!email || !newRole || (newRole === 'admin' && !barangayId)) {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Required fields are missing: email, newRole, and barangayId (for admins).'
-    );
-  }
-
-  if (!['admin', 'user'].includes(newRole)) {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Role must be either "admin" or "user".'
-    );
-  }
-
+// Set User Role route
+app.post('/setUserRoleV2', async (req, res) => {
   try {
-    // 3. Set Custom Claims
+    // Authentication check (simplified)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { email, newRole, barangayId } = req.body;
+
+    // Input Validation
+    if (!email || !newRole || (newRole === 'admin' && !barangayId)) {
+      res.status(400).json({ error: 'Required fields are missing: email, newRole, and barangayId (for admins).' });
+      return;
+    }
+
+    if (!['admin', 'user'].includes(newRole)) {
+      res.status(400).json({ error: 'Role must be either "admin" or "user".' });
+      return;
+    }
+
+    // Set Custom Claims
     const userToUpdate = await admin.auth().getUserByEmail(email);
     const claims: { role: string; barangayId?: string } = { role: newRole };
     if (newRole === 'admin') {
@@ -105,50 +133,46 @@ export const setUserRole = functions.https.onCall(async (data, context) => {
 
     await admin.auth().setCustomUserClaims(userToUpdate.uid, claims);
 
-    // 4. Update Firestore Document (to keep data consistent)
+    // Update Firestore Document
     await admin.firestore().collection('users').doc(userToUpdate.uid).update(claims);
 
     logger.log(`Successfully set role for ${email} to ${newRole}`, claims);
-    return { success: true, message: `Role for ${email} updated to ${newRole}.` };
+    res.json({ success: true, message: `Role for ${email} updated to ${newRole}.` });
   } catch (error) {
     logger.error("Error in setUserRole:", error);
-    throw new functions.https.HttpsError(
-      'internal',
-      'An error occurred while setting the user role.'
-    );
+    res.status(500).json({ error: 'An error occurred while setting the user role.' });
   }
 });
 
-/**
- * Callable function to get announcements for a user's barangay.
- * Accessible by authenticated users.
- */
-export const getAnnouncementsByBarangay = functions.https.onCall(async (data, context) => {
-  // Validate authentication
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      'unauthenticated',
-      'Only authenticated users can fetch announcements'
-    );
-  }
-
+// Get Announcements by Barangay route
+app.get('/getAnnouncementsByBarangayV2', async (req, res) => {
   try {
+    // Authentication check (simplified)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // For simplicity, we'll expect userId in query params
+    const userId = req.query.userId as string;
+    if (!userId) {
+      res.status(400).json({ error: 'User ID required' });
+      return;
+    }
+
     // Get the user's barangay from their document
-    const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+    const userDoc = await admin.firestore().collection('users').doc(userId).get();
     if (!userDoc.exists) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'User document not found'
-      );
+      res.status(404).json({ error: 'User document not found' });
+      return;
     }
     const userData = userDoc.data();
     const barangayId = userData?.barangayId;
 
     if (!barangayId) {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
-        'User barangay not found'
-      );
+      res.status(400).json({ error: 'User barangay not found' });
+      return;
     }
 
     // Query announcements for the user's barangay
@@ -176,44 +200,211 @@ export const getAnnouncementsByBarangay = functions.https.onCall(async (data, co
       };
     });
 
-    return { announcements };
+    res.json({ announcements });
   } catch (error) {
     logger.error('Error fetching announcements:', error);
-    if (error instanceof functions.https.HttpsError) {
-      throw error;
-    }
-    throw new functions.https.HttpsError(
-      'internal',
-      'Failed to fetch announcements'
-    );
+    res.status(500).json({ error: 'Failed to fetch announcements' });
   }
 });
 
-/**
- * Example of a protected callable function.
- * Only accessible by users with 'admin' or 'superadmin' roles.
- */
-export const adminOnlyOperation = functions.https.onCall((data, context) => {
-  // Check for authentication and role.
-  const role = context.auth?.token.role;
-  if (!role || (role !== 'admin' && role !== 'superadmin')) {
-    logger.error("Unauthorized access attempt to adminOnlyOperation:", { uid: context.auth?.uid });
+// Submit Full Registration route
+app.post('/submitFullRegistrationV2', async (req, res) => {
+  try {
+    // Authentication check (simplified)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    const { registrationDetails } = req.body;
+    if (!registrationDetails) {
+      res.status(400).json({ error: 'Missing registrationDetails' });
+      return;
+    }
+
+    // Get user info from the token (simplified - in production, verify the token properly)
+    const idToken = authHeader.split('Bearer ')[1];
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+    } catch {
+      res.status(401).json({ error: 'Invalid token' });
+      return;
+    }
+
+    const userId = decodedToken.uid;
+    const email = decodedToken.email;
+
+    if (!email) {
+      res.status(400).json({ error: 'Email not found in token' });
+      return;
+    }
+
+    const {
+      lotBlkHouseNo, streetName, subdivisionVillageZonePurok, zipCode, contactNumber,
+      barangayId, barangayIdUrl, barangayCertificateUrl
+    } = registrationDetails;
+
+    const subject = "BarangayMed+ Full Registration Request Received";
+    const htmlContent = `
+<p>Dear User,</p>
+<p>Thank you for submitting your full registration request to BarangayMed+.</p>
+<p>Your request has been successfully received and will be reviewed by our administrators soon.</p>
+<p>Here are the details you submitted:</p>
+<ul>
+  <li><strong>Email:</strong> ${email}</li>
+  <li><strong>Address:</strong> ${[lotBlkHouseNo, streetName, subdivisionVillageZonePurok, barangayId, zipCode].filter(Boolean).join(', ')}</li>
+  <li><strong>Contact Number:</strong> ${contactNumber}</li>
+  <li><strong>Barangay:</strong> ${barangayId}</li>
+  ${barangayIdUrl ? `<li><strong>Barangay ID:</strong> <a href="${barangayIdUrl}">View Document</a></li>` : ''}
+  ${barangayCertificateUrl ? `<li><strong>Barangay Certificate:</strong> <a href="${barangayCertificateUrl}">View Document</a></li>` : ''}
+</ul>
+<p>You will receive another notification once your request has been reviewed.</p>
+<p>Sincerely,</p>
+<p>The BarangayMed+ Team</p>
+`;
+
+    try {
+      // Send email confirmation
+      const { sendEmail } = await import('./email.js');
+      await sendEmail({
+        to: email,
+        subject: subject,
+        html: htmlContent,
+      });
+
+      // Create notification in Firestore
+      await admin.firestore().collection("notifications").add({
+        userId: userId,
+        title: "Full Registration Request Received",
+        message: "Your full registration request has been received and is pending review.",
+        type: "full_registration_status",
+        read: false,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        details: registrationDetails,
+      });
+
+      res.json({ success: true, message: "Full registration confirmation sent." });
+    } catch (error) {
+      logger.error("Error sending full registration confirmation:", error);
+      res.status(500).json({ error: 'Failed to send confirmation.' });
+    }
+  } catch (error) {
+    logger.error('Error in submitFullRegistration:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Admin Only Operation route
+app.get('/adminOnlyOperationV2', async (req, res) => {
+  try {
+    // Authentication check (simplified)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // For simplicity, we'll expect role in query params
+    const role = req.query.role as string;
+    if (!role || (role !== 'admin' && role !== 'superadmin')) {
+      logger.error("Unauthorized access attempt to adminOnlyOperation");
+      res.status(403).json({ error: 'You do not have permission to perform this action.' });
+      return;
+    }
+
+    // If the check passes, proceed with the function's logic.
+    logger.log(`Admin operation performed by:`, { role: role });
+
+    // Example: Return some data only admins should see.
+    res.json({
+      success: true,
+      message: "Welcome, admin! Here is the secret data.",
+      data: {
+        superSecretValue: 12345,
+        requestingbarangayId: req.query.barangayId || 'N/A'
+      }
+    });
+  } catch (error) {
+    logger.error('Error in adminOnlyOperation:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get Philippine Addresses route
+app.get('/getPhilippineAddresses', async (req, res) => {
+  try {
+    // No authentication needed for public address data
+    res.json(addressesData);
+  } catch (error) {
+    logger.error('Error fetching Philippine addresses:', error);
+    res.status(500).json({ error: 'Failed to fetch Philippine addresses' });
+  }
+});
+
+// Helper function to get barangay code from name
+function getBarangayCodeFromName(barangayName: string): string | undefined {
+  const typedAddressesData: AddressesDataType = addressesData as AddressesDataType;
+
+  for (const regionCode in typedAddressesData) {
+    const regionData = typedAddressesData[regionCode];
+    for (const provinceCode in regionData.province_list) {
+      const provinceData = regionData.province_list[provinceCode];
+      for (const cityMunCode in provinceData.municipality_list) {
+        const cityMunData = provinceData.municipality_list[cityMunCode];
+        const barangayList = cityMunData.barangay_list;
+        const foundBarangay = barangayList.find((brgy: BarangayData) => brgy.name === barangayName);
+        if (foundBarangay) {
+          return foundBarangay.code;
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
+export const standardizeAdminBarangayIds = onCall(async (request) => {
+  if (request.auth?.token.role !== 'superadmin') {
     throw new functions.https.HttpsError(
       'permission-denied',
-      'You do not have permission to perform this action.'
+      'Only superadmins can standardize admin barangay IDs.'
     );
   }
 
-  // If the check passes, proceed with the function's logic.
-  logger.log(`Admin operation performed by:`, { uid: context.auth?.uid, role: role });
+  const db = admin.firestore();
+  const usersRef = db.collection('users');
+  const adminUsersSnapshot = await usersRef.where('role', '==', 'admin').get();
 
-  // Example: Return some data only admins should see.
-  return {
-    success: true,
-    message: "Welcome, admin! Here is the secret data.",
-    data: {
-      superSecretValue: 12345,
-      requestingbarangayId: context.auth?.token.barangayId || 'N/A'
+  const updates: Promise<FirebaseFirestore.WriteResult>[] = [];
+
+  for (const doc of adminUsersSnapshot.docs) {
+    const userData = doc.data();
+    const currentBarangayId = userData.barangayId;
+
+    if (currentBarangayId && typeof currentBarangayId === 'string' && currentBarangayId.length > 0 && !/^[0-9]+$/.test(currentBarangayId)) {
+      // Assuming currentBarangayId is a name, try to find its code
+      const newBarangayCode = getBarangayCodeFromName(currentBarangayId);
+
+      if (newBarangayCode) {
+        // Update Firestore document
+        updates.push(doc.ref.update({ barangayId: newBarangayCode }));
+
+        // Update custom claims
+        const userRecord = await admin.auth().getUser(doc.id);
+        await admin.auth().setCustomUserClaims(doc.id, { ...userRecord.customClaims, barangayId: newBarangayCode });
+        logger.log(`Updated barangayId for user ${doc.id} from '${currentBarangayId}' to '${newBarangayCode}'`);
+      } else {
+        logger.warn(`Could not find code for barangay name: ${currentBarangayId} for user ${doc.id}`);
+      }
     }
-  };
+  }
+
+  await Promise.all(updates);
+
+  return { success: true, message: `Standardized barangay IDs for ${updates.length} admin users.` };
 });
+
+// Export the Express app as a Firebase Function
+export const api = onRequest({ secrets: ["GMAIL_EMAIL", "GMAIL_APP_PASSWORD"] }, app);

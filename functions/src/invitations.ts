@@ -1,8 +1,9 @@
-import * as functions from "firebase-functions";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import admin from "firebase-admin";
 import { logger } from "firebase-functions";
 import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
+import { gmailEmail, gmailAppPassword } from './params.js';
 
 /**
  * Callable function to send an invitation for admin/superadmin registration.
@@ -12,35 +13,35 @@ import * as nodemailer from 'nodemailer';
  * @param {'admin' | 'superadmin'} data.role - The role to assign to the invitee.
  * @param {string} [data.barangayId] - Required if role is 'admin'.
  */
-export const sendInvitation = functions.https.onCall(async (data, context) => {
+export const sendInvitation = onCall(async (request) => {
   // 1. Authentication and Authorization Check
-  if (!context.auth || context.auth.token.role !== 'superadmin') {
-    logger.warn("Attempt to send invitation by non-superadmin:", { uid: context.auth?.uid });
-    throw new functions.https.HttpsError(
+  if (!request.auth || request.auth.token.role !== 'superadmin') {
+    logger.warn("Attempt to send invitation by non-superadmin:", { uid: request.auth?.uid });
+    throw new HttpsError(
       'permission-denied',
       'Only superadmins can send invitations.'
     );
   }
 
-  const { email, role, barangayId } = data;
+  const { email, role, barangayId } = request.data;
 
   // 2. Input Validation
   if (!email || !role) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'invalid-argument',
       'Missing required fields: email and role.'
     );
   }
 
   if (!['admin', 'superadmin'].includes(role)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'invalid-argument',
       'Role must be either "admin" or "superadmin".'
     );
   }
 
   if (role === 'admin' && !barangayId) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'invalid-argument',
       'Barangay ID is required for admin role invitations.'
     );
@@ -56,8 +57,8 @@ export const sendInvitation = functions.https.onCall(async (data, context) => {
       email: email,
       role: role,
       barangayId: role === 'admin' ? barangayId : null,
-      invitedBy: context.auth.uid,
-      invitedByEmail: context.auth.token.email,
+      invitedBy: request.auth.uid,
+      invitedByEmail: request.auth.token.email,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       expiresAt: expiresAt,
       status: 'pending',
@@ -70,13 +71,13 @@ export const sendInvitation = functions.https.onCall(async (data, context) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: functions.config().gmail.email,
-        pass: functions.config().gmail.app_password,
+        user: gmailEmail.value(),
+        pass: gmailAppPassword.value(),
       },
     });
 
     const mailOptions = {
-      from: `"BarangayMed+" <${functions.config().gmail.email}>`,
+      from: `"BarangayMed+" <${gmailEmail.value()}>`,
       to: email,
       subject: 'Invitation to join BarangayMed+',
       html: `<p>You have been invited to join BarangayMed+ as a ${role}.</p>
@@ -91,7 +92,7 @@ export const sendInvitation = functions.https.onCall(async (data, context) => {
     return { success: true, message: `Invitation sent to ${email}.` };
   } catch (error) {
     logger.error("Error sending invitation:", error);
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'internal',
       'Failed to send invitation.'
     );
@@ -103,13 +104,13 @@ export const sendInvitation = functions.https.onCall(async (data, context) => {
  * @param {object} data - The data passed to the function.
  * @param {string} data.token - The invitation token.
  */
-export const validateInvitation = functions.https.onCall(async (data) => {
+export const validateInvitation = onCall(async (request) => {
   // No authentication required for this function, as it's for new users.
 
-  const { token } = data;
+  const { token } = request.data;
 
   if (!token) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'invalid-argument',
       'Invitation token is missing.'
     );
@@ -119,7 +120,7 @@ export const validateInvitation = functions.https.onCall(async (data) => {
     const invitationDoc = await admin.firestore().collection('invitations').doc(token).get();
 
     if (!invitationDoc.exists) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'not-found',
         'Invitation not found.'
       );
@@ -128,14 +129,14 @@ export const validateInvitation = functions.https.onCall(async (data) => {
     const invitationData = invitationDoc.data();
 
     if (invitationData?.status !== 'pending') {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'failed-precondition',
         'Invitation has already been used or is invalid.'
       );
     }
 
     if (invitationData?.expiresAt.toDate() < new Date()) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'deadline-exceeded',
         'Invitation has expired.'
       );
@@ -149,10 +150,10 @@ export const validateInvitation = functions.https.onCall(async (data) => {
     };
   } catch (error) {
     logger.error("Error validating invitation:", error);
-    if (error instanceof functions.https.HttpsError) {
+    if (error instanceof HttpsError) {
       throw error; // Re-throw HttpsError directly
     }
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'internal',
       'Failed to validate invitation.'
     );
@@ -165,15 +166,14 @@ export const validateInvitation = functions.https.onCall(async (data) => {
  * @param {string} data.uid - The UID of the newly created Firebase Auth user.
  * @param {string} data.token - The invitation token.
  */
-export const completeInvitationRegistration = functions.https.onCall(async (data) => {
-  // This function is called by the newly created user, so context.auth should exist.
-  // Removed unused 'context' parameter to fix lint error.
-  // Note: If context.auth is needed, this should be re-added and used properly.
+export const completeInvitationRegistration = onCall(async (request) => {
+  // This function is called by the newly created user, so request.auth should exist.
+  // Note: If request.auth is needed, this should be re-added and used properly.
 
-  const { uid, token } = data;
+  const { uid, token } = request.data;
 
   if (!uid || !token) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'invalid-argument',
       'Missing required fields: uid and token.'
     );
@@ -184,7 +184,7 @@ export const completeInvitationRegistration = functions.https.onCall(async (data
     const invitationDoc = await invitationDocRef.get();
 
     if (!invitationDoc.exists) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'not-found',
         'Invitation not found.'
       );
@@ -193,14 +193,14 @@ export const completeInvitationRegistration = functions.https.onCall(async (data
     const invitationData = invitationDoc.data();
 
     if (invitationData?.status !== 'pending') {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'failed-precondition',
         'Invitation has already been used or is invalid.'
       );
     }
 
     if (invitationData?.expiresAt.toDate() < new Date()) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
         'deadline-exceeded',
         'Invitation has expired.'
       );
@@ -231,10 +231,10 @@ export const completeInvitationRegistration = functions.https.onCall(async (data
     return { success: true, message: 'Registration completed successfully.' };
   } catch (error) {
     logger.error("Error completing invitation registration:", error);
-    if (error instanceof functions.https.HttpsError) {
+    if (error instanceof HttpsError) {
       throw error; // Re-throw HttpsError directly
     }
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       'internal',
       'Failed to complete registration.'
     );

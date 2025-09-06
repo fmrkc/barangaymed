@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { getAuth, deleteUser } from 'firebase/auth';
+import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
 
 interface AdminUser {
     id: string;
@@ -28,9 +29,67 @@ const adminmanagement: React.FC = () => {
     const [editBarangay, setEditBarangay] = useState('');
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
+    const [regions, setRegions] = useState<Region[]>([]);
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
+    const [barangays, setBarangays] = useState<Barangay[]>([]);
+
+    const [selectedRegion, setSelectedRegion] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedCityMunicipality, setSelectedCityMunicipality] = useState('');
+
     useEffect(() => {
         fetchAdmins();
+        const loadRegions = async () => {
+            setRegions(await getRegions());
+        };
+        loadRegions();
     }, []);
+
+    useEffect(() => {
+        const loadProvinces = async () => {
+            if (selectedRegion) {
+                setProvinces(await getProvincesByRegion(selectedRegion));
+                setSelectedProvince('');
+                setSelectedCityMunicipality('');
+                setEditBarangay('');
+            } else {
+                setProvinces([]);
+                setSelectedProvince('');
+                setSelectedCityMunicipality('');
+                setEditBarangay('');
+            }
+        };
+        loadProvinces();
+    }, [selectedRegion]);
+
+    useEffect(() => {
+        const loadCitiesMunicipalities = async () => {
+            if (selectedProvince) {
+                setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(selectedProvince));
+                setSelectedCityMunicipality('');
+                setEditBarangay('');
+            } else {
+                setCitiesMunicipalities([]);
+                setSelectedCityMunicipality('');
+                setEditBarangay('');
+            }
+        };
+        loadCitiesMunicipalities();
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        const loadBarangays = async () => {
+            if (selectedCityMunicipality) {
+                setBarangays(await getBarangaysByCityMunicipality(selectedCityMunicipality));
+                setEditBarangay('');
+            } else {
+                setBarangays([]);
+                setEditBarangay('');
+            }
+        };
+        loadBarangays();
+    }, [selectedCityMunicipality]);
 
     const fetchAdmins = async () => {
         try {
@@ -69,12 +128,35 @@ const adminmanagement: React.FC = () => {
         setActionSheetOpen(true);
     };
 
-    const openEditModal = (admin: AdminUser | null) => {
+    const openEditModal = async (admin: AdminUser | null) => {
         if (admin) {
             setEditName(admin.name);
             setEditEmail(admin.email);
             setEditRole(admin.role);
             setEditBarangay(admin.barangayId || '');
+
+            // Initialize address selectors based on admin's barangayId
+            if (admin.barangayId) {
+                const allRegions = await getRegions();
+                for (const region of allRegions) {
+                    const provinces = await getProvincesByRegion(region.code);
+                    for (const province of provinces) {
+                        const cities = await getCitiesMunicipalitiesByProvince(province.code);
+                        for (const city of cities) {
+                            const barangays = await getBarangaysByCityMunicipality(city.code);
+                            if (barangays.some(brgy => brgy.code === admin.barangayId)) {
+                                setSelectedRegion(region.code);
+                                setSelectedProvince(province.code);
+                                setSelectedCityMunicipality(city.code);
+                                break;
+                            }
+                        }
+                        if (selectedCityMunicipality) break; // Found city, break outer loop
+                    }
+                    if (selectedProvince) break; // Found province, break outer loop
+                }
+            }
+
             setEditModalOpen(true);
         }
     };
@@ -266,16 +348,71 @@ const adminmanagement: React.FC = () => {
                             <IonSelectOption value="admin">Admin</IonSelectOption>
                             <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
                         </IonSelect>
-                        <IonSelect
-                            label="Barangay"
-                            value={editBarangay}
-                            onIonChange={e => setEditBarangay(e.detail.value!)}
-                            required
-                        >
-                            <IonSelectOption value="Apalit">Apalit</IonSelectOption>
-                            <IonSelectOption value="Gutad">Gutad</IonSelectOption>
-                            <IonSelectOption value="Poblacion">Poblacion</IonSelectOption>
-                        </IonSelect>
+
+                        {/* Dynamic Address Selectors */}
+                        <IonItem>
+                            <IonLabel>Region</IonLabel>
+                            <IonSelect
+                                value={selectedRegion}
+                                placeholder="Select Region"
+                                onIonChange={e => setSelectedRegion(e.detail.value)}
+                            >
+                                {regions.map((region) => (
+                                    <IonSelectOption key={region.code} value={region.code}>
+                                        {region.name}
+                                    </IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonItem>
+
+                        <IonItem>
+                            <IonLabel>Province</IonLabel>
+                            <IonSelect
+                                value={selectedProvince}
+                                placeholder="Select Province"
+                                onIonChange={e => setSelectedProvince(e.detail.value)}
+                                disabled={!selectedRegion}
+                            >
+                                {provinces.map((province) => (
+                                    <IonSelectOption key={province.code} value={province.code}>
+                                        {province.name}
+                                    </IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonItem>
+
+                        <IonItem>
+                            <IonLabel>City/Municipality</IonLabel>
+                            <IonSelect
+                                value={selectedCityMunicipality}
+                                placeholder="Select City/Municipality"
+                                onIonChange={e => setSelectedCityMunicipality(e.detail.value)}
+                                disabled={!selectedProvince}
+                            >
+                                {citiesMunicipalities.map((cityMun) => (
+                                    <IonSelectOption key={cityMun.code} value={cityMun.code}>
+                                        {cityMun.name}
+                                    </IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonItem>
+
+                        <IonItem>
+                            <IonLabel>Barangay</IonLabel>
+                            <IonSelect
+                                value={editBarangay}
+                                placeholder="Select Barangay"
+                                onIonChange={e => setEditBarangay(e.detail.value)}
+                                disabled={!selectedCityMunicipality}
+                            >
+                                {barangays.map((brgy: Barangay) => (
+                                    <IonSelectOption key={brgy.code} value={brgy.code}>
+                                        {brgy.name}
+                                    </IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonItem>
+
                         <IonButton expand="block" type="submit" className="ion-margin-top">
                             Save Changes
                         </IonButton>

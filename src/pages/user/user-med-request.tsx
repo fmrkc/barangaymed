@@ -6,6 +6,7 @@ import { LogService } from '../../services/logService';
 import { db } from '../../firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Medicine } from '../../types/medicineRequests';
+import { UserService } from '../../services/userService'; // Added import
 
 import Page1 from './UserMedRequestSteps/Page1';
 import Page2 from './UserMedRequestSteps/Page2';
@@ -32,8 +33,14 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
   const [pickupDate, setPickupDate] = useState('');
   const [userDetails, setUserDetails] = useState({
     name: '',
-    address: '',
-    barangayId: ''
+    selectedRegion: '',
+    selectedProvince: '',
+    selectedCityMunicipality: '',
+    barangayId: '',
+    zipCode: '',
+    lotBlkHouseNo: '',
+    streetName: '',
+    subdivisionVillageZonePurok: '',
   });
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [hasTooManyPendingRequests, setHasTooManyPendingRequests] = useState(false);
@@ -74,10 +81,19 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
   };
 
   const fetchUserDetails = async () => {
+    if (!currentUser) return;
+    const userService = UserService.getInstance();
+    const data = await userService.getUserData(currentUser.uid);
     setUserDetails({
-      name: currentUser?.displayName || currentUser?.email || '',
-      address: '',
-      barangayId: 'Apalit' // 'Apalit'
+      name: data.firstName + ' ' + data.lastName, // Assuming full name is constructed
+      selectedRegion: data.selectedRegion,
+      selectedProvince: data.selectedProvince,
+      selectedCityMunicipality: data.selectedCityMunicipality,
+      barangayId: data.barangayId,
+      zipCode: data.zipCode,
+      lotBlkHouseNo: data.lotBlkHouseNo,
+      streetName: data.streetName,
+      subdivisionVillageZonePurok: data.subdivisionVillageZonePurok,
     });
   };
 
@@ -170,8 +186,14 @@ const submitRequest = async () => {
       userId: currentUser.uid,
       userEmail: currentUser.email,
       userName: userDetails.name,
-      userAddress: userDetails.address,
-      barangayId: userDetails.barangayId,
+      userSelectedRegion: userDetails.selectedRegion,
+      userSelectedProvince: userDetails.selectedProvince,
+      userSelectedCityMunicipality: userDetails.selectedCityMunicipality,
+      userBarangayId: userDetails.barangayId,
+      userZipCode: userDetails.zipCode,
+      userLotBlkHouseNo: userDetails.lotBlkHouseNo,
+      userStreetName: userDetails.streetName,
+      userSubdivisionVillageZonePurok: userDetails.subdivisionVillageZonePurok,
       medicineId: selectedMedicine.id,
       medicineName: selectedMedicine.name,
       medicineType: selectedMedicine.type,

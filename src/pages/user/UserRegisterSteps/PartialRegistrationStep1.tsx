@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonText } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonText, IonDatetime, IonDatetimeButton, IonModal } from '@ionic/react';
 import { arrowForward, chevronForward, lockClosed, person } from 'ionicons/icons';
 
 interface Page1Props {
@@ -7,11 +7,12 @@ interface Page1Props {
   middleName: string;
   lastName: string;
   suffix: string;
+  birthdate: string; // Added birthdate
   onChange: (field: string, value: string) => void;
   onNext?: () => void;
 }
 
-const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, onChange }) => {
+const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, birthdate, onChange }) => {
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
@@ -63,10 +64,21 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
         >
           <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
         </IonInput>
-        <br />
       </div>
 
-    
+      <div className="ion-margin-top">
+        <IonCardSubtitle>Birthdate *</IonCardSubtitle>
+        <IonDatetimeButton datetime="birthdate"></IonDatetimeButton>
+        <IonModal keepContentsMounted={true}>
+          <IonDatetime
+            id="birthdate"
+            presentation="date"
+            value={birthdate}
+            onIonChange={(e) => onChange("birthdate", e.detail.value ? String(e.detail.value) : '')}
+          ></IonDatetime>
+        </IonModal>
+        <br />
+      </div>
     </>
   );
 };

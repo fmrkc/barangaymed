@@ -13,7 +13,9 @@ export interface UserData {
   contactNumber: string;
   email: string;
   barangayId: string;
-  address: string;
+  selectedRegion: string;
+  selectedProvince: string;
+  selectedCityMunicipality: string;
 }
 
 export class UserService {
@@ -48,7 +50,9 @@ export class UserService {
         contactNumber: data.contactNumber || '',
         email: data.email || '',
         barangayId: data.barangayId || '',
-        address: data.address || ''
+        selectedRegion: data.selectedRegion || '',
+        selectedProvince: data.selectedProvince || '',
+        selectedCityMunicipality: data.selectedCityMunicipality || '',
       };
       }
       return this.getEmptyUserData();
@@ -75,7 +79,9 @@ export class UserService {
       contactNumber: '',
       email: '',
       barangayId: '',
-      address: ''
+      selectedRegion: '',
+      selectedProvince: '',
+      selectedCityMunicipality: '',
     };
   }
 

@@ -25,16 +25,17 @@ import {
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn, medical } from "ionicons/icons";
+import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn, medical, document } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, login } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
+import FullRegistrationModal from "./FullRegistrationModal";
 
 const Account: React.FC = () => {
-  const { logout, currentUser } = useAuth();
+  const { logout, currentUser, verificationStatus } = useAuth();
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -55,6 +56,7 @@ const Account: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
+  const [showFullRegistrationModal, setShowFullRegistrationModal] = useState(false);
 
   const phoneMaskOptions: MaskitoOptions = {
     mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
@@ -233,6 +235,57 @@ const Account: React.FC = () => {
               Edit Profile
             </IonButton>
           </IonCard>
+
+          {/* Full Registration Card for Unverified Users */}
+          {verificationStatus !== 'verified' && verificationStatus !== 'pending' && (
+            <IonCard color="warning">
+              <IonCardContent className="ion-padding-vertical">
+                <div style={{ textAlign: 'center' }}>
+                  <IonIcon
+                    icon={document}
+                    style={{ fontSize: '48px', color: 'var(--ion-color-warning-contrast)', marginBottom: '20px' }}
+                  />
+                  <IonCardTitle style={{ color: 'var(--ion-color-warning-contrast)' }}>
+                    Complete Your Registration
+                  </IonCardTitle>
+                  <IonText style={{ color: 'var(--ion-color-warning-contrast)' }}>
+                    <p>To access all features, please complete your full registration with address details and document verification.</p>
+                  </IonText>
+                  <IonButton
+                    expand="block"
+                    shape="round"
+                    color="light"
+                    onClick={() => setShowFullRegistrationModal(true)}
+                    className="ion-margin-top"
+                  >
+                    <IonIcon slot="start" icon={document} />
+                    Complete Full Registration
+                  </IonButton>
+                </div>
+              </IonCardContent>
+            </IonCard>
+          )}
+
+          {/* Pending Verification Card */}
+          {verificationStatus === 'pending' && (
+            <IonCard color="secondary">
+              <IonCardContent className="ion-padding-vertical">
+                <div style={{ textAlign: 'center' }}>
+                  <IonIcon
+                    icon={checkmarkDoneOutline}
+                    style={{ fontSize: '48px', color: 'var(--ion-color-secondary-contrast)', marginBottom: '20px' }}
+                  />
+                  <IonCardTitle style={{ color: 'var(--ion-color-secondary-contrast)' }}>
+                    Registration Submitted
+                  </IonCardTitle>
+                  <IonText style={{ color: 'var(--ion-color-secondary-contrast)' }}>
+                    <p>Your full registration has been submitted and is pending admin verification. You will receive a notification once it's approved.</p>
+                  </IonText>
+                </div>
+              </IonCardContent>
+            </IonCard>
+          )}
+
           <IonCardContent>
              <IonItemDivider>
               <IonLabel>Account Settings</IonLabel>
@@ -408,6 +461,12 @@ const Account: React.FC = () => {
         <IonLoading isOpen={showLoading} message="Logging out..." />
         <IonToast isOpen={!!error} message={error || ""} duration={3000} color="danger" />
         <IonToast isOpen={!!successMessage} message={successMessage || ""} duration={3000} color="success" />
+
+        {/* Full Registration Modal */}
+        <FullRegistrationModal
+          isOpen={showFullRegistrationModal}
+          onDidDismiss={() => setShowFullRegistrationModal(false)}
+        />
       </IonContent>
     </>
   );

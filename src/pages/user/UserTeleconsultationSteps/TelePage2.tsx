@@ -19,10 +19,13 @@ import {
   IonSpinner,
   IonText,
   IonTextarea,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { UserService } from '../../../services/userService';
+import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
 
 interface TelePage2Props {
   onNext: (data: any) => void;
@@ -38,12 +41,27 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
     fullName: '',
     email: '',
     phone: '',
-    address: '',
+    selectedRegion: '',
+    selectedProvince: '',
+    selectedCityMunicipality: '',
     barangayId: '',
+    zipCode: '',
+    lotBlkHouseNo: '',
+    streetName: '',
+    subdivisionVillageZonePurok: '',
     notes: '',
   });
 
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
+  const [barangays, setBarangays] = useState<Barangay[]>([]);
+
   useEffect(() => {
+    const loadRegions = async () => {
+      setRegions(await getRegions());
+    };
+    loadRegions();
     const fetchUserData = async () => {
       if (!currentUser) {
         setLoading(false);
@@ -63,8 +81,14 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
           fullName: fullName,
           email: userData.email,
           phone: userData.contactNumber,
-          address: userData.address,
-          barangayId: userData.barangayId,
+          selectedRegion: userData.selectedRegion || '',
+          selectedProvince: userData.selectedProvince || '',
+          selectedCityMunicipality: userData.selectedCityMunicipality || '',
+          barangayId: userData.barangayId || '',
+          zipCode: userData.zipCode || '',
+          lotBlkHouseNo: userData.lotBlkHouseNo || '',
+          streetName: userData.streetName || '',
+          subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok || '',
           notes: '', // Initialize notes field
         });
         setError(null);
@@ -79,8 +103,54 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
     fetchUserData();
   }, [currentUser]);
 
+  useEffect(() => {
+    const loadProvinces = async () => {
+      if (formData.selectedRegion) {
+        setProvinces(await getProvincesByRegion(formData.selectedRegion));
+        setFormData(prev => ({ ...prev, selectedProvince: '', selectedCityMunicipality: '', barangayId: '', zipCode: '' }));
+      } else {
+        setProvinces([]);
+        setFormData(prev => ({ ...prev, selectedProvince: '', selectedCityMunicipality: '', barangayId: '', zipCode: '' }));
+      }
+    };
+    loadProvinces();
+  }, [formData.selectedRegion]);
+
+  useEffect(() => {
+    const loadCitiesMunicipalities = async () => {
+      if (formData.selectedProvince) {
+        setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(formData.selectedProvince));
+        setFormData(prev => ({ ...prev, selectedCityMunicipality: '', barangayId: '', zipCode: '' }));
+      } else {
+        setCitiesMunicipalities([]);
+        setFormData(prev => ({ ...prev, selectedCityMunicipality: '', barangayId: '', zipCode: '' }));
+      }
+    };
+    loadCitiesMunicipalities();
+  }, [formData.selectedProvince]);
+
+  useEffect(() => {
+    const loadBarangays = async () => {
+      if (formData.selectedCityMunicipality) {
+        setBarangays(await getBarangaysByCityMunicipality(formData.selectedCityMunicipality));
+        setFormData(prev => ({ ...prev, barangayId: '', zipCode: '' }));
+      } else {
+        setBarangays([]);
+        setFormData(prev => ({ ...prev, barangayId: '', zipCode: '' }));
+      }
+    };
+    loadBarangays();
+  }, [formData.selectedCityMunicipality]);
+
+  const handleBarangayChange = async (brgyCode: string) => {
+    const zip = await getZipCodeByBarangay(brgyCode) || '';
+    setFormData(prev => ({ ...prev, barangayId: brgyCode, zipCode: zip }));
+  };
+
   const handleNext = () => {
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangayId) {
+    if (!formData.fullName || !formData.email || !formData.phone || 
+        !formData.selectedRegion || !formData.selectedProvince || !formData.selectedCityMunicipality || 
+        !formData.barangayId || !formData.zipCode || !formData.streetName) {
       alert('Please fill in all required fields');
       return;
     }
@@ -154,20 +224,98 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                       </IonItem>
 
                       <IonItem>
-                        <IonLabel position="stacked">Address *</IonLabel>
-                        <IonInput
-                          value={formData.address}
-                          onIonChange={(e) => setFormData({ ...formData, address: e.detail.value! })}
-                          placeholder="Enter your complete address"
-                        />
+                        <IonLabel position="stacked">Region *</IonLabel>
+                        <IonSelect
+                          value={formData.selectedRegion}
+                          placeholder="Select Region"
+                          onIonChange={(e) => setFormData({ ...formData, selectedRegion: e.detail.value! })}
+                        >
+                          {regions.map((region) => (
+                            <IonSelectOption key={region.code} value={region.code}>
+                              {region.name}
+                            </IonSelectOption>
+                          ))}
+                        </IonSelect>
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Province *</IonLabel>
+                        <IonSelect
+                          value={formData.selectedProvince}
+                          placeholder="Select Province"
+                          onIonChange={(e) => setFormData({ ...formData, selectedProvince: e.detail.value! })}
+                          disabled={!formData.selectedRegion}
+                        >
+                          {provinces.map((province) => (
+                            <IonSelectOption key={province.code} value={province.code}>
+                              {province.name}
+                            </IonSelectOption>
+                          ))}
+                        </IonSelect>
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">City/Municipality *</IonLabel>
+                        <IonSelect
+                          value={formData.selectedCityMunicipality}
+                          placeholder="Select City/Municipality"
+                          onIonChange={(e) => setFormData({ ...formData, selectedCityMunicipality: e.detail.value! })}
+                          disabled={!formData.selectedProvince}
+                        >
+                          {citiesMunicipalities.map((cityMun) => (
+                            <IonSelectOption key={cityMun.code} value={cityMun.code}>
+                              {cityMun.name}
+                            </IonSelectOption>
+                          ))}
+                        </IonSelect>
                       </IonItem>
 
                       <IonItem>
                         <IonLabel position="stacked">Barangay *</IonLabel>
-                        <IonInput
+                        <IonSelect
                           value={formData.barangayId}
-                          onIonChange={(e) => setFormData({ ...formData, barangayId: e.detail.value! })}
-                          placeholder="Enter your barangay"
+                          placeholder="Select Barangay"
+                          onIonChange={(e) => handleBarangayChange(e.detail.value!)}
+                          disabled={!formData.selectedCityMunicipality}
+                        >
+                          {barangays.map((brgy) => (
+                            <IonSelectOption key={brgy.code} value={brgy.code}>
+                              {brgy.name}
+                            </IonSelectOption>
+                          ))}
+                        </IonSelect>
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Zip Code *</IonLabel>
+                        <IonInput
+                          value={formData.zipCode}
+                          readonly
+                          placeholder="Zip Code"
+                        />
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Lot/Blk/House No. (optional)</IonLabel>
+                        <IonInput
+                          value={formData.lotBlkHouseNo}
+                          onIonChange={(e) => setFormData({ ...formData, lotBlkHouseNo: e.detail.value! })}                          placeholder="Blk 12, Lot 7"
+                        />
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Street Name *</IonLabel>
+                        <IonInput
+                          value={formData.streetName}
+                          onIonChange={(e) => setFormData({ ...formData, streetName: e.detail.value! })}                          placeholder="Mabini Street"
+                        />
+                      </IonItem>
+
+                      <IonItem>
+                        <IonLabel position="stacked">Subdivision/Village/Zone/Purok (optional)</IonLabel>
+                        <IonInput
+                          value={formData.subdivisionVillageZonePurok}
+                          onIonChange={(e) => setFormData({ ...formData, subdivisionVillageZonePurok: e.detail.value! })}                          placeholder="Purok 3"
                         />
                       </IonItem>
                     </>
@@ -178,8 +326,7 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                     <IonTextarea
                       rows={3}
                       value={formData.notes}
-                      onIonChange={(e) => setFormData({ ...formData, notes: e.detail.value! })}
-                      placeholder="Any additional information you'd like to share"
+                      onIonChange={(e) => setFormData({ ...formData, notes: e.detail.value! })}                      placeholder="Any additional information you'd like to share"
                     />
                   </IonItem>
 
@@ -190,7 +337,9 @@ const TelePage2: React.FC<TelePage2Props> = ({ onNext, onBack }) => {
                     <IonButton 
                       expand="block" 
                       onClick={handleNext}
-                      disabled={!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.barangayId}
+                      disabled={!formData.fullName || !formData.email || !formData.phone || 
+                                !formData.selectedRegion || !formData.selectedProvince || !formData.selectedCityMunicipality || 
+                                !formData.barangayId || !formData.zipCode || !formData.streetName}
                     >
                       Next
                     </IonButton>

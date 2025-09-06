@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "es2020",
+    "module": "nodenext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,

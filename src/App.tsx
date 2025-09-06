@@ -48,7 +48,7 @@ import AMenu from './pages/admin/admin-menu';
 import AAnnouncements from './pages/admin/admin-brgy-announcements';
 
 import UserLogin from './pages/user/user-login';
-import UserRegister from './pages/user/user-register';
+import UserRegister from './pages/user/UserRegisterSteps/user-partial-register';
 import UserDashboard from './pages/user/user-menu';
 import UserVerifyEmail from './pages/user/user-verify-email';
 import User_Requests from './pages/user/user-requests';
