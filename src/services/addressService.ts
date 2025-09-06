@@ -177,4 +177,17 @@ export const getZipCodeByBarangay = async (barangayCode: string): Promise<string
     console.warn(`Zip code not found for barangay code: ${barangayCode}`);
     return undefined;
 };
+
+export const getBarangayNameByCode = async (barangayCode: string): Promise<string | undefined> => {
+  await initializeCaches(); // Ensure caches are initialized
+
+  for (const cityMunCode in barangaysCache) {
+    const foundBarangay = barangaysCache[cityMunCode].find(brgy => brgy.code === barangayCode);
+    if (foundBarangay) {
+      return foundBarangay.name;
+    }
+  }
+  console.warn(`Barangay name not found for code: ${barangayCode}`);
+  return undefined;
+};
 ''

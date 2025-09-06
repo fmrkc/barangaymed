@@ -33,6 +33,7 @@ import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
 import FullRegistrationModal from "./FullRegistrationModal";
+import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus } = useAuth();
@@ -49,6 +50,7 @@ const Account: React.FC = () => {
   
   const [editEmail, setEditEmail] = useState(currentUser?.email || "");
   const [editBarangay, setEditBarangay] = useState("");
+  const [barangayName, setBarangayName] = useState(""); // New state for barangay name
   const [editAddress, setEditAddress] = useState("");
   const [editContactNumber, setEditContactNumber] = useState("");
 
@@ -82,6 +84,12 @@ const Account: React.FC = () => {
           setFullName([userData.firstName, userData.middleName, userData.lastName, userData.suffix].filter(Boolean).join(' '));
           
           setEditBarangay(userData.barangayId || "");
+          if (userData.barangayId) {
+            const name = await getBarangayNameByCode(userData.barangayId);
+            setBarangayName(name || "Not specified");
+          } else {
+            setBarangayName("Not specified");
+          }
           setEditAddress(userData.address || "");
           setEditContactNumber(userData.contactNumber || "");
         }
@@ -224,7 +232,7 @@ const Account: React.FC = () => {
                   </IonCardTitle>
                   <IonCardSubtitle>
                     <div style={{ color: "#666" }}>
-                      Resident of Barangay {editBarangay || "Not specified"}
+                      Resident of Barangay {barangayName || "Not specified"}
                     </div>
                   </IonCardSubtitle>
                 </div>
