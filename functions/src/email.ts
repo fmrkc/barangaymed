@@ -8,25 +8,17 @@ interface MailOptions {
   from?: string;
 }
 
-const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+export const sendEmail = async (options: MailOptions, user: string, pass: string) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: user,
+      pass: pass,
+    },
+  });
 
-if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
-  console.error('GMAIL_EMAIL and GMAIL_APP_PASSWORD environment variables must be set.');
-  // You might want to throw an error or handle this more gracefully in production
-}
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: GMAIL_EMAIL,
-    pass: GMAIL_APP_PASSWORD,
-  },
-});
-
-export const sendEmail = async (options: MailOptions) => {
   const mailOptions = {
-    from: `"BarangayMed+" <${GMAIL_EMAIL}>`,
+    from: `"BarangayMed+" <${user}>`,
     ...options,
   };
   await transporter.sendMail(mailOptions);

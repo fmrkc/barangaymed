@@ -65,7 +65,7 @@ service cloud.firestore {
       // Once verified, they cannot change their profile data.
       // An admin can update the verificationStatus.
       allow update: if (isOwner(userId) && resource.data.verificationStatus != 'verified') ||
-                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.keys().hasOnly(['verificationStatus'])) ||
+                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.keys().hasAll(['verificationStatus', 'rejectionReason'])) ||
                     (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId']));
 
       // DELETE: Disallowed from client. Handle through a Cloud Function if needed.

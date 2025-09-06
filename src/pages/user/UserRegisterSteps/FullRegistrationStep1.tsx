@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonInput, IonRow, IonCol, IonText, IonCardTitle, IonSelect, IonSelectOption, IonCardSubtitle, IonIcon } from '@ionic/react';
+import { IonButton, IonInput, IonRow, IonCol, IonText, IonCardTitle, IonSelect, IonSelectOption, IonCardSubtitle, IonIcon, IonItem, IonLabel } from '@ionic/react';
 import { arrowBack, arrowForward, call, chevronBack, chevronBackCircle, chevronForward, home, phoneLandscape } from 'ionicons/icons';
 import { MaskitoOptions, maskitoTransform } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
@@ -37,14 +37,14 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
 
-  useEffect(() => {
+    useEffect(() => {
     const loadRegions = async () => {
       setRegions(await getRegions());
     };
     loadRegions();
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     const loadProvinces = async () => {
       if (selectedRegion) {
         const provincesData = await getProvincesByRegion(selectedRegion);
@@ -63,7 +63,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
     loadProvinces();
   }, [selectedRegion, selectedProvince, onChange]);
 
-  useEffect(() => {
+    useEffect(() => {
     const loadCitiesMunicipalities = async () => {
       if (selectedProvince) {
         const citiesMunicipalitiesData = await getCitiesMunicipalitiesByProvince(selectedProvince);
@@ -86,13 +86,15 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
         Step 2: Enter your address and contact number.
       </IonCardTitle>
 
-      <div className="ion-margin-top">
-        <IonCardSubtitle>Region *</IonCardSubtitle>
+      <IonItem className="ion-margin-top">
+        <IonLabel position="stacked">Region *</IonLabel>
         <IonSelect
+          key={regions.length}
           fill="outline"
           value={selectedRegion}
           placeholder="Select Region"
           onIonChange={(e) => onChange('selectedRegion', e.detail.value!)}
+          interface="popover"
         >
           {regions.map((region) => (
             <IonSelectOption key={region.code} value={region.code}>
@@ -100,16 +102,18 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
             </IonSelectOption>
           ))}
         </IonSelect>
-      </div>
+      </IonItem>
 
-      <div className="ion-margin-top">
-        <IonCardSubtitle>Province *</IonCardSubtitle>
+      <IonItem className="ion-margin-top">
+        <IonLabel position="stacked">Province *</IonLabel>
         <IonSelect
+          key={provinces.length}
           fill="outline"
           value={selectedProvince}
           placeholder="Select Province"
           onIonChange={(e) => onChange('selectedProvince', e.detail.value!)}
           disabled={!selectedRegion}
+          interface="popover"
         >
           {provinces.map((province) => (
             <IonSelectOption key={province.code} value={province.code}>
@@ -117,16 +121,18 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
             </IonSelectOption>
           ))}
         </IonSelect>
-      </div>
+      </IonItem>
 
-      <div className="ion-margin-top">
-        <IonCardSubtitle>City/Municipality *</IonCardSubtitle>
+      <IonItem className="ion-margin-top">
+        <IonLabel position="stacked">City/Municipality *</IonLabel>
         <IonSelect
+          key={citiesMunicipalities.length}
           fill="outline"
           value={selectedCityMunicipality}
           placeholder="Select City/Municipality"
           onIonChange={(e) => onChange('selectedCityMunicipality', e.detail.value!)}
           disabled={!selectedProvince}
+          interface="popover"
         >
           {citiesMunicipalities.map((cityMun) => (
             <IonSelectOption key={cityMun.code} value={cityMun.code}>
@@ -134,7 +140,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
             </IonSelectOption>
           ))}
         </IonSelect>
-      </div>
+      </IonItem>
 
       <div className="ion-margin-top">
         <IonCardSubtitle>Lot/Blk/House No. (optional)</IonCardSubtitle>

@@ -4,10 +4,14 @@ import { logger } from "firebase-functions";
 import * as functions from "firebase-functions"; // Import config
 import express from 'express';
 import cors from 'cors';
+import { defineSecret } from 'firebase-functions/params';
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+
+const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
+const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
 // Load addressesData synchronously using fs.readFileSync
 const __filename = fileURLToPath(import.meta.url);
@@ -273,7 +277,7 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
         to: email,
         subject: subject,
         html: htmlContent,
-      });
+      }, GMAIL_EMAIL.value(), GMAIL_APP_PASSWORD.value());
 
       // Create notification in Firestore
       await admin.firestore().collection("notifications").add({
@@ -407,4 +411,5 @@ export const standardizeAdminBarangayIds = onCall(async (request) => {
 });
 
 // Export the Express app as a Firebase Function
-export const api = onRequest({ secrets: ["GMAIL_EMAIL", "GMAIL_APP_PASSWORD"] }, app);
+export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
+export { sendVerificationEmail } from './sendVerificationEmail.js';

@@ -72,9 +72,11 @@ async function initializeCaches() {
   if (regionsCache.length > 0) return; // Already initialized
 
   try {
-    const getAddresses = httpsCallable(functions, 'getPhilippineAddresses');
-    const result = await getAddresses();
-    addressesData = result.data as AddressesDataType;
+    const response = await fetch('https://us-central1-barangaymed.cloudfunctions.net/api/getPhilippineAddresses');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    addressesData = await response.json() as AddressesDataType;
 
     if (!addressesData) {
       console.error("Failed to load addresses data from API.");
@@ -133,28 +135,28 @@ async function initializeCaches() {
 }
 
 export const getRegions = async (): Promise<Region[]> => {
-  initializeCaches();
+  await initializeCaches();
   return regionsCache;
 };
 
 export const getProvincesByRegion = async (regionCode: string): Promise<Province[]> => {
-  initializeCaches();
+  await initializeCaches();
   return provincesCache[regionCode] || [];
 };
 
 export const getCitiesMunicipalitiesByProvince = async (provinceCode: string): Promise<CityMunicipality[]> => {
-  initializeCaches();
+  await initializeCaches();
   return citiesMunicipalitiesCache[provinceCode] || [];
 };
 
 export const getBarangaysByCityMunicipality = async (cityMunCode: string): Promise<Barangay[]> => {
-  initializeCaches();
+  await initializeCaches();
   return barangaysCache[cityMunCode] || [];
 };
 
 export const getZipCodeByBarangay = async (barangayCode: string): Promise<string | undefined> => {
-    initializeCaches();
-    
+    await initializeCaches();
+
     let cityMunCode = '';
     for (const code in barangaysCache) {
         if (barangaysCache[code].some(b => b.code === barangayCode)) {
@@ -171,7 +173,7 @@ export const getZipCodeByBarangay = async (barangayCode: string): Promise<string
             }
         }
     }
-    
+
     console.warn(`Zip code not found for barangay code: ${barangayCode}`);
     return undefined;
 };

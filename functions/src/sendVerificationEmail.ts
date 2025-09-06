@@ -1,7 +1,13 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from 'firebase-functions/params';
 import { sendEmail } from './email.js';
 
-export const sendVerificationEmail = onCall(async (request) => {
+const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
+const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
+
+export const sendVerificationEmail = onCall( 
+  { secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] },
+  async (request) => {
   if (!request.auth) {
     throw new HttpsError(
       'unauthenticated',
@@ -43,7 +49,7 @@ export const sendVerificationEmail = onCall(async (request) => {
       to: email,
       subject: subject,
       html: htmlContent,
-    });
+    }, GMAIL_EMAIL.value(), GMAIL_APP_PASSWORD.value());
     return { success: true, message: 'Email sent successfully.' };
   } catch (error) {
     console.error('Error sending verification email:', error);
