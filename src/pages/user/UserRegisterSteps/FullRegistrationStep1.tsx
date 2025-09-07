@@ -154,6 +154,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           fill="outline"
           value={lotBlkHouseNo}
           onIonChange={(e) => onChange("lotBlkHouseNo", e.detail.value!)}
+          autocomplete="address-line1"
         >
           <IonIcon slot="start" icon={home}></IonIcon>
         </IonInput>
@@ -168,6 +169,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           onIonChange={(e) => onChange("streetName", e.detail.value!)}
           className={`${!streetName.trim() && 'ion-invalid ion-touched'}`}
           errorText="Street name is required"
+          autocomplete="address-line2"
         >
           <IonIcon slot="start" icon={home}></IonIcon>
         </IonInput>
@@ -180,6 +182,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           fill="outline"
           value={subdivisionVillageZonePurok}
           onIonChange={(e) => onChange("subdivisionVillageZonePurok", e.detail.value!)}
+          autocomplete="address-line3"
         >
           <IonIcon slot="start" icon={home}></IonIcon>
         </IonInput>
@@ -201,6 +204,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           placeholder="+(63) 123-456-7890"
           className={`${!contactNumber.trim() && 'ion-invalid ion-touched'}`}
           errorText="Contact number is required"
+          autocomplete="tel"
         >
           <IonIcon slot="start" icon={call}></IonIcon>
         </IonInput>

@@ -47,6 +47,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           onIonChange={(e) => onChange("firstName", e.detail.value!)}
           className={`${!firstName.trim() && 'ion-invalid ion-touched'}`}
           errorText="First name is required"
+          autocomplete="given-name"
         >
           <IonIcon slot="start" icon={person}></IonIcon>
         </IonInput>
@@ -59,6 +60,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           placeholder="Dela"
           value={middleName}
           onIonChange={(e) => onChange("middleName", e.detail.value!)}
+          autocomplete="additional-name"
         >
           <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
         </IonInput>
@@ -73,6 +75,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           onIonChange={(e) => onChange("lastName", e.detail.value!)}
           className={`${!lastName.trim() && 'ion-invalid ion-touched'}`}
           errorText="Last name is required"
+          autocomplete="family-name"
         >
           <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
         </IonInput>
@@ -84,6 +87,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           fill="outline"
           value={suffix}
           onIonChange={(e) => onChange("suffix", e.detail.value!)}
+          autocomplete="honorific-suffix"
         >
           <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
         </IonInput>
@@ -99,10 +103,11 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           onIonChange={(e) => onChange("birthdate", e.detail.value!)}
           className={`${!birthdate.trim() && 'ion-invalid ion-touched'}`}
           errorText="Birthdate is required"
+          autocomplete="bday"
         >
           <IonIcon slot="start" icon={calendarNumber} aria-hidden="true"></IonIcon>
         </IonInput>
-        
+
       </div>
     </>
   );
