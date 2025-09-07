@@ -61,7 +61,7 @@ const UserVerifyEmail: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <h1><IonText color={'primary'}>Account Created!</IonText></h1>
+        <h1><IonText color={'primary'}><IonIcon icon={checkmark} /> Account Created!</IonText></h1>
         <IonText>
           <p>
             Your account has been successfully created!
@@ -70,7 +70,7 @@ const UserVerifyEmail: React.FC = () => {
             A verification email has been sent to your email address. Please check your inbox (and spam folder) and click the link to verify your account.
           </p>
           <p>
-            Once verified, click the "I have verified my email" button below.
+            Once verified, click the "Return to Login" button below.
           </p>
         </IonText>
         <IonButton expand="block" onClick={handleResendVerification} className="ion-margin-top" fill="outline">
