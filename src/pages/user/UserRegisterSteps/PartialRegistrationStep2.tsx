@@ -71,7 +71,7 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
   return (
     <>
     <IonCardTitle className="ion-padding-vertical">
-        Step 4: Enter your account details.
+        Step 2: Enter your account details.
       </IonCardTitle>
       
       <div className="ion-margin-top">

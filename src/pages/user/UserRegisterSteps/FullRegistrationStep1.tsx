@@ -85,7 +85,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
-        Step 2: Enter your address and contact number.
+        Step 3: Enter your address and contact number.
       </IonCardTitle>
 
       <IonItem className="ion-margin-top">

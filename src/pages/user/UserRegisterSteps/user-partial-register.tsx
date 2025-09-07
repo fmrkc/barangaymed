@@ -120,14 +120,12 @@ const UserRegister: React.FC = () => {
     await present('Creating account...');
     try {
       const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
-      // Convert birthdate string to Date object before sending to Firestore
-      const birthdateDate = birthdate ? new Date(birthdate) : null;
       const userCredential = await registerUserWithFullData(email, password, fullName, 'user', {
         firstName,
         middleName,
         lastName,
         suffix,
-        birthdate: birthdateDate,
+        birthdate,
         lotBlkHouseNo,
         streetName,
         subdivisionVillageZonePurok,
@@ -210,6 +208,12 @@ const UserRegister: React.FC = () => {
         if (!birthdate.trim()) return 'Birthdate is required.';
         break;
       case 2:
+        if (!email.trim()) return 'Email is required.';
+        if (!password) return 'Password is required.';
+        if (!isStrongPassword(password)) return 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.';
+        if (password !== confirmPassword) return 'Passwords do not match.';
+        break;
+      case 3:
         if (!selectedRegion) return 'Region is required.';
         if (!selectedProvince) return 'Province is required.';
         if (!selectedCityMunicipality) return 'City/Municipality is required.';
@@ -217,16 +221,10 @@ const UserRegister: React.FC = () => {
         if (!contactNumber.trim()) return 'Contact number is required.';
         if (!isValidContactNumber(contactNumber)) return 'Please enter a valid Philippine contact number.';
         break;
-      case 3:
+      case 4:
         if (!barangayId.trim()) return 'Barangay is required.';
         if (!zipCode.trim()) return 'Zip Code is required.';
         if (!isValidZipCode(zipCode)) return 'Zip Code must be 4 digits.';
-        break;
-      case 4:
-        if (!email.trim()) return 'Email is required.';
-        if (!password) return 'Password is required.';
-        if (!isStrongPassword(password)) return 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.';
-        if (password !== confirmPassword) return 'Passwords do not match.';
         break;
       case 5:
         // Final step, no additional validation here
@@ -254,12 +252,11 @@ const UserRegister: React.FC = () => {
     }
     setError(null);
 
-    // For partial registration, skip steps 2 and 3, go directly from step 1 to step 4
     if (registrationPhase === 'partial') {
       if (step === 1) {
-        setStep(4); // Skip to step 4 (account details)
-      } else if (step === 4) {
-        // Stay on step 4 for registration
+        setStep(2);
+      } else if (step === 2) {
+        // Stay on step 2 for registration
       }
     }
     else if (registrationPhase === 'full') {
@@ -269,8 +266,8 @@ const UserRegister: React.FC = () => {
 
   const onBack = () => {
     if (registrationPhase === 'partial') {
-      if (step === 4) {
-        setStep(1); // Go back to step 1 from step 4
+      if (step === 2) {
+        setStep(1);
       }
     } else {
       setStep(prev => Math.max(prev - 1, 1));
@@ -311,6 +308,15 @@ const UserRegister: React.FC = () => {
                     />
                   )}
                   {step === 2 && (
+                    <PartialRegistrationStep2
+                      email={email}
+                      password={password}
+                      confirmPassword={confirmPassword}
+                      onChange={onChange}
+                      error={error}
+                    />
+                  )}
+                  {step === 3 && (
                     <FullRegistrationStep1
                       lotBlkHouseNo={lotBlkHouseNo}
                       streetName={streetName}
@@ -323,20 +329,11 @@ const UserRegister: React.FC = () => {
                       error={error}
                     />
                   )}
-                  {step === 3 && (
+                  {step === 4 && (
                     <FullRegistrationStep2
                       barangayId={barangayId}
                       selectedCityMunicipality={selectedCityMunicipality}
                       onAddressChange={onAddressChange}
-                      error={error}
-                    />
-                  )}
-                  {step === 4 && (
-                    <PartialRegistrationStep2
-                      email={email}
-                      password={password}
-                      confirmPassword={confirmPassword}
-                      onChange={onChange}
                       error={error}
                     />
                   )}
@@ -370,7 +367,7 @@ const UserRegister: React.FC = () => {
           <IonGrid>
             <IonRow className="ion-justify-content-between">
               <IonCol size="auto">
-                {((registrationPhase === 'partial' && step === 4) || (registrationPhase === 'full' && step > 1)) && (
+                {((registrationPhase === 'partial' && step === 2) || (registrationPhase === 'full' && step > 1)) && (
                   <IonButton
                   fill="outline"
                   shape='round'
@@ -391,7 +388,7 @@ const UserRegister: React.FC = () => {
                     <IonIcon slot="end" icon={chevronForward} color='light' />
                   </IonButton>
                 )}
-                {registrationPhase === 'partial' && step === 4 && (
+                {registrationPhase === 'partial' && step === 2 && (
                   <IonButton
                   onClick={doRegister}
                   shape='round'

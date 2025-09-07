@@ -45,7 +45,7 @@ const FullRegistrationStep2: React.FC<FullRegistrationStep2Props> = ({ barangayI
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
-        Step 3: Select your Barangay.
+        Step 4: Select your Barangay.
       </IonCardTitle>
     
       <IonGrid>
