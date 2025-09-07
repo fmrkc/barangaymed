@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonModal,
   IonHeader,
@@ -26,9 +26,10 @@ import {
   IonCardSubtitle,
   IonItem,
   IonCardHeader,
+  IonItemDivider,
 } from '@ionic/react';
 
-import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call } from 'ionicons/icons';
+import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home } from 'ionicons/icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
@@ -36,7 +37,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
 import { logEvent } from '../../../utils/logger';
-import { MaskitoOptions, maskitoTransform } from '@maskito/core';
+import { MaskitoOptions } from '@maskito/core';
+import { useMaskito } from '@maskito/react';
 import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../firebaseConfig';
@@ -73,6 +75,18 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   const phoneMaskOptions: MaskitoOptions = {
     mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
   };
+  const maskitoRef = useMaskito({ options: phoneMaskOptions });
+  const ionInputRef = useRef<HTMLIonInputElement>(null);
+
+  useEffect(() => {
+    const assignMask = async () => {
+        if (ionInputRef.current) {
+            const input = await ionInputRef.current.getInputElement();
+            maskitoRef(input);
+        }
+    };
+    assignMask();
+  }, [ionInputRef, maskitoRef]);
   
 
   const [regions, setRegions] = useState<Region[]>([]);
@@ -291,6 +305,9 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
     setError(null);
 
     try {
+      // Unmask the contact number before submitting
+      const unmaskedContactNumber = contactNumber.replace(/[\s()-]/g, '');
+
       // Upload files to Firebase Storage
       const barangayIdUrl = await uploadFile(
         barangayIdFile!,
@@ -313,7 +330,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         lotBlkHouseNo,
         streetName,
         subdivisionVillageZonePurok,
-        contactNumber,
+        contactNumber: unmaskedContactNumber, // Use unmasked number
 
         // Documents
         barangayIdUrl,
@@ -350,7 +367,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
             lotBlkHouseNo,
             streetName,
             subdivisionVillageZonePurok,
-            contactNumber,
+            contactNumber: unmaskedContactNumber, // Use unmasked number
             barangayIdUrl,
             barangayCertificateUrl,
           },
@@ -431,33 +448,36 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         {currentStep === 1 && (
           <IonCard>
             <IonCardHeader>
-              <IonCardTitle className="ion-padding-vertical">
-                Step 3: Select your Location
+              <IonCardTitle>
+                <IonItem >
+                  Step 3: Select your Location
+                </IonItem>
               </IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
               
-
               <IonItem>
-                <IonLabel position="stacked">Region *</IonLabel>
                 <IonSelect
-                  fill="outline"
-                  value={selectedRegion}
-                  placeholder="Select Region"
-                  onIonChange={(e) => setSelectedRegion(e.detail.value)}
-                  interface="alert"
-                >
-                  {regions.map((region) => (
-                    <IonSelectOption key={region.code} value={region.code}>
-                      {region.name}
-                    </IonSelectOption>
-                  ))}
-                </IonSelect>
+                label='Region *'
+                fill="outline"
+                value={selectedRegion}
+                placeholder="Select Region"
+                onIonChange={(e) => setSelectedRegion(e.detail.value)}
+                interface="alert"
+                className='ion-margin-bottom'
+              >
+                {regions.map((region) => (
+                  <IonSelectOption key={region.code} value={region.code}>
+                    {region.name}
+                  </IonSelectOption>
+                ))}
+              </IonSelect>
               </IonItem>
 
               <IonItem>
-                <IonLabel position="stacked">Province *</IonLabel>
                 <IonSelect
+                  label='Province *'
+                  className='ion-margin-bottom'
                   fill="outline"
                   value={selectedProvince}
                   placeholder="Select Province"
@@ -474,8 +494,9 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
               </IonItem>
 
               <IonItem>
-                <IonLabel position="stacked">City/Municipality *</IonLabel>
                 <IonSelect
+                label='City/Municipality *'
+                className='ion-margin-bottom'
                   fill="outline"
                   value={selectedCityMunicipality}
                   placeholder="Select City/Municipality"
@@ -492,8 +513,9 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
               </IonItem>
 
               <IonItem>
-                <IonLabel position="stacked">Barangay *</IonLabel>
                 <IonSelect
+                label='Barangay *'
+                className='ion-margin-bottom'
                   fill="outline"
                   value={barangayId}
                   placeholder={isLoadingBarangays ? "Loading Barangays..." : "Select Barangay"}
@@ -509,14 +531,16 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                 </IonSelect>
               </IonItem>
 
-              <IonInput
+              <IonItem>
+                <IonInput
                 fill="outline"
                 label="Zip Code"
-                labelPlacement="floating"
-                value={zipCode}
                 readonly
                 className="ion-margin-bottom"
-              />
+              >
+              <IonText slot='end'>{zipCode}</IonText>
+              </IonInput>
+              </IonItem>
             </IonCardContent>
           </IonCard>
         )}
@@ -524,64 +548,65 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         {currentStep === 2 && (
           <IonCard>
             <IonCardHeader>
-              <IonCardTitle className="ion-padding-vertical">
-                Step 4: Enter your Address & Contact Number
+              <IonCardTitle>
+                <IonItem>
+                  Step 4: Enter your Address & Contact Number
+                </IonItem>
               </IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              
-
+              <IonItemDivider>Lot/Blk/House No. (optional)</IonItemDivider>
+              <IonItem>
               
               <IonInput
                 fill="outline"
-                label="Lot/Blk/House No. (optional)"
-                labelPlacement="floating"
                 value={lotBlkHouseNo}
                 onIonChange={(e) => setLotBlkHouseNo(e.detail.value!)}
                 placeholder="Blk 12, Lot 7"
                 className="ion-margin-bottom"
-              />
-
-              <IonInput
+              >
+                <IonIcon slot="start" icon={home}></IonIcon>
+              </IonInput>
+              </IonItem>
+              
+              <IonItemDivider>Street Name *</IonItemDivider>
+              <IonItem>
+                <IonInput
                 fill="outline"
-                label="Street Name *"
-                labelPlacement="floating"
                 value={streetName}
                 onIonChange={(e) => setStreetName(e.detail.value!)}
                 placeholder="Mabini Street"
                 className="ion-margin-bottom"
-              />
+              > <IonIcon slot="start" icon={home} /> </IonInput>
+              </IonItem>
 
-              <IonInput
+              <IonItemDivider>Subdivision/Village/Zone/Purok (optional)</IonItemDivider>
+              <IonItem>
+                <IonInput
                 fill="outline"
-                label="Subdivision/Village/Zone/Purok (optional)"
-                labelPlacement="floating"
                 value={subdivisionVillageZonePurok}
                 onIonChange={(e) => setSubdivisionVillageZonePurok(e.detail.value!)}
                 placeholder="Purok 3"
                 className="ion-margin-bottom"
-              />
-
-              <IonInput
+              >
+                <IonIcon slot="start" icon={home}></IonIcon>
+                </IonInput>
+              </IonItem>
+              
+              <IonItemDivider>Contact Number *</IonItemDivider>
+              <IonItem>
+                <IonInput
+                ref={ionInputRef}
                 fill="outline"
-                label="Contact Number *"
-                labelPlacement="floating"
                 value={contactNumber}
-                onIonChange={(e) => setContactNumber(e.detail.value!)}
+                onIonInput={(e) => setContactNumber(String((e.target as HTMLIonInputElement).value))}
                 placeholder="+(63) 123-456-7890"
                 className="ion-margin-bottom"
                 inputMode="tel"
-                onIonInput={(e) => {
-                  const input = e.target as HTMLInputElement;
-                  const maskedValue = maskitoTransform(input.value, phoneMaskOptions);
-                  if (maskedValue !== input.value) {
-                    input.value = maskedValue;
-                    setContactNumber(maskedValue);
-                  }
-                }}
               >
                 <IonIcon slot="start" icon={call}></IonIcon>
               </IonInput>
+              </IonItem>
             </IonCardContent>
           </IonCard>
         )}
@@ -589,13 +614,15 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         {currentStep === 3 && (
           <IonCard>
             <IonCardContent>
-              <IonCardTitle className="ion-padding-vertical">
-                Step 5: Upload your Brgy. Documents
+              <IonCardTitle>
+                <IonItem className='ion-margin-bottom'>
+                  Step 5: Upload your Brgy. Documents
+                </IonItem>
               </IonCardTitle>
 
-              <IonCardSubtitle className="ion-margin-top">
-                Upload the required documents to be verified by our admins. <br />
-              </IonCardSubtitle>
+              <IonItem  className='ion-margin-bottom'>
+                Upload the required documents to be verified by our admins.
+              </IonItem>
 
               <IonGrid>
                 <IonRow>
