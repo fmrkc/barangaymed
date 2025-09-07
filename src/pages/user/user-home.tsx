@@ -77,12 +77,7 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     <IonText>
                                         Request over-the-counter medicines from your barangay.
-                                        {!isVerified && (
-                                            <>
-                                                <br />
-                                                <small style={{ color: 'red' }}>Verification required</small>
-                                            </>
-                                        )}
+                                       
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
@@ -99,12 +94,7 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     <IonText>
                                         Upload your prescription here and we'll try to fulfill it.
-                                        {!isVerified && (
-                                            <>
-                                                <br />
-                                                <small style={{ color: 'red' }}>Verification required</small>
-                                            </>
-                                        )}
+                                      
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
@@ -122,12 +112,7 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     <IonText>
                                         Book appointments for teleconsultation with healthcare professionals.
-                                        {!isVerified && (
-                                            <>
-                                                <br />
-                                                <small style={{ color: 'red' }}>Verification required</small>
-                                            </>
-                                        )}
+                                    
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
@@ -146,12 +131,7 @@ const Home: React.FC = () => {
                                 <IonCardContent>
                                     <IonText>
                                         View the latest announcements from your barangay.
-                                        {!isVerified && (
-                                            <>
-                                                <br />
-                                                <small style={{ color: 'red' }}>Verification required</small>
-                                            </>
-                                        )}
+                                    
                                     </IonText>
 
                                 </IonCardContent>

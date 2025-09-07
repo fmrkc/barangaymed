@@ -22,17 +22,19 @@ import {
   IonText,
   IonAlert,
   IonItemDivider,
+  IonChip,
+  IonBadge,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn, medical, document } from "ionicons/icons";
+import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn, medical, document, checkmark, warning, time } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, login } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
-import FullRegistrationModal from "./FullRegistrationModal";
+import FullRegistrationModal from "./UserRegisterSteps/FullRegistrationModal";
 import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
@@ -207,6 +209,8 @@ const Account: React.FC = () => {
     setError(null);
   };
 
+  const isVerified = verificationStatus === 'verified';
+
   return (
     <>
       <IonHeader className='ion-no-border'>
@@ -214,14 +218,14 @@ const Account: React.FC = () => {
           <IonTitle>My Account</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent className="ion-padding with-tab-padding">
         <IonCard>
           <IonCard>
             <IonCardContent className="ion-padding-vertical">
               <div style={{ display: "flex", alignItems: "center" }}>
                 <div>
-                  <IonAvatar style={{ height: "100%", padding: "10px" }}>
-                    <IonIcon icon={person} style={{ fontSize: "40px" }} />
+                  <IonAvatar style={{ height: "100%", padding: "5px" }}>
+                    <IonIcon icon={person} style={{ fontSize: "50px" }} />
                   </IonAvatar>
                 </div>
                 <div>
@@ -235,6 +239,10 @@ const Account: React.FC = () => {
                       Resident of Barangay {barangayName || "Not specified"}
                     </div>
                   </IonCardSubtitle>
+                  <IonChip color={verificationStatus === 'verified' ? 'success' : verificationStatus === 'pending' ? 'warning' : 'warning'}>
+                    <IonIcon icon={verificationStatus === 'verified' ? checkmark : verificationStatus === 'pending' ? time : warning} />
+                    <IonLabel>{verificationStatus || "Unverified"}</IonLabel>
+                  </IonChip>
                 </div>
               </div>
             </IonCardContent>
@@ -246,7 +254,7 @@ const Account: React.FC = () => {
 
           {/* Full Registration Card for Unverified Users */}
           {verificationStatus !== 'verified' && verificationStatus !== 'pending' && (
-            <IonCard color="warning">
+            <IonCard color={"warning"}>
               <IonCardContent className="ion-padding-vertical">
                 <div style={{ textAlign: 'center' }}>
                   <IonIcon
@@ -267,7 +275,7 @@ const Account: React.FC = () => {
                     className="ion-margin-top"
                   >
                     <IonIcon slot="start" icon={document} />
-                    Complete Full Registration
+                    Full Registration
                   </IonButton>
                 </div>
               </IonCardContent>
@@ -298,9 +306,9 @@ const Account: React.FC = () => {
              <IonItemDivider>
               <IonLabel>Account Settings</IonLabel>
             </IonItemDivider>
-            <IonItem detail={false} button>
-              <IonIcon slot="start" icon={medical} />
-              <IonLabel>Create My Medical Record</IonLabel>
+            <IonItem detail={false} button={isVerified}>
+              <IonIcon color={isVerified ? 'dark' : 'medium'} slot="start" icon={medical} />
+              <IonLabel color={isVerified ? 'primary' : 'medium'}>Create My Medical Record</IonLabel>
             </IonItem>
              <IonItem detail={false} button>
               <IonIcon slot="start" icon={person} />
