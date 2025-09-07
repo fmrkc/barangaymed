@@ -47,7 +47,7 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           className={`${!password.trim() && 'ion-invalid ion-touched'}`}
           errorText="Password is required"
         >
-          <IonIcon slot="start" icon={lockClosed}></IonIcon>
+          
           <IonIcon
             icon={showPassword ? eyeOff : eye}
             slot="end"
@@ -68,7 +68,7 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           className={`${!confirmPassword?.trim() && 'ion-invalid ion-touched'}`}
           errorText="Confirm password is required"
         >
-          <IonIcon slot="start" icon={lockClosed}></IonIcon>
+          
           <IonIcon
             icon={showPassword ? eyeOff : eye}
             slot="end"

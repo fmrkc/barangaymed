@@ -24,7 +24,7 @@ const UserRegister: React.FC = () => {
   const [middleName, setMiddleName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [suffix, setSuffix] = React.useState('');
-  const [birthdate, setBirthdate] = React.useState(new Date().toISOString());
+  const [birthdate, setBirthdate] = React.useState('');
   const [lotBlkHouseNo, setLotBlkHouseNo] = React.useState('');
   const [streetName, setStreetName] = React.useState('');
   const [subdivisionVillageZonePurok, setSubdivisionVillageZonePurok] = React.useState('');
@@ -120,12 +120,14 @@ const UserRegister: React.FC = () => {
     await present('Creating account...');
     try {
       const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
+      // Convert birthdate string to Date object before sending to Firestore
+      const birthdateDate = birthdate ? new Date(birthdate) : null;
       const userCredential = await registerUserWithFullData(email, password, fullName, 'user', {
         firstName,
         middleName,
         lastName,
         suffix,
-        birthdate,
+        birthdate: birthdateDate,
         lotBlkHouseNo,
         streetName,
         subdivisionVillageZonePurok,

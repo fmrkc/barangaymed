@@ -1,6 +1,8 @@
-import React from 'react';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonText, IonDatetime, IonDatetimeButton, IonModal } from '@ionic/react';
-import { arrowForward, chevronForward, lockClosed, person } from 'ionicons/icons';
+import React, { useRef, useEffect } from 'react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonText } from '@ionic/react';
+import { arrowForward, calendarNumber, chevronForward, lockClosed, person } from 'ionicons/icons';
+import { Maskito } from '@maskito/core';
+import { MaskitoOptions } from '@maskito/core';
 
 interface Page1Props {
   firstName: string;
@@ -14,6 +16,22 @@ interface Page1Props {
 }
 
 const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, birthdate, onChange, error }) => {
+  const inputRef = useRef<HTMLIonInputElement>(null);
+  const maskitoRef = useRef<HTMLInputElement | null>(null);
+
+  const dateMask: MaskitoOptions = {
+    mask: [/\d/, /\d/, ' ', '/', ' ', /\d/, /\d/, ' ', '/', ' ', /\d/, /\d/, /\d/, /\d/],
+  };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.getInputElement().then((el) => {
+        maskitoRef.current = el;
+        new Maskito(el, dateMask);
+      });
+    }
+  }, []);
+
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
@@ -72,18 +90,19 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
       </div>
 
       <div className="ion-margin-top">
-        <IonCardSubtitle>Birthdate *</IonCardSubtitle>
-        <IonDatetimeButton datetime="birthdate"></IonDatetimeButton>
-        <IonModal keepContentsMounted={true}>
-          <IonDatetime
-            id="birthdate"
-            presentation="date"
-            value={birthdate}
-            onIonChange={(e) => onChange("birthdate", e.detail.value ? String(e.detail.value) : '')}
-            className={`${!birthdate.trim() && 'ion-invalid ion-touched'}`}
-          ></IonDatetime>
-        </IonModal>
-        <br />
+        <IonCardSubtitle>Birthday *</IonCardSubtitle>
+        <IonInput
+          ref={inputRef}
+          placeholder="MM / DD / YYYY"
+          value={birthdate}
+          fill="outline"
+          onIonChange={(e) => onChange("birthdate", e.detail.value!)}
+          className={`${!birthdate.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Birthdate is required"
+        >
+          <IonIcon slot="start" icon={calendarNumber} aria-hidden="true"></IonIcon>
+        </IonInput>
+        
       </div>
     </>
   );
