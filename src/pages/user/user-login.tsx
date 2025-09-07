@@ -132,7 +132,6 @@ const Login: React.FC = () => {
                             value={password}
                             onIonChange={(e) => setPassword(e.detail.value!)}
                           >
-                            <IonIcon icon={lockClosed} slot="start" />
                             <IonIcon
                               icon={showPassword ? eyeOff : eye}
                               slot="end"
