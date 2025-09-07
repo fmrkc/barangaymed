@@ -1,6 +1,6 @@
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonPage, IonRow, IonTitle, useIonLoading, useIonRouter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonIcon, IonInput, IonPage, IonRow, IonText, IonTitle, useIonLoading, useIonRouter, IonItem, IonList } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline, eye, eyeOff } from 'ionicons/icons';
+import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline, eye, eyeOff, add, help } from 'ionicons/icons';
 import healthcare from '../../assets/healthcare.png'
 import Intro from '../../components/Intro';
 import { Preferences } from '@capacitor/preferences';
@@ -84,7 +84,6 @@ const Login: React.FC = () => {
           <Intro onFinish={finishIntro} />
         ) : (
           <IonPage>
-         
             <IonContent scrollY={false}>
               <IonGrid
                 fixed
@@ -104,13 +103,13 @@ const Login: React.FC = () => {
                 </IonRow>
                 <IonRow className="ion-justify-content-center">
                   <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
-                    <IonCard >
+                    <IonCard>
                       <IonCardContent>
                         <IonCardTitle className="ion-padding-top">
                           BarangayMed+
                         </IonCardTitle>
                         <IonCardSubtitle>
-                            Your one stop for barangay healthcare needs!
+                          Your one stop for barangay healthcare needs!
                         </IonCardSubtitle>
                         <form onSubmit={doLogin}>
                           <IonCardSubtitle className='ion-margin-top'>E-mail</IonCardSubtitle>
@@ -147,7 +146,7 @@ const Login: React.FC = () => {
                             className="ion-padding-vertical"
                             expand="block"
                             routerDirection="forward"
-                            shape='round'
+                            shape="round"
                           >
                             Login
                             <IonIcon icon={logIn} slot="end" />
@@ -164,20 +163,14 @@ const Login: React.FC = () => {
                         </form>
                       </IonCardContent>
                     </IonCard>
-                    <IonButton
-                      onClick={seeIntroAgain}
-                      size="small"
-                      type="button"
-                      fill="clear"
-                      className="ion-margin-top"
-                      expand="block"
-                    >
-                      Watch intro again
-                      <IonIcon icon={videocamOutline} slot="end" />
-                    </IonButton>
                   </IonCol>
                 </IonRow>
               </IonGrid>
+              <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                <IonFabButton onClick={seeIntroAgain}>
+                  <IonIcon icon={help} />
+                </IonFabButton>
+              </IonFab>
             </IonContent>
           </IonPage>
         )}
