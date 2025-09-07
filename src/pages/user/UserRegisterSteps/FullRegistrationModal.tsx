@@ -27,18 +27,18 @@ import {
 } from '@ionic/react';
 
 import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle } from 'ionicons/icons';
-import { useAuth } from '../../contexts/AuthContext';
-import { db } from '../../firebaseConfig';
+import { useAuth } from '../../../contexts/AuthContext';
+import { db } from '../../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
-import { logEvent } from '../../utils/logger';
+import { logEvent } from '../../../utils/logger';
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
-import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../services/addressService';
+import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../firebaseConfig';
+import { functions } from '../../../firebaseConfig';
 
 interface FullRegistrationModalProps {
   isOpen: boolean;
