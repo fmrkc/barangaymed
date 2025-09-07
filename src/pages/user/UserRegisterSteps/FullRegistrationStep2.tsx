@@ -8,9 +8,10 @@ interface FullRegistrationStep2Props {
   barangayId: string;
   selectedCityMunicipality: string;
   onAddressChange: (barangayCode: string, zipCode: string) => void;
+  error: string | null;
 }
 
-const FullRegistrationStep2: React.FC<FullRegistrationStep2Props> = ({ barangayId, selectedCityMunicipality, onAddressChange }) => {
+const FullRegistrationStep2: React.FC<FullRegistrationStep2Props> = ({ barangayId, selectedCityMunicipality, onAddressChange, error }) => {
   const [barangays, setBarangays] = useState<Barangay[]>([]);
 
   useEffect(() => {
@@ -55,7 +56,7 @@ const FullRegistrationStep2: React.FC<FullRegistrationStep2Props> = ({ barangayI
               value={barangayId}
               placeholder="Select Barangay"
               onIonChange={e => handleBarangayChange(e.detail.value)}
-              className="ion-margin-top"
+              className={`${!barangayId.trim() && 'ion-invalid ion-touched'}`}
               disabled={!selectedCityMunicipality}
             >
               {barangays.map((brgy) => (

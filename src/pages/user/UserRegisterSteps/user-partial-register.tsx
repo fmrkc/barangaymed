@@ -305,6 +305,7 @@ const UserRegister: React.FC = () => {
                       suffix={suffix}
                       birthdate={birthdate}
                       onChange={onChange}
+                      error={error}
                     />
                   )}
                   {step === 2 && (
@@ -317,6 +318,7 @@ const UserRegister: React.FC = () => {
                       selectedProvince={selectedProvince}
                       selectedCityMunicipality={selectedCityMunicipality}
                       onChange={onChange}
+                      error={error}
                     />
                   )}
                   {step === 3 && (
@@ -324,6 +326,7 @@ const UserRegister: React.FC = () => {
                       barangayId={barangayId}
                       selectedCityMunicipality={selectedCityMunicipality}
                       onAddressChange={onAddressChange}
+                      error={error}
                     />
                   )}
                   {step === 4 && (
@@ -332,6 +335,7 @@ const UserRegister: React.FC = () => {
                       password={password}
                       confirmPassword={confirmPassword}
                       onChange={onChange}
+                      error={error}
                     />
                   )}
                   {step === 5 && (

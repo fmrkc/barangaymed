@@ -10,9 +10,10 @@ interface Page1Props {
   birthdate: string; // Added birthdate
   onChange: (field: string, value: string) => void;
   onNext?: () => void;
+  error: string | null;
 }
 
-const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, birthdate, onChange }) => {
+const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, birthdate, onChange, error }) => {
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
@@ -26,6 +27,8 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           value={firstName}
           fill="outline"
           onIonChange={(e) => onChange("firstName", e.detail.value!)}
+          className={`${!firstName.trim() && 'ion-invalid ion-touched'}`}
+          errorText="First name is required"
         >
           <IonIcon slot="start" icon={person}></IonIcon>
         </IonInput>
@@ -50,6 +53,8 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
           fill="outline"
           value={lastName}
           onIonChange={(e) => onChange("lastName", e.detail.value!)}
+          className={`${!lastName.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Last name is required"
         >
           <IonIcon slot="start" icon={person} aria-hidden="true"></IonIcon>
         </IonInput>
@@ -75,6 +80,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
             presentation="date"
             value={birthdate}
             onIonChange={(e) => onChange("birthdate", e.detail.value ? String(e.detail.value) : '')}
+            className={`${!birthdate.trim() && 'ion-invalid ion-touched'}`}
           ></IonDatetime>
         </IonModal>
         <br />

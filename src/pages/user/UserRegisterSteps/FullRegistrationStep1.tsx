@@ -16,6 +16,7 @@ interface FullRegistrationStep1Props {
   onChange: (field: string, value: string) => void;
   onNext?: () => void;
   onBack?: () => void;
+  error: string | null;
 }
 
 const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
@@ -27,6 +28,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
   selectedProvince,
   selectedCityMunicipality,
   onChange,
+  error,
 }) => {
   const phoneMaskOptions: MaskitoOptions = {
     mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
@@ -95,6 +97,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           placeholder="Select Region"
           onIonChange={(e) => onChange('selectedRegion', e.detail.value!)}
           interface="popover"
+          className={`${!selectedRegion && 'ion-invalid ion-touched'}`}
         >
           {regions.map((region) => (
             <IonSelectOption key={region.code} value={region.code}>
@@ -114,6 +117,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           onIonChange={(e) => onChange('selectedProvince', e.detail.value!)}
           disabled={!selectedRegion}
           interface="popover"
+          className={`${!selectedProvince && 'ion-invalid ion-touched'}`}
         >
           {provinces.map((province) => (
             <IonSelectOption key={province.code} value={province.code}>
@@ -133,6 +137,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           onIonChange={(e) => onChange('selectedCityMunicipality', e.detail.value!)}
           disabled={!selectedProvince}
           interface="popover"
+          className={`${!selectedCityMunicipality && 'ion-invalid ion-touched'}`}
         >
           {citiesMunicipalities.map((cityMun) => (
             <IonSelectOption key={cityMun.code} value={cityMun.code}>
@@ -161,6 +166,8 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           fill="outline"
           value={streetName}
           onIonChange={(e) => onChange("streetName", e.detail.value!)}
+          className={`${!streetName.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Street name is required"
         >
           <IonIcon slot="start" icon={home}></IonIcon>
         </IonInput>
@@ -192,6 +199,8 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
           value={contactNumber}
           onIonInput={(e) => onChange("contactNumber", e.detail.value || "")}
           placeholder="+(63) 123-456-7890"
+          className={`${!contactNumber.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Contact number is required"
         >
           <IonIcon slot="start" icon={call}></IonIcon>
         </IonInput>

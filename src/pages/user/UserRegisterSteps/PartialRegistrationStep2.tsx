@@ -9,9 +9,10 @@ interface Page4Props {
   onChange: (field: string, value: string) => void;
   onNext?: () => void;
   onBack?: () => void;
+  error: string | null;
 }
 
-const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange }) => {
+const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange, error }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -28,6 +29,8 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           type="email"
           value={email}
           onIonChange={e => onChange('email', e.detail.value!)}
+          className={`${!email.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Email is required"
         >
           <IonIcon slot="start" icon={mail}></IonIcon>
         </IonInput>
@@ -41,6 +44,8 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           placeholder="Enter your password"
           value={password}
           onIonChange={e => onChange('password', e.detail.value!)}
+          className={`${!password.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Password is required"
         >
           <IonIcon slot="start" icon={lockClosed}></IonIcon>
           <IonIcon
@@ -60,6 +65,8 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           placeholder="Re-enter your password"
           value={confirmPassword}
           onIonChange={e => onChange('confirmPassword', e.detail.value!)}
+          className={`${!confirmPassword?.trim() && 'ion-invalid ion-touched'}`}
+          errorText="Confirm password is required"
         >
           <IonIcon slot="start" icon={lockClosed}></IonIcon>
           <IonIcon
