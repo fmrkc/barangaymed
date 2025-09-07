@@ -5,6 +5,7 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
+  IonFooter,
   IonButton,
   IonButtons,
   IonIcon,
@@ -23,10 +24,11 @@ import {
   IonLabel,
   IonCardTitle,
   IonCardSubtitle,
-  IonItem, // Added IonItem
+  IonItem,
+  IonCardHeader,
 } from '@ionic/react';
 
-import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle } from 'ionicons/icons';
+import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call } from 'ionicons/icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
@@ -34,8 +36,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
 import { logEvent } from '../../../utils/logger';
-import { MaskitoOptions } from '@maskito/core';
-import { useMaskito } from '@maskito/react';
+import { MaskitoOptions, maskitoTransform } from '@maskito/core';
 import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../firebaseConfig';
@@ -70,9 +71,9 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   const [barangayCertificateFile, setBarangayCertificateFile] = useState<File | null>(null);
 
   const phoneMaskOptions: MaskitoOptions = {
-    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
+    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
   };
-  const phoneMask = useMaskito({ options: phoneMaskOptions });
+  
 
   const [regions, setRegions] = useState<Region[]>([]);
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -414,12 +415,12 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>Complete Your Registration</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={onDidDismiss}>
-              <IonIcon icon={close} />
+              <IonIcon slot="icon-only" icon={close} />
             </IonButton>
           </IonButtons>
         </IonToolbar>
@@ -429,10 +430,13 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       <IonContent className="ion-padding">
         {currentStep === 1 && (
           <IonCard>
-            <IonCardContent>
+            <IonCardHeader>
               <IonCardTitle className="ion-padding-vertical">
-                Step 1: Select your Location
+                Step 3: Select your Location
               </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              
 
               <IonItem>
                 <IonLabel position="stacked">Region *</IonLabel>
@@ -513,27 +517,21 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                 readonly
                 className="ion-margin-bottom"
               />
-
-              <IonButton
-                expand="block"
-                shape="round"
-                onClick={nextStep}
-                className="ion-margin-top"
-              >
-                <IonIcon slot="end" icon={arrowForward} />
-                Next
-              </IonButton>
             </IonCardContent>
           </IonCard>
         )}
 
         {currentStep === 2 && (
           <IonCard>
-            <IonCardContent>
+            <IonCardHeader>
               <IonCardTitle className="ion-padding-vertical">
-                Step 2: Specific Address Details and Contact Information
+                Step 4: Enter your Address & Contact Number
               </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              
 
+              
               <IonInput
                 fill="outline"
                 label="Lot/Blk/House No. (optional)"
@@ -572,33 +570,18 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                 onIonChange={(e) => setContactNumber(e.detail.value!)}
                 placeholder="+(63) 123-456-7890"
                 className="ion-margin-bottom"
-              />
-
-              <IonGrid>
-                <IonRow>
-                  <IonCol size="6">
-                    <IonButton
-                      expand="block"
-                      shape="round"
-                      fill="outline"
-                      onClick={prevStep}
-                    >
-                      <IonIcon slot="start" icon={arrowBack} />
-                      Back
-                    </IonButton>
-                  </IonCol>
-                  <IonCol size="6">
-                    <IonButton
-                      expand="block"
-                      shape="round"
-                      onClick={nextStep}
-                    >
-                      <IonIcon slot="end" icon={arrowForward} />
-                      Next
-                    </IonButton>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
+                inputMode="tel"
+                onIonInput={(e) => {
+                  const input = e.target as HTMLInputElement;
+                  const maskedValue = maskitoTransform(input.value, phoneMaskOptions);
+                  if (maskedValue !== input.value) {
+                    input.value = maskedValue;
+                    setContactNumber(maskedValue);
+                  }
+                }}
+              >
+                <IonIcon slot="start" icon={call}></IonIcon>
+              </IonInput>
             </IonCardContent>
           </IonCard>
         )}
@@ -607,11 +590,11 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
           <IonCard>
             <IonCardContent>
               <IonCardTitle className="ion-padding-vertical">
-                Step 3: Document Upload
+                Step 5: Upload your Brgy. Documents
               </IonCardTitle>
 
               <IonCardSubtitle className="ion-margin-top">
-                Upload Required Documents
+                Upload the required documents to be verified by our admins. <br />
               </IonCardSubtitle>
 
               <IonGrid>
@@ -626,17 +609,19 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                     />
                     <IonButton
                       expand="block"
-                      shape="round"
+                     
+                      fill={barangayIdFile ? 'solid' : 'outline'}
                       color={barangayIdFile ? 'success' : 'primary'}
                       onClick={() => document.getElementById('barangay-id-upload')?.click()}
                       className="ion-margin-vertical"
                     >
                       <IonIcon slot="start" icon={barangayIdFile ? checkmarkCircle : cloudUpload} />
-                      {barangayIdFile ? 'Barangay ID Uploaded' : 'Upload Barangay ID'}
+                      <IonText className='ion-padding-vertical'>  {barangayIdFile ? 'Barangay ID Uploaded' : 'Upload Barangay ID'}</IonText>
+                    
                     </IonButton>
                     {barangayIdFile && (
                       <IonText color="success">
-                        <small>{barangayIdFile.name}</small>
+                       Uploaded file:  {barangayIdFile.name}
                       </IonText>
                     )}
                   </IonCol>
@@ -651,45 +636,20 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                     />
                     <IonButton
                       expand="block"
-                      shape="round"
+                     
+                      fill={barangayCertificateFile ? 'solid' : 'outline'}
                       color={barangayCertificateFile ? 'success' : 'primary'}
                       onClick={() => document.getElementById('barangay-certificate-upload')?.click()}
                       className="ion-margin-vertical"
                     >
                       <IonIcon slot="start" icon={barangayCertificateFile ? checkmarkCircle : cloudUpload} />
-                      {barangayCertificateFile ? 'Certificate Uploaded' : 'Upload Barangay Certificate'}
+                      <IonText className='ion-padding-vertical'>{barangayCertificateFile ? 'Certificate Uploaded' : 'Upload Barangay Certificate'}</IonText>
                     </IonButton>
                     {barangayCertificateFile && (
                       <IonText color="success">
-                        <small>{barangayCertificateFile.name}</small>
+                      Uploaded file:  {barangayCertificateFile.name}
                       </IonText>
                     )}
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-
-              <IonGrid>
-                <IonRow>
-                  <IonCol size="6">
-                    <IonButton
-                      expand="block"
-                      shape="round"
-                      fill="outline"
-                      onClick={prevStep}
-                    >
-                      <IonIcon slot="start" icon={arrowBack} />
-                      Back
-                    </IonButton>
-                  </IonCol>
-                  <IonCol size="6">
-                    <IonButton
-                      expand="block"
-                      shape="round"
-                      onClick={handleSubmit}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Submitting...' : 'Submit Registration'}
-                    </IonButton>
                   </IonCol>
                 </IonRow>
               </IonGrid>
@@ -701,6 +661,81 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         <IonToast isOpen={!!error} message={error || ''} duration={3000} color="danger" />
         <IonToast isOpen={!!successMessage} message={successMessage || ''} duration={5000} color="success" />
       </IonContent>
+
+      <IonFooter>
+        
+        <IonToolbar>
+          {currentStep === 1 && (
+            <IonButton
+              expand="block"
+              shape="round"
+              onClick={nextStep}
+              className="ion-margin"
+            >
+              <IonIcon slot="end" icon={arrowForward} />
+              <IonText className='ion-padding-vertical'>Next</IonText>
+            </IonButton>
+          )}
+
+          {currentStep === 2 && (
+            <IonGrid>
+              <IonRow>
+                <IonCol size="3">
+                  <IonButton
+                    expand="block"
+                    shape="round"
+                    fill="outline"
+                    onClick={prevStep}
+                  >
+                    <IonIcon slot="start" icon={arrowBack} />
+                    <IonText className='ion-padding-vertical'>Back</IonText>
+                  </IonButton>
+                </IonCol>
+                <IonCol size="9">
+                  <IonButton
+                    expand="block"
+                    shape="round"
+                    onClick={nextStep}
+                  >
+                    <IonIcon slot="end" icon={arrowForward} />
+                    <IonText className='ion-padding-vertical'>Next</IonText>
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          )}
+
+          {currentStep === 3 && (
+            
+            <IonGrid>
+              <IonRow>
+                <IonCol size="3">
+                  <IonButton
+                    expand="block"
+                    shape="round"
+                    fill="outline"
+                    onClick={prevStep}
+                  >
+                    <IonIcon slot="start" icon={arrowBack} />
+                    <IonText className='ion-padding-vertical'>Back</IonText>
+                  </IonButton>
+                </IonCol>
+                <IonCol size="9">
+                  <IonButton
+                    expand="block"
+                    shape="round"
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                  >
+                    <IonText className='ion-padding-vertical'>Submit</IonText>
+                    <IonIcon slot="end" icon={paperPlane} />
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          )}
+        </IonToolbar>
+      </IonFooter>
     </IonModal>
   );
 };
