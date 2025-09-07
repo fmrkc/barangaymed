@@ -7,12 +7,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-// Load addressesData synchronously using fs.readFileSync
+// Load addressesData asynchronously
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const addressesDataPath = path.resolve(__dirname, '../philippine-addresses.json');
-const addressesData = JSON.parse(fs.readFileSync(addressesDataPath, 'utf8'));
+let addressesData: AddressesDataType | null = null;
+
+async function getAddressesData(): Promise<AddressesDataType> {
+  if (addressesData) {
+    return addressesData;
+  }
+  const data = await fs.promises.readFile(addressesDataPath, 'utf8');
+  const parsedData: AddressesDataType = JSON.parse(data);
+  addressesData = parsedData;
+  return parsedData;
+}
 
 // NOTE: admin.initializeApp() is called in index.ts
 
@@ -51,8 +60,8 @@ interface AddressesDataType {
   [key: string]: RegionData;
 }
 
-function getCityMunicipalityIdFromBarangayId(barangayId: string): string | undefined {
-  const typedAddressesData: AddressesDataType = addressesData as AddressesDataType;
+async function getCityMunicipalityIdFromBarangayId(barangayId: string): Promise<string | undefined> {
+  const typedAddressesData = await getAddressesData();
 
   for (const regionCode in typedAddressesData) {
     const regionData = typedAddressesData[regionCode];
@@ -87,11 +96,13 @@ export const provisionUser = onCall(async (request) => {
     );
   }
 
+  const { contactEmail, role, barangayId, fullName, cityMunicipalityId } = request.data;
+
   // Superadmin confinement check
   if (request.auth?.token.role === 'superadmin') {
     const superadminCityMunicipalityId = request.auth.token.cityMunicipalityId;
     if (role === 'admin') {
-      const newAdminBarangayCityMunId = getCityMunicipalityIdFromBarangayId(barangayId);
+      const newAdminBarangayCityMunId = await getCityMunicipalityIdFromBarangayId(barangayId);
       if (!superadminCityMunicipalityId || newAdminBarangayCityMunId !== superadminCityMunicipalityId) {
         throw new HttpsError(
           'permission-denied',
@@ -100,8 +111,6 @@ export const provisionUser = onCall(async (request) => {
       }
     }
   }
-
-  const { contactEmail, role, barangayId, fullName, cityMunicipalityId } = request.data;
 
   // 2. Input Validation
   if (!contactEmail || !role || !fullName) {

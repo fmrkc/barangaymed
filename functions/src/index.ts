@@ -13,12 +13,22 @@ import { fileURLToPath } from 'url';
 const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
-// Load addressesData synchronously using fs.readFileSync
+// Load addressesData asynchronously
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const addressesDataPath = path.resolve(__dirname, '../philippine-addresses.json');
-const addressesData: AddressesDataType = JSON.parse(fs.readFileSync(addressesDataPath, 'utf8'));
+let addressesData: AddressesDataType | null = null;
+
+async function getAddressesData(): Promise<AddressesDataType> {
+  if (addressesData) {
+    return addressesData;
+  }
+  const data = await fs.promises.readFile(addressesDataPath, 'utf8');
+  const parsedData: AddressesDataType = JSON.parse(data);
+  addressesData = parsedData;
+  return parsedData;
+}
+
 
 interface BarangayData {
   code: string;
@@ -340,8 +350,9 @@ app.get('/adminOnlyOperationV2', async (req, res) => {
 // Get Philippine Addresses route
 app.get('/getPhilippineAddresses', async (req, res) => {
   try {
+    const data = await getAddressesData();
     // No authentication needed for public address data
-    res.json(addressesData);
+    res.json(data);
   } catch (error) {
     logger.error('Error fetching Philippine addresses:', error);
     res.status(500).json({ error: 'Failed to fetch Philippine addresses' });
@@ -349,8 +360,8 @@ app.get('/getPhilippineAddresses', async (req, res) => {
 });
 
 // Helper function to get barangay code from name
-function getBarangayCodeFromName(barangayName: string): string | undefined {
-  const typedAddressesData: AddressesDataType = addressesData as AddressesDataType;
+async function getBarangayCodeFromName(barangayName: string): Promise<string | undefined> {
+  const typedAddressesData = await getAddressesData();
 
   for (const regionCode in typedAddressesData) {
     const regionData = typedAddressesData[regionCode];
@@ -389,7 +400,7 @@ export const standardizeAdminBarangayIds = onCall(async (request) => {
 
     if (currentBarangayId && typeof currentBarangayId === 'string' && currentBarangayId.length > 0 && !/^[0-9]+$/.test(currentBarangayId)) {
       // Assuming currentBarangayId is a name, try to find its code
-      const newBarangayCode = getBarangayCodeFromName(currentBarangayId);
+      const newBarangayCode = await getBarangayCodeFromName(currentBarangayId);
 
       if (newBarangayCode) {
         // Update Firestore document
