@@ -14,6 +14,59 @@ interface Page4Props {
 
 const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChange, error }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState<string | undefined>(undefined);
+  const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | undefined>(undefined);
+
+  const validateEmail = (value: string) => {
+    if (!value.trim()) {
+      setEmailError('Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError(undefined);
+    }
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value.trim()) {
+      setPasswordError('Password is required');
+    } else if (value.length < 8) {
+      setPasswordError('Password must be at least 8 characters long');
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(value)) {
+      setPasswordError('Password must include uppercase, lowercase, number, and special character');
+    } else {
+      setPasswordError(undefined);
+    }
+  };
+
+  const validateConfirmPassword = (value: string) => {
+    if (!value.trim()) {
+      setConfirmPasswordError('Confirm password is required');
+    } else if (value !== password) {
+      setConfirmPasswordError('Passwords do not match');
+    } else {
+      setConfirmPasswordError(undefined);
+    }
+  };
+
+  const handleEmailChange = (value: string) => {
+    onChange('email', value);
+    validateEmail(value);
+  };
+
+  const handlePasswordChange = (value: string) => {
+    onChange('password', value);
+    validatePassword(value);
+    if (confirmPassword) {
+      validateConfirmPassword(confirmPassword);
+    }
+  };
+
+  const handleConfirmPasswordChange = (value: string) => {
+    onChange('confirmPassword', value);
+    validateConfirmPassword(value);
+  };
 
   return (
     <>
@@ -28,9 +81,10 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           placeholder="juandelacruz@example.com"
           type="email"
           value={email}
-          onIonChange={e => onChange('email', e.detail.value!)}
-          className={`${!email.trim() && 'ion-invalid ion-touched'}`}
-          errorText="Email is required"
+          onIonChange={e => handleEmailChange(e.detail.value!)}
+          helperText="Enter a valid email address"
+          errorText={emailError}
+          autocomplete="email"
         >
           <IonIcon slot="start" icon={mail}></IonIcon>
         </IonInput>
@@ -43,11 +97,12 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           type={showPassword ? "text" : "password"}
           placeholder="Enter your password"
           value={password}
-          onIonChange={e => onChange('password', e.detail.value!)}
-          className={`${!password.trim() && 'ion-invalid ion-touched'}`}
-          errorText="Password is required"
+          onIonChange={e => handlePasswordChange(e.detail.value!)}
+          helperText="Password must be at least 8 characters, include uppercase, lowercase, number, and special character"
+          errorText={passwordError}
+          autocomplete="new-password"
         >
-          
+
           <IonIcon
             icon={showPassword ? eyeOff : eye}
             slot="end"
@@ -64,11 +119,12 @@ const Page4: React.FC<Page4Props> = ({ email, password, confirmPassword, onChang
           type={showPassword ? "text" : "password"}
           placeholder="Re-enter your password"
           value={confirmPassword}
-          onIonChange={e => onChange('confirmPassword', e.detail.value!)}
-          className={`${!confirmPassword?.trim() && 'ion-invalid ion-touched'}`}
-          errorText="Confirm password is required"
+          onIonChange={e => handleConfirmPasswordChange(e.detail.value!)}
+          helperText="Re-enter your password to confirm"
+          errorText={confirmPasswordError}
+          autocomplete="new-password"
         >
-          
+
           <IonIcon
             icon={showPassword ? eyeOff : eye}
             slot="end"
