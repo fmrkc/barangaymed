@@ -1,4 +1,4 @@
-ion-card {
+  ion-card {
     border-radius: 10px;
     box-shadow: none;
 }
@@ -7,6 +7,13 @@ ion-item-divider {
   --background: dark;
 }
 
+@media (prefers-color-scheme: dark) {
+
+
+
+
+
+}
 
 @media (prefers-color-scheme: light) {
   ion-segment {

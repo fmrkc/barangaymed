@@ -1,9 +1,10 @@
 import React from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonText, useIonToast } from '@ionic/react';
-import { useAuth } from '../../contexts/AuthContext';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonText, useIonToast, IonFooter, IonIcon } from '@ionic/react';
+import { useAuth } from '../../../contexts/AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
-import { auth } from '../../firebaseConfig';
+import { auth } from '../../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
+import { arrowBack, arrowForward, backspaceOutline, checkmark, refresh } from 'ionicons/icons';
 
 const UserVerifyEmail: React.FC = () => {
   const { currentUser, refreshUserClaims } = useAuth();
@@ -54,13 +55,17 @@ const UserVerifyEmail: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>Verify Your Email</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <h1><IonText color={'primary'}>Account Created!</IonText></h1>
         <IonText>
+          <p>
+            Your account has been successfully created!
+          </p>
           <p>
             A verification email has been sent to your email address. Please check your inbox (and spam folder) and click the link to verify your account.
           </p>
@@ -68,13 +73,20 @@ const UserVerifyEmail: React.FC = () => {
             Once verified, click the "I have verified my email" button below.
           </p>
         </IonText>
-        <IonButton expand="block" onClick={handleResendVerification} className="ion-margin-top">
-          Resend Verification Email
+        <IonButton expand="block" onClick={handleResendVerification} className="ion-margin-top" fill="outline">
+          <IonText className='ion-padding-vertical'>Resend Verification Email</IonText>
+          <IonIcon slot='start' icon={refresh}></IonIcon>
         </IonButton>
-        <IonButton expand="block" onClick={handleRefreshStatus} className="ion-margin-top" fill="outline">
-          I have verified my email
-        </IonButton>
+        
       </IonContent>
+      <IonFooter className='ion-no-border'>
+        <IonToolbar>
+          <IonButton expand="block" routerLink="/user/login" routerDirection="back" className="ion-margin-top" >
+          <IonText className='ion-padding-vertical'>Return to Login</IonText>
+          <IonIcon slot='start' icon={arrowBack}></IonIcon>
+        </IonButton>
+        </IonToolbar>
+      </IonFooter>
     </IonPage>
   );
 };

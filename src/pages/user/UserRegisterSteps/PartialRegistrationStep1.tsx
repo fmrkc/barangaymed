@@ -35,6 +35,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
   return (
     <>
       <IonCardTitle className="ion-padding-vertical">
+        Step 1: Enter your personal details.
       </IonCardTitle>
 
       <div className='ion-margin-top'>
@@ -93,7 +94,7 @@ const Page1: React.FC<Page1Props> = ({ firstName, middleName, lastName, suffix, 
       </div>
 
       <div className="ion-margin-top">
-        <IonLabel>Birthday <IonText color={'danger'}>*</IonText></IonLabel>
+        <IonLabel>Birthdate <IonText color={'danger'}>*</IonText></IonLabel>
         
         <IonInput
           ref={inputRef}
