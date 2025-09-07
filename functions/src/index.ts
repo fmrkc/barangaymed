@@ -452,9 +452,43 @@ export const standardizeAdminBarangayIds = onCall(async (request) => {
   return { success: true, message: `Standardized barangay IDs for ${updates.length} admin users.` };
 });
 
+async function getCityMunicipalityNameFromCode(cityMunicipalityCode: string): Promise<string | undefined> {
+  const typedAddressesData = await getAddressesData();
+
+  for (const regionCode in typedAddressesData) {
+    const regionData = typedAddressesData[regionCode];
+    for (const provinceCode in regionData.province_list) {
+      const provinceData = regionData.province_list[provinceCode];
+      if (provinceData.municipality_list[cityMunicipalityCode]) {
+        return provinceData.municipality_list[cityMunicipalityCode].name;
+      }
+    }
+  }
+  return undefined;
+}
+
+async function getBarangayNameFromCode(barangayCode: string): Promise<string | undefined> {
+  const typedAddressesData = await getAddressesData();
+
+  for (const regionCode in typedAddressesData) {
+    const regionData = typedAddressesData[regionCode];
+    for (const provinceCode in regionData.province_list) {
+      const provinceData = regionData.province_list[provinceCode];
+      for (const cityMunCode in provinceData.municipality_list) {
+        const cityMunData = provinceData.municipality_list[cityMunCode];
+        const foundBarangay = cityMunData.barangay_list.find(brgy => brgy.code === barangayCode);
+        if (foundBarangay) {
+          return foundBarangay.name;
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
 export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://localhost:8101', 'https://barangaymed.web.app', 'https://api-gy7oflie2a-uc.a.run.app'], secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
   // 1. Authorization Check
-  if (request.auth?.token.email !== 'barangaymed@gmail.com') {
+  if (request.auth?.token.role !== 'superadmin' && request.auth?.token.email !== 'barangaymed@gmail.com') {
     logger.error("Attempt to provision user by non-authorized user:", { 
       uid: request.auth?.uid,
       email: request.auth?.token.email
@@ -538,22 +572,31 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
       },
     });
 
+    let assignedLocation = '';
+    if (role === 'admin') {
+        const barangayName = await getBarangayNameFromCode(barangayId);
+        assignedLocation = `<p><b>Assigned Barangay:</b> ${barangayName}</p>`;
+    } else if (role === 'superadmin') {
+        const cityName = await getCityMunicipalityNameFromCode(cityMunicipalityId);
+        assignedLocation = `<p><b>Assigned City/Municipality:</b> ${cityName}</p>`;
+    }
+
     const mailOptions = {
       from: `"BarangayMed+" <${GMAIL_EMAIL.value()}>`,
       to: contactEmail,
       subject: 'Your BarangayMed+ Account Credentials',
-      html:
-        `<p>Hello ${fullName},</p>
-<p>An account has been created for you on BarangayMed+.</p>
-<p><b>Role:</b> ${role}</p>
-${role === 'admin' ? `<p><b>Assigned Barangay:</b> ${barangayId}</p>` : ''}
-<hr>
-<p>You can log in using these credentials:</p>
-<p><b>Email:</b> ${generatedEmail}</p>
-<p><b>Temporary Password:</b> ${temporaryPassword}</p>
-<hr>
-<p>Please change your password after your first login.</p>
-`,
+      html: `
+        <p>Hello ${fullName},</p>
+        <p>An account has been created for you on BarangayMed+.</p>
+        <p><b>Role:</b> ${role}</p>
+        ${assignedLocation}
+        <hr>
+        <p>You can log in using these credentials:</p>
+        <p><b>Email:</b> ${generatedEmail}</p>
+        <p><b>Temporary Password:</b> ${temporaryPassword}</p>
+        <hr>
+        <p>Please change your password after your first login.</p>
+      `,
     };
 
     await transporter.sendMail(mailOptions);

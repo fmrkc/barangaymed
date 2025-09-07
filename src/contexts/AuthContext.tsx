@@ -9,6 +9,7 @@ interface AuthContextType {
   currentUser: FirebaseUser | null;
   userRole: string | null;
   barangayId: string | null;
+  cityMunicipalityId: string | null;
   emailVerified: boolean;
   verificationStatus: string | null;
   loading: boolean;
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   userRole: null,
   barangayId: null,
+  cityMunicipalityId: null,
   emailVerified: false,
   verificationStatus: null,
   loading: true,
@@ -35,6 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [barangayId, setbarangayId] = useState<string | null>(null);
+  const [cityMunicipalityId, setCityMunicipalityId] = useState<string | null>(null);
   const [emailVerified, setEmailVerified] = useState<boolean>(false); // Added
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const claims = tokenResult.claims;
 
       setbarangayId(claims.barangayId as string || null);
+      setCityMunicipalityId(claims.cityMunicipalityId as string || null);
       setEmailVerified(user.emailVerified); // Added
       console.log('AuthContext: extractUserClaims - Role:', claims.role); // ADDED LOG
 
@@ -123,6 +127,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCurrentUser(null);
       setUserRole(null);
       setbarangayId(null);
+      setCityMunicipalityId(null);
       setVerificationStatus(null);
     } catch (error) {
       console.error("Logout error:", error);
@@ -140,6 +145,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(null);
         setUserRole(null);
         setbarangayId(null);
+        setCityMunicipalityId(null);
         setVerificationStatus(null);
       }
       setLoading(false);
@@ -152,6 +158,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     currentUser,
     userRole,
     barangayId,
+    cityMunicipalityId,
     emailVerified, // Added
     verificationStatus,
     loading,

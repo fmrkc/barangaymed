@@ -3,69 +3,26 @@ import { checkmarkDoneOutline } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
-import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, Region, Province, CityMunicipality, Barangay } from '../../services/addressService';
+import { getBarangaysByCityMunicipality, Barangay } from '../../services/addressService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const SuperAdminRegister: React.FC = () => {
     const router = useIonRouter();
     const [present, dismiss] = useIonLoading();
+    const { cityMunicipalityId } = useAuth();
 
     const [fullName, setFullName] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [barangayId, setBarangay] = useState('');
-    const [selectedRegion, setSelectedRegion] = useState('');
-    const [selectedProvince, setSelectedProvince] = useState('');
-    const [selectedCityMunicipality, setSelectedCityMunicipality] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
 
-    const [regions, setRegions] = useState<Region[]>([]);
-    const [provinces, setProvinces] = useState<Province[]>([]);
-    const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
     const [barangays, setBarangays] = useState<Barangay[]>([]);
 
     useEffect(() => {
-        const loadRegions = async () => {
-            setRegions(await getRegions());
-        };
-        loadRegions();
-    }, []);
-
-    useEffect(() => {
-        const loadProvinces = async () => {
-            if (selectedRegion) {
-                setProvinces(await getProvincesByRegion(selectedRegion));
-                setSelectedProvince('');
-                setSelectedCityMunicipality('');
-                setBarangay('');
-            } else {
-                setProvinces([]);
-                setSelectedProvince('');
-                setSelectedCityMunicipality('');
-                setBarangay('');
-            }
-        };
-        loadProvinces();
-    }, [selectedRegion]);
-
-    useEffect(() => {
-        const loadCitiesMunicipalities = async () => {
-            if (selectedProvince) {
-                setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(selectedProvince));
-                setSelectedCityMunicipality('');
-                setBarangay('');
-            } else {
-                setCitiesMunicipalities([]);
-                setSelectedCityMunicipality('');
-                setBarangay('');
-            }
-        };
-        loadCitiesMunicipalities();
-    }, [selectedProvince]);
-
-    useEffect(() => {
         const loadBarangays = async () => {
-            if (selectedCityMunicipality) {
-                setBarangays(await getBarangaysByCityMunicipality(selectedCityMunicipality));
+            if (cityMunicipalityId) {
+                setBarangays(await getBarangaysByCityMunicipality(cityMunicipalityId));
                 setBarangay('');
             } else {
                 setBarangays([]);
@@ -73,13 +30,13 @@ const SuperAdminRegister: React.FC = () => {
             }
         };
         loadBarangays();
-    }, [selectedCityMunicipality]);
+    }, [cityMunicipalityId]);
 
     const handleProvisionAdmin = async (event: any) => {
         event.preventDefault();
         setError(null);
 
-        if (!fullName || !contactEmail || !selectedRegion || !selectedProvince || !selectedCityMunicipality || !barangayId) {
+        if (!fullName || !contactEmail || !barangayId) {
             setError('All fields are required.');
             return;
         }
@@ -92,9 +49,6 @@ const SuperAdminRegister: React.FC = () => {
                 contactEmail,
                 role: 'admin',
                 barangayId: barangayId,
-                region: selectedRegion,
-                province: selectedProvince,
-                cityMunicipality: selectedCityMunicipality,
             });
             
             dismiss();
@@ -103,9 +57,6 @@ const SuperAdminRegister: React.FC = () => {
             setFullName('');
             setContactEmail('');
             setBarangay('');
-            setSelectedRegion('');
-            setSelectedProvince('');
-            setSelectedCityMunicipality('');
 
         } catch (err: any) {
             dismiss();
@@ -151,59 +102,12 @@ const SuperAdminRegister: React.FC = () => {
                                     </IonItem>
 
                                     <IonItem>
-                                        <IonLabel>Region</IonLabel>
-                                        <IonSelect
-                                            value={selectedRegion}
-                                            placeholder="Select Region"
-                                            onIonChange={e => setSelectedRegion(e.detail.value)}
-                                        >
-                                            {regions.map((region) => (
-                                                <IonSelectOption key={region.code} value={region.code}>
-                                                    {region.name}
-                                                </IonSelectOption>
-                                            ))}
-                                        </IonSelect>
-                                    </IonItem>
-
-                                    <IonItem>
-                                        <IonLabel>Province</IonLabel>
-                                        <IonSelect
-                                            value={selectedProvince}
-                                            placeholder="Select Province"
-                                            onIonChange={e => setSelectedProvince(e.detail.value)}
-                                            disabled={!selectedRegion}
-                                        >
-                                            {provinces.map((province) => (
-                                                <IonSelectOption key={province.code} value={province.code}>
-                                                    {province.name}
-                                                </IonSelectOption>
-                                            ))}
-                                        </IonSelect>
-                                    </IonItem>
-
-                                    <IonItem>
-                                        <IonLabel>City/Municipality</IonLabel>
-                                        <IonSelect
-                                            value={selectedCityMunicipality}
-                                            placeholder="Select City/Municipality"
-                                            onIonChange={e => setSelectedCityMunicipality(e.detail.value)}
-                                            disabled={!selectedProvince}
-                                        >
-                                            {citiesMunicipalities.map((cityMun) => (
-                                                <IonSelectOption key={cityMun.code} value={cityMun.code}>
-                                                    {cityMun.name}
-                                                </IonSelectOption>
-                                            ))}
-                                        </IonSelect>
-                                    </IonItem>
-
-                                    <IonItem>
                                       <IonLabel>Barangay</IonLabel>
                                       <IonSelect
                                           value={barangayId}
                                           placeholder="Select Barangay"
                                           onIonChange={e => setBarangay(e.detail.value)}
-                                          disabled={!selectedCityMunicipality}
+                                          disabled={!cityMunicipalityId}
                                       >
                                           {barangays.map((brgy) => (
                                               <IonSelectOption key={brgy.code} value={brgy.code}>
