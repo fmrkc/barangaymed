@@ -47,7 +47,7 @@ service cloud.firestore {
     // Collection: users
     // Stores public user profile information.
     // =================================================================
-        match /users/{userId} {
+    match /users/{userId} {
       // READ: Users can read their own profile. Admins can read profiles of users in their barangay. Super admins can read other admins/super admins.
       allow read: if isOwner(userId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
@@ -76,121 +76,6 @@ service cloud.firestore {
         allow read: if isOwner(userId); // Only the owner can read their notifications
         allow write: if false; // Notifications are written by Cloud Functions, not directly by clients
       }
-    }
-
-    // =================================================================
-    // Collection: medicineRequests
-    // Stores requests for medicine from users.
-    // =================================================================
-    match /medicineRequests/{requestId} {
-      // READ: The owner or the admin of the barangay can read.
-      allow read: if (isOwner(resource.data.userId) && isVerifiedUser()) || isAdminOfBarangay(resource.data.barangayId);
-
-      // CREATE: A user can create a request for themselves. Validate required fields.
-      allow create: if isOwner(request.resource.data.userId) && isUserRole() && isVerifiedUser()
-                    && request.resource.data.status == 'pending'
-                    && request.resource.data.medicineId is string
-                    && request.resource.data.barangayId is string;
-
-      // UPDATE: A user can cancel their own pending request. An admin can update the status of a request in their barangay.
-      allow update: if (isOwner(resource.data.userId) && request.resource.data.status == 'cancelled' && resource.data.status == 'pending') ||
-                       (isAdminOfBarangay(resource.data.barangayId) && request.resource.data.keys().hasOnly(['status']));
-
-      // DELETE: Disallowed. Users should update status to 'cancelled'.
-      allow delete: if false;
-    }
-
-    // =================================================================
-    // Collection: medicineTransfers
-    // Stores requests for medicine stock transfers from admins.
-    // =================================================================
-    match /medicineTransfers/{transferId} {
-      // READ: The requesting admin or any super admin can read.
-      allow read: if isAdminOfBarangay(resource.data.barangayId) || isSuperAdmin();
-
-      // CREATE: An admin can create a transfer request for their own barangay.
-      allow create: if isAdminOfBarangay(request.resource.data.barangayId)
-                    && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt == request.time;
-
-      // UPDATE: The requesting admin can cancel. Super admins can update status (e.g., to fulfill).
-      allow update: if (isAdminOfBarangay(resource.data.barangayId) && request.resource.data.status == 'cancelled' && resource.data.status == 'pending') ||
-                       (isSuperAdmin() && request.resource.data.keys().hasOnly(['status']));
-
-      // DELETE: Disallowed.
-      allow delete: if false;
-    }
-
-    // =================================================================
-    // Collection: teleconsultationRequests
-    // Stores requests for tele-consultations from users.
-    // =================================================================
-    match /teleconsultationRequests/{teleRequestId} {
-      // READ: The owner or the admin of the barangay can read.
-      allow read: if (isOwner(resource.data.userId) && isVerifiedUser()) || isAdminOfBarangay(resource.data.barangayId);
-
-      // CREATE: A user can create a request for themselves.
-      allow create: if isOwner(request.resource.data.userId) && isUserRole() && isVerifiedUser()
-                    && request.resource.data.status == 'pending'
-                    && request.resource.data.symptoms is string;
-
-      // UPDATE: An admin can update the status. A user can cancel their own pending request.
-      allow update: if (isOwner(resource.data.userId) && request.resource.data.status == 'cancelled' && resource.data.status == 'pending') ||
-                       (isAdminOfBarangay(resource.data.barangayId) && request.resource.data.keys().hasOnly(['status']));
-
-      // DELETE: Disallowed.
-      allow delete: if false;
-    }
-
-    // =================================================================
-    // Collection: teleconsultationSchedules
-    // Stores available dates for tele-consultations.
-    // =================================================================
-    match /teleconsultationSchedules/{scheduleId} {
-      // READ: Any authenticated user can read schedules to book an appointment.
-      allow read: if isAuthenticated();
-      // WRITE: Only super admins can create, update, or delete schedules.
-      allow write: if isSuperAdmin();
-    }
-
-    // =================================================================
-    // Collection: medicalRecords
-    // Stores user medical records. Created and managed by admins.
-    // =================================================================
-    match /medicalRecords/{recordId} {
-      // READ: The patient (owner) or the admin of the barangay.
-      allow read: if (isOwner(resource.data.userId) && isVerifiedUser()) || isAdminOfBarangay(resource.data.barangayId);
-
-      // WRITE: Only admins of the corresponding barangay or super admins can create/update records.
-      allow write: if isAdminOfBarangay(request.resource.data.barangayId) || isSuperAdmin();
-
-      // DELETE: Disallowed.
-      allow delete: if false;
-    }
-
-    // =================================================================
-    // Collection: medicines (Global Inventory)
-    // Managed by Super Admins.
-    // =================================================================
-    match /medicines/{medicineId} {
-      // READ: Any authenticated user can see the list of all possible medicines.
-      allow read: if isAuthenticated();
-      // WRITE: Only Super Admins can add, update, or remove from the global list.
-      allow write: if isSuperAdmin();
-    }
-
-    // =================================================================
-    // Collection: rhuInventory (RHU/Barangay-specific Inventory)
-    // Managed by Admins for their own barangay.
-    // =================================================================
-    match /rhuInventory/{barangayId}/{medicineId} {
-      // READ: Users can read their own barangay's inventory. Admins can read their own. Super admins can read all.
-      allow read: if (isUserRole() && isVerifiedUser() && barangayId == getUserData(request.auth.uid).barangay) ||
-                     isAdminOfBarangay(barangayId) ||
-                     isSuperAdmin();
-
-      // WRITE: Only the admin of that barangay or a super admin can manage inventory.
-      allow write: if isAdminOfBarangay(barangayId) || isSuperAdmin();
     }
 
     // =================================================================

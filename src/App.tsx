@@ -40,7 +40,6 @@ import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
 
 import SuperAdminLogin from './pages/superadmin/sa-login';
-import SuperAdminDashboard from './pages/superadmin/sa-dashboard';
 import SuperRegister from './pages/superadmin/sa-admin-register';
 
 import ALogin from './pages/admin/admin-login';
@@ -51,9 +50,6 @@ import UserLogin from './pages/user/user-login';
 import UserRegister from './pages/user/UserRegisterSteps/user-partial-register';
 import UserDashboard from './pages/user/user-menu';
 import UserVerifyEmail from './pages/user/UserRegisterSteps/user-verify-email';
-import User_Requests from './pages/user/user-requests';
-import Medicine_Requests_Status from './pages/user/user-med-list';
-import Teleconsultation_Requests_Status from './pages/user/user-tele-list';
 import SAMenu from './pages/superadmin/sa-menu';
 import RegisterInvited from './pages/auth/RegisterInvited';
 
