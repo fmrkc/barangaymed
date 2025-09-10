@@ -306,12 +306,14 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       // Construct full address
       const barangayName = barangays.find(b => b.code === barangayId)?.name || '';
       const cityName = citiesMunicipalities.find(c => c.code === selectedCityMunicipality)?.name || '';
+      const provinceName = provinces.find(p => p.code === selectedProvince)?.name || '';
       const addressParts = [];
       if (lotBlkHouseNo.trim()) addressParts.push(lotBlkHouseNo.trim());
       if (streetName.trim()) addressParts.push(streetName.trim());
       if (subdivisionVillageZonePurok.trim()) addressParts.push(subdivisionVillageZonePurok.trim());
       if (barangayName) addressParts.push(barangayName);
       if (cityName) addressParts.push(cityName);
+      if (provinceName) addressParts.push(provinceName);
       if (zipCode.trim()) addressParts.push(zipCode.trim());
       const fullAddress = addressParts.join(', ');
 
