@@ -9,7 +9,7 @@ interface Page1Props {
   middleName: string;
   lastName: string;
   suffix: string;
-  birthdate: string; // Added birthdate
+  birthdate: string;
   onChange: (field: string, value: string) => void;
   onNext?: () => void;
   error: string | null;

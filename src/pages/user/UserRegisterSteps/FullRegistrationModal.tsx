@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonModal,
   IonHeader,
@@ -37,8 +37,6 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
 import { logEvent } from '../../../utils/logger';
-import { MaskitoOptions } from '@maskito/core';
-import { useMaskito } from '@maskito/react';
 import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../firebaseConfig';
@@ -72,21 +70,13 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   const [barangayIdFile, setBarangayIdFile] = useState<File | null>(null);
   const [barangayCertificateFile, setBarangayCertificateFile] = useState<File | null>(null);
 
-  const phoneMaskOptions: MaskitoOptions = {
-    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
-  };
-  const maskitoRef = useMaskito({ options: phoneMaskOptions });
-  const ionInputRef = useRef<HTMLIonInputElement>(null);
+  // Removed Maskito phone mask usage to align with FullRegistrationStep1 phone input style
+  const ionInputRef = null;
 
   useEffect(() => {
-    const assignMask = async () => {
-        if (ionInputRef.current) {
-            const input = await ionInputRef.current.getInputElement();
-            maskitoRef(input);
-        }
-    };
-    assignMask();
-  }, [ionInputRef, maskitoRef]);
+    // No phone mask assignment needed as per FullRegistrationStep1 style
+  }, []);
+  
   
 
   const [regions, setRegions] = useState<Region[]>([]);
@@ -201,7 +191,8 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         setLotBlkHouseNo(data.lotBlkHouseNo || '');
         setStreetName(data.streetName || '');
         setSubdivisionVillageZonePurok(data.subdivisionVillageZonePurok || '');
-        setContactNumber(data.contactNumber || '');
+        const phone = data.contactNumber || '';
+        setContactNumber(phone.startsWith('+63') ? phone.slice(3) : phone);
       }
     } catch (error) {
       console.error('Error loading existing data:', error);
@@ -246,6 +237,10 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
     }
     if (!contactNumber.trim()) {
       setError('Contact number is required.');
+      return false;
+    }
+    if (contactNumber.length !== 10) {
+      setError('Contact number must be 10 digits.');
       return false;
     }
     return true;
@@ -305,8 +300,20 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
     setError(null);
 
     try {
-      // Unmask the contact number before submitting
-      const unmaskedContactNumber = contactNumber.replace(/[\s()-]/g, '');
+      // Prepend +63 to the contact number before submitting
+      const unmaskedContactNumber = `+63${contactNumber}`;
+
+      // Construct full address
+      const barangayName = barangays.find(b => b.code === barangayId)?.name || '';
+      const cityName = citiesMunicipalities.find(c => c.code === selectedCityMunicipality)?.name || '';
+      const addressParts = [];
+      if (lotBlkHouseNo.trim()) addressParts.push(lotBlkHouseNo.trim());
+      if (streetName.trim()) addressParts.push(streetName.trim());
+      if (subdivisionVillageZonePurok.trim()) addressParts.push(subdivisionVillageZonePurok.trim());
+      if (barangayName) addressParts.push(barangayName);
+      if (cityName) addressParts.push(cityName);
+      if (zipCode.trim()) addressParts.push(zipCode.trim());
+      const fullAddress = addressParts.join(', ');
 
       // Upload files to Firebase Storage
       const barangayIdUrl = await uploadFile(
@@ -331,6 +338,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         streetName,
         subdivisionVillageZonePurok,
         contactNumber: unmaskedContactNumber, // Use unmasked number
+        address: fullAddress,
 
         // Documents
         barangayIdUrl,
@@ -368,6 +376,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
             streetName,
             subdivisionVillageZonePurok,
             contactNumber: unmaskedContactNumber, // Use unmasked number
+            address: fullAddress,
             barangayIdUrl,
             barangayCertificateUrl,
           },
@@ -595,17 +604,31 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
               
               <IonItemDivider>Contact Number *</IonItemDivider>
               <IonItem>
-                <IonInput
-                ref={ionInputRef}
-                fill="outline"
-                value={contactNumber}
-                onIonInput={(e) => setContactNumber(String((e.target as HTMLIonInputElement).value))}
-                placeholder="+(63) 123-456-7890"
-                className="ion-margin-bottom"
-                inputMode="tel"
-              >
-                <IonIcon slot="start" icon={call}></IonIcon>
-              </IonInput>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ padding: '0 10px', fontWeight: 'bold', fontSize: '1.2em' }}>+63</div>
+                  <IonInput
+                    fill="outline"
+                    value={contactNumber}
+                    onIonInput={(e) => {
+                      let val = e.detail.value || '';
+                      // Ensure the first digit is 9 and only digits allowed
+                      if (val.length === 1 && val !== '9') {
+                        val = '';
+                      }
+                      val = val.replace(/[^0-9]/g, '');
+                      setContactNumber(val);
+                    }}
+                    placeholder="9XX XXX XXXX"
+                    maxlength={10}
+                    minlength={10}
+                    inputmode="numeric"
+                    pattern="[9][0-9]{9}"
+                    className={`${(!contactNumber || contactNumber.length !== 10) && 'ion-invalid ion-touched'}`}
+                    autocomplete="tel"
+                  >
+                    <IonIcon slot="start" icon={call}></IonIcon>
+                  </IonInput>
+                </div>
               </IonItem>
             </IonCardContent>
           </IonCard>

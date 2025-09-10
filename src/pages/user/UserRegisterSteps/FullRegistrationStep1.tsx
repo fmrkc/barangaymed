@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonButton, IonInput, IonRow, IonCol, IonText, IonCardTitle, IonSelect, IonSelectOption, IonCardSubtitle, IonIcon, IonItem, IonLabel } from '@ionic/react';
-import { arrowBack, arrowForward, call, chevronBack, chevronBackCircle, chevronForward, home, phoneLandscape } from 'ionicons/icons';
-import { MaskitoOptions, maskitoTransform } from '@maskito/core';
-import { useMaskito } from '@maskito/react';
+import { call, home } from 'ionicons/icons';
 import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, Region, Province, CityMunicipality } from '../../../services/addressService';
 
 interface FullRegistrationStep1Props {
@@ -30,10 +28,7 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
   onChange,
   error,
 }) => {
-  const phoneMaskOptions: MaskitoOptions = {
-    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
-  };
-  const phoneMask = useMaskito({ options: phoneMaskOptions });
+
 
   const [regions, setRegions] = useState<Region[]>([]);
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -190,24 +185,32 @@ const FullRegistrationStep1: React.FC<FullRegistrationStep1Props> = ({
 
       <div className="ion-margin-top">
         <IonCardSubtitle>Contact Number *</IonCardSubtitle>
-        <IonInput
-          ref={(phoneInput) => {
-            if (phoneInput) {
-              phoneInput.getInputElement().then((input) => {
-                phoneMask(input);
-              });
-            }
-          }}
-          fill="outline"
-          value={contactNumber}
-          onIonInput={(e) => onChange("contactNumber", e.detail.value || "")}
-          placeholder="+(63) 123-456-7890"
-          className={`${!contactNumber.trim() && 'ion-invalid ion-touched'}`}
-          errorText="Contact number is required"
-          autocomplete="tel"
-        >
-          <IonIcon slot="start" icon={call}></IonIcon>
-        </IonInput>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ padding: '0 10px', fontWeight: 'bold', fontSize: '1.2em' }}>+63</div>
+          <IonInput
+            fill="outline"
+            value={contactNumber}
+            onIonInput={(e) => {
+              let val = e.detail.value || '';
+              // Ensure the first digit is 9 and only digits allowed
+              if (val.length === 1 && val !== '9') {
+                val = '';
+              }
+              val = val.replace(/[^0-9]/g, '');
+              onChange("contactNumber", val);
+            }}
+            placeholder="9XX XXX XXXX"
+            maxlength={10}
+            minlength={10}
+            inputmode="numeric"
+            pattern="[9][0-9]{9}"
+            className={`${(!contactNumber || contactNumber.length !== 10) && 'ion-invalid ion-touched'}`}
+            errorText="Contact number must start with 9 and be 10 digits long"
+            autocomplete="tel"
+          >
+            <IonIcon slot="start" icon={call}></IonIcon>
+          </IonInput>
+        </div>
       </div>
     </>
   );
