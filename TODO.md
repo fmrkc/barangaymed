@@ -29,4 +29,4 @@
 
 ## 5. Verify
 - [x] Check for any remaining references in kept files
-- [ ] Test the app
+- [x] Test the app
