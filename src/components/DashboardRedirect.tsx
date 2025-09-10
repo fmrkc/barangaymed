@@ -17,8 +17,8 @@ const DashboardRedirect: React.FC = () => {
   } else if (userRole === 'user') {
     return <Redirect to="/user/dashboard" />;
   } else {
-    // If no role or unknown role, redirect to a default login page (e.g., user login)
-    return <Redirect to="/user/login" />;
+    // If no role or unknown role, redirect to login
+    return <Redirect to="/login" />;
   }
 };
 

@@ -29,8 +29,8 @@ const RedirectIfLoggedIn: React.FC<RedirectIfLoggedInProps> = ({ children, redir
     return <Redirect to="/superadmin/dashboard" />;
   }
 
-  // Fallback: if role is not recognized, redirect to user login
-  return <Redirect to="/user/login" />;
+  // Fallback: if role is not recognized, redirect to login
+  return <Redirect to="/login" />;
 };
 
 export default RedirectIfLoggedIn;

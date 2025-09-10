@@ -129,7 +129,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         userRole: 'unknown'    // Not available for unauthenticated users
       }
     );
-    return <Redirect to={`/user/login?returnUrl=${encodeURIComponent(location.pathname)}`} />;
+    return <Redirect to={`/login?returnUrl=${encodeURIComponent(location.pathname)}`} />;
   }
 
   // NEW: Check for email verification

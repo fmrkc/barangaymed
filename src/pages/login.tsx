@@ -1,12 +1,12 @@
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonIcon, IonInput, IonPage, IonRow, IonText, IonTitle, useIonLoading, useIonRouter, IonItem, IonList } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { lockClosed, logIn, logInSharp, person, personCircle, videocamOutline, eye, eyeOff, add, help } from 'ionicons/icons';
-import healthcare from '../../assets/healthcare.png'
-import Intro from '../../components/Intro';
+import healthcare from '../assets/healthcare.png'
+import Intro from '../components/Intro';
 import { Preferences } from '@capacitor/preferences';
-import { useAuth } from '../../contexts/AuthContext';
-import { login, auth } from '../../firebaseConfig';
-import { logFailedLogin } from '../../utils/logger';
+import { useAuth } from '../contexts/AuthContext';
+import { login, auth } from '../firebaseConfig';
+import { logFailedLogin } from '../utils/logger';
 import { sendEmailVerification, signOut } from 'firebase/auth';
 
 const INTR0_KEY = 'intro-seen';
@@ -45,11 +45,26 @@ const Login: React.FC = () => {
                     setError('Your email is not verified. We have sent you a new verification email. Please check your inbox.');
                     return;
                 }
+
+                // Get user role from token claims
+                const idTokenResult = await user.getIdTokenResult(true);
+                const role = idTokenResult.claims.role as string || null;
+                console.log('Login: Role obtained from idTokenResult:', role);
+
                 await authLogin(user);
                 dismiss();
-                // Only redirect to dashboard if this is a direct login
-                // Don't redirect if coming from registration
-                router.push('/user/dashboard', 'forward');
+
+                // Redirect based on role
+                if (role === 'user') {
+                    router.push('/user/dashboard', 'forward');
+                } else if (role === 'admin') {
+                    router.push('/admin/dashboard', 'forward');
+                } else if (role === 'superadmin') {
+                    router.push('/superadmin/dashboard', 'forward');
+                } else {
+                    logFailedLogin(email, 'Access denied: Invalid role or no role assigned.');
+                    setError('Access denied: Invalid role or no role assigned.');
+                }
             } else {
                 // Log the failed login attempt
                 logFailedLogin(email, 'Login failed. Please check your email/password.');
@@ -72,7 +87,7 @@ const Login: React.FC = () => {
     const seeIntroAgain = () => {
         setIntroSeen(false);
         Preferences.remove({ key:INTR0_KEY });
-    }; 
+    };
 
     useEffect(() => {
     document.title = 'BarangayMed+';
@@ -179,4 +194,3 @@ const Login: React.FC = () => {
 
 
 export default Login;
-

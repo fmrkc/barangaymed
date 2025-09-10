@@ -39,14 +39,12 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
 
-import SuperAdminLogin from './pages/superadmin/sa-login';
+import Login from './pages/login';
 import SuperRegister from './pages/superadmin/sa-admin-register';
 
-import ALogin from './pages/admin/admin-login';
 import AMenu from './pages/admin/admin-menu';
 import AAnnouncements from './pages/admin/admin-brgy-announcements';
 
-import UserLogin from './pages/user/user-login';
 import UserRegister from './pages/user/UserRegisterSteps/user-partial-register';
 import UserDashboard from './pages/user/user-menu';
 import UserVerifyEmail from './pages/user/UserRegisterSteps/user-verify-email';
@@ -62,23 +60,23 @@ const App: React.FC = () => (
       <IonReactRouter>
         <IonRouterOutlet>
           <Switch>
+            {/* Login Routes */}
+            <Route exact path="/login">
+              <RedirectIfLoggedIn redirectTo="/dashboard">
+                <Login />
+              </RedirectIfLoggedIn>
+            </Route>
+            <Route exact path="/">
+              <RedirectIfLoggedIn redirectTo="/dashboard">
+                <Login />
+              </RedirectIfLoggedIn>
+            </Route>
+
             {/* Super Admin Routes */}
-            <Route exact path="/superadmin">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <SuperAdminLogin />
-              </RedirectIfLoggedIn>
-            </Route>
-            <Route exact path="/superadmin/login">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <SuperAdminLogin />
-              </RedirectIfLoggedIn>
-            </Route>
-            
-            {/* Protected Super Admin Dashboard */}
             <Route path="/superadmin/dashboard">
               <ProtectedRoute 
                 requiredRole="superadmin" 
-                redirectTo="/superadmin/login"
+                redirectTo="/login"
               >
                 <SAMenu />
               </ProtectedRoute>
@@ -87,45 +85,23 @@ const App: React.FC = () => (
             <Route exact path="/superadmin/register">
               <ProtectedRoute
                 requiredRole="superadmin"
-                redirectTo="/superadmin/login"
+                redirectTo="/login"
               >
                 <SuperRegister />
               </ProtectedRoute>
             </Route>
 
             {/* Admin Routes */}
-            <Route exact path="/admin">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <ALogin />
-              </RedirectIfLoggedIn>
-            </Route>
-            <Route exact path="/admin/login">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <ALogin />
-              </RedirectIfLoggedIn>
-            </Route>
-                     
-            {/* Protected Admin Dashboard */}
             <Route path="/admin/dashboard">
               <ProtectedRoute 
                 requiredRole="admin" 
-                redirectTo="/admin"
+                redirectTo="/login"
               >
                 <AMenu />
               </ProtectedRoute>
             </Route>
 
             {/* User Routes */}
-            <Route exact path="/user">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <UserLogin />
-              </RedirectIfLoggedIn>
-            </Route>
-            <Route exact path="/user/login">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <UserLogin />
-              </RedirectIfLoggedIn>
-            </Route>
             <Route exact path="/user/register">
               <RedirectIfLoggedIn redirectTo="/dashboard">
                 <UserRegister />
@@ -144,7 +120,7 @@ const App: React.FC = () => (
             <Route path="/user/dashboard">
               <ProtectedRoute 
                 requiredRole="user" 
-                redirectTo="/user/login"
+                redirectTo="/login"
               >
                 <UserDashboard />
               </ProtectedRoute>
@@ -156,7 +132,7 @@ const App: React.FC = () => (
             </Route>
 
             {/* Default route */}
-            <Route exact path="/" render={() => <Redirect to="/dashboard" />} />
+            <Route render={() => <Redirect to="/login" />} />
           </Switch>
         </IonRouterOutlet>
       </IonReactRouter>
