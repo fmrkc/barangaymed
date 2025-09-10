@@ -50,7 +50,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           logUnauthorizedAccess(
             currentUser.uid,
             currentUser.email || undefined,
-            userRole || 'unknown',
+            userRole ?? undefined,
             location.pathname,
             requiredRole
           );
@@ -63,13 +63,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           logSecurityEvent(
             currentUser.uid,
             currentUser.email || undefined,
-            userRole || undefined,
+            userRole ?? undefined,
             'ACCESS_DENIED',
             `Custom validation failed for route requiring ${requiredRole}`,
             {
               path: location.pathname,
               userEmail: currentUser.email || 'unknown',
-              userRole: userRole || 'unknown'
+              userRole: userRole ?? 'unknown'
             }
           );
           return;
@@ -81,13 +81,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         logSecurityEvent(
           currentUser.uid,
           currentUser.email || undefined,
-          userRole || undefined,
+          userRole ?? undefined,
           'SECURITY_VALIDATION_ERROR',
           `Error during security validation: ${error}`,
           {
             path: location.pathname,
             userEmail: currentUser.email || 'unknown',
-            userRole: userRole || 'unknown'
+            userRole: userRole ?? 'unknown'
           }
         );
       } finally {
@@ -155,13 +155,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     logSecurityEvent(
       currentUser.uid,
       currentUser.email || undefined,
-      userRole || undefined,
+      userRole ?? undefined,
       'ACCESS_DENIED',
       `Access denied for ${location.pathname}: ${validationError}`,
       {
-        userRole,
+        userRole: userRole ?? undefined,
         requiredRole,
-        barangayId,
+        barangayId: barangayId ?? undefined,
         requiredBarangayId,
         path: location.pathname,
         userEmail: currentUser.email || 'unknown', // Added
@@ -187,13 +187,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   logSecurityEvent(
     currentUser.uid,
     currentUser.email || undefined,
-    userRole || undefined,
+    userRole ?? undefined,
     'ACCESS_GRANTED',
     `User successfully accessed protected route: ${location.pathname}`,
     {
-      userRole,
+      userRole: userRole ?? undefined,
       requiredRole,
-      barangayId,
+      barangayId: barangayId ?? undefined,
       requiredBarangayId,
       path: location.pathname,
       userEmail: currentUser.email || 'unknown', // Added
