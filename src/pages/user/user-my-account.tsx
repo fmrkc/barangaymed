@@ -125,27 +125,14 @@ const Account: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const fullName = [editFirstName, editMiddleName, editLastName, editSuffix]
-        .filter(Boolean)
-        .join(' ');
-
-      // Update Firebase Auth display name
-      if (fullName !== currentUser.displayName) {
-        await updateProfile(currentUser, { displayName: fullName });
-      }
-
       // Update email
       if (editEmail !== currentUser.email) {
         await updateEmail(currentUser, editEmail);
       }
 
-      // Update Firestore with individual components
+      // Update Firestore with only editable fields
       await updateDoc(doc(db, "users", currentUser.uid), {
-        firstName: editFirstName,
-        middleName: editMiddleName,
-        lastName: editLastName,
-        suffix: editSuffix,
-        address: editAddress,
+        email: editEmail,
         contactNumber: editContactNumber,
       });
 
@@ -154,12 +141,6 @@ const Account: React.FC = () => {
         userEmail: currentUser.email || undefined,
       });
 
-      // Update the display name immediately
-      const updatedFullName = [editFirstName, editMiddleName, editLastName, editSuffix]
-        .filter(Boolean)
-        .join(' ');
-      setFullName(updatedFullName);
-      
       setSuccessMessage("Profile updated successfully!");
       setShowEditModal(false);
     } catch (error: any) {
@@ -380,7 +361,7 @@ const Account: React.FC = () => {
 
           <IonContent className="ion-padding">
             
-              <IonInput
+            <IonInput
               fill="outline"
               label="First Name"
               labelPlacement="floating"
@@ -388,6 +369,7 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditFirstName(e.detail.value!)}
               placeholder="Enter first name"
               className="ion-margin-bottom"
+              readonly={true}
             >
               <IonIcon slot="start" icon={person}></IonIcon>
             </IonInput>
@@ -401,6 +383,7 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditMiddleName(e.detail.value!)}
               placeholder="Enter middle name"
               className="ion-margin-bottom"
+              readonly={true}
                >
               <IonIcon slot="start" icon={person}></IonIcon>
             </IonInput>
@@ -412,6 +395,7 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditLastName(e.detail.value!)}
               placeholder="Enter last name"
               className="ion-margin-bottom"
+              readonly={true}
                >
               <IonIcon slot="start" icon={person}></IonIcon>
             </IonInput>
@@ -423,6 +407,7 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditSuffix(e.detail.value!)}
               placeholder="Enter suffix (optional)"
               className="ion-margin-bottom"
+              readonly={true}
                >
               <IonIcon slot="start" icon={person}></IonIcon>
             </IonInput>
@@ -446,6 +431,7 @@ const Account: React.FC = () => {
               onIonChange={(e) => setEditAddress(e.detail.value!)}
               placeholder="Enter your address"
               className="ion-margin-bottom"
+              readonly={true}
                >
               <IonIcon slot="start" icon={home}></IonIcon>
             </IonInput>
