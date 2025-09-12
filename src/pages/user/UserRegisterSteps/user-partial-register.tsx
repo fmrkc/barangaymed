@@ -25,6 +25,7 @@ const UserRegister: React.FC = () => {
   const [lastName, setLastName] = React.useState('');
   const [suffix, setSuffix] = React.useState('');
   const [birthdate, setBirthdate] = React.useState('');
+  const [gender, setGender] = React.useState('');
   const [lotBlkHouseNo, setLotBlkHouseNo] = React.useState('');
   const [streetName, setStreetName] = React.useState('');
   const [subdivisionVillageZonePurok, setSubdivisionVillageZonePurok] = React.useState('');
@@ -39,6 +40,7 @@ const UserRegister: React.FC = () => {
   const [selectedProvince, setSelectedProvince] = React.useState('');
   const [selectedCityMunicipality, setSelectedCityMunicipality] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
+  const [hasValidatedStep1, setHasValidatedStep1] = React.useState(false);
 
   const onChange = (field: string, value: string) => {
     // Basic XSS protection
@@ -94,6 +96,9 @@ const UserRegister: React.FC = () => {
       case 'selectedCityMunicipality':
         setSelectedCityMunicipality(sanitizedValue);
         break;
+      case 'gender':
+        setGender(sanitizedValue);
+        break;
       default:
         break;
     }
@@ -126,6 +131,7 @@ const UserRegister: React.FC = () => {
         lastName,
         suffix,
         birthdate,
+        gender,
         lotBlkHouseNo,
         streetName,
         subdivisionVillageZonePurok,
@@ -206,6 +212,7 @@ const UserRegister: React.FC = () => {
         if (!firstName.trim()) return 'First name is required.';
         if (!lastName.trim()) return 'Last name is required.';
         if (!birthdate.trim()) return 'Birthdate is required.';
+        if (!gender.trim()) return 'Gender is required.';
         break;
       case 2:
         if (!email.trim()) return 'Email is required.';
@@ -236,6 +243,9 @@ const UserRegister: React.FC = () => {
   };
 
     const onNext = () => {
+    if (step === 1) {
+      setHasValidatedStep1(true);
+    }
     const errorMsg = validateStep(step);
     console.log(`Current Step: ${step}`); // Debugging log
     console.log(`First Name: ${firstName}, Last Name: ${lastName}, Lot/Blk/House No.: ${lotBlkHouseNo}, Street Name: ${streetName}, Subdivision/Village/Zone/Purok: ${subdivisionVillageZonePurok}, Zip Code: ${zipCode}, Contact Number: ${contactNumber}, Email: ${email}`); // Log field values
@@ -290,7 +300,7 @@ const UserRegister: React.FC = () => {
         <IonProgressBar value={step / 5}></IonProgressBar>
       </IonHeader>
 
-      <IonContent scrollY={false}>
+      <IonContent scrollY={true}>
         <IonGrid fixed>
           <IonRow className="ion-justify-content-center">
             <IonCol >
@@ -303,8 +313,10 @@ const UserRegister: React.FC = () => {
                       lastName={lastName}
                       suffix={suffix}
                       birthdate={birthdate}
+                      gender={gender}
                       onChange={onChange}
                       error={error}
+                      hasValidatedStep1={hasValidatedStep1}
                     />
                   )}
                   {step === 2 && (

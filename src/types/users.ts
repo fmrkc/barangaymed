@@ -4,6 +4,7 @@ export interface UserData {
   lastName: string;
   suffix?: string;
   birthdate: string;
+  gender?: string;
   lotBlkHouseNo?: string;
   streetName?: string;
   subdivisionVillageZonePurok?: string;

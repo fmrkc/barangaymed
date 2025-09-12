@@ -1,32 +1,12 @@
-# TODO: Remove Modules from BarangayMed System
+# TODO: Fix Partial Registration Validation and Highlighting
 
-## 1. Update firestore.rules
-- [x] Remove rules for medicineRequests, medicineTransfers, teleconsultationRequests, teleconsultationSchedules, medicalRecords, medicines, rhuInventory
-- [x] Keep rules for users, announcements, logs
-
-## 2. Remove Files
-### Pages
-- [x] Admin: admin-med-inventory.css, admin-med-inventory.tsx, admin-medicine-requests.css, admin-medicine-requests.tsx, admin-tele-requests.tsx
-- [x] Superadmin: sa-med-inventory.tsx, sa-med-req-modal.tsx, sa-med-requests.tsx
-- [x] User: user-med-list.css, user-med-list.tsx, user-med-request.tsx, user-requests.css, user-requests.tsx, user-tele-list.css, user-tele-list.tsx, user-tele-request.tsx, UserMedRequestSteps/, UserTeleconsultationSteps/
-
-### Components
-- [x] AdminMedicineRequestMonitor.tsx, RHUMedicineModal.tsx
-
-### Services
-- [x] medicineService.ts, teleconsultationService.ts
-
-### Types
-- [x] medicineRequests.ts, teleconsultationRequests.ts
-
-## 3. Update Menus
-- [x] src/pages/admin/admin-menu.tsx: Remove imports, paths, routes for removed features
-- [x] src/pages/superadmin/sa-menu.tsx: Remove imports, paths, routes for removed features
-- [x] src/pages/user/user-menu.tsx: Remove imports, routes, and requests tab
-
-## 4. Update App.tsx
-- [x] Remove unused imports for removed pages
-
-## 5. Verify
-- [x] Check for any remaining references in kept files
-- [x] Test the app
+## Tasks
+- [ ] Update user-partial-register.tsx: Add gender to validateStep for step 1
+- [ ] Add hasValidatedStep1 state in user-partial-register.tsx
+- [ ] Set hasValidatedStep1 to true in onNext when step is 1
+- [ ] Pass hasValidatedStep1 prop to PartialRegistrationStep1
+- [ ] Update PartialRegistrationStep1.tsx: Add gender to touchedFields
+- [ ] Add onIonBlur for gender IonSelect in PartialRegistrationStep1.tsx
+- [ ] Update className for firstName, lastName, birthdate to use hasValidatedStep1 || touchedFields[field]
+- [ ] Add className for gender IonSelect with validation logic
+- [ ] Test the changes to ensure highlighting works on next click

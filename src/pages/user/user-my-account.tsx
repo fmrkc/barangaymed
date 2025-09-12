@@ -24,6 +24,8 @@ import {
   IonItemDivider,
   IonChip,
   IonBadge,
+  IonSelect,
+  IonSelectOption,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -49,6 +51,7 @@ const Account: React.FC = () => {
   const [editLastName, setEditLastName] = useState("");
   const [editSuffix, setEditSuffix] = useState("");
   const [FullName, setFullName] = useState("");
+  const [editGender, setEditGender] = useState(""); // New state for gender
   
   const [editEmail, setEditEmail] = useState(currentUser?.email || "");
   const [editBarangay, setEditBarangay] = useState("");
@@ -82,6 +85,7 @@ const Account: React.FC = () => {
           setEditMiddleName(userData.middleName || "");
           setEditLastName(userData.lastName || "");
           setEditSuffix(userData.suffix || "");
+          setEditGender(userData.gender || ""); // Fetch gender
           setEditEmail(userData.email || currentUser.email || "");
           setFullName([userData.firstName, userData.middleName, userData.lastName, userData.suffix].filter(Boolean).join(' '));
           
@@ -134,6 +138,7 @@ const Account: React.FC = () => {
       await updateDoc(doc(db, "users", currentUser.uid), {
         email: editEmail,
         contactNumber: editContactNumber,
+        gender: editGender,
       });
 
       logEvent("info", "User profile updated", {
@@ -171,6 +176,7 @@ const Account: React.FC = () => {
           setEditMiddleName(userData.middleName || "");
           setEditLastName(userData.lastName || "");
           setEditSuffix(userData.suffix || "");
+          setEditGender(userData.gender || ""); // Reset gender
           setEditEmail(userData.email || currentUser.email || "");
           setEditBarangay(userData.barangayId || "");
           setEditAddress(userData.address || "");
@@ -411,6 +417,18 @@ const Account: React.FC = () => {
                >
               <IonIcon slot="start" icon={person}></IonIcon>
             </IonInput>
+            <IonSelect
+              fill="outline"
+              label="Gender"
+              labelPlacement="floating"
+              value={editGender}
+              onIonChange={(e: CustomEvent) => setEditGender(e.detail.value)}
+              placeholder="Select gender"
+              className="ion-margin-bottom"
+            >
+              <IonSelectOption value="Male">Male</IonSelectOption>
+              <IonSelectOption value="Female">Female</IonSelectOption>
+            </IonSelect>
             <IonInput
               fill="outline"
               label="Email"
