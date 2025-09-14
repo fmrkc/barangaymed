@@ -40,7 +40,7 @@ import FullRegistrationModal from "./UserRegisterSteps/FullRegistrationModal";
 import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
-  const { logout, currentUser, verificationStatus } = useAuth();
+  const { logout, currentUser, verificationStatus, refreshUserClaims } = useAuth();
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -485,7 +485,10 @@ const Account: React.FC = () => {
         {/* Full Registration Modal */}
         <FullRegistrationModal
           isOpen={showFullRegistrationModal}
-          onDidDismiss={() => setShowFullRegistrationModal(false)}
+          onDidDismiss={() => {
+            setShowFullRegistrationModal(false);
+            refreshUserClaims();
+          }}
         />
       </IonContent>
     </>
