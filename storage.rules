@@ -48,13 +48,21 @@ service firebase.storage {
       // READ: Only the owner can read their own documents.
       allow read: if isAuthenticated() && request.auth.uid == userId;
 
-      // WRITE: Only the owner can upload, update, or delete their own documents.
-      // - File size must be less than 5MB (matching client-side validation).
-      // - File must be an allowed type (matching client-side validation).
-      allow write: if isAuthenticated()
-                    && request.auth.uid == userId
-                    && request.resource.size < 5 * 1024 * 1024
-                    && request.resource.contentType.matches('image/(jpeg|png|webp|gif)|application/pdf');
+      // CREATE, UPDATE: Only the owner can upload/update their own documents.
+      // - File size must be less than 5MB.
+      // - File must be an allowed type.
+      allow create, update: if isAuthenticated()
+          && request.auth.uid == userId
+          && request.resource.size < 5 * 1024 * 1024
+          && request.resource.contentType.matches('image/(jpeg|png|webp|gif)|application/pdf');
+
+      // DELETE:
+      // - The owner of the document can delete it.
+      // - An admin can delete documents of a user belonging to the same barangay.
+      // - A superadmin can delete any document.
+      allow delete: if (isAuthenticated() && request.auth.uid == userId) ||
+                       (isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId) ||
+                       isSuperAdmin();
     }
   }
 }
