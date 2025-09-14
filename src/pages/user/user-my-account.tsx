@@ -205,7 +205,7 @@ const Account: React.FC = () => {
           <IonTitle>My Account</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding with-tab-padding">
+      <IonContent className="with-tab-padding">
         <IonCard>
           <IonCard>
             <IonCardContent className="ion-padding-vertical">

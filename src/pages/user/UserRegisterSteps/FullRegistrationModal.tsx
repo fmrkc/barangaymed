@@ -646,7 +646,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
               </IonCardTitle>
 
               <IonItem  className='ion-margin-bottom'>
-                Upload the required documents to be verified by our admins.
+                Upload the required documents to be verified by our admins. After verification, your uploaded documents will be deleted.
               </IonItem>
 
               <IonGrid>

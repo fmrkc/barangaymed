@@ -10,9 +10,6 @@ ion-item-divider {
 @media (prefers-color-scheme: dark) {
 
 
-
-
-
 }
 
 @media (prefers-color-scheme: light) {
@@ -27,3 +24,6 @@ ion-item-divider {
 
 }
 
+.with-tab-padding {
+    --padding-bottom: 60px;
+  }
