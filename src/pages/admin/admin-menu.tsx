@@ -6,8 +6,10 @@ import { useIonRouter } from '@ionic/react';
 import Dashboard from './admin-dashboard';
 import Residents from './admin-residents';
 import Verification from './admin-resident-verification';
+import Inventory from './admin-med-inventory';
 import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
+import Medicine_Requests from './admin-medicine-requests';
 
 import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield, checkbox } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -21,6 +23,9 @@ const Menu: React.FC = () => {
         { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
         { name: 'All Residents', url: '/admin/dashboard/residents', icon: people},
         { name: 'Resident Verification', url: '/admin/dashboard/residents/verification', icon: checkbox},
+        { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
+        { name: 'OTC Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
+        { name: 'Receipt Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
         { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
         { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
@@ -112,8 +117,10 @@ const Menu: React.FC = () => {
             <Route exact path="/admin/dashboard" component={Dashboard} />
             <Route exact path="/admin/dashboard/residents" component={Residents} />
             <Route exact path="/admin/dashboard/residents/verification" component={Verification} />
+            <Route exact path="/admin/dashboard/inventory" component={Inventory} />
             <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
             <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
+            <Route exact path="/admin/dashboard/medicine-requests" component={Medicine_Requests} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>
