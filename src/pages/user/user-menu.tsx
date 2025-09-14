@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 import Home from './user-home';
 import Notifications from './user-notifications';
+import User_Requests from './user-requests';
 import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
 import { clipboard, home, notifications, person } from 'ionicons/icons';
@@ -26,7 +27,10 @@ const UserDashboard: React.FC = () => {
             <IonIcon icon={home} /> {/* Change icon based on selection */}
             <IonLabel>Home</IonLabel>
           </IonTabButton>
-
+          <IonTabButton tab="requests" href="/user/dashboard/requests" onClick={() => setSelectedTab('requests')}>
+            <IonIcon icon={clipboard} /> {/* Change icon based on selection */}
+            <IonLabel>My Requests</IonLabel>
+          </IonTabButton>
           <IonTabButton tab="notifications" href="/user/dashboard/notifications" onClick={() => setSelectedTab('notifications')}>
             <IonIcon icon={notifications} /> {/* Change icon based on selection */}
             <IonLabel>Notifications</IonLabel>
@@ -39,6 +43,7 @@ const UserDashboard: React.FC = () => {
 
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
+            <Route path="/user/dashboard/requests" component={User_Requests} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
 
