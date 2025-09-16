@@ -101,6 +101,23 @@ service cloud.firestore {
                        isSuperAdmin();
     }
 
+// =================================================================
+// Collection: medicine
+// Managed by Super Admins for inventory.
+// =================================================================
+    match /medicine/{medicineId} {
+      // READ: Super admins can read all medicine records.
+      allow read: if isSuperAdmin();
+      
+      // CREATE: Super admins can create medicine records.
+      allow create: if isSuperAdmin();
+      
+      // UPDATE: Super admins can update medicine records.
+      allow update: if isSuperAdmin();
+      
+      // DELETE: Super admins can delete medicine records.
+      allow delete: if isSuperAdmin();
+    }
 
   }
 }
