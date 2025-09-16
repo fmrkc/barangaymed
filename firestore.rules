@@ -87,15 +87,15 @@ service cloud.firestore {
       allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == getUserData(request.auth.uid).barangayId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      isSuperAdmin();
-      
+
       // CREATE: Admins can create announcements for their barangay. Super admins can create announcements for any barangay.
       allow create: if (isAdmin() && request.resource.data.barangayId == request.auth.token.barangayId) ||
                        isSuperAdmin();
-      
+
       // UPDATE: Admins can update announcements from their barangay. Super admins can update any announcement.
       allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                        isSuperAdmin();
-      
+
       // DELETE: Admins can delete announcements from their barangay. Super admins can delete any announcement.
       allow delete: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                        isSuperAdmin();
@@ -106,17 +106,65 @@ service cloud.firestore {
 // Managed by Super Admins for inventory.
 // =================================================================
     match /medicine/{medicineId} {
-      // READ: Super admins can read all medicine records.
-      allow read: if isSuperAdmin();
-      
+      // READ: Users can read medicine inventory. Admins and Super admins can read all medicine records.
+      allow read: if (isUserRole() && isVerifiedUser()) || isAdmin() || isSuperAdmin();
+
       // CREATE: Super admins can create medicine records.
       allow create: if isSuperAdmin();
-      
+
       // UPDATE: Super admins can update medicine records.
       allow update: if isSuperAdmin();
-      
+
       // DELETE: Super admins can delete medicine records.
       allow delete: if isSuperAdmin();
+    }
+
+// =================================================================
+// Collection: medicineRequests
+// Users can create requests. Admins can view requests from their barangay. Superadmins can view all.
+// =================================================================
+    match /medicineRequests/{requestId} {
+      allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.medicineId is string
+                    && request.resource.data.barangayId == getUserData(request.auth.uid).barangayId
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time;
+
+      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
+                   (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                   isSuperAdmin();
+
+      allow update: if (isUserRole() && resource.data.userId == request.auth.uid && resource.data.status == 'accepted' && request.resource.data.status == 'completed') ||
+                     (isUserRole() && resource.data.userId == request.auth.uid && resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
+                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                     isSuperAdmin()
+                    && resource.data.status == 'pending'
+                    && request.resource.data.status in ['accepted', 'rejected'];
+
+      allow delete: if false; // Deletion not allowed from client
+    }
+
+// =================================================================
+// Collection: teleconsultationRequests
+// Users can create teleconsultation requests. Superadmins can manage them.
+// =================================================================
+    match /teleconsultationRequests/{requestId} {
+      allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.description is string
+                    && request.resource.data.barangayId == getUserData(request.auth.uid).barangayId
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time;
+
+      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
+                   isSuperAdmin();
+
+      allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
+                        ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
+                         (resource.data.status == 'accepted' && request.resource.data.status == 'completed'))) ||
+                    (isSuperAdmin() && resource.data.status == 'pending' &&
+                     request.resource.data.status in ['accepted', 'rejected']);
+
+      allow delete: if false; // Deletion not allowed from client
     }
 
   }
