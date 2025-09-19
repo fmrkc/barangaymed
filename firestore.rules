@@ -153,8 +153,8 @@ service cloud.firestore {
     match /teleconsultationRequests/{requestId} {
       allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
                     && request.resource.data.reason is string
-                    && request.resource.data.status == 'Pending'
-                    && request.resource.data.dateRequested == request.time;
+                    && request.resource.data.status == 'Pending';
+                    
 
       allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
                    isSuperAdmin();

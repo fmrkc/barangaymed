@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser, getIdTokenResult } from 'firebase/auth';
+import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '../firebaseConfig';
 import { logLogin, logLogout } from '../utils/logger';
 import { doc, getDoc } from 'firebase/firestore';
@@ -36,97 +36,93 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [barangayId, setbarangayId] = useState<string | null>(null);
+  const [barangayId, setBarangayId] = useState<string | null>(null);
   const [cityMunicipalityId, setCityMunicipalityId] = useState<string | null>(null);
-  const [emailVerified, setEmailVerified] = useState<boolean>(false); // Added
+  const [emailVerified, setEmailVerified] = useState<boolean>(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Function to extract claims from user
-  const extractUserClaims = async (user: FirebaseUser | null) => {
+  // Function to extract user data from Firestore
+  const extractUserData = async (user: FirebaseUser | null) => {
     if (!user) {
       setUserRole(null);
-      setbarangayId(null);
-      setEmailVerified(false); // Added
+      setBarangayId(null);
+      setCityMunicipalityId(null);
+      setEmailVerified(false);
       setVerificationStatus(null);
       return;
     }
 
     try {
-      const tokenResult = await getIdTokenResult(user, true); // Force refresh to get latest claims
-      const claims = tokenResult.claims;
+      setEmailVerified(user.emailVerified);
 
-      setbarangayId(claims.barangayId as string || null);
-      setCityMunicipalityId(claims.cityMunicipalityId as string || null);
-      setEmailVerified(user.emailVerified); // Added
-      console.log('AuthContext: extractUserClaims - Role:', claims.role); // ADDED LOG
-
-      // Fetch verificationStatus from Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      // Fetch role, barangayId, cityMunicipalityId, verificationStatus from Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
+        setUserRole(data.role || null);
+        setBarangayId(data.barangayId || null);
+        setCityMunicipalityId(data.cityMunicipalityId || null);
         setVerificationStatus(data.verificationStatus || null);
-        // Prioritize role from claims, fallback to Firestore if claims.role is undefined
-        setUserRole((claims.role as string) || data.role || null); // Modified line
-      } else {
-        setVerificationStatus(null);
-        setUserRole(null); // Ensure role is null if user doc doesn't exist
-      }
 
-      return claims;
+        console.log("AuthContext: Firestore role:", data.role);
+      } else {
+        console.warn("AuthContext: User doc not found in Firestore for UID:", user.uid);
+        setUserRole(null);
+        setBarangayId(null);
+        setCityMunicipalityId(null);
+        setVerificationStatus(null);
+      }
     } catch (error) {
-      console.error('Error extracting user claims:', error);
+      console.error("Error extracting user data:", error);
       setUserRole(null);
-      setbarangayId(null);
-      setEmailVerified(false); // Added
+      setBarangayId(null);
+      setCityMunicipalityId(null);
+      setEmailVerified(false);
       setVerificationStatus(null);
     }
   };
 
-  // Function to refresh user claims
+  // Function to refresh user data manually
   const refreshUserClaims = async () => {
     if (currentUser) {
-      await currentUser.reload(); // Explicitly reload the user object
-      await extractUserClaims(currentUser);
+      await currentUser.reload();
+      await extractUserData(currentUser);
     }
   };
 
   // Function to handle user login
   const fetchUserIP = async (): Promise<string> => {
     try {
-      const response = await fetch('https://api.ipify.org?format=json');
+      const response = await fetch("https://api.ipify.org?format=json");
       const data = await response.json();
-      return data.ip || 'unknown';
+      return data.ip || "unknown";
     } catch (error) {
-      console.error('Failed to fetch IP address:', error);
-      return 'unknown';
+      console.error("Failed to fetch IP address:", error);
+      return "unknown";
     }
   };
 
   const login = async (user: FirebaseUser) => {
     const userIP = await fetchUserIP();
     setCurrentUser(user);
-    const claims = await extractUserClaims(user);
-    console.log('AuthContext: login function - Role after extractUserClaims:', claims?.role); // ADDED LOG
-    
-    // Log the login event
-    logLogin(user.uid, user.email || 'Unknown', claims?.role as string || 'Unknown', userIP);
-    
+    await extractUserData(user);
+
+    logLogin(user.uid, user.email || "Unknown", userRole || "Unknown", userIP);
     return Promise.resolve();
   };
 
   // Function to handle user logout
   const logout = async () => {
     try {
-      // Log the logout event before signing out
       if (currentUser) {
-        logLogout(currentUser.uid, currentUser.email || 'Unknown', userRole || 'Unknown');
+        logLogout(currentUser.uid, currentUser.email || "Unknown", userRole || "Unknown");
       }
 
       await firebaseSignOut(auth);
       setCurrentUser(null);
       setUserRole(null);
-      setbarangayId(null);
+      setBarangayId(null);
       setCityMunicipalityId(null);
       setVerificationStatus(null);
     } catch (error) {
@@ -138,13 +134,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        await user.reload(); // Reload the user to get the latest profile data
+        await user.reload();
         setCurrentUser(user);
-        await extractUserClaims(user);
+        await extractUserData(user);
       } else {
         setCurrentUser(null);
         setUserRole(null);
-        setbarangayId(null);
+        setBarangayId(null);
         setCityMunicipalityId(null);
         setVerificationStatus(null);
       }
@@ -159,7 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     userRole,
     barangayId,
     cityMunicipalityId,
-    emailVerified, // Added
+    emailVerified,
     verificationStatus,
     loading,
     login,
