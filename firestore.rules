@@ -63,9 +63,11 @@ service cloud.firestore {
 
       // UPDATE: A user can update their own profile to submit full registration.
       // Once verified, they cannot change their profile data.
-      // An admin can update the verificationStatus.
+      // An admin can update the verificationStatus to 'verified' or 'rejected' with rejectionReason.
       allow update: if (isOwner(userId) && resource.data.verificationStatus != 'verified') ||
-                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.keys().hasAll(['verificationStatus', 'rejectionReason'])) ||
+                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId &&
+                     ((request.resource.data.keys().hasOnly(['verificationStatus']) && request.resource.data.verificationStatus == 'verified') ||
+                      (request.resource.data.keys().hasAll(['verificationStatus', 'rejectionReason']) && request.resource.data.verificationStatus == 'rejected'))) ||
                     (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId']));
 
       // DELETE: Disallowed from client. Handle through a Cloud Function if needed.
@@ -150,19 +152,18 @@ service cloud.firestore {
 // =================================================================
     match /teleconsultationRequests/{requestId} {
       allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
-                    && request.resource.data.description is string
-                    && request.resource.data.barangayId == getUserData(request.auth.uid).barangayId
-                    && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt == request.time;
+                    && request.resource.data.reason is string
+                    && request.resource.data.status == 'Pending'
+                    && request.resource.data.dateRequested == request.time;
 
       allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
                    isSuperAdmin();
 
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                        ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
-                         (resource.data.status == 'accepted' && request.resource.data.status == 'completed'))) ||
-                    (isSuperAdmin() && resource.data.status == 'pending' &&
-                     request.resource.data.status in ['accepted', 'rejected']);
+                        ((resource.data.status == 'Pending' && request.resource.data.status == 'Cancelled') ||
+                         (resource.data.status == 'Accepted' && request.resource.data.status == 'Completed'))) ||
+                    (isSuperAdmin() && resource.data.status == 'Pending' &&
+                     request.resource.data.status in ['Accepted', 'Rejected', 'Under Review', 'Scheduled', 'No Show']);
 
       allow delete: if false; // Deletion not allowed from client
     }
