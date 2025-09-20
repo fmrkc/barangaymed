@@ -220,3 +220,81 @@ export const logDataAccess = (
     dataAccess: true
   });
 };
+
+/**
+ * Logs Firestore-specific events
+ * @param userId - User ID performing the operation
+ * @param userEmail - User's email
+ * @param userRole - User's role
+ * @param operation - Firestore operation type
+ * @param collection - Collection being accessed
+ * @param documentId - Document ID (optional)
+ * @param metadata - Additional metadata
+ */
+export const logFirestoreEvent = (
+  userId: string,
+  userEmail: string | undefined,
+  userRole: string | undefined,
+  operation: 'read' | 'write' | 'listen' | 'query',
+  collection: string,
+  documentId?: string,
+  metadata?: any
+): void => {
+  logEvent('info', `[FIRESTORE] ${operation.toUpperCase()} ${collection}${documentId ? `/${documentId}` : ''}`, {
+    userId,
+    userEmail,
+    userRole,
+    operation,
+    collection,
+    documentId,
+    firestoreEvent: true,
+    ...metadata
+  });
+};
+
+/**
+ * Logs Firestore listener events
+ * @param userId - User ID with the listener
+ * @param userEmail - User's email
+ * @param userRole - User's role
+ * @param collection - Collection being listened to
+ * @param eventType - Type of listener event (started, stopped, error)
+ * @param metadata - Additional metadata
+ */
+export const logFirestoreListener = (
+  userId: string,
+  userEmail: string | undefined,
+  userRole: string | undefined,
+  collection: string,
+  eventType: 'started' | 'stopped' | 'error' | 'data_received',
+  metadata?: any
+): void => {
+  logEvent('info', `[FIRESTORE_LISTENER] ${eventType.toUpperCase()} listener for ${collection}`, {
+    userId,
+    userEmail,
+    userRole,
+    collection,
+    eventType,
+    listenerEvent: true,
+    ...metadata
+  });
+};
+
+/**
+ * Logs Firestore performance metrics
+ * @param operation - Operation name
+ * @param duration - Duration in milliseconds
+ * @param metadata - Additional performance data
+ */
+export const logFirestorePerformance = (
+  operation: string,
+  duration: number,
+  metadata?: any
+): void => {
+  logEvent('info', `[FIRESTORE_PERFORMANCE] ${operation} completed in ${duration}ms`, {
+    operation,
+    duration,
+    performanceEvent: true,
+    ...metadata
+  });
+};

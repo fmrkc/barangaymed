@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { IonButton, IonInput, IonItem, IonLabel, IonText, IonTextarea } from '@ionic/react';
+import { IonButton, IonInput, IonItem, IonLabel, IonText, IonTextarea, IonAlert } from '@ionic/react';
 import { TeleconsultationRequestService } from '../../../services/teleconsultationRequestService';
-import { TeleconsultationRequestStatus } from '../../../types/teleconsultationRequests';
+import { TeleconsultationRequestStatus, TeleconsultationRequestError } from '../../../types/teleconsultationRequests';
+import { FirestoreOperationError } from '../../../utils/firestoreErrorHandler';
+import { logEvent } from '../../../utils/logger';
 
 interface TeleconsultationRequestFormProps {
   userId: string;
@@ -27,7 +29,13 @@ const TeleconsultationRequestForm: React.FC<TeleconsultationRequestFormProps> = 
     }
     setError('');
     setSubmitting(true);
+
     try {
+      logEvent('info', `[TELECONSULTATION_FORM] Submitting request`, {
+        userId,
+        reasonLength: reason.trim().length
+      });
+
       const service = TeleconsultationRequestService.getInstance();
       await service.createRequest({
         userId,
@@ -35,9 +43,40 @@ const TeleconsultationRequestForm: React.FC<TeleconsultationRequestFormProps> = 
         reason: reason.trim(),
         notes: notes.trim() || undefined,
       });
+
+      logEvent('info', `[TELECONSULTATION_FORM] Request submitted successfully`, { userId });
       onRequestSent();
     } catch (err) {
-      setError('Failed to send request. Please try again.');
+      logEvent('error', `[TELECONSULTATION_FORM] Request submission failed`, {
+        userId,
+        error: err
+      });
+
+      // Handle specific error types with appropriate messages
+      if (err instanceof FirestoreOperationError) {
+        const metadata = err.metadata as any;
+
+        switch (metadata?.errorType) {
+          case TeleconsultationRequestError.USER_NOT_VERIFIED:
+            setError('Your account needs to be verified before you can submit teleconsultation requests. Please complete your registration verification first.');
+            break;
+          case TeleconsultationRequestError.PERMISSION_DENIED:
+            setError('You do not have permission to submit teleconsultation requests. Please contact support for assistance.');
+            break;
+          case TeleconsultationRequestError.NETWORK_ERROR:
+            setError('Network error occurred. Please check your internet connection and try again.');
+            break;
+          case TeleconsultationRequestError.INVALID_DATA:
+            setError('Invalid request data. Please check your input and try again.');
+            break;
+          default:
+            setError(err.message || 'Failed to send request. Please try again.');
+        }
+      } else {
+        // Handle generic errors
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        setError(`Failed to send request: ${errorMessage}`);
+      }
     } finally {
       setSubmitting(false);
     }
