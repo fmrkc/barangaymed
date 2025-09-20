@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { getBarangayNameByCode } from '../../services/addressService';
 
 interface Resident {
     id: string;
@@ -19,6 +20,17 @@ const Residents: React.FC = () => {
     const [residents, setResidents] = useState<Resident[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
+    const [barangayName, setBarangayName] = useState<string>('');
+
+    useEffect(() => {
+        if (barangayId) {
+            getBarangayNameByCode(barangayId).then(name => {
+                if (name) {
+                    setBarangayName(name);
+                }
+            });
+        }
+    }, [barangayId]);
 
     useEffect(() => {
         const fetchResidents = async () => {
@@ -63,7 +75,7 @@ const Residents: React.FC = () => {
                     <IonButtons slot="start">
                         <IonMenuButton />
                     </IonButtons>
-                    <IonTitle>Barangay {barangayId} Residents</IonTitle>
+                    <IonTitle>Barangay {barangayName || ''} Residents</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
@@ -74,7 +86,7 @@ const Residents: React.FC = () => {
                     onIonChange={e => setSearchQuery(e.detail.value!)} 
                     
                 />
-                 <IonCardSubtitle className="ion-margin-bottom">Showing all residents in {barangayId}.</IonCardSubtitle>
+                 <IonCardSubtitle className="ion-margin-bottom">Showing all residents in {barangayName || 'your barangay'}.</IonCardSubtitle>
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
                         <IonSpinner />
