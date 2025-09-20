@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonButtons, IonBackButton, IonModal, IonInput, IonTextarea, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonButtons, IonBackButton, IonModal, IonInput, IonTextarea, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonBadge, IonMenuButton } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
@@ -23,6 +23,35 @@ interface UserForVerification {
   contactNumber?: string;
   barangayIdUrl?: string;
   barangayCertificateUrl?: string;
+  fullRegistrationSubmittedAt?: any;
+}
+
+// Converts a timestamp to "X days ago" format
+function getTimeAgo(timestamp: any): string {
+  let date: Date;
+  if (typeof timestamp === 'string') {
+    // Try to parse string date
+    date = new Date(timestamp);
+  } else if (timestamp?.toDate) {
+    // Firestore Timestamp object
+    date = timestamp.toDate();
+  } else if (timestamp instanceof Date) {
+    date = timestamp;
+  } else {
+    return '';
+  }
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) {
+    return 'today';
+  } else if (diffDays === 1) {
+    return '1 day ago';
+  } else if (diffDays > 1) {
+    return `${diffDays} days ago`;
+  } else {
+    return '';
+  }
 }
 
 const AdminUserVerification: React.FC = () => {
@@ -82,39 +111,18 @@ const AdminUserVerification: React.FC = () => {
     }
   }, [selectedUser]);
 
-  const deleteUserDocuments = async (user: UserForVerification) => {
-    const storage = getStorage();
-    const deletePromises = [];
-
-    if (user.barangayIdUrl) {
-      try {
-        const fileRef = ref(storage, user.barangayIdUrl);
-        deletePromises.push(deleteObject(fileRef));
-      } catch (error) {
-        console.error('Error creating reference for barangayIdUrl:', error);
-      }
-    }
-
-    if (user.barangayCertificateUrl) {
-      try {
-        const fileRef = ref(storage, user.barangayCertificateUrl);
-        deletePromises.push(deleteObject(fileRef));
-      } catch (error) {
-        console.error('Error creating reference for barangayCertificateUrl:', error);
-      }
-    }
-
-    if (deletePromises.length > 0) {
-      try {
-        await Promise.all(deletePromises);
-        console.log('User documents deleted successfully.');
-      } catch (error) {
-        console.error('Error deleting user documents:', error);
-        // Optionally, show a toast message to the admin
-        setToastMessage('Could not delete user documents.');
-        setToastColor('danger');
-        setShowToast(true);
-      }
+  const deleteUserDocuments = async (userId: string) => {
+    try {
+      const deleteUserDocumentsFn = httpsCallable(functions, 'deleteUserDocuments');
+      await deleteUserDocumentsFn({ userId });
+      console.log('User documents deleted successfully via cloud function.');
+    } catch (error) {
+      console.error('Error deleting user documents via cloud function:', error);
+      setToastMessage('Could not delete user documents.');
+      setToastColor('danger');
+      setShowToast(true);
+      // Re-throw the error to be caught by the calling function
+      throw error;
     }
   };
 
@@ -129,7 +137,7 @@ const AdminUserVerification: React.FC = () => {
       await sendVerificationEmail({ email: user.email, status: 'approved' });
 
       // Delete documents
-      await deleteUserDocuments(user);
+      await deleteUserDocuments(user.uid);
 
       setToastMessage('User approved and email sent.');
       setToastColor('success');
@@ -164,7 +172,7 @@ const AdminUserVerification: React.FC = () => {
       await sendVerificationEmail({ email: user.email, status: 'rejected', reason: reason });
 
       // Delete documents
-      await deleteUserDocuments(user);
+      await deleteUserDocuments(user.uid);
 
       setToastMessage('User rejected and email sent.');
       setToastColor('success');
@@ -192,7 +200,7 @@ const AdminUserVerification: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/admin/dashboard" />
+            <IonMenuButton />
           </IonButtons>
           <IonTitle>Resident Verification</IonTitle>
         </IonToolbar>
@@ -215,8 +223,26 @@ const AdminUserVerification: React.FC = () => {
             {pendingUsers.map((user) => (
               <IonCard key={user.uid}>
                 <IonCardHeader>
-                  <IonCardTitle>{user.firstName} {user.lastName}</IonCardTitle>
-                  <IonCardSubtitle>{user.email}</IonCardSubtitle>
+                  <IonCardTitle>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      {user.firstName} {user.lastName}
+                      {user.fullRegistrationSubmittedAt && (
+                        <IonText color="medium" style={{ fontSize: '0.7em' }}>
+                          Submitted {getTimeAgo(user.fullRegistrationSubmittedAt)}
+                        </IonText>
+                      )}
+                    </div>
+                  </IonCardTitle>
+                  <IonCardSubtitle>
+                    <IonText>
+                      <IonIcon icon={mailOutline} />  {user.email}
+                    </IonText>
+                    &nbsp; | &nbsp;
+                    <IonText>
+                      <IonIcon icon={phonePortrait} />  {user.contactNumber || 'N/A'}
+                    </IonText>
+                  </IonCardSubtitle>
+                    
                 </IonCardHeader>
                 <IonButton expand="block" fill="outline" onClick={() => openModal(user)}>
                       <IonIcon slot="end" icon={open} />
@@ -226,11 +252,11 @@ const AdminUserVerification: React.FC = () => {
             ))}
           </IonList>
         )}
-
+        {selectedUser && (
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>User Details</IonTitle>
+              <IonTitle>{selectedUser.firstName} {selectedUser.lastName}</IonTitle>
               <IonButtons slot="end">
                 <IonButton shape='round' onClick={() => setShowModal(false)}>
                   <IonIcon slot="icon-only" icon={close} />
@@ -239,7 +265,9 @@ const AdminUserVerification: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {selectedUser && (
+           <IonText>
+              <p className="ion-padding-horizontal">Review the details and documents submitted by the resident. You can approve or reject their verification request.</p>
+           </IonText>
               <IonList>
                 <IonItemDivider className="ion-margin-top">Personal Details</IonItemDivider>
                 <IonItem>
@@ -291,7 +319,6 @@ const AdminUserVerification: React.FC = () => {
                 )}
 
               </IonList>
-            )}
           </IonContent>
           <IonFooter>
 
@@ -316,6 +343,7 @@ const AdminUserVerification: React.FC = () => {
             </IonToolbar>
           </IonFooter>
         </IonModal>
+        )}
         <IonAlert
           isOpen={showAlert}
           onDidDismiss={() => setShowAlert(false)}
