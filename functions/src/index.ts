@@ -621,6 +621,101 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
 });
 
 
+export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
+  // 1. Authentication and Authorization Check
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'You must be logged in to perform this action.'
+    );
+  }
+
+  const { role, barangayId: adminBarangayId } = request.auth.token;
+  const isSuperAdmin = role === 'superadmin';
+  const isAdmin = role === 'admin';
+
+  if (!isAdmin && !isSuperAdmin) {
+    throw new HttpsError(
+      'permission-denied',
+      'You do not have permission to perform this action.'
+    );
+  }
+
+  const { userId } = request.data;
+  if (!userId) {
+    throw new HttpsError('invalid-argument', 'Missing required field: userId.');
+  }
+
+  try {
+    const db = admin.firestore();
+    const userDocRef = db.collection('users').doc(userId);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
+      throw new HttpsError('not-found', `User with ID ${userId} not found.`);
+    }
+
+    const userData = userDoc.data()!;
+    const userBarangayId = userData.barangayId;
+
+    // 2. Permission Check: Admin must be from the same barangay or be a superadmin
+    if (isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId) {
+      throw new HttpsError(
+        'permission-denied',
+        'Admins can only delete documents for users in their own barangay.'
+      );
+    }
+
+    // 3. File Deletion Logic
+    const bucket = admin.storage().bucket(); // Default bucket
+    const deletePromises: Promise<unknown>[] = [];
+
+    const urlsToDelete = [userData.barangayIdUrl, userData.barangayCertificateUrl];
+
+    for (const url of urlsToDelete) {
+      if (url && typeof url === 'string') {
+        try {
+          // Extract the file path from the full URL
+          const decodedUrl = decodeURIComponent(url);
+          const pathStartIndex = decodedUrl.indexOf('/o/');
+          if (pathStartIndex !== -1) {
+            const pathEndIndex = decodedUrl.indexOf('?');
+            const filePath = decodedUrl.substring(pathStartIndex + 3, pathEndIndex);
+            const file = bucket.file(filePath);
+            logger.log(`Attempting to delete file: ${filePath}`);
+            deletePromises.push(file.delete());
+          }
+        } catch (e) {
+          logger.error(`Failed to parse or delete file for URL: ${url}`, e);
+          // Continue to next file even if one fails
+        }
+      }
+    }
+
+    if (deletePromises.length > 0) {
+      await Promise.all(deletePromises);
+      logger.log(`Successfully deleted ${deletePromises.length} documents for user ${userId}.`);
+    } else {
+      logger.log(`No documents to delete for user ${userId}.`);
+    }
+    
+    // 4. Optionally, clear the URLs from the Firestore document
+    await userDocRef.update({
+        barangayIdUrl: admin.firestore.FieldValue.delete(),
+        barangayCertificateUrl: admin.firestore.FieldValue.delete(),
+    });
+
+    return { success: true, message: 'User documents deleted successfully.' };
+
+  } catch (error) {
+    logger.error(`Error deleting documents for user ${userId}:`, error);
+    if (error instanceof HttpsError) {
+      throw error; // Re-throw HttpsError
+    }
+    throw new HttpsError('internal', 'An unexpected error occurred while deleting user documents.');
+  }
+});
+
 // Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 export { sendVerificationEmail } from './sendVerificationEmail.js';
