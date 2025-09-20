@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '../firebaseConfig';
 import { logLogin, logLogout } from '../utils/logger';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 // Define the shape of our auth context
 interface AuthContextType {
@@ -60,18 +60,85 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
-        setUserRole(data.role || null);
-        setBarangayId(data.barangayId || null);
-        setCityMunicipalityId(data.cityMunicipalityId || null);
-        setVerificationStatus(data.verificationStatus || null);
+        const role = data?.role as string | undefined;
+        const barangayId = data?.barangayId as string | undefined;
+        const cityMunicipalityId = data?.cityMunicipalityId as string | undefined;
+        const verificationStatus = data?.verificationStatus as string | undefined;
 
-        console.log("AuthContext: Firestore role:", data.role);
+        // Set role with fallback logic
+        if (role && ['user', 'admin', 'superadmin'].includes(role)) {
+          setUserRole(role);
+          console.log("AuthContext: Firestore role:", role);
+        } else {
+          // Fallback: Check Firebase Auth custom claims for role
+          const idTokenResult = await user.getIdTokenResult();
+          const claimsRole = idTokenResult.claims?.role as string | undefined;
+
+          if (claimsRole && ['user', 'admin', 'superadmin'].includes(claimsRole)) {
+            setUserRole(claimsRole);
+            console.log("AuthContext: Using claims role as fallback:", claimsRole);
+
+            // Update Firestore document with role from claims
+            try {
+              await setDoc(doc(db, "users", user.uid), {
+                role: claimsRole,
+                updatedAt: new Date()
+              }, { merge: true });
+              console.log("AuthContext: Updated Firestore with role from claims");
+            } catch (updateError) {
+              console.warn("AuthContext: Failed to update Firestore with role:", updateError);
+            }
+          } else {
+            console.warn("AuthContext: No valid role found in Firestore or claims for UID:", user.uid);
+            setUserRole(null);
+          }
+        }
+
+        setBarangayId(barangayId || null);
+        setCityMunicipalityId(cityMunicipalityId || null);
+        setVerificationStatus(verificationStatus || null);
       } else {
         console.warn("AuthContext: User doc not found in Firestore for UID:", user.uid);
-        setUserRole(null);
-        setBarangayId(null);
-        setCityMunicipalityId(null);
-        setVerificationStatus(null);
+
+        // Fallback: Check Firebase Auth custom claims
+        const idTokenResult = await user.getIdTokenResult();
+        const claimsRole = idTokenResult.claims?.role as string | undefined;
+        const claimsBarangayId = idTokenResult.claims?.barangayId as string | undefined;
+        const claimsCityMunicipalityId = idTokenResult.claims?.cityMunicipalityId as string | undefined;
+
+        if (claimsRole && ['user', 'admin', 'superadmin'].includes(claimsRole)) {
+          setUserRole(claimsRole);
+          setBarangayId(claimsBarangayId || null);
+          setCityMunicipalityId(claimsCityMunicipalityId || null);
+          setVerificationStatus(null);
+
+          console.log("AuthContext: Using claims as fallback for UID:", user.uid, {
+            role: claimsRole,
+            barangayId: claimsBarangayId,
+            cityMunicipalityId: claimsCityMunicipalityId
+          });
+
+          // Create Firestore document with claims data
+          try {
+            await setDoc(doc(db, "users", user.uid), {
+              email: user.email,
+              role: claimsRole,
+              barangayId: claimsBarangayId || null,
+              cityMunicipalityId: claimsCityMunicipalityId || null,
+              createdAt: new Date(),
+              createdFromClaims: true
+            });
+            console.log("AuthContext: Created Firestore document from claims");
+          } catch (createError) {
+            console.warn("AuthContext: Failed to create Firestore document:", createError);
+          }
+        } else {
+          console.warn("AuthContext: No valid role found in claims for UID:", user.uid);
+          setUserRole(null);
+          setBarangayId(null);
+          setCityMunicipalityId(null);
+          setVerificationStatus(null);
+        }
       }
     } catch (error) {
       console.error("Error extracting user data:", error);
