@@ -13,23 +13,36 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        "name": "My Ionic App",
-        "short_name": "Ionic App",
+        "name": "BarangayMed",
+        "short_name": "BarangayMed",
         "start_url": ".",
         "display": "standalone",
         "background_color": "#ffffff",
-        "theme_color": "#ffffff",
+        "theme_color": "#4CAF50",
+        "description": "Get access to medicine, consultations, and announcements all in one app!",
         "icons": [
           {
-            "src": "assets/icon/favicon.png",
+            "src": "assets/icon.png",
             "sizes": "64x64 32x32 24x24 16x16",
-            "type": "image/x-icon"
+            "type": "image/png"
           },
           {
-            "src": "assets/icon/icon.png",
+            "src": "assets/icon.png",
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "maskable"
+          },
+          {
+            "src": "assets/icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "192x192",
+            "purpose": "any"
+          },
+          {
+            "src": "assets/icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "512x512",
+            "purpose": "any"
           }
         ]
       },
