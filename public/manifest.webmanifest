@@ -1,43 +1,50 @@
 {
+  "name": "BarangayMed",
+  "short_name": "BarangayMed",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "description": "Get access to medicine, consultations, and announcements all in one app!",
   "icons": [
     {
-      "src": "../icons/icon-48.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "48x48",
       "purpose": "any maskable"
     },
     {
-      "src": "../icons/icon-72.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "72x72",
       "purpose": "any maskable"
     },
     {
-      "src": "../icons/icon-96.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "96x96",
       "purpose": "any maskable"
     },
     {
-      "src": "../icons/icon-128.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "128x128",
       "purpose": "any maskable"
     },
     {
-      "src": "../icons/icon-192.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "../icons/icon-256.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "256x256",
       "purpose": "any maskable"
     },
     {
-      "src": "../icons/icon-512.webp",
+      "src": "/assets/icon.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
