@@ -66,6 +66,50 @@ Each document contains:
 - Superadmins can update any request to any valid status
 - All status transitions are properly validated
 
+## ⚠️ IMPORTANT: Custom Claims Configuration Required
+
+### Required Custom Claims for Proper Security Rules:
+The Firestore security rules now rely on custom claims stored in Firebase Auth tokens. The following claims must be set for each user:
+
+**For Regular Users:**
+```javascript
+{
+  role: 'user',
+  verificationStatus: 'verified', // or 'unverified', 'rejected'
+  barangayId: 'string' // User's barangay ID
+}
+```
+
+**For Admins:**
+```javascript
+{
+  role: 'admin',
+  verificationStatus: 'verified',
+  barangayId: 'string' // Admin's assigned barangay ID
+}
+```
+
+**For Super Admins:**
+```javascript
+{
+  role: 'superadmin',
+  verificationStatus: 'verified'
+  // Note: Super admins can access all barangays
+}
+```
+
+### Why Custom Claims Are Required:
+1. **Performance**: Rules can access `request.auth.token` directly without fetching from Firestore
+2. **Security**: No dependency on user documents existing or being properly formatted
+3. **Reliability**: Rules work even if user documents are corrupted or missing
+4. **Consistency**: All user attributes needed for authorization are in one place
+
+### Implementation Notes:
+- Custom claims should be set when users register or when their status changes
+- Use Firebase Admin SDK to set custom claims server-side
+- Claims are automatically included in all Firestore security rule evaluations
+- Consider using Firebase Cloud Functions to manage custom claims updates
+
 ## Next Steps for Testing
 
 1. **Test the complete flow:**

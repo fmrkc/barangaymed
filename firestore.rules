@@ -29,12 +29,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.role == 'superadmin';
     }
 
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
-    }
-
+    // Note: verificationStatus and barangayId should be stored in custom claims
+    // to avoid fetching from other documents in security rules
     function isVerifiedUser() {
-      return isAuthenticated() && getUserData(request.auth.uid).verificationStatus == 'verified';
+      return isAuthenticated() && request.auth.token.verificationStatus == 'verified';
     }
 
     // Checks if the user is an admin for a specific barangay.
@@ -86,7 +84,7 @@ service cloud.firestore {
 // =================================================================
     match /announcements/{announcementId} {
       // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.
-      allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == getUserData(request.auth.uid).barangayId) ||
+      allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == request.auth.token.barangayId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      isSuperAdmin();
 
@@ -128,7 +126,7 @@ service cloud.firestore {
     match /medicineRequests/{requestId} {
       allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
                     && request.resource.data.medicineId is string
-                    && request.resource.data.barangayId == getUserData(request.auth.uid).barangayId
+                    && request.resource.data.barangayId == request.auth.token.barangayId
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
 
