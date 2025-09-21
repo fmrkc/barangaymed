@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { megaphone, clipboard, medkit, receipt } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import UserMedRequestModal from './user-med-request';
+import UserTeleRequest from './user-tele-request';
 
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
@@ -40,6 +41,7 @@ const Home: React.FC = () => {
 
 
     const [showMedicineModal, setShowMedicineModal] = useState(false);
+    const [showTeleRequestModal, setShowTeleRequestModal] = useState(false);
 
     const isVerified = verificationStatus === 'verified';
 
@@ -101,7 +103,7 @@ const Home: React.FC = () => {
 
                         
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'}>
+                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowTeleRequestModal(true) : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
@@ -110,9 +112,7 @@ const Home: React.FC = () => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <IonText>
-                                        Book appointments for teleconsultation with healthcare professionals.
-                                        <br />
-                                        <small style={{ color: 'gray' }}>Feature temporarily disabled</small>
+                                        Request teleconsultation appointments with healthcare professionals.
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
@@ -145,6 +145,10 @@ const Home: React.FC = () => {
             <UserMedRequestModal
                 isOpen={showMedicineModal}
                 onDidDismiss={() => setShowMedicineModal(false)}
+            />
+            <UserTeleRequest
+                isOpen={showTeleRequestModal}
+                onDidDismiss={() => setShowTeleRequestModal(false)}
             />
         </>
     );
