@@ -36,7 +36,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
-import FullRegistrationModal from "./UserRegisterSteps/FullRegistrationModal";
+import FullRegistrationModal from "./user-register-steps/full-registration-modal";
 import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
