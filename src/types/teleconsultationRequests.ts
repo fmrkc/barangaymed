@@ -17,3 +17,6 @@ export interface TeleconsultationRequest {
 export interface TeleconsultationRequestFormData {
   reason: string;
 }
+
+// New type for Firestore document creation payload excluding createdAt and updatedAt
+export type TeleconsultationRequestCreatePayload = Omit<TeleconsultationRequest, 'id' | 'createdAt' | 'updatedAt'>;

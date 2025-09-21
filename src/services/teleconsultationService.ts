@@ -1,6 +1,6 @@
 import { db } from '../firebaseConfig';
 import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
-import { TeleconsultationRequest, TeleconsultationRequestFormData } from '../types/teleconsultationRequests';
+import { TeleconsultationRequest, TeleconsultationRequestFormData, TeleconsultationRequestCreatePayload } from '../types/teleconsultationRequests';
 import { UserService } from './userService';
 
 export class TeleconsultationService {
@@ -31,14 +31,12 @@ export class TeleconsultationService {
       const userDoc = await getDoc(doc(db, 'users', userId));
       const userEmail = userDoc.exists() ? userDoc.data()?.email || '' : '';
 
-      const requestData: Omit<TeleconsultationRequest, 'id'> = {
+      const requestData: TeleconsultationRequestCreatePayload = {
         userId,
         userEmail,
         userName: `${userData.firstName} ${userData.lastName}`.trim(),
         reason: formData.reason,
         status: 'pending' as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         barangayId: userData.barangayId,
       };
 
