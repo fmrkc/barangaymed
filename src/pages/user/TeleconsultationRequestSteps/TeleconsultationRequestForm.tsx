@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { IonButton, IonInput, IonItem, IonLabel, IonText, IonTextarea, IonAlert } from '@ionic/react';
+import { IonButton, IonInput, IonItem, IonLabel, IonText, IonTextarea } from '@ionic/react';
 import { TeleconsultationRequestService } from '../../../services/teleconsultationRequestService';
-import { TeleconsultationRequestStatus, TeleconsultationRequestError } from '../../../types/teleconsultationRequests';
+import { TeleconsultationRequestError } from '../../../types/teleconsultationRequests';
 import { FirestoreOperationError } from '../../../utils/firestoreErrorHandler';
 import { logEvent } from '../../../utils/logger';
 
@@ -37,12 +37,16 @@ const TeleconsultationRequestForm: React.FC<TeleconsultationRequestFormProps> = 
       });
 
       const service = TeleconsultationRequestService.getInstance();
-      await service.createRequest({
+
+      // ✅ build request object without undefined
+      const request: any = {
         userId,
         userData,
         reason: reason.trim(),
-        notes: notes.trim() || undefined,
-      });
+      };
+      notes: notes.trim(), //  always include notes field, never undefined`n      };
+
+      await service.createRequest(request);
 
       logEvent('info', `[TELECONSULTATION_FORM] Request submitted successfully`, { userId });
       onRequestSent();
@@ -52,7 +56,6 @@ const TeleconsultationRequestForm: React.FC<TeleconsultationRequestFormProps> = 
         error: err
       });
 
-      // Handle specific error types with appropriate messages
       if (err instanceof FirestoreOperationError) {
         const metadata = err.metadata as any;
 
@@ -73,7 +76,6 @@ const TeleconsultationRequestForm: React.FC<TeleconsultationRequestFormProps> = 
             setError(err.message || 'Failed to send request. Please try again.');
         }
       } else {
-        // Handle generic errors
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
         setError(`Failed to send request: ${errorMessage}`);
       }
@@ -112,3 +114,55 @@ const TeleconsultationRequestForm: React.FC<TeleconsultationRequestFormProps> = 
 };
 
 export default TeleconsultationRequestForm;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

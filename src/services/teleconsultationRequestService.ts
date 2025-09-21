@@ -1,7 +1,26 @@
 import { db } from '../firebaseConfig';
-import { collection, addDoc, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
-import { TeleconsultationRequest, TeleconsultationRequestStatus, TeleconsultationRequestError, TeleconsultationRequestErrorInfo } from '../types/teleconsultationRequests';
-import { executeWithRetry, logFirestoreError, FirestoreOperationError } from '../utils/firestoreErrorHandler';
+import { 
+  collection, 
+  addDoc, 
+  query, 
+  where, 
+  getDocs, 
+  updateDoc, 
+  doc, 
+  getDoc, 
+  serverTimestamp 
+} from 'firebase/firestore';
+import { 
+  TeleconsultationRequest, 
+  TeleconsultationRequestStatus, 
+  TeleconsultationRequestError, 
+  TeleconsultationRequestErrorInfo 
+} from '../types/teleconsultationRequests';
+import { 
+  executeWithRetry, 
+  logFirestoreError, 
+  FirestoreOperationError 
+} from '../utils/firestoreErrorHandler';
 import { logEvent } from '../utils/logger';
 
 export class TeleconsultationRequestService {
@@ -47,10 +66,12 @@ export class TeleconsultationRequestService {
   /**
    * Creates a new teleconsultation request with proper error handling and validation
    */
-  public async createRequest(request: Omit<TeleconsultationRequest, 'id' | 'dateRequested' | 'status'>): Promise<string> {
+  public async createRequest(
+    request: Omit<TeleconsultationRequest, 'id' | 'dateRequested' | 'status'>
+  ): Promise<string> {
     const { userId } = request;
 
-    // Check if user is verified before attempting to create request
+    // Check if user is verified
     const isVerified = await this.checkUserVerification(userId);
     if (!isVerified) {
       const errorInfo: TeleconsultationRequestErrorInfo = {
@@ -81,9 +102,11 @@ export class TeleconsultationRequestService {
       );
     }
 
+    // Sanitize and prepare request
     const newRequest = {
       ...request,
-      dateRequested: new Date(),
+      notes: request.notes ?? "", // ✅ prevent undefined
+      dateRequested: serverTimestamp(), // ✅ better than `new Date()`
       status: TeleconsultationRequestStatus.PENDING,
     };
 
@@ -115,13 +138,14 @@ export class TeleconsultationRequestService {
         reason: request.reason
       });
 
-      // Convert Firestore errors to our custom error types
       if (error instanceof FirestoreOperationError) {
         throw error;
       }
 
-      // Handle specific Firestore error codes
-      const errorCode = (error && typeof error === 'object' && 'code' in error) ? String(error.code) : 'unknown';
+      const errorCode = (error && typeof error === 'object' && 'code' in error) 
+        ? String(error.code) 
+        : 'unknown';
+
       let errorType = TeleconsultationRequestError.UNKNOWN_ERROR;
       let errorMessage = 'Failed to create teleconsultation request. Please try again.';
 
@@ -141,12 +165,6 @@ export class TeleconsultationRequestService {
           break;
       }
 
-      const errorInfo: TeleconsultationRequestErrorInfo = {
-        type: errorType,
-        message: errorMessage,
-        details: { userId, originalError: error }
-      };
-
       throw new FirestoreOperationError(
         errorMessage,
         errorCode,
@@ -160,14 +178,18 @@ export class TeleconsultationRequestService {
     const q = query(this.collectionRef, where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
     const requests: TeleconsultationRequest[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data() as Omit<TeleconsultationRequest, 'id'>;
-      requests.push({ id: doc.id, ...data });
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data() as Omit<TeleconsultationRequest, 'id'>;
+      requests.push({ id: docSnap.id, ...data });
     });
     return requests;
   }
 
-  public async updateRequestStatus(requestId: string, status: TeleconsultationRequestStatus, rejectionReason?: string): Promise<void> {
+  public async updateRequestStatus(
+    requestId: string, 
+    status: TeleconsultationRequestStatus, 
+    rejectionReason?: string
+  ): Promise<void> {
     const docRef = doc(this.collectionRef, requestId);
     const updateData: Partial<TeleconsultationRequest> = { status };
     if (status === TeleconsultationRequestStatus.REJECTED && rejectionReason) {

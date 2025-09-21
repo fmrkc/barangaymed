@@ -152,9 +152,8 @@ service cloud.firestore {
 // =================================================================
     match /teleconsultationRequests/{requestId} {
       allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
-                    && request.resource.data.reason is string
-                    && request.resource.data.status == 'Pending';
-                    
+                    && request.resource.data.reason is string;
+
 
       allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
                    isSuperAdmin();
@@ -166,6 +165,27 @@ service cloud.firestore {
                      request.resource.data.status in ['Accepted', 'Rejected', 'Under Review', 'Scheduled', 'No Show']);
 
       allow delete: if false; // Deletion not allowed from client
+    }
+
+// =================================================================
+// Collection: logs
+// Users can create log entries for tracking activities.
+// =================================================================
+    match /logs/{logId} {
+      // READ: Users can read their own logs. Admins and Super admins can read all logs.
+      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
+                   isAdmin() || isSuperAdmin();
+
+      // CREATE: Authenticated users can create log entries.
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.action is string
+                    && request.resource.data.timestamp == request.time;
+
+      // UPDATE: Only admins and super admins can update logs.
+      allow update: if isAdmin() || isSuperAdmin();
+
+      // DELETE: Only super admins can delete logs.
+      allow delete: if isSuperAdmin();
     }
 
   }
