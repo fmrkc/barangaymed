@@ -2,7 +2,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem,
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, collectionGroup, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { call, checkmarkCircleOutline, close, closeCircleOutline, eyeOutline, home, mail, mailOutline, open, person, phonePortrait } from 'ionicons/icons';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
@@ -76,13 +76,41 @@ const AdminUserVerification: React.FC = () => {
 
     setLoading(true);
     try {
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('barangayId', '==', adminBarangayId), where('verificationStatus', '==', 'pending'));
-      const querySnapshot = await getDocs(q);
+      const registrationStatusQuery = query(
+        collectionGroup(db, 'full_registration'),
+        where('status', '==', 'pending'),
+        where('barangayId', '==', adminBarangayId)
+      );
+
+      const statusSnapshot = await getDocs(registrationStatusQuery);
       const users: UserForVerification[] = [];
-      querySnapshot.forEach((doc) => {
-        users.push({ uid: doc.id, ...doc.data() } as UserForVerification);
-      });
+
+      for (const statusDoc of statusSnapshot.docs) {
+        const statusData = statusDoc.data();
+        const userDocRef = statusDoc.ref.parent.parent;
+        if (userDocRef) {
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            users.push({
+              uid: userDoc.id,
+              email: userData.email,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              contactNumber: userData.contactNumber,
+              lotBlkHouseNo: userData.lotBlkHouseNo,
+              streetName: userData.streetName,
+              subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok,
+              zipCode: userData.zipCode,
+              verificationStatus: statusData.status,
+              barangayId: statusData.barangayId,
+              barangayIdUrl: statusData.barangayIdUrl,
+              barangayCertificateUrl: statusData.barangayCertificateUrl,
+              fullRegistrationSubmittedAt: statusData.submittedAt,
+            });
+          }
+        }
+      }
       setPendingUsers(users);
     } catch (error) {
       console.error('Error fetching pending users:', error);
@@ -129,9 +157,27 @@ const AdminUserVerification: React.FC = () => {
   const handleApprove = async (user: UserForVerification) => {
     setApproving(true);
     try {
+      // Update status in the sub-collection
+      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', 'status');
+      await updateDoc(fullRegRef, {
+        status: 'approved',
+        reviewedAt: serverTimestamp(),
+      });
+
+      // Also update the main user doc for compatibility with other parts of the app for now
       await updateDoc(doc(db, 'users', user.uid), {
         verificationStatus: 'verified',
       });
+
+      // Add a notification for the user
+      const notificationsRef = collection(db, 'users', user.uid, 'notifications');
+      await addDoc(notificationsRef, {
+        message: 'Congratulations! Your registration has been approved. You can now access all features.',
+        timestamp: serverTimestamp(),
+        read: false,
+        type: 'registration_approved'
+      });
+
       // Call Cloud Function to send approval email
       const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
       await sendVerificationEmail({ email: user.email, status: 'approved' });
@@ -139,7 +185,7 @@ const AdminUserVerification: React.FC = () => {
       // Delete documents
       await deleteUserDocuments(user.uid);
 
-      setToastMessage('User approved and email sent.');
+      setToastMessage('User approved and notification sent.');
       setToastColor('success');
       setShowToast(true);
       fetchPendingUsers(); // Refresh list
@@ -163,10 +209,29 @@ const AdminUserVerification: React.FC = () => {
     }
     setRejecting(true);
     try {
+      // Update status in the sub-collection
+      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', 'status');
+      await updateDoc(fullRegRef, {
+        status: 'rejected',
+        reviewedAt: serverTimestamp(),
+        rejectionReason: reason,
+      });
+
+      // Also update the main user doc for compatibility
       await updateDoc(doc(db, 'users', user.uid), {
         verificationStatus: 'rejected',
         rejectionReason: reason,
       });
+
+      // Add a notification for the user
+      const notificationsRef = collection(db, 'users', user.uid, 'notifications');
+      await addDoc(notificationsRef, {
+        message: `Your registration has been rejected. Reason: ${reason}`,
+        timestamp: serverTimestamp(),
+        read: false,
+        type: 'registration_rejected'
+      });
+
       // Call Cloud Function to send rejection email
       const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
       await sendVerificationEmail({ email: user.email, status: 'rejected', reason: reason });
@@ -174,7 +239,7 @@ const AdminUserVerification: React.FC = () => {
       // Delete documents
       await deleteUserDocuments(user.uid);
 
-      setToastMessage('User rejected and email sent.');
+      setToastMessage('User rejected and notification sent.');
       setToastColor('success');
       setShowToast(true);
       setShowModal(false); // Close modal

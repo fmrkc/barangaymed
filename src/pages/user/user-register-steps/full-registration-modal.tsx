@@ -32,7 +32,7 @@ import {
 import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home } from 'ionicons/icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db } from '../../../firebaseConfig';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
@@ -328,9 +328,8 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         `user-documents/${currentUser.uid}/barangay-certificate-${Date.now()}`
       );
 
-      // Update user document with full registration data
+      // 1. Update the main user document with address and contact info
       await updateDoc(doc(db, 'users', currentUser.uid), {
-        // Address and contact info
         selectedRegion,
         selectedProvince,
         selectedCityMunicipality,
@@ -339,16 +338,27 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         lotBlkHouseNo,
         streetName,
         subdivisionVillageZonePurok,
-        contactNumber: unmaskedContactNumber, // Use unmasked number
+        contactNumber: unmaskedContactNumber,
         address: fullAddress,
+      });
 
-        // Documents
+      // 2. Create a new document in the full_registration sub-collection
+      const fullRegRef = collection(db, 'users', currentUser.uid, 'full_registration');
+      await addDoc(fullRegRef, {
+        status: 'pending',
+        submittedAt: serverTimestamp(),
         barangayIdUrl,
         barangayCertificateUrl,
+        barangayId: barangayId, // Add barangayId for efficient querying
+      });
 
-        // Update verification status
-        verificationStatus: 'pending',
-        fullRegistrationSubmittedAt: new Date(),
+      // 3. Add a notification for the user
+      const notificationsRef = collection(db, 'users', currentUser.uid, 'notifications');
+      await addDoc(notificationsRef, {
+        message: 'Your registration documents have been submitted and are now pending verification.',
+        timestamp: serverTimestamp(),
+        read: false,
+        type: 'registration'
       });
 
       logEvent('info', 'Full registration submitted', {
@@ -774,6 +784,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                 </IonCol>
                 <IonCol size="9">
                   <IonButton
+                  color={'success'}
                     expand="block"
                     shape="round"
                     onClick={handleSubmit}

@@ -12,7 +12,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "18"
+    "node": "20"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -23,7 +23,7 @@
     "@types/uuid": "latest",
     "cors": "latest",
     "firebase-admin": "latest",
-    "firebase-functions": "latest",
+    "firebase-functions": "^6.4.0",
     "nodemailer": "latest",
     "resend": "latest",
     "uuid": "latest"

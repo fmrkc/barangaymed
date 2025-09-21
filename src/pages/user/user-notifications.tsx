@@ -88,10 +88,15 @@ const Notifications: React.FC = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'status_change':
+      case 'registration_approved':
         return checkmarkCircle;
       case 'admin_note':
       case 'new_announcement': // Handle new announcement type
         return mailOutline;
+      case 'welcome':
+      case 'registration':
+      case 'registration_rejected':
+        return alertCircle;
       default:
         return alertCircle;
     }
@@ -100,10 +105,16 @@ const Notifications: React.FC = () => {
   const getNotificationColor = (type: string) => {
     switch (type) {
       case 'status_change':
+      case 'registration_approved':
         return 'success';
       case 'admin_note':
       case 'new_announcement': // Handle new announcement type
         return 'primary';
+      case 'welcome':
+      case 'registration':
+        return 'tertiary';
+      case 'registration_rejected':
+        return 'danger';
       default:
         return 'warning';
     }

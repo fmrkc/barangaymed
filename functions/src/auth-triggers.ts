@@ -4,6 +4,10 @@ import { logger } from "firebase-functions";
 
 export const setroleonusercreate = beforeUserCreated(async (event) => {
   const user = event.data;
+  if (!user) {
+    logger.error("User data is undefined in beforeUserCreated event.");
+    return;
+  }
   try {
     // Get the user document from Firestore
     const userDoc = await admin.firestore().collection('users').doc(user.uid).get();
