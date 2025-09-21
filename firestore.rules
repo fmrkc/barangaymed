@@ -29,12 +29,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.role == 'superadmin';
     }
 
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
-    }
-
+    // Note: verificationStatus and barangayId should be stored in custom claims
+    // to avoid fetching from other documents in security rules
     function isVerifiedUser() {
-      return isAuthenticated() && getUserData(request.auth.uid).verificationStatus == 'verified';
+      return isAuthenticated() && request.auth.token.verificationStatus == 'verified';
     }
 
     // Checks if the user is an admin for a specific barangay.
@@ -97,7 +95,7 @@ service cloud.firestore {
 // =================================================================
     match /announcements/{announcementId} {
       // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.
-      allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == getUserData(request.auth.uid).barangayId) ||
+      allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == request.auth.token.barangayId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      isSuperAdmin();
 
@@ -139,7 +137,7 @@ service cloud.firestore {
     match /medicineRequests/{requestId} {
       allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
                     && request.resource.data.medicineId is string
-                    && request.resource.data.barangayId == getUserData(request.auth.uid).barangayId
+                    && request.resource.data.barangayId == request.auth.token.barangayId
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
 
@@ -162,21 +160,51 @@ service cloud.firestore {
 // Users can create teleconsultation requests. Superadmins can manage them.
 // =================================================================
     match /teleconsultationRequests/{requestId} {
-      allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
+      // CREATE: Verified users can create teleconsultation requests for themselves only
+      allow create: if isUserRole() && isVerifiedUser()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.userId is string
                     && request.resource.data.reason is string
-                    && request.resource.data.status == 'Pending';
-                    
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && request.resource.data.userEmail is string
+                    && request.resource.data.userName is string;
 
+      // READ: Users can read their own requests. Superadmins can read all requests.
       allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
                    isSuperAdmin();
 
+      // UPDATE: Users can cancel pending requests or mark accepted requests as completed.
+      // Superadmins can update any request to any valid status.
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                        ((resource.data.status == 'Pending' && request.resource.data.status == 'Cancelled') ||
-                         (resource.data.status == 'Accepted' && request.resource.data.status == 'Completed'))) ||
-                    (isSuperAdmin() && resource.data.status == 'Pending' &&
-                     request.resource.data.status in ['Accepted', 'Rejected', 'Under Review', 'Scheduled', 'No Show']);
+                        ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
+                         (resource.data.status == 'accepted' && request.resource.data.status == 'completed'))) ||
+                    (isSuperAdmin() && request.resource.data.status in ['pending', 'cancelled', 'accepted', 'rejected', 'scheduled', 'completed', 'no show']);
 
-      allow delete: if false; // Deletion not allowed from client
+      // DELETE: Deletion not allowed from client
+      allow delete: if false;
+    }
+
+// =================================================================
+// Collection: logs
+// Users can create log entries for tracking activities.
+// =================================================================
+    match /logs/{logId} {
+      // READ: Users can read their own logs. Admins and Super admins can read all logs.
+      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
+                   isAdmin() || isSuperAdmin();
+
+      // CREATE: Authenticated users can create log entries.
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.action is string
+                    && request.resource.data.timestamp == request.time;
+
+      // UPDATE: Only admins and super admins can update logs.
+      allow update: if isAdmin() || isSuperAdmin();
+
+      // DELETE: Only super admins can delete logs.
+      allow delete: if isSuperAdmin();
     }
 
   }

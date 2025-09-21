@@ -1,10 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonText, IonToast, IonCard, IonCardContent } from '@ionic/react';
+import React, { useState } from 'react';
+import {
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButton,
+  IonText,
+  IonCard,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonTextarea,
+  IonInput,
+  IonToast
+} from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { UserService } from '../../services/userService';
-import { TeleconsultationRequestService } from '../../services/teleconsultationRequestService';
-import TeleconsultationRequestForm from './TeleconsultationRequestSteps/TeleconsultationRequestForm';
-import { logEvent } from '../../utils/logger';
+import { TeleconsultationService } from '../../services/teleconsultationService';
+import { TeleconsultationRequestFormData } from '../../types/teleconsultationRequests';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -13,68 +26,45 @@ interface UserTeleRequestProps {
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
   const { currentUser } = useAuth();
-  const [userData, setUserData] = useState<{ firstName: string; lastName: string; contactNumber?: string; email?: string } | null>(null);
+  const [reason, setReason] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [isUserVerified, setIsUserVerified] = useState<boolean | null>(null);
-  const [verificationCheckLoading, setVerificationCheckLoading] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
 
-  useEffect(() => {
-    const fetchUserDataAndCheckVerification = async () => {
-      if (currentUser?.uid) {
-        setVerificationCheckLoading(true);
-
-        try {
-          // Fetch user data
-          const service = UserService.getInstance();
-          const data = await service.getUserData(currentUser.uid);
-          setUserData({
-            firstName: data.firstName,
-            lastName: data.lastName,
-            contactNumber: data.contactNumber,
-            email: data.email,
-          });
-
-          // Check user verification status
-          const teleconsultationService = TeleconsultationRequestService.getInstance();
-          const verified = await teleconsultationService.checkUserVerification(currentUser.uid);
-          setIsUserVerified(verified);
-
-          logEvent('info', `[TELECONSULTATION_MODAL] User verification check completed`, {
-            userId: currentUser.uid,
-            isVerified: verified
-          });
-        } catch (error) {
-          logEvent('error', `[TELECONSULTATION_MODAL] Error checking verification`, {
-            userId: currentUser.uid,
-            error
-          });
-          setIsUserVerified(false);
-        } finally {
-          setVerificationCheckLoading(false);
-        }
-      }
-    };
-
-    if (isOpen) {
-      fetchUserDataAndCheckVerification();
-    } else {
-      // Reset states when modal closes
-      setUserData(null);
-      setIsUserVerified(null);
-      setVerificationCheckLoading(false);
+  const handleSubmit = async () => {
+    if (!currentUser || !reason.trim()) {
+      setShowErrorToast(true);
+      return;
     }
-  }, [currentUser, isOpen]);
 
-  const handleRequestSent = () => {
-    setShowSuccessToast(true);
-    setTimeout(() => {
+    setIsSubmitting(true);
+    try {
+      const teleconsultationService = TeleconsultationService.getInstance();
+      const formData: TeleconsultationRequestFormData = {
+        reason: reason.trim()
+      };
+
+      await teleconsultationService.createRequest(currentUser.uid, formData);
+
+      setShowSuccessToast(true);
+      setReason('');
       onDidDismiss();
-    }, 2000);
+    } catch (error) {
+      console.error('Error submitting teleconsultation request:', error);
+      setShowErrorToast(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    setReason('');
+    onDidDismiss();
   };
 
   return (
     <>
-      <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
+      <IonModal isOpen={isOpen} onDidDismiss={handleClose}>
         <IonHeader>
           <IonToolbar>
             <IonTitle>Teleconsultation Request</IonTitle>
@@ -82,51 +72,68 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         </IonHeader>
         <IonContent className="ion-padding">
           <IonText>
-            <h2>Teleconsultation Request Form</h2>
-            <p>Please provide the reason for your teleconsultation request.</p>
+            <h2>Request Teleconsultation</h2>
+            <p>Please provide the reason for your teleconsultation request below.</p>
           </IonText>
 
-          {verificationCheckLoading && (
-            <IonCard>
-              <IonCardContent>
-                <IonText>
-                  <p>Checking verification status...</p>
+          <IonCard>
+            <IonCardContent>
+              <IonItem>
+                <IonLabel position="stacked">Reason for Request *</IonLabel>
+                <IonTextarea
+                  value={reason}
+                  onIonChange={(e) => setReason(e.detail.value!)}
+                  placeholder="Please describe your health concern or reason for needing a teleconsultation..."
+                  rows={4}
+                  maxlength={500}
+                  required
+                />
+              </IonItem>
+
+              <div className="ion-text-center ion-margin-top">
+                <IonText color="medium">
+                  <small>{reason.length}/500 characters</small>
                 </IonText>
-              </IonCardContent>
-            </IonCard>
-          )}
+              </div>
+            </IonCardContent>
+          </IonCard>
 
-          {!verificationCheckLoading && isUserVerified === false && (
-            <IonCard color="warning">
-              <IonCardContent>
-                <IonText>
-                  <h3>Verification Required</h3>
-                  <p>Your account needs to be verified before you can submit teleconsultation requests.</p>
-                  <p>Please complete your registration verification first. Contact your barangay administrator if you need assistance.</p>
-                </IonText>
-              </IonCardContent>
-            </IonCard>
-          )}
+          <div className="ion-margin-top">
+            <IonButton
+              expand="full"
+              onClick={handleSubmit}
+              disabled={!reason.trim() || isSubmitting}
+              className="ion-margin-bottom"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Request'}
+            </IonButton>
 
-          {!verificationCheckLoading && isUserVerified === true && userData && currentUser && (
-            <TeleconsultationRequestForm
-              userId={currentUser.uid}
-              userData={userData}
-              onRequestSent={handleRequestSent}
-            />
-          )}
-
-          <IonButton expand="full" fill="outline" onClick={onDidDismiss} className="ion-margin-top">
-            Cancel
-          </IonButton>
+            <IonButton
+              expand="full"
+              fill="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </IonButton>
+          </div>
         </IonContent>
       </IonModal>
+
       <IonToast
         isOpen={showSuccessToast}
         onDidDismiss={() => setShowSuccessToast(false)}
-        message="Teleconsultation request sent successfully!"
-        duration={2000}
+        message="Your teleconsultation request has been submitted successfully!"
+        duration={3000}
         color="success"
+      />
+
+      <IonToast
+        isOpen={showErrorToast}
+        onDidDismiss={() => setShowErrorToast(false)}
+        message="Failed to submit request. Please try again."
+        duration={3000}
+        color="danger"
       />
     </>
   );

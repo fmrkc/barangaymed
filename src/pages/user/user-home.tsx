@@ -4,6 +4,7 @@ import { megaphone, clipboard, medkit, receipt } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import UserMedRequestModal from './user-med-request';
 import UserTeleRequest from './user-tele-request';
+
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
@@ -40,7 +41,7 @@ const Home: React.FC = () => {
 
 
     const [showMedicineModal, setShowMedicineModal] = useState(false);
-    const [showTeleconsultationModal, setShowTeleconsultationModal] = useState(false);
+    const [showTeleRequestModal, setShowTeleRequestModal] = useState(false);
 
     const isVerified = verificationStatus === 'verified';
 
@@ -102,17 +103,16 @@ const Home: React.FC = () => {
 
                         
                         <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowTeleconsultationModal(true) : undefined}>
+                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowTeleRequestModal(true) : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
-                                        <IonText>Book Teleconsultation</IonText> 
+                                        <IonText>Book Teleconsultation</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <IonText>
-                                        Book appointments for teleconsultation with healthcare professionals.
-                                    
+                                        Request teleconsultation appointments with healthcare professionals.
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
@@ -147,8 +147,8 @@ const Home: React.FC = () => {
                 onDidDismiss={() => setShowMedicineModal(false)}
             />
             <UserTeleRequest
-                isOpen={showTeleconsultationModal}
-                onDidDismiss={() => setShowTeleconsultationModal(false)}
+                isOpen={showTeleRequestModal}
+                onDidDismiss={() => setShowTeleRequestModal(false)}
             />
         </>
     );

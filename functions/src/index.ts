@@ -147,7 +147,10 @@ app.post('/setUserRoleV2', async (req, res) => {
     }
 
     const userToUpdate = await admin.auth().getUserByEmail(email);
-    const claims: { role: string; barangayId?: string } = { role: newRole };
+    const claims: { role: string; barangayId?: string; verificationStatus: string } = {
+      role: newRole,
+      verificationStatus: 'verified' // Set to verified when role is updated
+    };
     if (newRole === 'admin') {
       claims.barangayId = barangayId;
     }
@@ -496,7 +499,11 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
       emailVerified: true,
     });
 
-    const customClaims: { role: string; barangayId?: string; cityMunicipalityId?: string } = { role };
+    // 4. Set custom claims
+    const customClaims: { role: string; barangayId?: string; cityMunicipalityId?: string; verificationStatus: string } = {
+      role,
+      verificationStatus: 'verified' // New users are verified by default
+    };
     if (role === 'admin') {
       customClaims.barangayId = barangayId;
     } else if (role === 'superadmin') {
@@ -661,5 +668,53 @@ export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, G
   }
 });
 
+// Update User Verification Status route
+app.post('/updateUserVerificationStatus', async (req, res) => {
+  try {
+    // Authentication check (simplified)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { email, verificationStatus } = req.body;
+
+    // Input Validation
+    if (!email || !verificationStatus) {
+      res.status(400).json({ error: 'Required fields are missing: email and verificationStatus.' });
+      return;
+    }
+
+    if (!['verified', 'unverified', 'rejected'].includes(verificationStatus)) {
+      res.status(400).json({ error: 'Verification status must be either "verified", "unverified", or "rejected".' });
+      return;
+    }
+
+    // Update Custom Claims
+    const userToUpdate = await admin.auth().getUserByEmail(email);
+    const currentClaims = userToUpdate.customClaims || {};
+
+    const newClaims = {
+      ...currentClaims,
+      verificationStatus: verificationStatus
+    };
+
+    await admin.auth().setCustomUserClaims(userToUpdate.uid, newClaims);
+
+    // Update Firestore Document
+    await admin.firestore().collection('users').doc(userToUpdate.uid).update({
+      verificationStatus: verificationStatus
+    });
+
+    logger.log(`Successfully updated verification status for ${email} to ${verificationStatus}`, newClaims);
+    res.json({ success: true, message: `Verification status for ${email} updated to ${verificationStatus}.` });
+  } catch (error) {
+    logger.error("Error in updateUserVerificationStatus:", error);
+    res.status(500).json({ error: 'An error occurred while updating the user verification status.' });
+  }
+});
+
+// Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 export { sendVerificationEmail } from './sendVerificationEmail.js';

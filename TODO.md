@@ -1,57 +1,135 @@
-# Teleconsultation Request Fix
+# Teleconsultation Feature Implementation
 
-## Issue: Users can't send teleconsultation requests
+## Completed Tasks ✅
 
-### Root Cause: Firestore security rules require verified users, but no proper error handling or verification checks
+1. **Created Types** - `src/types/teleconsultationRequests.ts`
+   - Defined `TeleconsultationRequest` interface with all necessary fields
+   - Defined `TeleconsultationRequestFormData` interface for form handling
+   - Included comprehensive status tracking: pending, cancelled, accepted, rejected, scheduled, completed, no show
+   - Added optional fields: scheduledDate, meetingLink, adminNotes
 
-## Implementation Steps:
+2. **Created Service** - `src/services/teleconsultationService.ts`
+   - Implemented `TeleconsultationService` singleton class
+   - Added `createRequest` method to store requests in Firestore
+   - Added `getUserRequests` method for future use
+   - Integrated with existing user service for user data
 
-### 1. Update TeleconsultationRequestService
-- [x] Add proper error handling using firestoreErrorHandler utility
-- [x] Add user verification check before attempting to create requests
-- [x] Implement retry logic for network issues
-- [x] Add detailed logging for debugging
+3. **Updated Teleconsultation Modal** - `src/pages/user/user-tele-request.tsx`
+   - Replaced unavailable message with functional form
+   - Added textarea for reason input (500 character limit)
+   - Added form validation and submission handling
+   - Added success/error toast notifications
+   - Added loading states during submission
 
-### 2. Enhance Error Handling in Form Component
-- [x] Add specific error messages for different failure scenarios
-- [ ] Add user verification status check before showing the form
-- [x] Improve user feedback with more detailed error information
+4. **Enabled Button in User Home** - `src/pages/user/user-home.tsx`
+   - Added state management for teleconsultation modal
+   - Enabled the teleconsultation card button functionality
+   - Removed "Feature temporarily disabled" message
+   - Added proper modal integration
 
-### 3. Add User Verification Check in Main Component
-- [x] Check user verification status before allowing access to the request form
-- [x] Show appropriate message if user is not verified
+5. **Updated Firestore Rules** - `firestore.rules`
+   - Updated teleconsultationRequests collection rules to align with new status system
+   - Added proper validation for create operations
+   - Implemented correct status transition rules
+   - Ensured consistency with TypeScript interfaces
 
-### 4. Update Types
-- [x] Add error types for better error handling
-- [ ] Add verification status requirements
+## Data Storage Structure
 
-### 5. Testing
-- [x] Test the fix by attempting to create a teleconsultation request
-- [x] Verify error messages are informative
-- [x] Check that unverified users get appropriate feedback
-- [x] Test with different user states (verified/unverified)
+The teleconsultation requests are stored in Firestore collection: `teleconsultationRequests`
 
-## ✅ COMPLETED: Teleconsultation Request Fix
+Each document contains:
+- `userId`: Firebase user ID
+- `userEmail`: User's email address
+- `userName`: User's full name
+- `reason`: Reason for teleconsultation request
+- `status`: Request status (pending, cancelled, accepted, rejected, scheduled, completed, no show)
+- `createdAt`: Timestamp when request was created
+- `updatedAt`: Timestamp when request was last updated
+- `barangayId`: User's barangay ID
+- `scheduledDate`: Optional scheduled appointment date
+- `meetingLink`: Optional meeting link for scheduled appointments
+- `adminNotes`: Optional notes from administrators
 
-### Summary of Changes Made:
+## Firestore Security Rules
 
-1. **Enhanced Type Safety** - Added comprehensive error types and interfaces
-2. **Improved Service Layer** - Added user verification checks, retry logic, and detailed error handling
-3. **Better User Experience** - Added specific error messages and verification status checks
-4. **Robust Error Handling** - Integrated with existing error handling utilities
-5. **Comprehensive Logging** - Added detailed logging for debugging and monitoring
+### Create Rules:
+- Only verified users can create requests
+- Must include required fields: userId, reason, status, timestamps, userEmail, userName
+- Status must be set to 'pending' initially
 
-### Key Features Added:
-- ✅ User verification check before allowing form access
-- ✅ Specific error messages for different failure scenarios
-- ✅ Retry logic for network issues
-- ✅ Proper error categorization (USER_NOT_VERIFIED, PERMISSION_DENIED, etc.)
-- ✅ Loading states and user feedback
-- ✅ Integration with existing logging and error handling systems
+### Read Rules:
+- Users can only read their own requests
+- Superadmins can read all requests
 
-### Build Status:
-- ✅ TypeScript compilation successful
-- ✅ No compilation errors
-- ✅ All imports and dependencies resolved correctly
+### Update Rules:
+- Users can cancel pending requests or mark accepted requests as completed
+- Superadmins can update any request to any valid status
+- All status transitions are properly validated
 
-The teleconsultation request system now properly handles user verification requirements and provides clear, actionable error messages to users.
+## ⚠️ IMPORTANT: Custom Claims Configuration Required
+
+### Required Custom Claims for Proper Security Rules:
+The Firestore security rules now rely on custom claims stored in Firebase Auth tokens. The following claims must be set for each user:
+
+**For Regular Users:**
+```javascript
+{
+  role: 'user',
+  verificationStatus: 'verified', // or 'unverified', 'rejected'
+  barangayId: 'string' // User's barangay ID
+}
+```
+
+**For Admins:**
+```javascript
+{
+  role: 'admin',
+  verificationStatus: 'verified',
+  barangayId: 'string' // Admin's assigned barangay ID
+}
+```
+
+**For Super Admins:**
+```javascript
+{
+  role: 'superadmin',
+  verificationStatus: 'verified'
+  // Note: Super admins can access all barangays
+}
+```
+
+### Why Custom Claims Are Required:
+1. **Performance**: Rules can access `request.auth.token` directly without fetching from Firestore
+2. **Security**: No dependency on user documents existing or being properly formatted
+3. **Reliability**: Rules work even if user documents are corrupted or missing
+4. **Consistency**: All user attributes needed for authorization are in one place
+
+### Implementation Notes:
+- Custom claims should be set when users register or when their status changes
+- Use Firebase Admin SDK to set custom claims server-side
+- Claims are automatically included in all Firestore security rule evaluations
+- Consider using Firebase Cloud Functions to manage custom claims updates
+
+## Next Steps for Testing
+
+1. **Test the complete flow:**
+   - Click the "Book Teleconsultation" button
+   - Fill out the reason form
+   - Submit the request
+   - Verify data is stored in Firestore
+
+2. **Verify user experience:**
+   - Form validation works correctly
+   - Success/error messages display properly
+   - Modal opens and closes correctly
+   - Button is only enabled for verified users
+
+3. **Check data integrity:**
+   - Verify requests are stored with correct user information
+   - Confirm status is set to "pending"
+   - Check timestamps are properly set
+
+4. **Test Firestore rules:**
+   - Verify users cannot create requests without proper validation
+   - Test that users can only read their own requests
+   - Confirm superadmins can manage all requests
