@@ -41,6 +41,10 @@ service cloud.firestore {
       return isAdmin() && request.auth.token.barangayId == barangayId;
     }
 
+    match /{path=**}/full_registration/{attemptId} {
+      allow read: if isAdmin() && resource.data.barangayId == request.auth.token.barangayId;
+    }
+
 // =================================================================
 // Collection: users
 // Stores public user profile information.
@@ -72,7 +76,7 @@ service cloud.firestore {
 
         allow create: if isOwner(userId);
 
-        allow update: if (isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId) ||
+        allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                         isSuperAdmin();
       }
 

@@ -49,6 +49,7 @@ const SuperAdminRegister: React.FC = () => {
                 contactEmail,
                 role: 'admin',
                 barangayId: barangayId,
+                cityMunicipalityId: cityMunicipalityId, // Explicitly pass cityMunicipalityId
             });
             
             dismiss();

@@ -100,7 +100,8 @@ email: string, password: string, name: string, role: string, userData: UserData)
       reviewedAt: null,
       rejectionReason: null,
       barangayIdUrl: null,
-      barangayCertificateUrl: null
+      barangayCertificateUrl: null,
+      barangayId: userData.barangayId // Add barangayId here
     });
 
     // 2. Notifications sub-collection with a welcome message

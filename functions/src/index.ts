@@ -615,6 +615,9 @@ export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, G
     const userData = userDoc.data()!;
     const userBarangayId = userData.barangayId;
 
+    logger.log(`deleteUserDocuments: adminBarangayId: ${adminBarangayId}, userBarangayId: ${userBarangayId}`);
+    logger.log(`deleteUserDocuments: isAdmin: ${isAdmin}, isSuperAdmin: ${isSuperAdmin}, comparison: ${isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId}`);
+
     if (isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId) {
       throw new HttpsError(
         'permission-denied',

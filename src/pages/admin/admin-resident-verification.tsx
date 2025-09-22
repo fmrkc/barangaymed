@@ -11,6 +11,7 @@ import { getStorage, ref, deleteObject } from 'firebase/storage';
 
 interface UserForVerification {
   uid: string;
+  attemptId: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -71,6 +72,9 @@ const AdminUserVerification: React.FC = () => {
   const fetchPendingUsers = async () => {
     if (!adminBarangayId) {
       setLoading(false);
+      setToastMessage('Admin barangay ID is not set. Please contact support.');
+      setToastColor('danger');
+      setShowToast(true);
       return;
     }
 
@@ -94,6 +98,7 @@ const AdminUserVerification: React.FC = () => {
             const userData = userDoc.data();
             users.push({
               uid: userDoc.id,
+              attemptId: statusDoc.id,
               email: userData.email,
               firstName: userData.firstName,
               lastName: userData.lastName,
@@ -158,7 +163,7 @@ const AdminUserVerification: React.FC = () => {
     setApproving(true);
     try {
       // Update status in the sub-collection
-      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', 'status');
+      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
       await updateDoc(fullRegRef, {
         status: 'approved',
         reviewedAt: serverTimestamp(),
@@ -210,7 +215,7 @@ const AdminUserVerification: React.FC = () => {
     setRejecting(true);
     try {
       // Update status in the sub-collection
-      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', 'status');
+      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
       await updateDoc(fullRegRef, {
         status: 'rejected',
         reviewedAt: serverTimestamp(),
