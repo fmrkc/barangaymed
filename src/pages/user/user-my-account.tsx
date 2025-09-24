@@ -32,11 +32,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import { logOut, create, person, pencil, call, checkmarkDoneOutline, close, home, mail, lockClosed, logIn, medical, document, checkmark, warning, time } from "ionicons/icons";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { auth, db, login } from "../../firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
-import FullRegistrationModal from "./UserRegisterSteps/FullRegistrationModal";
+import FullRegistrationModal from "./user-register-steps/full-registration-modal";
 import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
@@ -65,17 +65,21 @@ const Account: React.FC = () => {
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const [showFullRegistrationModal, setShowFullRegistrationModal] = useState(false);
 
-  const phoneMaskOptions: MaskitoOptions = {
-    mask: ['+', '(', '6', '3', ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, /\d/],
-  };
-  const phoneMask = useMaskito({ options: phoneMaskOptions });
+  // New state for detailed registration status
+  interface RegistrationStatus {
+    status: string;
+    rejectionReason?: string;
+  }
+  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus | null>(null);
 
   // Fetch user data including separate name components
   useEffect(() => {
     const fetchUserData = async () => {
       if (!currentUser) return;
 
+      setIsLoadingUserData(true);
       try {
+        // Fetch main user document
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -99,6 +103,18 @@ const Account: React.FC = () => {
           setEditAddress(userData.address || "");
           setEditContactNumber(userData.contactNumber || "");
         }
+
+        // Fetch latest registration status from sub-collection
+        const regStatusCollection = collection(db, "users", currentUser.uid, "full_registration");
+        const q = query(regStatusCollection, orderBy("submittedAt", "desc"), limit(1));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const latestStatusDoc = querySnapshot.docs[0];
+          setRegistrationStatus(latestStatusDoc.data() as RegistrationStatus);
+        } else {
+          setRegistrationStatus({ status: 'not_submitted' });
+        }
+
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
@@ -226,9 +242,9 @@ const Account: React.FC = () => {
                       Resident of Barangay {barangayName || "Not specified"}
                     </div>
                   </IonCardSubtitle>
-                  <IonChip color={verificationStatus === 'verified' ? 'success' : verificationStatus === 'pending' ? 'warning' : 'warning'}>
-                    <IonIcon icon={verificationStatus === 'verified' ? checkmark : verificationStatus === 'pending' ? time : warning} />
-                    <IonLabel>{verificationStatus || "Unverified"}</IonLabel>
+                  <IonChip color={registrationStatus?.status === 'approved' ? 'success' : registrationStatus?.status === 'pending' ? 'warning' : registrationStatus?.status === 'not_submitted' ? 'medium' : 'danger'}>
+                    <IonIcon icon={registrationStatus?.status === 'approved' ? checkmark : registrationStatus?.status === 'pending' ? time : registrationStatus?.status === 'not_submitted' ? document : warning} />
+                    <IonLabel>{registrationStatus?.status ? (registrationStatus.status.charAt(0).toUpperCase() + registrationStatus.status.slice(1)).replace('_', ' ') : "Unverified"}</IonLabel>
                   </IonChip>
                 </div>
               </div>
@@ -239,8 +255,8 @@ const Account: React.FC = () => {
             </IonButton>
           </IonCard>
 
-          {/* Full Registration Card for Unverified Users */}
-          {verificationStatus !== 'verified' && verificationStatus !== 'pending' && (
+          {/* Card for 'not_submitted' status */}
+          {registrationStatus?.status === 'not_submitted' && (
             <IonCard color={"warning"}>
               <IonCardContent className="ion-padding-vertical">
                 <div style={{ textAlign: 'center' }}>
@@ -269,8 +285,32 @@ const Account: React.FC = () => {
             </IonCard>
           )}
 
+          {/* Card for 'rejected' status */}
+          {registrationStatus?.status === 'rejected' && (
+            <IonCard color={"danger"}>
+              <IonCardHeader>
+                <IonCardTitle style={{color: 'var(--ion-color-danger-contrast)'}}>Registration Rejected</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Your registration was rejected for the following reason:</p>
+                <p style={{color: 'var(--ion-color-danger-contrast)'}}><strong>{registrationStatus.rejectionReason || "No reason provided."}</strong></p>
+                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Please correct the issues and resubmit.</p>
+                <IonButton
+                    expand="block"
+                    shape="round"
+                    color="light"
+                    onClick={() => setShowFullRegistrationModal(true)}
+                    className="ion-margin-top"
+                  >
+                    <IonIcon slot="start" icon={document} />
+                    Resubmit Registration
+                  </IonButton>
+              </IonCardContent>
+            </IonCard>
+          )}
+
           {/* Pending Verification Card */}
-          {verificationStatus === 'pending' && (
+          {registrationStatus?.status === 'pending' && (
             <IonCard color="secondary">
               <IonCardContent className="ion-padding-vertical">
                 <div style={{ textAlign: 'center' }}>
@@ -291,12 +331,20 @@ const Account: React.FC = () => {
 
           <IonCardContent>
              <IonItemDivider>
-              <IonLabel>Account Settings</IonLabel>
+              <IonLabel>BarangayMed+ Features</IonLabel>
             </IonItemDivider>
             <IonItem detail={false} button={isVerified}>
               <IonIcon color={isVerified ? 'dark' : 'medium'} slot="start" icon={medical} />
               <IonLabel color={isVerified ? 'primary' : 'medium'}>Create My Medical Record</IonLabel>
             </IonItem>
+            <IonItem detail={false} button>
+              <IonIcon slot="start" icon={time} />
+              <IonLabel>Requests History</IonLabel>
+            </IonItem>
+             <IonItemDivider>
+              <IonLabel>Account Settings</IonLabel>
+            </IonItemDivider>
+            
              <IonItem detail={false} button>
               <IonIcon slot="start" icon={person} />
               <IonLabel>Personal Info</IonLabel>

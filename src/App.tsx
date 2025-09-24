@@ -45,9 +45,9 @@ import SuperRegister from './pages/superadmin/sa-admin-register';
 import AMenu from './pages/admin/admin-menu';
 import AAnnouncements from './pages/admin/admin-brgy-announcements';
 
-import UserRegister from './pages/user/UserRegisterSteps/user-partial-register';
+import UserRegister from './pages/user/user-register-steps/user-register';
 import UserDashboard from './pages/user/user-menu';
-import UserVerifyEmail from './pages/user/UserRegisterSteps/user-verify-email';
+import UserVerifyEmail from './pages/user/user-register-steps/user-verify-email';
 import SAMenu from './pages/superadmin/sa-menu';
 import RegisterInvited from './pages/auth/RegisterInvited';
 

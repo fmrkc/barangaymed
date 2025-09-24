@@ -4,7 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
 import { auth } from '../../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
-import { arrowBack, arrowForward, backspaceOutline, checkmark, refresh } from 'ionicons/icons';
+import { arrowBack, arrowForward, backspaceOutline, checkmark, checkmarkDone, refresh } from 'ionicons/icons';
 
 const UserVerifyEmail: React.FC = () => {
   const { currentUser, refreshUserClaims } = useAuth();
@@ -70,7 +70,7 @@ const UserVerifyEmail: React.FC = () => {
             A verification email has been sent to your email address. Please check your inbox (and spam folder) and click the link to verify your account.
           </p>
           <p>
-            Once verified, click the "Return to Login" button below.
+            Once verified, click the "I have verified my email" button below.
           </p>
         </IonText>
         <IonButton expand="block" onClick={handleResendVerification} className="ion-margin-top" fill="outline">
@@ -82,8 +82,8 @@ const UserVerifyEmail: React.FC = () => {
       <IonFooter className='ion-no-border'>
         <IonToolbar>
           <IonButton expand="block" routerLink="/user/login" routerDirection="back" className="ion-margin-top" >
-          <IonText className='ion-padding-vertical'>Return to Login</IonText>
-          <IonIcon slot='start' icon={arrowBack}></IonIcon>
+          <IonText className='ion-padding-vertical'>I have verified my email</IonText>
+          <IonIcon slot='start' icon={checkmarkDone}></IonIcon>
         </IonButton>
         </IonToolbar>
       </IonFooter>

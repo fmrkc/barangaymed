@@ -5,11 +5,11 @@ import React, { useEffect } from 'react';
 import { registerUserWithFullData } from '../../../firebaseConfig';
 import { sendEmailVerification } from 'firebase/auth';
 
-import PartialRegistrationStep1 from './PartialRegistrationStep1';
-import PartialRegistrationStep2 from './PartialRegistrationStep2';
-import FullRegistrationStep1 from './FullRegistrationStep1';
-import FullRegistrationStep2 from './FullRegistrationStep2';
-import RegistrationReview from './RegistrationReview';
+import PartialRegistrationStep1 from './partial-registration-step-1';
+import PartialRegistrationStep2 from './partial-registration-step-2';
+import FullRegistrationStep1 from './full-registration-step-1';
+import FullRegistrationStep2 from './full-registration-step-2';
+import RegistrationReview from './registration-review';
 import { LogService } from '../../../services/logService';
 
 const UserRegister: React.FC = () => {

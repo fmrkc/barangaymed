@@ -7,29 +7,11 @@ import cors from 'cors';
 import { defineSecret } from 'firebase-functions/params';
 import * as nodemailer from 'nodemailer';
 import { randomBytes } from "crypto";
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
+
+
 
 const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
-
-// Load addressesData asynchronously
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const addressesDataPath = path.resolve(__dirname, '../philippine-addresses.json');
-let addressesData: AddressesDataType | null = null;
-
-async function getAddressesData(): Promise<AddressesDataType> {
-  if (addressesData) {
-    return addressesData;
-  }
-  const data = await fs.promises.readFile(addressesDataPath, 'utf8');
-  const parsedData: AddressesDataType = JSON.parse(data);
-  addressesData = parsedData;
-  return parsedData;
-}
-
 
 interface BarangayData {
   code: string;
@@ -91,7 +73,8 @@ const generateAdminEmail = (domain = "barangaymed.app") => {
 };
 
 async function getCityMunicipalityIdFromBarangayId(barangayId: string): Promise<string | undefined> {
-  const typedAddressesData = await getAddressesData();
+  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
+  const typedAddressesData = addressesData as AddressesDataType;
 
   for (const regionCode in typedAddressesData) {
     const regionData = typedAddressesData[regionCode];
@@ -109,13 +92,9 @@ async function getCityMunicipalityIdFromBarangayId(barangayId: string): Promise<
   return undefined;
 }
 
-// Individual functions are now handled by the Express app routes
-// No need to export them separately
-
 // Log Activity route
 app.post('/logActivityV2', async (req, res) => {
   try {
-    // Authentication check (simplified)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -138,7 +117,7 @@ app.post('/logActivityV2', async (req, res) => {
       authTime: new Date().toISOString()
     };
 
-    await admin.firestore().collection('logs').add(logEntry);
+    await admin.firestore().collection('users').doc(userId).collection('logs').add(logEntry);
     res.json({ success: true, message: 'Activity logged successfully' });
   } catch (error) {
     logger.error('Error logging activity:', error);
@@ -149,7 +128,6 @@ app.post('/logActivityV2', async (req, res) => {
 // Set User Role route
 app.post('/setUserRoleV2', async (req, res) => {
   try {
-    // Authentication check (simplified)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -158,7 +136,6 @@ app.post('/setUserRoleV2', async (req, res) => {
 
     const { email, newRole, barangayId } = req.body;
 
-    // Input Validation
     if (!email || !newRole || (newRole === 'admin' && !barangayId)) {
       res.status(400).json({ error: 'Required fields are missing: email, newRole, and barangayId (for admins).' });
       return;
@@ -169,7 +146,6 @@ app.post('/setUserRoleV2', async (req, res) => {
       return;
     }
 
-    // Set Custom Claims
     const userToUpdate = await admin.auth().getUserByEmail(email);
     const claims: { role: string; barangayId?: string; verificationStatus: string } = {
       role: newRole,
@@ -180,8 +156,6 @@ app.post('/setUserRoleV2', async (req, res) => {
     }
 
     await admin.auth().setCustomUserClaims(userToUpdate.uid, claims);
-
-    // Update Firestore Document
     await admin.firestore().collection('users').doc(userToUpdate.uid).update(claims);
 
     logger.log(`Successfully set role for ${email} to ${newRole}`, claims);
@@ -195,21 +169,18 @@ app.post('/setUserRoleV2', async (req, res) => {
 // Get Announcements by Barangay route
 app.get('/getAnnouncementsByBarangayV2', async (req, res) => {
   try {
-    // Authentication check (simplified)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    // For simplicity, we'll expect userId in query params
     const userId = req.query.userId as string;
     if (!userId) {
       res.status(400).json({ error: 'User ID required' });
       return;
     }
 
-    // Get the user's barangay from their document
     const userDoc = await admin.firestore().collection('users').doc(userId).get();
     if (!userDoc.exists) {
       res.status(404).json({ error: 'User document not found' });
@@ -223,7 +194,6 @@ app.get('/getAnnouncementsByBarangayV2', async (req, res) => {
       return;
     }
 
-    // Query announcements for the user's barangay
     const announcementsRef = admin.firestore().collection('announcements');
     const snapshot = await announcementsRef
       .where('barangayId', '==', barangayId)
@@ -258,13 +228,11 @@ app.get('/getAnnouncementsByBarangayV2', async (req, res) => {
 // Submit Full Registration route
 app.post('/submitFullRegistrationV2', async (req, res) => {
   try {
-    // Authentication check (simplified)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
     const { registrationDetails } = req.body;
     if (!registrationDetails) {
@@ -272,7 +240,6 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
       return;
     }
 
-    // Get user info from the token (simplified - in production, verify the token properly)
     const idToken = authHeader.split('Bearer ')[1];
     let decodedToken;
     try {
@@ -315,7 +282,6 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
 `;
 
     try {
-      // Send email confirmation
       const { sendEmail } = await import('./email.js');
       await sendEmail({
         to: email,
@@ -323,7 +289,6 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
         html: htmlContent,
       }, GMAIL_EMAIL.value(), GMAIL_APP_PASSWORD.value());
 
-      // Create notification in Firestore
       await admin.firestore().collection("notifications").add({
         userId: userId,
         title: "Full Registration Request Received",
@@ -348,14 +313,12 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
 // Admin Only Operation route
 app.get('/adminOnlyOperationV2', async (req, res) => {
   try {
-    // Authentication check (simplified)
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    // For simplicity, we'll expect role in query params
     const role = req.query.role as string;
     if (!role || (role !== 'admin' && role !== 'superadmin')) {
       logger.error("Unauthorized access attempt to adminOnlyOperation");
@@ -363,10 +326,8 @@ app.get('/adminOnlyOperationV2', async (req, res) => {
       return;
     }
 
-    // If the check passes, proceed with the function's logic.
     logger.log(`Admin operation performed by:`, { role: role });
 
-    // Example: Return some data only admins should see.
     res.json({
       success: true,
       message: "Welcome, admin! Here is the secret data.",
@@ -384,18 +345,17 @@ app.get('/adminOnlyOperationV2', async (req, res) => {
 // Get Philippine Addresses route
 app.get('/getPhilippineAddresses', async (req, res) => {
   try {
-    const data = await getAddressesData();
-    // No authentication needed for public address data
-    res.json(data);
+    const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
+    res.json(addressesData);
   } catch (error) {
     logger.error('Error fetching Philippine addresses:', error);
     res.status(500).json({ error: 'Failed to fetch Philippine addresses' });
   }
 });
 
-// Helper function to get barangay code from name
 async function getBarangayCodeFromName(barangayName: string): Promise<string | undefined> {
-  const typedAddressesData = await getAddressesData();
+  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
+  const typedAddressesData = addressesData as AddressesDataType;
 
   for (const regionCode in typedAddressesData) {
     const regionData = typedAddressesData[regionCode];
@@ -433,14 +393,11 @@ export const standardizeAdminBarangayIds = onCall(async (request) => {
     const currentBarangayId = userData.barangayId;
 
     if (currentBarangayId && typeof currentBarangayId === 'string' && currentBarangayId.length > 0 && !/^[0-9]+$/.test(currentBarangayId)) {
-      // Assuming currentBarangayId is a name, try to find its code
       const newBarangayCode = await getBarangayCodeFromName(currentBarangayId);
 
       if (newBarangayCode) {
-        // Update Firestore document
         updates.push(doc.ref.update({ barangayId: newBarangayCode }));
 
-        // Update custom claims
         const userRecord = await admin.auth().getUser(doc.id);
         await admin.auth().setCustomUserClaims(doc.id, { ...userRecord.customClaims, barangayId: newBarangayCode });
         logger.log(`Updated barangayId for user ${doc.id} from '${currentBarangayId}' to '${newBarangayCode}'`);
@@ -456,7 +413,8 @@ export const standardizeAdminBarangayIds = onCall(async (request) => {
 });
 
 async function getCityMunicipalityNameFromCode(cityMunicipalityCode: string): Promise<string | undefined> {
-  const typedAddressesData = await getAddressesData();
+  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
+  const typedAddressesData = addressesData as AddressesDataType;
 
   for (const regionCode in typedAddressesData) {
     const regionData = typedAddressesData[regionCode];
@@ -471,7 +429,8 @@ async function getCityMunicipalityNameFromCode(cityMunicipalityCode: string): Pr
 }
 
 async function getBarangayNameFromCode(barangayCode: string): Promise<string | undefined> {
-  const typedAddressesData = await getAddressesData();
+  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
+  const typedAddressesData = addressesData as AddressesDataType;
 
   for (const regionCode in typedAddressesData) {
     const regionData = typedAddressesData[regionCode];
@@ -490,7 +449,6 @@ async function getBarangayNameFromCode(barangayCode: string): Promise<string | u
 }
 
 export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://localhost:8101', 'https://barangaymed.web.app', 'https://api-gy7oflie2a-uc.a.run.app'], secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
-  // 1. Authorization Check
   if (request.auth?.token.role !== 'superadmin' && request.auth?.token.email !== 'barangaymed@gmail.com') {
     logger.error("Attempt to provision user by non-authorized user:", { 
       uid: request.auth?.uid,
@@ -504,7 +462,6 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
 
   const { contactEmail, role, barangayId, fullName, cityMunicipalityId } = request.data;
 
-  // Superadmin confinement check
   if (request.auth?.token.role === 'superadmin') {
     const superadminCityMunicipalityId = request.auth.token.cityMunicipalityId;
     if (role === 'admin') {
@@ -518,7 +475,6 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
     }
   }
 
-  // 2. Input Validation
   if (!contactEmail || !role || !fullName) {
     throw new HttpsError('invalid-argument', 'Missing required fields: contactEmail, fullName, and role.');
   }
@@ -536,12 +492,11 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
   const temporaryPassword = generatePassword();
 
   try {
-    // 3. Create the user in Firebase Auth
     const userRecord = await admin.auth().createUser({
       email: generatedEmail,
       password: temporaryPassword,
       displayName: fullName,
-      emailVerified: true, // Email is system-generated, so we can consider it verified.
+      emailVerified: true,
     });
 
     // 4. Set custom claims
@@ -556,7 +511,6 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
     }
     await admin.auth().setCustomUserClaims(userRecord.uid, customClaims);
 
-    // 5. Create user document in Firestore
     await admin.firestore().collection('users').doc(userRecord.uid).set({
       uid: userRecord.uid,
       email: generatedEmail,
@@ -564,12 +518,11 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
       role: role,
       barangayId: role === 'admin' ? barangayId : null,
       cityMunicipalityId: role === 'superadmin' ? cityMunicipalityId : null,
-      contactEmail: contactEmail, // Store the contact email for reference
+      contactEmail: contactEmail,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       createdBy: request.auth.uid,
     });
 
-    // 6. Send credentials via email using Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -617,7 +570,6 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
 
   } catch (error) {
     logger.error("Error provisioning user:", error);
-    // Attempt to delete the user if creation failed after the fact
     const user = await admin.auth().getUserByEmail(generatedEmail).catch(() => null);
     if (user) {
       await admin.auth().deleteUser(user.uid);
@@ -626,6 +578,97 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
   }
 });
 
+export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
+      'unauthenticated',
+      'You must be logged in to perform this action.'
+    );
+  }
+
+  const { role, barangayId: adminBarangayId } = request.auth.token;
+  const isSuperAdmin = role === 'superadmin';
+  const isAdmin = role === 'admin';
+
+  if (!isAdmin && !isSuperAdmin) {
+    throw new HttpsError(
+      'permission-denied',
+      'You do not have permission to perform this action.'
+    );
+  }
+
+  const { userId } = request.data;
+  if (!userId) {
+    throw new HttpsError('invalid-argument', 'Missing required field: userId.');
+  }
+
+  try {
+    const db = admin.firestore();
+    const userDocRef = db.collection('users').doc(userId);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
+      throw new HttpsError('not-found', `User with ID ${userId} not found.`);
+    }
+
+    const userData = userDoc.data()!;
+    const userBarangayId = userData.barangayId;
+
+    logger.log(`deleteUserDocuments: adminBarangayId: ${adminBarangayId}, userBarangayId: ${userBarangayId}`);
+    logger.log(`deleteUserDocuments: isAdmin: ${isAdmin}, isSuperAdmin: ${isSuperAdmin}, comparison: ${isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId}`);
+
+    if (isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId) {
+      throw new HttpsError(
+        'permission-denied',
+        'Admins can only delete documents for users in their own barangay.'
+      );
+    }
+
+    const bucket = admin.storage().bucket();
+    const deletePromises: Promise<unknown>[] = [];
+
+    const urlsToDelete = [userData.barangayIdUrl, userData.barangayCertificateUrl];
+
+    for (const url of urlsToDelete) {
+      if (url && typeof url === 'string') {
+        try {
+          const decodedUrl = decodeURIComponent(url);
+          const pathStartIndex = decodedUrl.indexOf('/o/');
+          if (pathStartIndex !== -1) {
+            const pathEndIndex = decodedUrl.indexOf('?');
+            const filePath = decodedUrl.substring(pathStartIndex + 3, pathEndIndex);
+            const file = bucket.file(filePath);
+            logger.log(`Attempting to delete file: ${filePath}`);
+            deletePromises.push(file.delete());
+          }
+        } catch (e) {
+          logger.error(`Failed to parse or delete file for URL: ${url}`, e);
+        }
+      }
+    }
+
+    if (deletePromises.length > 0) {
+      await Promise.all(deletePromises);
+      logger.log(`Successfully deleted ${deletePromises.length} documents for user ${userId}.`);
+    } else {
+      logger.log(`No documents to delete for user ${userId}.`);
+    }
+    
+    await userDocRef.update({
+        barangayIdUrl: admin.firestore.FieldValue.delete(),
+        barangayCertificateUrl: admin.firestore.FieldValue.delete(),
+    });
+
+    return { success: true, message: 'User documents deleted successfully.' };
+
+  } catch (error) {
+    logger.error(`Error deleting documents for user ${userId}:`, error);
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+    throw new HttpsError('internal', 'An unexpected error occurred while deleting user documents.');
+  }
+});
 
 // Update User Verification Status route
 app.post('/updateUserVerificationStatus', async (req, res) => {

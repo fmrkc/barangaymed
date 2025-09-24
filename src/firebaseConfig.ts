@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, addDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { LogService } from './services/logService';
@@ -80,15 +80,40 @@ email: string, password: string, name: string, role: string, userData: UserData)
     const combinedAddress = addressParts.join(', ');
 
     // Add user document with full data in Firestore
-    await setDoc(doc(db, 'users', user.uid), {
+    const userDocRef = doc(db, 'users', user.uid);
+    await setDoc(userDocRef, {
       email: email,
       name: name,
       role: role,
-      verificationStatus: 'unverified', // Set initial verification status
+      verificationStatus: 'unverified', // This status might become redundant, but let's keep it for now
       createdAt: serverTimestamp(),
       ...userData,
       address: combinedAddress // Add the combined address
     });
+
+    // Create sub-collections for the new user
+    // 1. Full Registration sub-collection
+    const fullRegRef = doc(userDocRef, 'full_registration', 'status');
+    await setDoc(fullRegRef, {
+      status: 'not_submitted',
+      submittedAt: null,
+      reviewedAt: null,
+      rejectionReason: null,
+      barangayIdUrl: null,
+      barangayCertificateUrl: null,
+      barangayId: userData.barangayId // Add barangayId here
+    });
+
+    // 2. Notifications sub-collection with a welcome message
+    const notificationsRef = collection(userDocRef, 'notifications');
+    await addDoc(notificationsRef, {
+      message: 'Welcome to BarangayMed! Please complete your full registration to get verified and access all features.',
+      timestamp: serverTimestamp(),
+      read: false,
+      type: 'welcome'
+    });
+
+
 
     // Log registration event using LogService BEFORE signing out
     const logService = LogService.getInstance();
@@ -111,7 +136,7 @@ email: string, password: string, name: string, role: string, userData: UserData)
     console.log("Log Entry being sent to Cloud Function:", JSON.stringify(logEntry));
     await logService.logActivity(logEntry);
 
-    await signOut(auth); // Sign out the user immediately after registration
+    
 
     return user;
   } catch (error) {

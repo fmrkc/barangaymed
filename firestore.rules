@@ -41,6 +41,10 @@ service cloud.firestore {
       return isAdmin() && request.auth.token.barangayId == barangayId;
     }
 
+    match /{path=**}/full_registration/{attemptId} {
+      allow read: if isAdmin() && resource.data.barangayId == request.auth.token.barangayId;
+    }
+
 // =================================================================
 // Collection: users
 // Stores public user profile information.
@@ -51,30 +55,41 @@ service cloud.firestore {
                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                     (isSuperAdmin() && (resource.data.role == 'admin' || resource.data.role == 'superadmin'));
 
-      // CREATE: Allow user creation during registration. The document ID must match the UID
-      // and the role must be set to 'user'. We also validate required fields.
+      // CREATE: Allow user creation during registration.
       allow create: if request.auth != null && request.auth.uid == userId
-                    && request.resource.data.role == 'user'
-                    && request.resource.data.createdAt == request.time
-                    && request.resource.data.email is string
-                    && request.resource.data.name is string;
+                    && request.resource.data.role == 'user';
 
-      // UPDATE: A user can update their own profile to submit full registration.
-      // Once verified, they cannot change their profile data.
-      // An admin can update the verificationStatus to 'verified' or 'rejected' with rejectionReason.
-      allow update: if (isOwner(userId) && resource.data.verificationStatus != 'verified') ||
-                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId &&
-                     ((request.resource.data.keys().hasOnly(['verificationStatus']) && request.resource.data.verificationStatus == 'verified') ||
-                      (request.resource.data.keys().hasAll(['verificationStatus', 'rejectionReason']) && request.resource.data.verificationStatus == 'rejected'))) ||
+      // UPDATE: A user can update their own address/contact info.
+      // Verification status is handled in the 'full_registration' sub-collection.
+      allow update: if isOwner(userId) ||
                     (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId']));
 
-      // DELETE: Disallowed from client. Handle through a Cloud Function if needed.
+      // DELETE: Disallowed from client.
       allow delete: if false;
+
+      // Subcollection: full_registration
+      match /full_registration/{attemptId} {
+        allow get: if isOwner(userId) ||
+                      (isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId) ||
+                      isSuperAdmin();
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId);
+
+        allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                        isSuperAdmin();
+      }
 
       // Subcollection: notifications
       match /notifications/{notificationId} {
-        allow read: if isOwner(userId); // Only the owner can read their notifications
-        allow write: if false; // Notifications are written by Cloud Functions, not directly by clients
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) || (isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId) || isSuperAdmin();
+        allow update, delete: if false;
+      }
+
+      // Subcollection: logs
+      match /logs/{logId} {
+        allow read, write: if false; // Written by backend services only
       }
     }
 
