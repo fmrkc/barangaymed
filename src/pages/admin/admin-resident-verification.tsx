@@ -165,7 +165,7 @@ const AdminUserVerification: React.FC = () => {
       // Update status in the sub-collection
       const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
       await updateDoc(fullRegRef, {
-        status: 'approved',
+        status: 'verified',
         reviewedAt: serverTimestamp(),
       });
 
@@ -177,15 +177,15 @@ const AdminUserVerification: React.FC = () => {
       // Add a notification for the user
       const notificationsRef = collection(db, 'users', user.uid, 'notifications');
       await addDoc(notificationsRef, {
-        message: 'Congratulations! Your registration has been approved. You can now access all features.',
+        message: 'Congratulations! Your registration has been verified. You can now access all features.',
         timestamp: serverTimestamp(),
         read: false,
-        type: 'registration_approved'
+        type: 'registration_verified'
       });
 
       // Call Cloud Function to send approval email
       const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
-      await sendVerificationEmail({ email: user.email, status: 'approved' });
+      await sendVerificationEmail({ email: user.email, status: 'verified' });
 
       // Delete documents
       await deleteUserDocuments(user.uid);

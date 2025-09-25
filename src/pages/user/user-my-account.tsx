@@ -242,8 +242,8 @@ const Account: React.FC = () => {
                       Resident of Barangay {barangayName || "Not specified"}
                     </div>
                   </IonCardSubtitle>
-                  <IonChip color={registrationStatus?.status === 'approved' ? 'success' : registrationStatus?.status === 'pending' ? 'warning' : registrationStatus?.status === 'not_submitted' ? 'medium' : 'danger'}>
-                    <IonIcon icon={registrationStatus?.status === 'approved' ? checkmark : registrationStatus?.status === 'pending' ? time : registrationStatus?.status === 'not_submitted' ? document : warning} />
+                  <IonChip color={registrationStatus?.status === 'verified' ? 'success' : registrationStatus?.status === 'pending' ? 'warning' : registrationStatus?.status === 'not_submitted' ? 'medium' : 'danger'}>
+                    <IonIcon icon={registrationStatus?.status === 'verified' ? checkmark : registrationStatus?.status === 'pending' ? time : registrationStatus?.status === 'not_submitted' ? document : warning} />
                     <IonLabel>{registrationStatus?.status ? (registrationStatus.status.charAt(0).toUpperCase() + registrationStatus.status.slice(1)).replace('_', ' ') : "Unverified"}</IonLabel>
                   </IonChip>
                 </div>
@@ -323,6 +323,26 @@ const Account: React.FC = () => {
                   </IonCardTitle>
                   <IonText style={{ color: 'var(--ion-color-secondary-contrast)' }}>
                     <p>Your full registration has been submitted and is pending admin verification. You will receive a notification once it's approved.</p>
+                  </IonText>
+                </div>
+              </IonCardContent>
+            </IonCard>
+          )}
+
+          {/* Verified Card */}
+          {registrationStatus?.status === 'verified' && (
+            <IonCard color="success">
+              <IonCardContent className="ion-padding-vertical">
+                <div style={{ textAlign: 'center' }}>
+                  <IonIcon
+                    icon={checkmark}
+                    style={{ fontSize: '48px', color: 'var(--ion-color-success-contrast)', marginBottom: '20px' }}
+                  />
+                  <IonCardTitle style={{ color: 'var(--ion-color-success-contrast)' }}>
+                    Registration Verified
+                  </IonCardTitle>
+                  <IonText style={{ color: 'var(--ion-color-success-contrast)' }}>
+                    <p>Your registration has been verified! You can now access all features.</p>
                   </IonText>
                 </div>
               </IonCardContent>

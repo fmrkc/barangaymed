@@ -32,7 +32,7 @@ service cloud.firestore {
     // Note: verificationStatus and barangayId should be stored in custom claims
     // to avoid fetching from other documents in security rules
     function isVerifiedUser() {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'verified';
+      return isAuthenticated() && request.auth.token.email_verified == true;
     }
 
     // Checks if the user is an admin for a specific barangay.
@@ -169,7 +169,7 @@ service cloud.firestore {
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.barangayId is string
                     && request.resource.data.reason is string
-                    && request.resource.data.status == 'pending'
+                    && request.resource.data.status == 'pending';
 
       // READ: Users can read their own requests. Admins can read requests from their barangay. Superadmins can read all requests.
       allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||

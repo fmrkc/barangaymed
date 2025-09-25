@@ -20,11 +20,11 @@ export const sendVerificationEmail = onCall(
   let subject: string;
   let htmlContent: string;
 
-  if (status === 'approved') {
-    subject = 'BarangayMed+ Account Approved!';
+  if (status === 'approved' || status === 'verified') {
+    subject = 'BarangayMed+ Account Verified!';
     htmlContent = `
       <p>Dear User,</p>
-      <p>Good news! Your BarangayMed+ account has been approved.</p>
+      <p>Good news! Your BarangayMed+ account has been verified.</p>
       <p>You can now log in and access all features of the application.</p>
       <p>Thank you for your patience.</p>
       <p>Sincerely,</p>
