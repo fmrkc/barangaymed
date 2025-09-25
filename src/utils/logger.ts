@@ -72,13 +72,18 @@ export const logSecurityEvent = (
   message: string,
   data?: SecurityLogData
 ): void => {
+  // Filter out undefined values from data
+  const filteredData = data ? Object.fromEntries(
+    Object.entries(data).filter(([_, value]) => value !== undefined)
+  ) : {};
+
   logEvent('info', `[SECURITY] ${eventType}: ${message}`, {
     userId,
     userEmail,
     userRole,
     eventType,
     securityEvent: true,
-    ...data
+    ...filteredData
   });
 };
 

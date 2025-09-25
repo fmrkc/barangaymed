@@ -2,8 +2,9 @@ import React from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonText, useIonToast, IonFooter, IonIcon } from '@ionic/react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
-import { auth } from '../../../firebaseConfig';
+import { auth, db } from '../../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
+import { doc, updateDoc } from 'firebase/firestore';
 import { arrowBack, arrowForward, backspaceOutline, checkmark, checkmarkDone, refresh } from 'ionicons/icons';
 
 const UserVerifyEmail: React.FC = () => {
@@ -38,6 +39,15 @@ const UserVerifyEmail: React.FC = () => {
     const latestUser = auth.currentUser;
 
     if (latestUser?.emailVerified) {
+      // Update verificationStatus in Firestore
+      try {
+        await updateDoc(doc(db, 'users', latestUser.uid), {
+          verificationStatus: 'verified'
+        });
+      } catch (error) {
+        console.error('Error updating verification status:', error);
+      }
+
       presentToast({
         message: 'Email successfully verified!',
         duration: 3000,
