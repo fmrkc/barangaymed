@@ -66,8 +66,7 @@ const AdminUserVerification: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState('success');
   const [barangayName, setBarangayName] = useState('');
-  const [approving, setApproving] = useState(false);
-  const [rejecting, setRejecting] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
 
   const fetchPendingUsers = async () => {
     if (!adminBarangayId) {
@@ -87,36 +86,30 @@ const AdminUserVerification: React.FC = () => {
       );
 
       const statusSnapshot = await getDocs(registrationStatusQuery);
-      const users: UserForVerification[] = [];
+      const users = statusSnapshot.docs.map(doc => {
+        const data = doc.data();
+        const userId = doc.ref.parent.parent?.id; // Get the user ID from the path
+        return {
+          uid: userId || '',
+          attemptId: doc.id,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          contactNumber: data.contactNumber, // This might not be on the denormalized doc yet
+          lotBlkHouseNo: data.lotBlkHouseNo,
+          streetName: data.streetName,
+          subdivisionVillageZonePurok: data.subdivisionVillageZonePurok,
+          zipCode: data.zipCode,
+          verificationStatus: data.status,
+          barangayId: data.barangayId,
+          barangayIdUrl: data.barangayIdUrl,
+          barangayCertificateUrl: data.barangayCertificateUrl,
+          fullRegistrationSubmittedAt: data.submittedAt,
+        };
+      });
+      
+      setPendingUsers(users.filter(user => user.uid)); // Filter out any with no UID
 
-      for (const statusDoc of statusSnapshot.docs) {
-        const statusData = statusDoc.data();
-        const userDocRef = statusDoc.ref.parent.parent;
-        if (userDocRef) {
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            users.push({
-              uid: userDoc.id,
-              attemptId: statusDoc.id,
-              email: userData.email,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              contactNumber: userData.contactNumber,
-              lotBlkHouseNo: userData.lotBlkHouseNo,
-              streetName: userData.streetName,
-              subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok,
-              zipCode: userData.zipCode,
-              verificationStatus: statusData.verificationStatus,
-              barangayId: statusData.barangayId,
-              barangayIdUrl: statusData.barangayIdUrl,
-              barangayCertificateUrl: statusData.barangayCertificateUrl,
-              fullRegistrationSubmittedAt: statusData.submittedAt,
-            });
-          }
-        }
-      }
-      setPendingUsers(users);
     } catch (error) {
       console.error('Error fetching pending users:', error);
       setToastMessage('Error fetching pending users.');
@@ -144,108 +137,32 @@ const AdminUserVerification: React.FC = () => {
     }
   }, [selectedUser]);
 
-  const deleteUserDocuments = async (userId: string) => {
-    try {
-      const deleteUserDocumentsFn = httpsCallable(functions, 'deleteUserDocuments');
-      await deleteUserDocumentsFn({ userId });
-      console.log('User documents deleted successfully via cloud function.');
-    } catch (error) {
-      console.error('Error deleting user documents via cloud function:', error);
-      setToastMessage('Could not delete user documents.');
-      setToastColor('danger');
-      setShowToast(true);
-      // Re-throw the error to be caught by the calling function
-      throw error;
-    }
-  };
+  const reviewRegistration = httpsCallable(functions, 'reviewUserRegistration');
 
-  const handleApprove = async (user: UserForVerification) => {
-    setApproving(true);
+  const handleReview = async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
+    setIsReviewing(true);
     try {
-      // Update status in the sub-collection
-      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
-      await updateDoc(fullRegRef, {
-        verificationStatus: 'verified',
-        reviewedAt: serverTimestamp(),
+      await reviewRegistration({ 
+        userId: user.uid, 
+        attemptId: user.attemptId, 
+        action,
+        reason
       });
 
-      // Add a notification for the user
-      const notificationsRef = collection(db, 'users', user.uid, 'notifications');
-      await addDoc(notificationsRef, {
-        message: 'Congratulations! Your registration has been verified. You can now access all features.',
-        timestamp: serverTimestamp(),
-        read: false,
-        type: 'registration_verified'
-      });
-
-      // Call Cloud Function to send approval email
-      const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
-      await sendVerificationEmail({ email: user.email, status: 'verified' });
-
-      // Delete documents
-      await deleteUserDocuments(user.uid);
-
-      setToastMessage('User approved and notification sent.');
+      setToastMessage(`User has been ${action}.`);
       setToastColor('success');
       setShowToast(true);
       fetchPendingUsers(); // Refresh list
-      setShowModal(false);
-    } catch (error) {
-      console.error('Error approving user:', error);
-      setToastMessage('Error approving user.');
-      setToastColor('danger');
-      setShowToast(true);
-    } finally {
-      setApproving(false);
-    }
-  };
-
-  const handleReject = async (user: UserForVerification, reason: string) => {
-    if (!reason.trim()) {
-      setToastMessage('Rejection reason cannot be empty.');
-      setToastColor('danger');
-      setShowToast(true);
-      return;
-    }
-    setRejecting(true);
-    try {
-      // Update status in the sub-collection
-      const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
-      await updateDoc(fullRegRef, {
-        verificationStatus: 'rejected',
-        reviewedAt: serverTimestamp(),
-        rejectionReason: reason,
-      });
-
-      // Add a notification for the user
-      const notificationsRef = collection(db, 'users', user.uid, 'notifications');
-      await addDoc(notificationsRef, {
-        message: `Your registration has been rejected. Reason: ${reason}`,
-        timestamp: serverTimestamp(),
-        read: false,
-        type: 'registration_rejected'
-      });
-
-      // Call Cloud Function to send rejection email
-      const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
-      await sendVerificationEmail({ email: user.email, status: 'rejected', reason: reason });
-
-      // Delete documents
-      await deleteUserDocuments(user.uid);
-
-      setToastMessage('User rejected and notification sent.');
-      setToastColor('success');
-      setShowToast(true);
       setShowModal(false); // Close modal
       setShowAlert(false); // Close alert
-      fetchPendingUsers(); // Refresh list
-    } catch (error) {
-      console.error('Error rejecting user:', error);
-      setToastMessage('Error rejecting user.');
+
+    } catch (error: any) {
+      console.error(`Error ${action} user:`, error);
+      setToastMessage(error.message || `Error ${action} user.`);
       setToastColor('danger');
       setShowToast(true);
     } finally {
-      setRejecting(false);
+      setIsReviewing(false);
     }
   };
 
@@ -392,7 +309,7 @@ const AdminUserVerification: React.FC = () => {
                 </IonCol>
 
                 <IonCol size="6">
-                    <IonButton expand='block' color="success" shape='round' onClick={() => selectedUser && handleApprove(selectedUser)}>
+                    <IonButton expand='block' color="success" shape='round' onClick={() => selectedUser && handleReview(selectedUser, 'verified')}>
                 <IonText className='ion-padding-vertical'>Approve User</IonText>
                 <IonIcon slot="end" icon={checkmarkCircleOutline} />
               </IonButton>
@@ -426,7 +343,7 @@ const AdminUserVerification: React.FC = () => {
               handler: (data) => {
                 const reason = data.reason;
                 if (selectedUser) {
-                  handleReject(selectedUser, reason);
+                  handleReview(selectedUser, 'rejected', reason);
                 }
               }
             }
@@ -439,8 +356,7 @@ const AdminUserVerification: React.FC = () => {
           color={toastColor}
           onDidDismiss={() => setShowToast(false)}
         />
-        <IonLoading isOpen={approving} message="Approving user..." />
-        <IonLoading isOpen={rejecting} message="Rejecting user..." />
+        <IonLoading isOpen={isReviewing} message="Please wait..." />
       </IonContent>
     </IonPage>
   );

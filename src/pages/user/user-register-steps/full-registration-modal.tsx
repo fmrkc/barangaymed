@@ -328,77 +328,47 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         `user-documents/${currentUser.uid}/barangay-certificate-${Date.now()}`
       );
 
-      // 1. Update the main user document with address and contact info
-      await updateDoc(doc(db, 'users', currentUser.uid), {
-        selectedRegion,
-        selectedProvince,
-        selectedCityMunicipality,
-        barangayId,
-        zipCode,
-        lotBlkHouseNo,
-        streetName,
-        subdivisionVillageZonePurok,
-        contactNumber: unmaskedContactNumber,
-        address: fullAddress,
-      });
+      // Determine the correct base URL for the function based on the environment
+      const isEmulating = import.meta.env.DEV;
+      const functionsBaseUrl = isEmulating
+        ? "http://localhost:5001/barangaymed/us-central1/api" // Local emulator URL
+        : "https://api-gy7oflie2a-uc.a.run.app"; // Deployed function URL
 
-      // 2. Create a new document in the full_registration sub-collection
-      const fullRegRef = collection(db, 'users', currentUser.uid, 'full_registration');
-      await addDoc(fullRegRef, {
-        verificationStatus: 'pending',
-        submittedAt: serverTimestamp(),
-        barangayIdUrl,
-        barangayCertificateUrl,
-        barangayId: barangayId, // Add barangayId for efficient querying
-      });
-
-      // 3. Add a notification for the user
-      const notificationsRef = collection(db, 'users', currentUser.uid, 'notifications');
-      await addDoc(notificationsRef, {
-        message: 'Your registration documents have been submitted and are now pending verification.',
-        timestamp: serverTimestamp(),
-        read: false,
-        type: 'registration'
-      });
-
-      logEvent('info', 'Full registration submitted', {
-        userId: currentUser.uid,
-        userEmail: currentUser.email || undefined,
-        userRole: userRole || undefined,
-      });
-
-      setSuccessMessage('Full registration submitted successfully! Your account is now pending admin verification.');
-
-      // Call the Cloud Function using the new consolidated function URL
-      const idToken = await currentUser.getIdToken();
-      const response = await fetch('https://api-gy7oflie2a-uc.a.run.app/submitFullRegistrationV2', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({
-          registrationDetails: {
-            selectedRegion,
-            selectedProvince,
-            selectedCityMunicipality,
-            barangayId,
-            zipCode,
-            lotBlkHouseNo,
-            streetName,
-            subdivisionVillageZonePurok,
-            contactNumber: unmaskedContactNumber, // Use unmasked number
-            address: fullAddress,
-            barangayIdUrl,
-            barangayCertificateUrl,
+      const idToken = await currentUser.getIdToken(true); // Force refresh for fresh token
+      const response = await fetch(`${functionsBaseUrl}/submitFullRegistrationV2`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
           },
-        }),
+          body: JSON.stringify({
+              registrationDetails: {
+                  selectedRegion,
+                  selectedProvince,
+                  selectedCityMunicipality,
+                  barangayId,
+                  zipCode,
+                  lotBlkHouseNo,
+                  streetName,
+                  subdivisionVillageZonePurok,
+                  contactNumber: unmaskedContactNumber,
+                  address: fullAddress,
+                  barangayIdUrl,
+                  barangayCertificateUrl,
+              },
+          }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit registration');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to submit registration via Cloud Function.');
       }
+
+      logEvent('info', 'Full registration submitted via Cloud Function', {
+        userId: currentUser.uid,
+      });
+
+      setSuccessMessage('Full registration submitted successfully! Your account is now pending admin verification.');
 
       const result = await response.json();
 

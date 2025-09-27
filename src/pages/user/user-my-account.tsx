@@ -36,11 +36,11 @@ import { doc, getDoc, updateDoc, collection, query, orderBy, limit, getDocs } fr
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
-import FullRegistrationModal from "./user-register-steps/full-registration-modal";
-import { getBarangayNameByCode } from "../../services/addressService";
+import { useRegistrationModal } from "../../contexts/RegistrationModalContext";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus, refreshUserClaims } = useAuth();
+  const { isModalOpen, openModal, closeModal } = useRegistrationModal();
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -63,7 +63,6 @@ const Account: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
-  const [showFullRegistrationModal, setShowFullRegistrationModal] = useState(false);
 
   // New state for detailed registration status
   interface RegistrationStatus {
@@ -276,13 +275,37 @@ const Account: React.FC = () => {
                     expand="block"
                     shape="round"
                     color="light"
-                    onClick={() => setShowFullRegistrationModal(true)}
+                    onClick={openModal}
                     className="ion-margin-top"
                   >
                     <IonIcon slot="start" icon={document} />
                     Full Registration
                   </IonButton>
                 </div>
+              </IonCardContent>
+            </IonCard>
+          )}
+
+          {/* Card for 'rejected' status */}
+          {registrationStatus?.status === 'rejected' && (
+            <IonCard color={"danger"}>
+              <IonCardHeader>
+                <IonCardTitle style={{color: 'var(--ion-color-danger-contrast)'}}>Registration Rejected</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Your registration was rejected for the following reason:</p>
+                <p style={{color: 'var(--ion-color-danger-contrast)'}}><strong>{registrationStatus.rejectionReason || "No reason provided."}</strong></p>
+                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Please correct the issues and resubmit.</p>
+                <IonButton
+                    expand="block"
+                    shape="round"
+                    color="light"
+                    onClick={openModal}
+                    className="ion-margin-top"
+                  >
+                    <IonIcon slot="start" icon={document} />
+                    Resubmit Registration
+                  </IonButton>
               </IonCardContent>
             </IonCard>
           )}
@@ -527,15 +550,6 @@ const Account: React.FC = () => {
         <IonLoading isOpen={showLoading} message="Logging out..." />
         <IonToast isOpen={!!error} message={error || ""} duration={3000} color="danger" />
         <IonToast isOpen={!!successMessage} message={successMessage || ""} duration={3000} color="success" />
-
-        {/* Full Registration Modal */}
-        <FullRegistrationModal
-          isOpen={showFullRegistrationModal}
-          onDidDismiss={() => {
-            setShowFullRegistrationModal(false);
-            refreshUserClaims();
-          }}
-        />
       </IonContent>
     </>
   );

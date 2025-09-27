@@ -71,11 +71,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       );
 
       if (userDoc.exists()) {
+        const idTokenResult = await user.getIdTokenResult(true);
         const data = userDoc.data();
         const role = data?.role as string | undefined;
         const barangayId = data?.barangayId as string | undefined;
         const cityMunicipalityId = data?.cityMunicipalityId as string | undefined;
         const verificationStatus = data?.verificationStatus as string | undefined;
+
+        const claimsVerificationStatus = idTokenResult.claims?.verificationStatus as string | undefined;
 
         // Set role with fallback logic
         if (role && ['user', 'admin', 'superadmin'].includes(role)) {
@@ -83,7 +86,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.log("AuthContext: Firestore role:", role);
         } else {
           // Fallback: Check Firebase Auth custom claims for role
-          const idTokenResult = await user.getIdTokenResult();
           const claimsRole = idTokenResult.claims?.role as string | undefined;
 
           if (claimsRole && ['user', 'admin', 'superadmin'].includes(claimsRole)) {
@@ -121,12 +123,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         setBarangayId(barangayId || null);
         setCityMunicipalityId(cityMunicipalityId || null);
-        setVerificationStatus(verificationStatus || null);
+        setVerificationStatus(claimsVerificationStatus || verificationStatus || null);
       } else {
         console.warn("AuthContext: User doc not found in Firestore for UID:", user.uid);
 
         // Fallback: Check Firebase Auth custom claims
-        const idTokenResult = await user.getIdTokenResult();
         const claimsRole = idTokenResult.claims?.role as string | undefined;
         const claimsBarangayId = idTokenResult.claims?.barangayId as string | undefined;
         const claimsCityMunicipalityId = idTokenResult.claims?.cityMunicipalityId as string | undefined;

@@ -93,8 +93,9 @@ The `package.json` file contains several useful scripts:
 1. Always check if firestore.rules need to be updated.
 2. Propose a plan on how to implement the features being asked.
 3. Security is top priority as this system might be going official.
-4. If needed, go on phases when implementing features.
-5. Check if there's a free API that can help solve a problem.
-6. Be aware when you are going on a loop trying to solve a problem.
-7. Sometimes think out of the box and figure out what's causing an unsolvable or persistent problem.
-8. At this point in the system, defining variables as 'undefined' is just unacceptable as that's always the reason for initial errors.
+4. The user does not know what is the proper and standard way of implementing features on the system. Propose what is the standard and proper way on how to implement such features.
+5. If needed, go on phases when implementing features.
+6. Check if there's a free API that can help solve a problem.
+7. Be aware when you are going on a loop trying to solve a problem.
+8. Sometimes think out of the box and figure out what's causing an unsolvable or persistent problem.
+9. At this point in the system, defining variables as 'undefined' is just unacceptable as that's always the reason for initial errors.

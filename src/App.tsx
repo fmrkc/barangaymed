@@ -35,6 +35,7 @@ import './theme/global.scss';
 
 import './firebaseConfig';
 import { AuthProvider } from './contexts/AuthContext';
+import { RegistrationModalProvider } from './contexts/RegistrationModalContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
@@ -50,93 +51,113 @@ import UserDashboard from './pages/user/user-menu';
 import UserVerifyEmail from './pages/user/user-register-steps/user-verify-email';
 import SAMenu from './pages/superadmin/sa-menu';
 import RegisterInvited from './pages/auth/RegisterInvited';
+import PendingVerification from './pages/user/PendingVerification';
+import RejectedVerification from './pages/user/RejectedVerification';
+import StartRegistration from './pages/user/StartRegistration';
 
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <AuthProvider>
-    <IonApp>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Switch>
-            {/* Login Routes */}
-            <Route exact path="/login">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <Login />
-              </RedirectIfLoggedIn>
-            </Route>
-            <Route exact path="/">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <Login />
-              </RedirectIfLoggedIn>
-            </Route>
+    <RegistrationModalProvider>
+      <IonApp>
+        <IonReactRouter>
+          <IonRouterOutlet>
+            <Switch>
+              {/* Login Routes */}
+              <Route exact path="/login">
+                <RedirectIfLoggedIn redirectTo="/dashboard">
+                  <Login />
+                </RedirectIfLoggedIn>
+              </Route>
+              <Route exact path="/">
+                <RedirectIfLoggedIn redirectTo="/dashboard">
+                  <Login />
+                </RedirectIfLoggedIn>
+              </Route>
 
-            {/* Super Admin Routes */}
-            <Route path="/superadmin/dashboard">
-              <ProtectedRoute 
-                requiredRole="superadmin" 
-                redirectTo="/login"
-              >
-                <SAMenu />
-              </ProtectedRoute>
-            </Route>
+              {/* Super Admin Routes */}
+              <Route path="/superadmin/dashboard">
+                <ProtectedRoute 
+                  requiredRole="superadmin" 
+                  redirectTo="/login"
+                >
+                  <SAMenu />
+                </ProtectedRoute>
+              </Route>
 
-            <Route exact path="/superadmin/register">
-              <ProtectedRoute
-                requiredRole="superadmin"
-                redirectTo="/login"
-              >
-                <SuperRegister />
-              </ProtectedRoute>
-            </Route>
+              <Route exact path="/superadmin/register">
+                <ProtectedRoute
+                  requiredRole="superadmin"
+                  redirectTo="/login"
+                >
+                  <SuperRegister />
+                </ProtectedRoute>
+              </Route>
 
-            {/* Admin Routes */}
-            <Route path="/admin/dashboard">
-              <ProtectedRoute 
-                requiredRole="admin" 
-                redirectTo="/login"
-              >
-                <AMenu />
-              </ProtectedRoute>
-            </Route>
+              {/* Admin Routes */}
+              <Route path="/admin/dashboard">
+                <ProtectedRoute 
+                  requiredRole="admin" 
+                  redirectTo="/login"
+                >
+                  <AMenu />
+                </ProtectedRoute>
+              </Route>
 
-            {/* User Routes */}
-            <Route exact path="/user/register">
-              <RedirectIfLoggedIn redirectTo="/dashboard">
-                <UserRegister />
-              </RedirectIfLoggedIn>
-            </Route>
-            <Route exact path="/user/verify-email"> {/* NEW ROUTE */}
-              <UserVerifyEmail />
-            </Route>
-            
-            {/* Invitation Registration Route */}
-            <Route exact path="/register-invited">
-              <RegisterInvited />
-            </Route>
+              {/* User Routes */}
+              <Route exact path="/user/register">
+                <RedirectIfLoggedIn redirectTo="/dashboard">
+                  <UserRegister />
+                </RedirectIfLoggedIn>
+              </Route>
+              <Route exact path="/user/verify-email"> {/* NEW ROUTE */}
+                <UserVerifyEmail />
+              </Route>
+              <Route exact path="/user/pending-verification">
+                <ProtectedRoute requiredRole="user" redirectTo="/login">
+                  <PendingVerification />
+                </ProtectedRoute>
+              </Route>
+              <Route exact path="/user/rejected-verification">
+                <ProtectedRoute requiredRole="user" redirectTo="/login">
+                  <RejectedVerification />
+                </ProtectedRoute>
+              </Route>
+              <Route exact path="/user/start-registration">
+                <ProtectedRoute requiredRole="user" redirectTo="/login">
+                  <StartRegistration />
+                </ProtectedRoute>
+              </Route>
+              
+              {/* Invitation Registration Route */}
+              <Route exact path="/register-invited">
+                <RegisterInvited />
+              </Route>
 
-            {/* Protected User Dashboard */}
-            <Route path="/user/dashboard">
-              <ProtectedRoute 
-                requiredRole="user" 
-                redirectTo="/login"
-              >
-                <UserDashboard />
-              </ProtectedRoute>
-            </Route>
+              {/* Protected User Dashboard */}
+              <Route path="/user/dashboard">
+                <ProtectedRoute 
+                  requiredRole="user" 
+                  redirectTo="/login"
+                >
+                  <UserDashboard />
+                </ProtectedRoute>
+              </Route>
 
-            {/* Central Dashboard Redirect */}
-            <Route path="/dashboard">
-              <DashboardRedirect />
-            </Route>
+              {/* Central Dashboard Redirect */}
+              <Route path="/dashboard">
+                <DashboardRedirect />
+              </Route>
 
-            {/* Default route */}
-            <Route render={() => <Redirect to="/login" />} />
-          </Switch>
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </IonApp>
+              {/* Default route */}
+              <Route render={() => <Redirect to="/login" />} />
+            </Switch>
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </IonApp>
+    </RegistrationModalProvider>
   </AuthProvider>
 );
 

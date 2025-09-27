@@ -21,7 +21,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   additionalValidation,
   enableTokenRefresh = true
 }) => {
-  const { currentUser, userRole, barangayId, emailVerified, loading, refreshUserClaims } = useAuth(); // Added emailVerified
+  const { currentUser, userRole, barangayId, verificationStatus, loading, refreshUserClaims } = useAuth();
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
   const location = useLocation();
@@ -130,6 +130,29 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
     );
     return <Redirect to={`/login?returnUrl=${encodeURIComponent(location.pathname)}`} />;
+  }
+
+  // NEW: Redirect based on verification status for users
+  if (userRole === 'user' && requiredRole === 'user') {
+    const status = verificationStatus || 'not_submitted'; // Treat null as not_submitted
+
+    if (status === 'not_submitted' && location.pathname !== '/user/start-registration') {
+      return <Redirect to="/user/start-registration" />;
+    }
+    if (status === 'pending' && location.pathname !== '/user/pending-verification') {
+      return <Redirect to="/user/pending-verification" />;
+    }
+    if (status === 'rejected' && location.pathname !== '/user/rejected-verification') {
+      return <Redirect to="/user/rejected-verification" />;
+    }
+    // Allow verified users to proceed, and redirect them from status pages
+    if (status === 'verified' && [
+      '/user/start-registration',
+      '/user/pending-verification',
+      '/user/rejected-verification'
+    ].includes(location.pathname)) {
+        return <Redirect to="/dashboard" />;
+    }
   }
 
   // NEW: Check for email verification

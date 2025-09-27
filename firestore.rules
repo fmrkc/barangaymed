@@ -29,10 +29,8 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.role == 'superadmin';
     }
 
-    // Note: verificationStatus and barangayId should be stored in custom claims
-    // to avoid fetching from other documents in security rules
-    function isVerifiedUser() {
-      return isAuthenticated() && request.auth.token.email_verified == true;
+    function isVerifiedResident() {
+      return isUserRole() && request.auth.token.verificationStatus == 'verified';
     }
 
     // Checks if the user is an admin for a specific barangay.
@@ -59,11 +57,16 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId
                     && request.resource.data.role == 'user';
 
-      // UPDATE: A user can update their own address/contact info.
-      // Verification status is handled in the 'full_registration' sub-collection.
-      allow update: if isOwner(userId) ||
-                    (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId'])) ||
-                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.keys().hasOnly(['verificationStatus', 'rejectionReason']));
+      // UPDATE: A user can update their own non-sensitive info. Admins/SuperAdmins have their own backend functions for updates.
+      allow update: if isOwner(userId) &&
+                    request.resource.data.keys().hasOnly([
+                      'firstName', 'lastName', 'email', 'address', 'contactNumber',
+                      'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',
+                      'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',
+                      'barangayIdUrl', 'barangayCertificateUrl', 'rejectionReason', 'verificationStatus'
+                    ]) &&
+                    // Prevent users from changing their own role or verification status directly.
+                    request.resource.data.role == resource.data.role;
 
       // DELETE: Disallowed from client.
       allow delete: if false;
@@ -71,7 +74,7 @@ service cloud.firestore {
       // Subcollection: full_registration
       match /full_registration/{attemptId} {
         allow get: if isOwner(userId) ||
-                      (isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId) ||
+                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                       isSuperAdmin();
         allow list: if isOwner(userId);
 
@@ -84,7 +87,7 @@ service cloud.firestore {
       // Subcollection: notifications
       match /notifications/{notificationId} {
         allow read: if isOwner(userId);
-        allow create: if isOwner(userId) || (isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId) || isSuperAdmin();
+        allow create: if isOwner(userId) || isSuperAdmin();
         allow update, delete: if false;
       }
 
@@ -100,7 +103,7 @@ service cloud.firestore {
 // =================================================================
     match /announcements/{announcementId} {
       // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.
-      allow read: if (isUserRole() && isVerifiedUser() && resource.data.barangayId == request.auth.token.barangayId) ||
+      allow read: if (isVerifiedResident() && resource.data.barangayId == request.auth.token.barangayId) ||
                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                      isSuperAdmin();
 
@@ -123,7 +126,7 @@ service cloud.firestore {
 // =================================================================
     match /medicine/{medicineId} {
       // READ: Users can read medicine inventory. Admins and Super admins can read all medicine records.
-      allow read: if (isUserRole() && isVerifiedUser()) || isAdmin() || isSuperAdmin();
+      allow read: if isVerifiedResident() || isAdmin() || isSuperAdmin();
 
       // CREATE: Super admins can create medicine records.
       allow create: if isSuperAdmin();
@@ -140,7 +143,7 @@ service cloud.firestore {
 // Users can create requests. Admins can view requests from their barangay. Superadmins can view all.
 // =================================================================
     match /medicineRequests/{requestId} {
-      allow create: if isUserRole() && isVerifiedUser() && request.resource.data.userId == request.auth.uid
+      allow create: if isVerifiedResident() && request.resource.data.userId == request.auth.uid
                     && request.resource.data.medicineId is string
                     && request.resource.data.barangayId == request.auth.token.barangayId
                     && request.resource.data.status == 'pending'
@@ -166,7 +169,7 @@ service cloud.firestore {
 // =================================================================
     match /teleconsultationRequests/{requestId} {
       // CREATE: Verified users can create teleconsultation requests for themselves only
-      allow create: if isUserRole() && isVerifiedUser()
+      allow create: if isVerifiedResident()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.barangayId is string
                     && request.resource.data.reason is string
