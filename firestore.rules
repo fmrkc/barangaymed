@@ -62,7 +62,8 @@ service cloud.firestore {
       // UPDATE: A user can update their own address/contact info.
       // Verification status is handled in the 'full_registration' sub-collection.
       allow update: if isOwner(userId) ||
-                    (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId']));
+                    (isSuperAdmin() && request.resource.data.role == 'admin' && request.resource.data.keys().hasOnly(['barangayId'])) ||
+                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.keys().hasOnly(['verificationStatus', 'rejectionReason']));
 
       // DELETE: Disallowed from client.
       allow delete: if false;
