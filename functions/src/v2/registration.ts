@@ -7,7 +7,14 @@ const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
 export const submitFullRegistration = onCall(
-  { secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] },
+  { 
+    cors: [
+      'http://localhost:8100',
+      'http://localhost:8101',
+      'https://barangaymed.web.app'
+    ],
+    secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] 
+  },
   async (request) => {
     // Check authentication
     if (!request.auth) {

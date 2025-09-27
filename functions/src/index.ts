@@ -296,14 +296,7 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
       verificationStatus: 'pending' 
     });
 
-    // 3. Add a notification for the user
-    const notificationsRef = userDocRef.collection('notifications');
-    await notificationsRef.add({
-      message: 'Your registration documents have been submitted and are now pending verification.',
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      read: false,
-      type: 'registration'
-    });
+
 
     // 4. Send confirmation email (optional, can be kept or removed)
     const subject = "BarangayMed+ Full Registration Request Received";
@@ -782,7 +775,9 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
     }
 
     // 3. Add a notification for the user
-    await userRef.collection('notifications').add({
+    await db.collection('notifications').add({
+      userId: userId,
+      title: `Registration ${action.charAt(0).toUpperCase() + action.slice(1)}`,
       message: notificationMessage,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       read: false,
