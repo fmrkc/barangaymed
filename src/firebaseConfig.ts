@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, addDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getAuth, connectAuthEmulator, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator, doc, getDoc, setDoc, serverTimestamp, collection, addDoc } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFunctions, connectFunctionsEmulator, httpsCallable } from 'firebase/functions';
 import { LogService } from './services/logService';
 import { UserData } from './types/users';
 
@@ -21,6 +21,18 @@ export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 export const storage = getStorage(firebaseApp);
 export const functions = getFunctions(firebaseApp);
+
+if (window.location.hostname === "localhost") {
+  console.log("Development environment: Connecting to Firebase Emulators.");
+  // Point to the Auth emulator
+  connectAuthEmulator(auth, "http://localhost:9099");
+  // Point to the Firestore emulator
+  connectFirestoreEmulator(db, "localhost", 8081);
+  // Point to the Functions emulator
+  connectFunctionsEmulator(functions, "localhost", 5001);
+  // Point to the Storage emulator
+  connectStorageEmulator(storage, "localhost", 9199);
+}
 
 export async function login(email: string, password: string) {
   try {
