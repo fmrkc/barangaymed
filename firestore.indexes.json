@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "full_registration",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "barangayId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "verificationStatus",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

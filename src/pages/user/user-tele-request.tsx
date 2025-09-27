@@ -32,7 +32,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const [showErrorToast, setShowErrorToast] = useState(false);
 
   // Check if user can submit request
-  const canSubmit = currentUser && barangayId && emailVerified && reason.trim();
+  const canSubmit = currentUser && barangayId && verificationStatus === 'verified' && reason.trim();
 
   const handleSubmit = async () => {
     if (!currentUser || !reason.trim()) {
@@ -77,9 +77,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           <IonText>
             <h2>Request Teleconsultation</h2>
             <p>Please provide the reason for your teleconsultation request below.</p>
-            {!barangayId || !emailVerified ? (
+            {!barangayId || verificationStatus !== 'verified' ? (
               <p style={{ color: 'red' }}>
-                <strong>Note:</strong> You must complete your registration and email verification to submit a teleconsultation request.
+                <strong>Note:</strong> You must complete your registration and be verified by an admin to submit a teleconsultation request.
               </p>
             ) : null}
           </IonText>
