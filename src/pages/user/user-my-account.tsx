@@ -37,6 +37,7 @@ import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
 import { useRegistrationModal } from "../../contexts/RegistrationModalContext";
+import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus, refreshUserClaims } = useAuth();
@@ -287,7 +288,7 @@ const Account: React.FC = () => {
           )}
 
           {/* Card for 'rejected' status */}
-          {registrationStatus?.status === 'rejected' && (
+          {registrationStatus?.verificationStatus === 'rejected' && (
             <IonCard color={"danger"}>
               <IonCardHeader>
                 <IonCardTitle style={{color: 'var(--ion-color-danger-contrast)'}}>Registration Rejected</IonCardTitle>
