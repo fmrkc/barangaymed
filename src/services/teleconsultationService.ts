@@ -27,6 +27,11 @@ export class TeleconsultationService {
       const userService = UserService.getInstance();
       const userData = await userService.getUserData(userId);
 
+      // Validate required fields
+      if (!userData.barangayId) {
+        throw new Error('Your profile is incomplete. Please complete your registration and verification before requesting teleconsultation.');
+      }
+
       // Get user document to get email
       const userDoc = await getDoc(doc(db, 'users', userId));
       const userEmail = userDoc.exists() ? userDoc.data()?.email || '' : '';

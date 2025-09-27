@@ -345,7 +345,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       // 2. Create a new document in the full_registration sub-collection
       const fullRegRef = collection(db, 'users', currentUser.uid, 'full_registration');
       await addDoc(fullRegRef, {
-        status: 'pending',
+        verificationStatus: 'pending',
         submittedAt: serverTimestamp(),
         barangayIdUrl,
         barangayCertificateUrl,

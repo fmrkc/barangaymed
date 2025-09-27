@@ -67,7 +67,7 @@ const Account: React.FC = () => {
 
   // New state for detailed registration status
   interface RegistrationStatus {
-    status: string;
+    verificationStatus: string;
     rejectionReason?: string;
   }
   const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus | null>(null);
@@ -112,7 +112,7 @@ const Account: React.FC = () => {
           const latestStatusDoc = querySnapshot.docs[0];
           setRegistrationStatus(latestStatusDoc.data() as RegistrationStatus);
         } else {
-          setRegistrationStatus({ status: 'not_submitted' });
+          setRegistrationStatus({ verificationStatus: 'not_submitted' });
         }
 
       } catch (error) {
@@ -124,6 +124,8 @@ const Account: React.FC = () => {
 
     fetchUserData();
   }, [currentUser]);
+
+
 
   const handleLogout = async () => {
     setShowLoading(true);
@@ -242,9 +244,9 @@ const Account: React.FC = () => {
                       Resident of Barangay {barangayName || "Not specified"}
                     </div>
                   </IonCardSubtitle>
-                  <IonChip color={registrationStatus?.status === 'verified' ? 'success' : registrationStatus?.status === 'pending' ? 'warning' : registrationStatus?.status === 'not_submitted' ? 'medium' : 'danger'}>
-                    <IonIcon icon={registrationStatus?.status === 'verified' ? checkmark : registrationStatus?.status === 'pending' ? time : registrationStatus?.status === 'not_submitted' ? document : warning} />
-                    <IonLabel>{registrationStatus?.status ? (registrationStatus.status.charAt(0).toUpperCase() + registrationStatus.status.slice(1)).replace('_', ' ') : "Unverified"}</IonLabel>
+                  <IonChip color={registrationStatus?.verificationStatus === 'verified' ? 'success' : registrationStatus?.verificationStatus === 'pending' ? 'warning' : registrationStatus?.verificationStatus === 'not_submitted' ? 'medium' : 'danger'}>
+                    <IonIcon icon={registrationStatus?.verificationStatus === 'verified' ? checkmark : registrationStatus?.verificationStatus === 'pending' ? time : registrationStatus?.verificationStatus === 'not_submitted' ? document : warning} />
+                    <IonLabel>{registrationStatus?.verificationStatus ? (registrationStatus.verificationStatus.charAt(0).toUpperCase() + registrationStatus.verificationStatus.slice(1)).replace('_', ' ') : "Unverified"}</IonLabel>
                   </IonChip>
                 </div>
               </div>
@@ -256,7 +258,7 @@ const Account: React.FC = () => {
           </IonCard>
 
           {/* Card for 'not_submitted' status */}
-          {registrationStatus?.status === 'not_submitted' && (
+          {registrationStatus?.verificationStatus === 'not_submitted' && (
             <IonCard color={"warning"}>
               <IonCardContent className="ion-padding-vertical">
                 <div style={{ textAlign: 'center' }}>
@@ -285,32 +287,8 @@ const Account: React.FC = () => {
             </IonCard>
           )}
 
-          {/* Card for 'rejected' status */}
-          {registrationStatus?.status === 'rejected' && (
-            <IonCard color={"danger"}>
-              <IonCardHeader>
-                <IonCardTitle style={{color: 'var(--ion-color-danger-contrast)'}}>Registration Rejected</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Your registration was rejected for the following reason:</p>
-                <p style={{color: 'var(--ion-color-danger-contrast)'}}><strong>{registrationStatus.rejectionReason || "No reason provided."}</strong></p>
-                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Please correct the issues and resubmit.</p>
-                <IonButton
-                    expand="block"
-                    shape="round"
-                    color="light"
-                    onClick={() => setShowFullRegistrationModal(true)}
-                    className="ion-margin-top"
-                  >
-                    <IonIcon slot="start" icon={document} />
-                    Resubmit Registration
-                  </IonButton>
-              </IonCardContent>
-            </IonCard>
-          )}
-
           {/* Pending Verification Card */}
-          {registrationStatus?.status === 'pending' && (
+          {registrationStatus?.verificationStatus === 'pending' && (
             <IonCard color="secondary">
               <IonCardContent className="ion-padding-vertical">
                 <div style={{ textAlign: 'center' }}>
@@ -330,7 +308,7 @@ const Account: React.FC = () => {
           )}
 
           {/* Verified Card */}
-          {registrationStatus?.status === 'verified' && (
+          {registrationStatus?.verificationStatus === 'verified' && (
             <IonCard color="success">
               <IonCardContent className="ion-padding-vertical">
                 <div style={{ textAlign: 'center' }}>

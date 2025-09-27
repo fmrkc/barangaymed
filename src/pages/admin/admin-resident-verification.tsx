@@ -82,7 +82,7 @@ const AdminUserVerification: React.FC = () => {
     try {
       const registrationStatusQuery = query(
         collectionGroup(db, 'full_registration'),
-        where('status', '==', 'pending'),
+        where('verificationStatus', '==', 'pending'),
         where('barangayId', '==', adminBarangayId)
       );
 
@@ -107,7 +107,7 @@ const AdminUserVerification: React.FC = () => {
               streetName: userData.streetName,
               subdivisionVillageZonePurok: userData.subdivisionVillageZonePurok,
               zipCode: userData.zipCode,
-              verificationStatus: statusData.status,
+              verificationStatus: statusData.verificationStatus,
               barangayId: statusData.barangayId,
               barangayIdUrl: statusData.barangayIdUrl,
               barangayCertificateUrl: statusData.barangayCertificateUrl,
@@ -165,13 +165,8 @@ const AdminUserVerification: React.FC = () => {
       // Update status in the sub-collection
       const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
       await updateDoc(fullRegRef, {
-        status: 'verified',
-        reviewedAt: serverTimestamp(),
-      });
-
-      // Also update the main user doc for compatibility with other parts of the app for now
-      await updateDoc(doc(db, 'users', user.uid), {
         verificationStatus: 'verified',
+        reviewedAt: serverTimestamp(),
       });
 
       // Add a notification for the user
@@ -217,14 +212,8 @@ const AdminUserVerification: React.FC = () => {
       // Update status in the sub-collection
       const fullRegRef = doc(db, 'users', user.uid, 'full_registration', user.attemptId);
       await updateDoc(fullRegRef, {
-        status: 'rejected',
-        reviewedAt: serverTimestamp(),
-        rejectionReason: reason,
-      });
-
-      // Also update the main user doc for compatibility
-      await updateDoc(doc(db, 'users', user.uid), {
         verificationStatus: 'rejected',
+        reviewedAt: serverTimestamp(),
         rejectionReason: reason,
       });
 
