@@ -97,7 +97,6 @@ email: string, password: string, name: string, role: string, userData: UserData)
       email: email,
       name: name,
       role: role,
-      verificationStatus: 'unverified', // This status might become redundant, but let's keep it for now
       createdAt: serverTimestamp(),
       ...userData,
       address: combinedAddress // Add the combined address
@@ -107,7 +106,7 @@ email: string, password: string, name: string, role: string, userData: UserData)
     // 1. Full Registration sub-collection
     const fullRegRef = doc(userDocRef, 'full_registration', 'status');
     await setDoc(fullRegRef, {
-      status: 'not_submitted',
+      verificationStatus: 'not_submitted',
       submittedAt: null,
       reviewedAt: null,
       rejectionReason: null,

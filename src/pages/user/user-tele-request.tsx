@@ -25,11 +25,14 @@ interface UserTeleRequestProps {
 }
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, barangayId, emailVerified, verificationStatus } = useAuth();
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
+
+  // Check if user can submit request
+  const canSubmit = currentUser && barangayId && emailVerified && reason.trim();
 
   const handleSubmit = async () => {
     if (!currentUser || !reason.trim()) {
@@ -74,6 +77,11 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           <IonText>
             <h2>Request Teleconsultation</h2>
             <p>Please provide the reason for your teleconsultation request below.</p>
+            {!barangayId || !emailVerified ? (
+              <p style={{ color: 'red' }}>
+                <strong>Note:</strong> You must complete your registration and email verification to submit a teleconsultation request.
+              </p>
+            ) : null}
           </IonText>
 
           <IonCard>

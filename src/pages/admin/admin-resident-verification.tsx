@@ -81,7 +81,7 @@ const AdminUserVerification: React.FC = () => {
     try {
       const registrationStatusQuery = query(
         collectionGroup(db, 'full_registration'),
-        where('status', '==', 'pending'),
+        where('verificationStatus', '==', 'pending'),
         where('barangayId', '==', adminBarangayId)
       );
 
