@@ -161,3 +161,22 @@ Java HotSpot(TM) 64-Bit Server VM (build 21.0.6+8-LTS-188, mixed mode, sharing)
 └─────────────────────────┴───────────────┴─────────────────────┘
 Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
  
+[debug] [2025-09-28T08:58:22.247Z] Received signal SIGHUP 1
+[info]  
+[info] i  emulators: Received SIGHUP for the first time. Starting a clean shutdown. 
+[info] i  emulators: Please wait for a clean shutdown or send the SIGHUP signal again to stop right now. 
+[info] i  Automatically exporting data using --export-on-exit "./emulator-seed-data" please wait for the export to finish... 
+[debug] [2025-09-28T08:58:22.252Z] Emulator locator file path: C:\Users\Clarence\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-09-28T08:58:22.255Z] >>> [apiv2][query] GET http://127.0.0.1:4400/ [none]
+[debug] [2025-09-28T08:58:22.267Z] <<< [apiv2][status] GET http://127.0.0.1:4400/ 200
+[debug] [2025-09-28T08:58:22.268Z] <<< [apiv2][body] GET http://127.0.0.1:4400/ {"version":"14.17.0","origins":["http://127.0.0.1:4400","http://[::1]:4400"],"host":"127.0.0.1","port":4400}
+[info] i  Found running emulator hub for project barangaymed at http://127.0.0.1:4400 
+[info] i  Exporting data to: C:\Users\Clarence\Documents\barangaymed\emulator-seed-data 
+[debug] [2025-09-28T08:58:22.272Z] >>> [apiv2][query] GET http://127.0.0.1:4400/ [none]
+[debug] [2025-09-28T08:58:22.276Z] <<< [apiv2][status] GET http://127.0.0.1:4400/ 200
+[debug] [2025-09-28T08:58:22.277Z] <<< [apiv2][body] GET http://127.0.0.1:4400/ {"version":"14.17.0","origins":["http://127.0.0.1:4400","http://[::1]:4400"],"host":"127.0.0.1","port":4400}
+[debug] [2025-09-28T08:58:22.278Z] >>> [apiv2][query] POST http://127.0.0.1:4400/_admin/export [none]
+[debug] [2025-09-28T08:58:22.278Z] >>> [apiv2][body] POST http://127.0.0.1:4400/_admin/export {"path":"C:\\Users\\Clarence\\Documents\\barangaymed\\emulator-seed-data","initiatedBy":"exit"}
+[info] i  emulators: Received export request. Exporting data to C:\Users\Clarence\Documents\barangaymed\emulator-seed-data. 
+[debug] [2025-09-28T08:58:22.304Z] >>> [apiv2][query] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed:export [none]
+[debug] [2025-09-28T08:58:22.305Z] >>> [apiv2][body] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed:export {"database":"projects/barangaymed/databases/(default)","export_directory":"firebase-export-1759049902285ttA3XQ","export_name":"firestore_export"}
