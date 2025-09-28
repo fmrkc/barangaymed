@@ -76,7 +76,9 @@ service cloud.firestore {
         allow get: if isOwner(userId) ||
                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                       isSuperAdmin();
-        allow list: if isOwner(userId);
+        allow list: if isOwner(userId) ||
+                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                       isSuperAdmin();
 
         allow create: if isOwner(userId);
 

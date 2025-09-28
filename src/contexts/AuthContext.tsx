@@ -70,8 +70,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         { userId: user.uid, operation: 'extractUserData' }
       );
 
+      const idTokenResult = await user.getIdTokenResult(true);
+
       if (userDoc.exists()) {
-        const idTokenResult = await user.getIdTokenResult(true);
         const data = userDoc.data();
         const role = data?.role as string | undefined;
         const barangayId = data?.barangayId as string | undefined;

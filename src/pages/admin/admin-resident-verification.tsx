@@ -1,13 +1,12 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonButtons, IonBackButton, IonModal, IonInput, IonTextarea, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonBadge, IonMenuButton } from '@ionic/react';
-import React, { useState, useEffect } from 'react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonButton, IonIcon, IonButtons, IonModal, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonMenuButton } from '@ionic/react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, query, where, getDocs, doc, updateDoc, collectionGroup, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { query, where, getDocs, collectionGroup } from 'firebase/firestore';
 import { call, checkmarkCircleOutline, close, closeCircleOutline, eyeOutline, home, mail, mailOutline, open, person, phonePortrait } from 'ionicons/icons';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
 import { getBarangayNameByCode } from '../../services/addressService';
-import { getStorage, ref, deleteObject } from 'firebase/storage';
 
 interface UserForVerification {
   uid: string;
@@ -24,18 +23,18 @@ interface UserForVerification {
   contactNumber?: string;
   barangayIdUrl?: string;
   barangayCertificateUrl?: string;
-  fullRegistrationSubmittedAt?: any;
+  fullRegistrationSubmittedAt?: string | { toDate: () => Date; } | Date | null | undefined;
 }
 
 // Converts a timestamp to "X days ago" format
-function getTimeAgo(timestamp: any): string {
+function getTimeAgo(timestamp: string | { toDate: () => Date; } | Date | null | undefined): string {
   let date: Date;
   if (typeof timestamp === 'string') {
     // Try to parse string date
     date = new Date(timestamp);
-  } else if (timestamp?.toDate) {
+  } else if (timestamp && typeof (timestamp as any).toDate === 'function') {
     // Firestore Timestamp object
-    date = timestamp.toDate();
+    date = (timestamp as any).toDate();
   } else if (timestamp instanceof Date) {
     date = timestamp;
   } else {
@@ -56,7 +55,7 @@ function getTimeAgo(timestamp: any): string {
 }
 
 const AdminUserVerification: React.FC = () => {
-  const { currentUser, userRole, barangayId: adminBarangayId } = useAuth();
+  const { barangayId: adminBarangayId } = useAuth();
   const [pendingUsers, setPendingUsers] = useState<UserForVerification[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -68,7 +67,7 @@ const AdminUserVerification: React.FC = () => {
   const [barangayName, setBarangayName] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
 
-  const fetchPendingUsers = async () => {
+  const fetchPendingUsers = useCallback(async () => {
     if (!adminBarangayId) {
       setLoading(false);
       setToastMessage('Admin barangay ID is not set. Please contact support.');
@@ -86,7 +85,7 @@ const AdminUserVerification: React.FC = () => {
       );
 
       const statusSnapshot = await getDocs(registrationStatusQuery);
-      const users = statusSnapshot.docs.map(doc => {
+      const users = statusSnapshot.docs.map((doc) => {
         const data = doc.data();
         const userId = doc.ref.parent.parent?.id; // Get the user ID from the path
         return {
@@ -100,7 +99,7 @@ const AdminUserVerification: React.FC = () => {
           streetName: data.streetName,
           subdivisionVillageZonePurok: data.subdivisionVillageZonePurok,
           zipCode: data.zipCode,
-          verificationStatus: data.status,
+          verificationStatus: data.verificationStatus,
           barangayId: data.barangayId,
           barangayIdUrl: data.barangayIdUrl,
           barangayCertificateUrl: data.barangayCertificateUrl,
@@ -108,7 +107,7 @@ const AdminUserVerification: React.FC = () => {
         };
       });
       
-      setPendingUsers(users.filter(user => user.uid)); // Filter out any with no UID
+      setPendingUsers(users.filter((user: UserForVerification) => user.uid)); // Filter out any with no UID
 
     } catch (error) {
       console.error('Error fetching pending users:', error);
@@ -118,11 +117,11 @@ const AdminUserVerification: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminBarangayId]);
 
   useEffect(() => {
     fetchPendingUsers();
-  }, [adminBarangayId]);
+  }, [adminBarangayId, fetchPendingUsers]);
 
   useEffect(() => {
     if (selectedUser?.barangayId) {
@@ -156,9 +155,9 @@ const AdminUserVerification: React.FC = () => {
       setShowModal(false); // Close modal
       setShowAlert(false); // Close alert
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error ${action} user:`, error);
-      setToastMessage(error.message || `Error ${action} user.`);
+      setToastMessage((error as any).message || `Error ${action} user.`);
       setToastColor('danger');
       setShowToast(true);
     } finally {
