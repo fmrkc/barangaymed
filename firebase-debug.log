@@ -160,3 +160,746 @@ Issues? Report them at https://github.com/firebase/firebase-tools/issues and att
 [info] i  hosting: 127.0.0.1 - - [27/Sep/2025:17:36:13 +0000] "GET /assets/manifest-Czhug4NF.json HTTP/1.1" 200 502 "http://127.0.0.1:5000/login?returnUrl=%2Fuser%2Fstart-registration" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [27/Sep/2025:17:36:13 +0000] \"GET /assets/manifest-Czhug4NF.json HTTP/1.1\" 200 502 \"http://127.0.0.1:5000/login?returnUrl=%2Fuser%2Fstart-registration\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0\""}}
 [info] i  hosting: 127.0.0.1 - - [27/Sep/2025:17:36:13 +0000] "GET /assets/Alexandria-VariableFont_wght-0NefcU-C.ttf HTTP/1.1" 200 - "http://127.0.0.1:5000/assets/index-BU1tKfW_.css" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [27/Sep/2025:17:36:13 +0000] \"GET /assets/Alexandria-VariableFont_wght-0NefcU-C.ttf HTTP/1.1\" 200 - \"http://127.0.0.1:5000/assets/index-BU1tKfW_.css\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0\""}}
 [info] i  hosting: 127.0.0.1 - - [27/Sep/2025:17:36:15 +0000] "GET /sw.js HTTP/1.1" 200 - "http://127.0.0.1:5000/sw.js" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [27/Sep/2025:17:36:15 +0000] \"GET /sw.js HTTP/1.1\" 200 - \"http://127.0.0.1:5000/sw.js\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0\""}}
+[debug] [2025-09-28T07:44:33.763Z] ----------------------------------------------------------------------
+[debug] [2025-09-28T07:44:33.772Z] Command:       C:\Users\Clarence\AppData\Local\node.exe C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2025-09-28T07:44:33.774Z] CLI Version:   14.17.0
+[debug] [2025-09-28T07:44:33.774Z] Platform:      win32
+[debug] [2025-09-28T07:44:33.775Z] Node Version:  v22.16.0
+[debug] [2025-09-28T07:44:33.776Z] Time:          Sun Sep 28 2025 15:44:33 GMT+0800 (Philippine Standard Time)
+[debug] [2025-09-28T07:44:33.776Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-28T07:44:33.783Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-09-28T07:44:35.049Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-09-28T07:44:35.050Z] > authorizing via signed-in user (fmarkclarence@gmail.com)
+[debug] [2025-09-28T07:44:35.384Z] java version "21.0.6" 2025-01-21 LTS
+
+[debug] [2025-09-28T07:44:35.386Z] Java(TM) SE Runtime Environment (build 21.0.6+8-LTS-188)
+Java HotSpot(TM) 64-Bit Server VM (build 21.0.6+8-LTS-188, mixed mode, sharing)
+
+[debug] [2025-09-28T07:44:35.427Z] Parsed Java major version: 21
+[info] i  emulators: Starting emulators: auth, functions, firestore, hosting, storage, extensions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, functions, firestore, hosting, storage, extensions"}}
+[debug] [2025-09-28T07:44:35.437Z] Checked if tokens are valid: false, expires at: 1758991851947
+[debug] [2025-09-28T07:44:35.438Z] Checked if tokens are valid: false, expires at: 1758991851947
+[debug] [2025-09-28T07:44:35.438Z] > refreshing access token with scopes: []
+[debug] [2025-09-28T07:44:35.442Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-28T07:44:35.443Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-28T07:44:35.677Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-28T07:44:35.678Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-28T07:44:35.756Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed [none]
+[debug] [2025-09-28T07:44:36.061Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-09-28T07:44:36.062Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-09-28T07:44:37.367Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed 200
+[debug] [2025-09-28T07:44:37.368Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed {"projectNumber":"18633162801","projectId":"barangaymed","lifecycleState":"ACTIVE","name":"BarangayMed","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-07-28T13:20:18.406720Z"}
+[debug] [2025-09-28T07:44:37.441Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.441Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.442Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.442Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.442Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.443Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.443Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-09-28T07:44:37.462Z] Emulator locator file path: C:\Users\Clarence\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-09-28T07:44:37.463Z] [hub] writing locator at C:\Users\Clarence\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-09-28T07:44:37.489Z] [Extensions] Started Extensions emulator, this is a noop.
+[debug] [2025-09-28T07:44:37.514Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.515Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.515Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-09-28T07:44:37.515Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, database, pubsub, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, database, pubsub, dataconnect\u001b[22m"}}
+[debug] [2025-09-28T07:44:37.643Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T07:44:37.652Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[debug] [2025-09-28T07:44:37.653Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:44:37.654Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:44:37.654Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig [none]
+[debug] [2025-09-28T07:44:38.586Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig 200
+[debug] [2025-09-28T07:44:38.586Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig {"projectId":"barangaymed","storageBucket":"barangaymed.firebasestorage.app"}
+[debug] [2025-09-28T07:44:38.669Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2025-09-28T07:44:38.669Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2025-09-28T07:44:38.670Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Clarence\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","barangaymed","--rules","C:\\Users\\Clarence\\Documents\\barangaymed\\firestore.rules","--single_project_mode",true,"--functions_emulator","127.0.0.1:5001"],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false,"shell":false,"port":8081} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Clarence\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.19.8.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"barangaymed\",\"--rules\",\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\firestore.rules\",\"--single_project_mode\",true,\"--functions_emulator\",\"127.0.0.1:5001\"],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false,\"shell\":false,\"port\":8081}"}}
+[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
+[info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
+[debug] [2025-09-28T07:45:12.174Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2025-09-28T07:45:14.845Z] Temp file directory for storage emulator: C:\Users\Clarence\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\Clarence\\AppData\\Local\\Temp/firebase/storage/blobs"}}
+[debug] [2025-09-28T07:45:14.855Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:45:14.855Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:45:14.857Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites 
+[debug] [2025-09-28T07:45:15.596Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites 200
+[debug] [2025-09-28T07:45:15.596Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites {"sites":[{"name":"projects/barangaymed/sites/barangaymed","defaultUrl":"https://barangaymed.web.app","appId":"1:18633162801:web:33c02d2c7996b44a31d510","type":"DEFAULT_SITE"}]}
+[debug] [2025-09-28T07:45:15.596Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:45:15.596Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:45:15.596Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config [none]
+[debug] [2025-09-28T07:45:16.412Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config 200
+[debug] [2025-09-28T07:45:16.412Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config {"projectId":"barangaymed","appId":"1:18633162801:web:33c02d2c7996b44a31d510","storageBucket":"barangaymed.firebasestorage.app","apiKey":"AIzaSyC-xkTe-o0WJcWU-NUIwdEQaxONfpMfAFc","authDomain":"barangaymed.firebaseapp.com","messagingSenderId":"18633162801","measurementId":"G-0FYYQVYQ6Z"}
+[debug] [2025-09-28T07:45:16.467Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:45:16.467Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T07:45:16.468Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed [none]
+[debug] [2025-09-28T07:45:16.733Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed 200
+[debug] [2025-09-28T07:45:16.734Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed {"projectId":"barangaymed","projectNumber":"18633162801","displayName":"BarangayMed","name":"projects/barangaymed","resources":{"hostingSite":"barangaymed"},"state":"ACTIVE","etag":"1_73b91308-5c92-4731-ab9e-0a46cb1600a1"}
+[info] i  hosting[barangaymed]: Serving hosting files from: dist {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mdist\u001b[22m"}}
+[info] +  hosting[barangaymed]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[debug] [2025-09-28T07:45:16.994Z] [Extensions] Connecting Extensions emulator, this is a noop.
+[info] i  functions: Watching "C:\Users\Clarence\Documents\barangaymed\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\" for Cloud Functions..."}}
+[debug] [2025-09-28T07:45:17.013Z] Validating nodejs source
+[debug] [2025-09-28T07:45:27.079Z] checkFunctionsSDKVersion was unable to fetch information from NPM Error: spawnSync C:\WINDOWS\system32\cmd.exe ETIMEDOUT
+    at Object.spawnSync (node:internal/child_process:1120:20)
+    at Object.spawnSync (node:child_process:868:24)
+    at Function.spawnSync [as sync] (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\cross-spawn\index.js:26:23)
+    at Object.getLatestSDKVersion (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\versioning.js:54:25)
+    at Object.checkFunctionsSDKVersion (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\versioning.js:74:32)
+    at Delegate.validate (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js:89:20)
+    at FunctionsEmulator.discoverTriggers (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\functionsEmulator.js:320:35)
+    at async FunctionsEmulator.loadTriggers (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\functionsEmulator.js:362:34)
+    at async FunctionsEmulator.connect (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\functionsEmulator.js:282:13)
+    at async Object.startAll (C:\Users\Clarence\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\controller.js:677:13)
+[debug] [2025-09-28T07:45:27.082Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "latest",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T07:45:27.082Z] Building nodejs source
+[debug] [2025-09-28T07:45:27.084Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T07:45:27.095Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T07:45:27.131Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8794
+
+[error] !!  functions: Failed to load function definition from source: FirebaseError: User code failed to load. Cannot determine backend specification. Timeout after 10000. See https://firebase.google.com/docs/functions/tips#avoid_deployment_timeouts_during_initialization' {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: User code failed to load. Cannot determine backend specification. Timeout after 10000. See https://firebase.google.com/docs/functions/tips#avoid_deployment_timeouts_during_initialization'"}}
+[debug] [2025-09-28T07:46:03.069Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬──────────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI              │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth       │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Functions      │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions  │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Firestore      │ 127.0.0.1:8081 │ http://127.0.0.1:4000/firestore  │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Hosting        │ 127.0.0.1:5000 │ n/a                              │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Storage        │ 127.0.0.1:9199 │ http://127.0.0.1:4000/storage    │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Extensions     │ 127.0.0.1:5001 │ http://127.0.0.1:4000/extensions │
+└────────────────┴────────────────┴──────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500, 9150
+┌─────────────────────────┬───────────────┬─────────────────────┐
+│ Extension Instance Name │ Extension Ref │ View in Emulator UI │
+└─────────────────────────┴───────────────┴─────────────────────┘
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2025-09-28T07:50:43.693Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T07:50:43.694Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"6e6e7a0d-ab94-47a9-86db-675f13e88cde","eventType":"providers/firebase.auth/eventTypes/user.create","resource":{"name":"projects/barangaymed","service":"firebaseauth.googleapis.com"},"params":{},"timestamp":"2025-09-28T07:50:43.692Z","data":{"uid":"8xfi9cPm6PgkqRvNK4FX4al3Oz1I","email":"clarence@example.com","emailVerified":false,"metadata":{"creationTime":"2025-09-28T07:50:43.687Z","lastSignInTime":"2025-09-28T07:50:43.687Z"},"customClaims":{},"providerData":[{"rawId":"clarence@example.com","providerId":"password","email":"clarence@example.com","federatedId":"clarence@example.com"}]}}
+[debug] [2025-09-28T07:50:43.742Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T07:50:43.742Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[info] i  To verify the email address clarence@example.com, follow this link: http://127.0.0.1:9099/emulator/action?mode=verifyEmail&lang=en&oobCode=kc1LlZ3m19JECqd32L9uGrdMcqlXK4C0MKW9e1QGfuLGCZq7mV9d-H&apiKey=fake-api-key {"metadata":{"emulator":{"name":"auth"},"message":"To verify the email address clarence@example.com, follow this link: http://127.0.0.1:9099/emulator/action?mode=verifyEmail&lang=en&oobCode=kc1LlZ3m19JECqd32L9uGrdMcqlXK4C0MKW9e1QGfuLGCZq7mV9d-H&apiKey=fake-api-key"}}
+[info] i  To verify the email address clarence@example.com, follow this link: http://127.0.0.1:9099/emulator/action?mode=verifyEmail&lang=en&oobCode=a5ZgtYUejp0TW4P7D3qIvOCks4QZ-zZpZIfcArXmctTN9RsRCxcwnY&apiKey=fake-api-key {"metadata":{"emulator":{"name":"auth"},"message":"To verify the email address clarence@example.com, follow this link: http://127.0.0.1:9099/emulator/action?mode=verifyEmail&lang=en&oobCode=a5ZgtYUejp0TW4P7D3qIvOCks4QZ-zZpZIfcArXmctTN9RsRCxcwnY&apiKey=fake-api-key"}}
+[debug] [2025-09-28T08:06:04.469Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:06:04.469Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"1759046764468","timestamp":"2025-09-28T08:06:04.468Z","eventType":"google.storage.object.finalize","resource":{"service":"storage.googleapis.com","name":"projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046763734","type":"storage#object"},"data":{"kind":"storage#object","name":"user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046763734","bucket":"barangaymed.firebasestorage.app","generation":"1759046764110","metageneration":"1","contentType":"image/png","timeCreated":"2025-09-28T08:06:04.110Z","updated":"2025-09-28T08:06:04.110Z","storageClass":"STANDARD","size":"209429","md5Hash":"ozkhLPmh45FD0DgmjOxYGg==","etag":"RJ0EJkkllgUcIMIKCSxl8gt1ago","metadata":{"firebaseStorageDownloadTokens":"cae61ff9-2c5f-4fa3-a857-0694bc66f063"},"crc32c":"E1buOg==","timeStorageClassUpdated":"2025-09-28T08:06:04.110Z","id":"barangaymed.firebasestorage.app/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046763734/1759046764110","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046763734","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046763734?generation=1759046764110&alt=media"}}
+[debug] [2025-09-28T08:06:04.479Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:06:04.480Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:06:04.481Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:06:04.482Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"b1568850-2c92-4c59-8c75-8e76fd8b464c","type":"google.cloud.storage.object.v1.finalized","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046763734","time":"2025-09-28T08:06:04.110Z","data":{"kind":"storage#object","name":"user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046763734","bucket":"barangaymed.firebasestorage.app","generation":"1759046764110","metageneration":"1","contentType":"image/png","timeCreated":"2025-09-28T08:06:04.110Z","updated":"2025-09-28T08:06:04.110Z","storageClass":"STANDARD","size":"209429","md5Hash":"ozkhLPmh45FD0DgmjOxYGg==","etag":"RJ0EJkkllgUcIMIKCSxl8gt1ago","metadata":{"firebaseStorageDownloadTokens":"cae61ff9-2c5f-4fa3-a857-0694bc66f063"},"crc32c":"E1buOg==","timeStorageClassUpdated":"2025-09-28T08:06:04.110Z","id":"barangaymed.firebasestorage.app/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046763734/1759046764110","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046763734","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046763734?generation=1759046764110&alt=media"}}
+[debug] [2025-09-28T08:06:04.488Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:06:04.488Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:06:05.155Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:06:05.154Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:06:05.155Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:06:05.154Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:06:05.157Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:06:58.617Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:06:58.617Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"1759046818616","timestamp":"2025-09-28T08:06:58.616Z","eventType":"google.storage.object.finalize","resource":{"service":"storage.googleapis.com","name":"projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046818526","type":"storage#object"},"data":{"kind":"storage#object","name":"user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046818526","bucket":"barangaymed.firebasestorage.app","generation":"1759046818594","metageneration":"1","contentType":"image/png","timeCreated":"2025-09-28T08:06:58.594Z","updated":"2025-09-28T08:06:58.594Z","storageClass":"STANDARD","size":"209429","md5Hash":"ozkhLPmh45FD0DgmjOxYGg==","etag":"y45xgZLYgNc95anX32+xSBNL/gE","metadata":{"firebaseStorageDownloadTokens":"0a3c0110-f7c5-412d-98d3-0854a14b35d4"},"crc32c":"E1buOg==","timeStorageClassUpdated":"2025-09-28T08:06:58.594Z","id":"barangaymed.firebasestorage.app/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046818526/1759046818594","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046818526","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046818526?generation=1759046818594&alt=media"}}
+[debug] [2025-09-28T08:06:58.628Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:06:58.628Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:06:58.629Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:06:58.630Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"7025c35a-0ba7-41c4-9f21-943a62ee0a0e","type":"google.cloud.storage.object.v1.finalized","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046818526","time":"2025-09-28T08:06:58.594Z","data":{"kind":"storage#object","name":"user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046818526","bucket":"barangaymed.firebasestorage.app","generation":"1759046818594","metageneration":"1","contentType":"image/png","timeCreated":"2025-09-28T08:06:58.594Z","updated":"2025-09-28T08:06:58.594Z","storageClass":"STANDARD","size":"209429","md5Hash":"ozkhLPmh45FD0DgmjOxYGg==","etag":"y45xgZLYgNc95anX32+xSBNL/gE","metadata":{"firebaseStorageDownloadTokens":"0a3c0110-f7c5-412d-98d3-0854a14b35d4"},"crc32c":"E1buOg==","timeStorageClassUpdated":"2025-09-28T08:06:58.594Z","id":"barangaymed.firebasestorage.app/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759046818526/1759046818594","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046818526","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759046818526?generation=1759046818594&alt=media"}}
+[debug] [2025-09-28T08:06:58.638Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:06:58.638Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:06:58.705Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:06:58.704Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:06:58.706Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:06:58.704Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:06:58.707Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:08:42.556Z] File C:\Users\Clarence\Documents\barangaymed\functions\package.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\package.json changed, reloading triggers"}}
+[debug] [2025-09-28T08:08:42.777Z] File C:\Users\Clarence\Documents\barangaymed\functions\package-lock.json changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\package-lock.json changed, reloading triggers"}}
+[debug] [2025-09-28T08:08:43.789Z] Validating nodejs source
+[debug] [2025-09-28T08:08:45.690Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:08:45.690Z] Building nodejs source
+[debug] [2025-09-28T08:08:45.691Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:08:45.694Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:08:45.711Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8612
+
+[debug] [2025-09-28T08:08:47.532Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:08:51.619Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:08:51.622Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[info] +  functions[us-central1-api]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/api). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/api)."}}
+[info] +  functions[us-central1-deleteUserDocuments]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/deleteUserDocuments). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/deleteUserDocuments)."}}
+[info] +  functions[us-central1-provisionUser]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/provisionUser). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/provisionUser)."}}
+[info] +  functions[us-central1-sendVerificationEmail]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/sendVerificationEmail). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/sendVerificationEmail)."}}
+[info] +  functions[us-central1-standardizeAdminBarangayIds]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/standardizeAdminBarangayIds). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/standardizeAdminBarangayIds)."}}
+[debug] [2025-09-28T08:09:47.221Z] File C:\Users\Clarence\Documents\barangaymed\functions\src\index.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\src\\index.ts changed, reloading triggers"}}
+[debug] [2025-09-28T08:09:48.234Z] Validating nodejs source
+[debug] [2025-09-28T08:09:49.747Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:09:49.747Z] Building nodejs source
+[debug] [2025-09-28T08:09:49.747Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:09:49.749Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:09:49.755Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8951
+
+[debug] [2025-09-28T08:09:50.697Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:09:54.760Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:09:54.763Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[debug] [2025-09-28T08:10:18.500Z] File C:\Users\Clarence\Documents\barangaymed\functions\src\index.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\src\\index.ts changed, reloading triggers"}}
+[debug] [2025-09-28T08:10:19.501Z] Validating nodejs source
+[debug] [2025-09-28T08:10:20.991Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:10:20.991Z] Building nodejs source
+[debug] [2025-09-28T08:10:20.992Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:10:20.995Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:10:21.006Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8355
+
+[debug] [2025-09-28T08:10:21.892Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:10:25.933Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:10:25.935Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[debug] [2025-09-28T08:11:12.670Z] File C:\Users\Clarence\Documents\barangaymed\functions\src\index.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\src\\index.ts changed, reloading triggers"}}
+[debug] [2025-09-28T08:11:13.674Z] Validating nodejs source
+[debug] [2025-09-28T08:11:15.246Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:11:15.246Z] Building nodejs source
+[debug] [2025-09-28T08:11:15.246Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:11:15.249Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:11:15.262Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8349
+
+[debug] [2025-09-28T08:11:16.222Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:11:20.280Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:11:20.282Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[info] i  firestore: Change detected, updating rules... 
+[debug] [2025-09-28T08:13:50.824Z] >>> [apiv2][query] PUT http://127.0.0.1:8081/emulator/v1/projects/barangaymed:securityRules [none]
+[debug] [2025-09-28T08:13:50.824Z] >>> [apiv2][body] PUT http://127.0.0.1:8081/emulator/v1/projects/barangaymed:securityRules {"ignore_errors":true,"rules":{"files":[{"name":"security.rules","content":"rules_version = '2';\r\n\r\nservice cloud.firestore {\r\n  match /databases/{database}/documents {\r\n\r\n// =================================================================\r\n// Helper Functions\r\n// These make the rules below cleaner and easier to read.\r\n// =================================================================\r\n    function isAuthenticated() {\r\n      return request.auth != null;\r\n    }\r\n\r\n    // Checks if the requesting user is the owner of the document.\r\n    function isOwner(userId) {\r\n      return isAuthenticated() && request.auth.uid == userId;\r\n    }\r\n\r\n    // Checks if the user has a specific role using custom claims\r\n    function isUserRole() {\r\n      return isAuthenticated() && request.auth.token.role == 'user';\r\n    }\r\n\r\n    function isAdmin() {\r\n      return isAuthenticated() && request.auth.token.role == 'admin';\r\n    }\r\n\r\n    function isSuperAdmin() {\r\n      return isAuthenticated() && request.auth.token.role == 'superadmin';\r\n    }\r\n\r\n    function isVerifiedResident() {\r\n      return isUserRole() && request.auth.token.verificationStatus == 'verified';\r\n    }\r\n\r\n    // Checks if the user is an admin for a specific barangay.\r\n    // This assumes the admin's assigned barangayId is stored in custom claims\r\n    function isAdminOfBarangay(barangayId) {\r\n      return isAdmin() && request.auth.token.barangayId == barangayId;\r\n    }\r\n\r\n    match /{path=**}/full_registration/{attemptId} {\r\n      allow read: if isAdmin() && resource.data.barangayId == request.auth.token.barangayId;\r\n    }\r\n\r\n// =================================================================\r\n// Collection: users\r\n// Stores public user profile information.\r\n// =================================================================\r\n    match /users/{userId} {\r\n      // READ: Users can read their own profile. Admins can read profiles of users in their barangay. Super admins can read other admins/super admins.\r\n      allow read: if isOwner(userId) ||\r\n                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                    (isSuperAdmin() && (resource.data.role == 'admin' || resource.data.role == 'superadmin'));\r\n\r\n      // CREATE: Allow user creation during registration.\r\n      allow create: if request.auth != null && request.auth.uid == userId\r\n                    && request.resource.data.role == 'user';\r\n\r\n      // UPDATE: A user can update their own non-sensitive info. Admins/SuperAdmins have their own backend functions for updates.\r\n      allow update: if isOwner(userId) &&\r\n                    request.resource.data.keys().hasOnly([\r\n                      'firstName', 'lastName', 'email', 'address', 'contactNumber',\r\n                      'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',\r\n                      'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',\r\n                      'idVerificationUrl', 'idVerificationType', 'rejectionReason', 'verificationStatus'\r\n                    ]) &&\r\n                    // Prevent users from changing their own role or verification status directly.\r\n                    request.resource.data.role == resource.data.role;\r\n\r\n      // DELETE: Disallowed from client.\r\n      allow delete: if false;\r\n\r\n      // Subcollection: full_registration\r\n      match /full_registration/{attemptId} {\r\n        allow get: if isOwner(userId) ||\r\n                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                      isSuperAdmin();\r\n        allow list: if isOwner(userId) ||\r\n                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                       isSuperAdmin();\r\n\r\n        allow create: if isOwner(userId);\r\n\r\n        allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                        isSuperAdmin();\r\n      }\r\n\r\n      // Subcollection: notifications\r\n      match /notifications/{notificationId} {\r\n        allow read: if isOwner(userId);\r\n        allow create: if isOwner(userId) || isSuperAdmin();\r\n        allow update, delete: if false;\r\n      }\r\n\r\n      // Subcollection: logs\r\n      match /logs/{logId} {\r\n        allow read, write: if false; // Written by backend services only\r\n      }\r\n    }\r\n\r\n// =================================================================\r\n// Collection: announcements\r\n// Managed by Admins and Super Admins.\r\n// =================================================================\r\n    match /announcements/{announcementId} {\r\n      // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.\r\n      allow read: if (isVerifiedResident() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                     isSuperAdmin();\r\n\r\n      // CREATE: Admins can create announcements for their barangay. Super admins can create announcements for any barangay.\r\n      allow create: if (isAdmin() && request.resource.data.barangayId == request.auth.token.barangayId) ||\r\n                       isSuperAdmin();\r\n\r\n      // UPDATE: Admins can update announcements from their barangay. Super admins can update any announcement.\r\n      allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                       isSuperAdmin();\r\n\r\n      // DELETE: Admins can delete announcements from their barangay. Super admins can delete any announcement.\r\n      allow delete: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                       isSuperAdmin();\r\n    }\r\n\r\n// =================================================================\r\n// Collection: medicine\r\n// Managed by Super Admins for inventory.\r\n// =================================================================\r\n    match /medicine/{medicineId} {\r\n      // READ: Users can read medicine inventory. Admins and Super admins can read all medicine records.\r\n      allow read: if isVerifiedResident() || isAdmin() || isSuperAdmin();\r\n\r\n      // CREATE: Super admins can create medicine records.\r\n      allow create: if isSuperAdmin();\r\n\r\n      // UPDATE: Super admins can update medicine records.\r\n      allow update: if isSuperAdmin();\r\n\r\n      // DELETE: Super admins can delete medicine records.\r\n      allow delete: if isSuperAdmin();\r\n    }\r\n\r\n// =================================================================\r\n// Collection: medicineRequests\r\n// Users can create requests. Admins can view requests from their barangay. Superadmins can view all.\r\n// =================================================================\r\n    match /medicineRequests/{requestId} {\r\n      allow create: if isVerifiedResident() && request.resource.data.userId == request.auth.uid\r\n                    && request.resource.data.medicineId is string\r\n                    && request.resource.data.barangayId == request.auth.token.barangayId\r\n                    && request.resource.data.status == 'pending'\r\n                    && request.resource.data.createdAt == request.time;\r\n\r\n      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||\r\n                   (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                   isSuperAdmin();\r\n\r\n      allow update: if (isUserRole() && resource.data.userId == request.auth.uid && resource.data.status == 'accepted' && request.resource.data.status == 'completed') ||\r\n                     (isUserRole() && resource.data.userId == request.auth.uid && resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||\r\n                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                     isSuperAdmin()\r\n                    && resource.data.status == 'pending'\r\n                    && request.resource.data.status in ['accepted', 'rejected'];\r\n\r\n      allow delete: if false; // Deletion not allowed from client\r\n    }\r\n\r\n// =================================================================\r\n// Collection: teleconsultationRequests\r\n// Users can create teleconsultation requests. Admins and Superadmins can manage them.\r\n// =================================================================\r\n    match /teleconsultationRequests/{requestId} {\r\n      // CREATE: Verified users can create teleconsultation requests for themselves only\r\n      allow create: if isVerifiedResident()\r\n                    && request.resource.data.userId == request.auth.uid\r\n                    && request.resource.data.barangayId is string\r\n                    && request.resource.data.reason is string\r\n                    && request.resource.data.status == 'pending';\r\n\r\n      // READ: Users can read their own requests. Admins can read requests from their barangay. Superadmins can read all requests.\r\n      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||\r\n                   (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                   isSuperAdmin();\r\n\r\n      // UPDATE: Users can cancel pending requests or mark accepted requests as completed.\r\n      // Admins can update requests in their barangay. Superadmins can update any request to any valid status.\r\n      allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&\r\n                        ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||\r\n                         (resource.data.status == 'accepted' && request.resource.data.status == 'completed'))) ||\r\n                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||\r\n                    (isSuperAdmin() && request.resource.data.status in ['pending', 'cancelled', 'accepted', 'rejected', 'scheduled', 'completed', 'no show']);\r\n\r\n      // DELETE: Deletion not allowed from client\r\n      allow delete: if false;\r\n    }\r\n\r\n// =================================================================\r\n// Collection: logs\r\n// Users can create log entries for tracking activities.\r\n// =================================================================\r\n    match /logs/{logId} {\r\n      // READ: Users can read their own logs. Admins and Super admins can read all logs.\r\n      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||\r\n                   isAdmin() || isSuperAdmin();\r\n\r\n      // CREATE: Authenticated users can create log entries.\r\n      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid\r\n                    && request.resource.data.action is string\r\n                    && request.resource.data.timestamp == request.time;\r\n\r\n      // UPDATE: Only admins and super admins can update logs.\r\n      allow update: if isAdmin() || isSuperAdmin();\r\n\r\n      // DELETE: Only super admins can delete logs.\r\n      allow delete: if isSuperAdmin();\r\n    }\r\n\r\n  }\r\n}\r\n"}]}}
+[debug] [2025-09-28T08:13:51.544Z] <<< [apiv2][status] PUT http://127.0.0.1:8081/emulator/v1/projects/barangaymed:securityRules 200
+[debug] [2025-09-28T08:13:51.544Z] <<< [apiv2][body] PUT http://127.0.0.1:8081/emulator/v1/projects/barangaymed:securityRules {"issues":[{"sourcePosition":{"fileName":"security.rules","line":38,"column":14,"currentOffset":1250,"endOffset":1266},"description":"Unused function: isAdminOfBarangay.","severity":"WARNING"},{"sourcePosition":{"fileName":"security.rules","line":39,"column":27,"currentOffset":1309,"endOffset":1315},"description":"Invalid variable name: request.","severity":"WARNING"}]}
+[warn] !  firestore.rules:38:14 - WARNING Unused function: isAdminOfBarangay. 
+[warn] !  firestore.rules:39:27 - WARNING Invalid variable name: request. 
+[info] +  firestore: Rules updated. 
+[debug] [2025-09-28T08:14:29.004Z] File C:\Users\Clarence\Documents\barangaymed\functions\src\v2\registration.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\src\\v2\\registration.ts changed, reloading triggers"}}
+[debug] [2025-09-28T08:14:30.014Z] Validating nodejs source
+[debug] [2025-09-28T08:14:31.673Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:14:31.673Z] Building nodejs source
+[debug] [2025-09-28T08:14:31.673Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:14:31.677Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:14:31.686Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8933
+
+[debug] [2025-09-28T08:14:32.723Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:14:36.796Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:14:36.800Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[debug] [2025-09-28T08:16:40.597Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:16:40.598Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"1759047400597","timestamp":"2025-09-28T08:16:40.597Z","eventType":"google.storage.object.finalize","resource":{"service":"storage.googleapis.com","name":"projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759047400195","type":"storage#object"},"data":{"kind":"storage#object","name":"user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759047400195","bucket":"barangaymed.firebasestorage.app","generation":"1759047400568","metageneration":"1","contentType":"image/png","timeCreated":"2025-09-28T08:16:40.568Z","updated":"2025-09-28T08:16:40.568Z","storageClass":"STANDARD","size":"209429","md5Hash":"ozkhLPmh45FD0DgmjOxYGg==","etag":"WoqCJEz5Z31B9Zw6cCpFizo+4R8","metadata":{"firebaseStorageDownloadTokens":"75c8ec12-76da-41f8-a187-887f34171a57"},"crc32c":"E1buOg==","timeStorageClassUpdated":"2025-09-28T08:16:40.568Z","id":"barangaymed.firebasestorage.app/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759047400195/1759047400568","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759047400195","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759047400195?generation=1759047400568&alt=media"}}
+[debug] [2025-09-28T08:16:40.608Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:16:40.608Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:16:40.609Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:16:40.609Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"8eb1c887-28cb-477d-a5c7-4807ebf60f3c","type":"google.cloud.storage.object.v1.finalized","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759047400195","time":"2025-09-28T08:16:40.568Z","data":{"kind":"storage#object","name":"user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759047400195","bucket":"barangaymed.firebasestorage.app","generation":"1759047400568","metageneration":"1","contentType":"image/png","timeCreated":"2025-09-28T08:16:40.568Z","updated":"2025-09-28T08:16:40.568Z","storageClass":"STANDARD","size":"209429","md5Hash":"ozkhLPmh45FD0DgmjOxYGg==","etag":"WoqCJEz5Z31B9Zw6cCpFizo+4R8","metadata":{"firebaseStorageDownloadTokens":"75c8ec12-76da-41f8-a187-887f34171a57"},"crc32c":"E1buOg==","timeStorageClassUpdated":"2025-09-28T08:16:40.568Z","id":"barangaymed.firebasestorage.app/user-documents/8xfi9cPm6PgkqRvNK4FX4al3Oz1I/Barangay ID-1759047400195/1759047400568","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759047400195","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2F8xfi9cPm6PgkqRvNK4FX4al3Oz1I%2FBarangay%20ID-1759047400195?generation=1759047400568&alt=media"}}
+[debug] [2025-09-28T08:16:40.613Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:16:40.613Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:16:41.286Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:16:41.286Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:16:41.287Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:16:41.286Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:16:41.287Z] Accepted request OPTIONS /barangaymed/us-central1/api/submitFullRegistrationV2 --> us-central1-api
+[debug] [2025-09-28T08:16:41.298Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2025-09-28T08:16:41.299Z] [functions] Got req.url=/barangaymed/us-central1/api/submitFullRegistrationV2, mapping to path=/submitFullRegistrationV2 {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/barangaymed/us-central1/api/submitFullRegistrationV2, mapping to path=/submitFullRegistrationV2"}}
+[info] i  functions: Trying to access secret GMAIL_EMAIL@latest {"metadata":{"emulator":{"name":"functions"},"message":"Trying to access secret GMAIL_EMAIL@latest"}}
+[debug] [2025-09-28T08:16:41.306Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T08:16:41.307Z] Checked if tokens are valid: true, expires at: 1759049074678
+[info] i  functions: Trying to access secret GMAIL_APP_PASSWORD@latest {"metadata":{"emulator":{"name":"functions"},"message":"Trying to access secret GMAIL_APP_PASSWORD@latest"}}
+[debug] [2025-09-28T08:16:41.308Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T08:16:41.308Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T08:16:41.309Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_EMAIL/versions/latest:access [none]
+[debug] [2025-09-28T08:16:41.312Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_APP_PASSWORD/versions/latest:access [none]
+[debug] [2025-09-28T08:16:41.721Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_APP_PASSWORD/versions/latest:access 200
+[debug] [2025-09-28T08:16:41.721Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_APP_PASSWORD/versions/latest:access {"name":"projects/18633162801/secrets/GMAIL_APP_PASSWORD/versions/1","payload":{"data":"eGVpYiBoc2xxIGJrbGsgYWVtZA==","dataCrc32c":"2539351973"}}
+[debug] [2025-09-28T08:16:41.750Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_EMAIL/versions/latest:access 200
+[debug] [2025-09-28T08:16:41.751Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_EMAIL/versions/latest:access {"name":"projects/18633162801/secrets/GMAIL_EMAIL/versions/1","payload":{"data":"YmFyYW5nYXltZWRAZ21haWwuY29t","dataCrc32c":"3259928731"}}
+[debug] [2025-09-28T08:16:41.780Z] [worker-pool] addWorker(us-central1-api) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] addWorker(us-central1-api)"}}
+[debug] [2025-09-28T08:16:41.782Z] [worker-pool] Adding worker with key us-central1-api, total=1 {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] Adding worker with key us-central1-api, total=1"}}
+[debug] [2025-09-28T08:16:44.881Z] [runtime-status] [17216] Resolved module firebase-admin {"declared":true,"installed":true,"version":"12.6.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-admin\\lib\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Resolved module firebase-admin {\"declared\":true,\"installed\":true,\"version\":\"12.6.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-admin\\\\lib\\\\index.js\"}"}}
+[debug] [2025-09-28T08:16:44.882Z] [runtime-status] [17216] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:16:44.883Z] [runtime-status] [17216] Outgoing network have been stubbed. [{"name":"http","status":"mocked"},{"name":"http","status":"mocked"},{"name":"https","status":"mocked"},{"name":"https","status":"mocked"},{"name":"net","status":"mocked"}] {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Outgoing network have been stubbed. [{\"name\":\"http\",\"status\":\"mocked\"},{\"name\":\"http\",\"status\":\"mocked\"},{\"name\":\"https\",\"status\":\"mocked\"},{\"name\":\"https\",\"status\":\"mocked\"},{\"name\":\"net\",\"status\":\"mocked\"}]"}}
+[debug] [2025-09-28T08:16:44.885Z] [runtime-status] [17216] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:16:45.447Z] [runtime-status] [17216] Checked functions.config() {"config":{}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Checked functions.config() {\"config\":{}}"}}
+[debug] [2025-09-28T08:16:45.450Z] [runtime-status] [17216] firebase-functions has been stubbed. {"functionsResolution":{"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] firebase-functions has been stubbed. {\"functionsResolution\":{\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}}"}}
+[debug] [2025-09-28T08:16:45.451Z] [runtime-status] [17216] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:16:45.463Z] [runtime-status] [17216] Resolved module firebase-admin {"declared":true,"installed":true,"version":"12.6.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-admin\\lib\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Resolved module firebase-admin {\"declared\":true,\"installed\":true,\"version\":\"12.6.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-admin\\\\lib\\\\index.js\"}"}}
+[debug] [2025-09-28T08:16:45.469Z] [runtime-status] [17216] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:16:45.470Z] [runtime-status] [17216] firebase-admin has been stubbed. {"adminResolution":{"declared":true,"installed":true,"version":"12.6.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-admin\\lib\\index.js"}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] firebase-admin has been stubbed. {\"adminResolution\":{\"declared\":true,\"installed\":true,\"version\":\"12.6.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-admin\\\\lib\\\\index.js\"}}"}}
+[debug] [2025-09-28T08:16:45.743Z] [runtime-status] [17216] Functions runtime initialized. {"cwd":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions","node_version":"22.16.0"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Functions runtime initialized. {\"cwd\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\",\"node_version\":\"22.16.0\"}"}}
+[debug] [2025-09-28T08:16:45.744Z] [runtime-status] [17216] Listening to port: \\?\pipe\fire_emu_19a186a6e8192693 {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[runtime-status] [17216] Listening to port: \\\\?\\pipe\\fire_emu_19a186a6e8192693"}}
+[debug] [2025-09-28T08:16:45.786Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: IDLE"}}
+[debug] [2025-09-28T08:16:45.787Z] [worker-pool] submitRequest(triggerId=us-central1-api) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitRequest(triggerId=us-central1-api)"}}
+[info] i  functions: Beginning execution of "us-central1-api" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Beginning execution of \"us-central1-api\""}}
+[debug] [2025-09-28T08:16:45.791Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: BUSY {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: BUSY"}}
+[debug] [2025-09-28T08:16:45.801Z] Finishing up request with event=pause {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finishing up request with event=pause"}}
+[info] i  functions: Finished "us-central1-api" in 15.483ms {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finished \"us-central1-api\" in 15.483ms"}}
+[debug] [2025-09-28T08:16:45.808Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: IDLE"}}
+[debug] [2025-09-28T08:16:45.808Z] Finishing up request with event=finish {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finishing up request with event=finish"}}
+[debug] [2025-09-28T08:16:45.809Z] Finishing up request with event=close {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finishing up request with event=close"}}
+[debug] [2025-09-28T08:16:45.809Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:16:45.811Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:16:45.811Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:16:45.811Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/api/submitFullRegistrationV2-2025-09-28T08:16:45.811Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:16:45.811Z] Accepted request POST /barangaymed/us-central1/api/submitFullRegistrationV2 --> us-central1-api
+[debug] [2025-09-28T08:16:45.814Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2025-09-28T08:16:45.814Z] [functions] Got req.url=/barangaymed/us-central1/api/submitFullRegistrationV2, mapping to path=/submitFullRegistrationV2 {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/barangaymed/us-central1/api/submitFullRegistrationV2, mapping to path=/submitFullRegistrationV2"}}
+[debug] [2025-09-28T08:16:45.815Z] [worker-pool] submitRequest(triggerId=us-central1-api) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitRequest(triggerId=us-central1-api)"}}
+[info] i  functions: Beginning execution of "us-central1-api" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Beginning execution of \"us-central1-api\""}}
+[debug] [2025-09-28T08:16:45.817Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: BUSY {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: BUSY"}}
+[debug] [2025-09-28T08:16:53.003Z] Finishing up request with event=pause {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finishing up request with event=pause"}}
+[info] i  functions: Finished "us-central1-api" in 7187.361ms {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finished \"us-central1-api\" in 7187.361ms"}}
+[debug] [2025-09-28T08:16:53.005Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: IDLE"}}
+[debug] [2025-09-28T08:16:53.006Z] Finishing up request with event=finish {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finishing up request with event=finish"}}
+[debug] [2025-09-28T08:16:53.006Z] Finishing up request with event=close {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"Finishing up request with event=close"}}
+[debug] [2025-09-28T08:16:53.007Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:19:03.257Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:19:03.258Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"f9122860-3184-4bb3-824a-22ea14496f41","eventType":"providers/firebase.auth/eventTypes/user.create","resource":{"name":"projects/barangaymed","service":"firebaseauth.googleapis.com"},"params":{},"timestamp":"2025-09-28T08:19:03.257Z","data":{"uid":"H4XOfd64Cmy0wo0Yfrl2fkjPSQKU","email":"barangaymed@gmail.com","emailVerified":true,"displayName":"BMED+","photoURL":"","metadata":{"creationTime":"2025-09-28T08:19:03.255Z","lastSignInTime":"2025-09-28T08:19:03.255Z"},"customClaims":{},"providerData":[{"rawId":"barangaymed@gmail.com","providerId":"password","displayName":"BMED+","email":"barangaymed@gmail.com","federatedId":"barangaymed@gmail.com","photoURL":""}],"mfaInfo":[]}}
+[debug] [2025-09-28T08:19:03.268Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:19:03.269Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-09-28T08:23:10.358Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:23:10.358Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:23:10.359Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:23:10.358Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:23:10.359Z] Accepted request OPTIONS /barangaymed/us-central1/provisionUser --> us-central1-provisionUser
+[debug] [2025-09-28T08:23:10.365Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2025-09-28T08:23:10.366Z] [functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/ {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/"}}
+[info] i  functions: Trying to access secret GMAIL_EMAIL@latest {"metadata":{"emulator":{"name":"functions"},"message":"Trying to access secret GMAIL_EMAIL@latest"}}
+[debug] [2025-09-28T08:23:10.369Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T08:23:10.369Z] Checked if tokens are valid: true, expires at: 1759049074678
+[info] i  functions: Trying to access secret GMAIL_APP_PASSWORD@latest {"metadata":{"emulator":{"name":"functions"},"message":"Trying to access secret GMAIL_APP_PASSWORD@latest"}}
+[debug] [2025-09-28T08:23:10.371Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T08:23:10.371Z] Checked if tokens are valid: true, expires at: 1759049074678
+[debug] [2025-09-28T08:23:10.373Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_EMAIL/versions/latest:access [none]
+[debug] [2025-09-28T08:23:10.378Z] >>> [apiv2][query] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_APP_PASSWORD/versions/latest:access [none]
+[debug] [2025-09-28T08:23:10.760Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_APP_PASSWORD/versions/latest:access 200
+[debug] [2025-09-28T08:23:10.760Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_APP_PASSWORD/versions/latest:access {"name":"projects/18633162801/secrets/GMAIL_APP_PASSWORD/versions/1","payload":{"data":"eGVpYiBoc2xxIGJrbGsgYWVtZA==","dataCrc32c":"2539351973"}}
+[debug] [2025-09-28T08:23:10.793Z] <<< [apiv2][status] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_EMAIL/versions/latest:access 200
+[debug] [2025-09-28T08:23:10.793Z] <<< [apiv2][body] GET https://secretmanager.googleapis.com/v1/projects/barangaymed/secrets/GMAIL_EMAIL/versions/latest:access {"name":"projects/18633162801/secrets/GMAIL_EMAIL/versions/1","payload":{"data":"YmFyYW5nYXltZWRAZ21haWwuY29t","dataCrc32c":"3259928731"}}
+[debug] [2025-09-28T08:23:10.809Z] [worker-pool] addWorker(us-central1-provisionUser) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] addWorker(us-central1-provisionUser)"}}
+[debug] [2025-09-28T08:23:10.810Z] [worker-pool] Adding worker with key us-central1-provisionUser, total=1 {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] Adding worker with key us-central1-provisionUser, total=1"}}
+[debug] [2025-09-28T08:23:12.568Z] [runtime-status] [3884] Resolved module firebase-admin {"declared":true,"installed":true,"version":"12.6.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-admin\\lib\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Resolved module firebase-admin {\"declared\":true,\"installed\":true,\"version\":\"12.6.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-admin\\\\lib\\\\index.js\"}"}}
+[debug] [2025-09-28T08:23:12.569Z] [runtime-status] [3884] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:23:12.570Z] [runtime-status] [3884] Outgoing network have been stubbed. [{"name":"http","status":"mocked"},{"name":"http","status":"mocked"},{"name":"https","status":"mocked"},{"name":"https","status":"mocked"},{"name":"net","status":"mocked"}] {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Outgoing network have been stubbed. [{\"name\":\"http\",\"status\":\"mocked\"},{\"name\":\"http\",\"status\":\"mocked\"},{\"name\":\"https\",\"status\":\"mocked\"},{\"name\":\"https\",\"status\":\"mocked\"},{\"name\":\"net\",\"status\":\"mocked\"}]"}}
+[debug] [2025-09-28T08:23:12.571Z] [runtime-status] [3884] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:23:13.035Z] [runtime-status] [3884] Checked functions.config() {"config":{}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Checked functions.config() {\"config\":{}}"}}
+[debug] [2025-09-28T08:23:13.035Z] [runtime-status] [3884] firebase-functions has been stubbed. {"functionsResolution":{"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] firebase-functions has been stubbed. {\"functionsResolution\":{\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}}"}}
+[debug] [2025-09-28T08:23:13.036Z] [runtime-status] [3884] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:23:13.042Z] [runtime-status] [3884] Resolved module firebase-admin {"declared":true,"installed":true,"version":"12.6.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-admin\\lib\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Resolved module firebase-admin {\"declared\":true,\"installed\":true,\"version\":\"12.6.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-admin\\\\lib\\\\index.js\"}"}}
+[debug] [2025-09-28T08:23:13.046Z] [runtime-status] [3884] Resolved module firebase-functions {"declared":true,"installed":true,"version":"6.4.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-functions\\lib\\v2\\index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"6.4.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-functions\\\\lib\\\\v2\\\\index.js\"}"}}
+[debug] [2025-09-28T08:23:13.047Z] [runtime-status] [3884] firebase-admin has been stubbed. {"adminResolution":{"declared":true,"installed":true,"version":"12.6.0","resolution":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\node_modules\\firebase-admin\\lib\\index.js"}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] firebase-admin has been stubbed. {\"adminResolution\":{\"declared\":true,\"installed\":true,\"version\":\"12.6.0\",\"resolution\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\\\\node_modules\\\\firebase-admin\\\\lib\\\\index.js\"}}"}}
+[debug] [2025-09-28T08:23:13.268Z] [runtime-status] [3884] Functions runtime initialized. {"cwd":"C:\\Users\\Clarence\\Documents\\barangaymed\\functions","node_version":"22.16.0"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Functions runtime initialized. {\"cwd\":\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\functions\",\"node_version\":\"22.16.0\"}"}}
+[debug] [2025-09-28T08:23:13.268Z] [runtime-status] [3884] Listening to port: \\?\pipe\fire_emu_c2afa18519cdffcf {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[runtime-status] [3884] Listening to port: \\\\?\\pipe\\fire_emu_c2afa18519cdffcf"}}
+[debug] [2025-09-28T08:23:13.298Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE"}}
+[debug] [2025-09-28T08:23:13.298Z] [worker-pool] submitRequest(triggerId=us-central1-provisionUser) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitRequest(triggerId=us-central1-provisionUser)"}}
+[info] i  functions: Beginning execution of "us-central1-provisionUser" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Beginning execution of \"us-central1-provisionUser\""}}
+[debug] [2025-09-28T08:23:13.299Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY"}}
+[debug] [2025-09-28T08:23:13.312Z] Finishing up request with event=pause {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=pause"}}
+[info] i  functions: Finished "us-central1-provisionUser" in 13.3893ms {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finished \"us-central1-provisionUser\" in 13.3893ms"}}
+[debug] [2025-09-28T08:23:13.314Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE"}}
+[debug] [2025-09-28T08:23:13.314Z] Finishing up request with event=finish {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=finish"}}
+[debug] [2025-09-28T08:23:13.315Z] Finishing up request with event=close {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=close"}}
+[debug] [2025-09-28T08:23:13.315Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:23:13.316Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:23:13.316Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:23:13.317Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:23:13.316Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:23:13.317Z] Accepted request POST /barangaymed/us-central1/provisionUser --> us-central1-provisionUser
+[debug] [2025-09-28T08:23:13.319Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2025-09-28T08:23:13.319Z] [functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/ {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/"}}
+[debug] [2025-09-28T08:23:13.320Z] [worker-pool] submitRequest(triggerId=us-central1-provisionUser) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitRequest(triggerId=us-central1-provisionUser)"}}
+[info] i  functions: Beginning execution of "us-central1-provisionUser" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Beginning execution of \"us-central1-provisionUser\""}}
+[debug] [2025-09-28T08:23:13.321Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY"}}
+[info] >  {"verifications":{"app":"MISSING","auth":"VALID"},"logging.googleapis.com/labels":{"firebase-log-type":"callable-request-verification"},"severity":"DEBUG","message":"Callable request verification passed"} {"user":{"verifications":{"app":"MISSING","auth":"VALID"},"logging.googleapis.com/labels":{"firebase-log-type":"callable-request-verification"},"severity":"DEBUG","message":"Callable request verification passed"},"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"\u001b[90m> \u001b[39m {\"verifications\":{\"app\":\"MISSING\",\"auth\":\"VALID\"},\"logging.googleapis.com/labels\":{\"firebase-log-type\":\"callable-request-verification\"},\"severity\":\"DEBUG\",\"message\":\"Callable request verification passed\"}"}}
+[debug] [2025-09-28T08:23:13.384Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:23:13.384Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"cd2e7bd4-83f8-42d4-8168-b04ead1df09b","eventType":"providers/firebase.auth/eventTypes/user.create","resource":{"name":"projects/barangaymed","service":"firebaseauth.googleapis.com"},"params":{},"timestamp":"2025-09-28T08:23:13.383Z","data":{"uid":"WVapI94DUjqYKnAKDE1uYhpng9FJ","email":"admin.ae71bd6b@barangaymed.app","emailVerified":true,"displayName":"Floridablanca Super Admin","metadata":{"creationTime":"2025-09-28T08:23:13.383Z","lastSignInTime":"2025-09-28T08:23:13.383Z"},"customClaims":{},"providerData":[{"rawId":"admin.ae71bd6b@barangaymed.app","providerId":"password","displayName":"Floridablanca Super Admin","email":"admin.ae71bd6b@barangaymed.app","federatedId":"admin.ae71bd6b@barangaymed.app"}]}}
+[debug] [2025-09-28T08:23:13.396Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:23:13.396Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[info] >  {"severity":"INFO","message":"Successfully provisioned user admin.ae71bd6b@barangaymed.app and sent credentials to floridablanca@example.com."} {"user":{"severity":"INFO","message":"Successfully provisioned user admin.ae71bd6b@barangaymed.app and sent credentials to floridablanca@example.com."},"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"\u001b[90m> \u001b[39m {\"severity\":\"INFO\",\"message\":\"Successfully provisioned user admin.ae71bd6b@barangaymed.app and sent credentials to floridablanca@example.com.\"}"}}
+[debug] [2025-09-28T08:23:17.042Z] Finishing up request with event=pause {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=pause"}}
+[info] i  functions: Finished "us-central1-provisionUser" in 3721.1855ms {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finished \"us-central1-provisionUser\" in 3721.1855ms"}}
+[debug] [2025-09-28T08:23:17.044Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE"}}
+[debug] [2025-09-28T08:23:17.045Z] Finishing up request with event=finish {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=finish"}}
+[debug] [2025-09-28T08:23:17.047Z] Finishing up request with event=close {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=close"}}
+[debug] [2025-09-28T08:23:17.047Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:25:00.261Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:25:00.261Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:25:00.262Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:25:00.261Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:25:00.262Z] Accepted request OPTIONS /barangaymed/us-central1/provisionUser --> us-central1-provisionUser
+[debug] [2025-09-28T08:25:00.268Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2025-09-28T08:25:00.270Z] [functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/ {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/"}}
+[debug] [2025-09-28T08:25:00.270Z] [worker-pool] submitRequest(triggerId=us-central1-provisionUser) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitRequest(triggerId=us-central1-provisionUser)"}}
+[info] i  functions: Beginning execution of "us-central1-provisionUser" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Beginning execution of \"us-central1-provisionUser\""}}
+[debug] [2025-09-28T08:25:00.273Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY"}}
+[debug] [2025-09-28T08:25:00.281Z] Finishing up request with event=pause {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=pause"}}
+[info] i  functions: Finished "us-central1-provisionUser" in 8.3864ms {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finished \"us-central1-provisionUser\" in 8.3864ms"}}
+[debug] [2025-09-28T08:25:00.283Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE"}}
+[debug] [2025-09-28T08:25:00.283Z] Finishing up request with event=finish {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=finish"}}
+[debug] [2025-09-28T08:25:00.283Z] Finishing up request with event=close {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=close"}}
+[debug] [2025-09-28T08:25:00.283Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:25:00.287Z] [work-queue] {"queuedWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:25:00.286Z"],"queueLength":1,"runningWork":[],"workRunningCount":0}
+[debug] [2025-09-28T08:25:00.287Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":["/barangaymed/us-central1/provisionUser-2025-09-28T08:25:00.286Z"],"workRunningCount":1}
+[debug] [2025-09-28T08:25:00.287Z] Accepted request POST /barangaymed/us-central1/provisionUser --> us-central1-provisionUser
+[debug] [2025-09-28T08:25:00.296Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2025-09-28T08:25:00.296Z] [functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/ {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/barangaymed/us-central1/provisionUser, mapping to path=/"}}
+[debug] [2025-09-28T08:25:00.297Z] [worker-pool] submitRequest(triggerId=us-central1-provisionUser) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitRequest(triggerId=us-central1-provisionUser)"}}
+[info] i  functions: Beginning execution of "us-central1-provisionUser" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Beginning execution of \"us-central1-provisionUser\""}}
+[debug] [2025-09-28T08:25:00.298Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: BUSY"}}
+[info] >  {"verifications":{"app":"MISSING","auth":"VALID"},"logging.googleapis.com/labels":{"firebase-log-type":"callable-request-verification"},"severity":"DEBUG","message":"Callable request verification passed"} {"user":{"verifications":{"app":"MISSING","auth":"VALID"},"logging.googleapis.com/labels":{"firebase-log-type":"callable-request-verification"},"severity":"DEBUG","message":"Callable request verification passed"},"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"\u001b[90m> \u001b[39m {\"verifications\":{\"app\":\"MISSING\",\"auth\":\"VALID\"},\"logging.googleapis.com/labels\":{\"firebase-log-type\":\"callable-request-verification\"},\"severity\":\"DEBUG\",\"message\":\"Callable request verification passed\"}"}}
+[debug] [2025-09-28T08:25:00.337Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-09-28T08:25:00.337Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"ce22e402-bf3d-457a-aa40-e8f433d6a2a6","eventType":"providers/firebase.auth/eventTypes/user.create","resource":{"name":"projects/barangaymed","service":"firebaseauth.googleapis.com"},"params":{},"timestamp":"2025-09-28T08:25:00.336Z","data":{"uid":"fF10Wq5y5Lt6gQMnXHonDQJkvGv0","email":"admin.f982d1d1@barangaymed.app","emailVerified":true,"displayName":"Fortuna Admin","metadata":{"creationTime":"2025-09-28T08:25:00.335Z","lastSignInTime":"2025-09-28T08:25:00.335Z"},"customClaims":{},"providerData":[{"rawId":"admin.f982d1d1@barangaymed.app","providerId":"password","displayName":"Fortuna Admin","email":"admin.f982d1d1@barangaymed.app","federatedId":"admin.f982d1d1@barangaymed.app"}]}}
+[debug] [2025-09-28T08:25:00.362Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-09-28T08:25:00.363Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[info] >  {"severity":"INFO","message":"Successfully provisioned user admin.f982d1d1@barangaymed.app and sent credentials to fortunadmin@example.com."} {"user":{"severity":"INFO","message":"Successfully provisioned user admin.f982d1d1@barangaymed.app and sent credentials to fortunadmin@example.com."},"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"\u001b[90m> \u001b[39m {\"severity\":\"INFO\",\"message\":\"Successfully provisioned user admin.f982d1d1@barangaymed.app and sent credentials to fortunadmin@example.com.\"}"}}
+[debug] [2025-09-28T08:25:02.978Z] Finishing up request with event=pause {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=pause"}}
+[info] i  functions: Finished "us-central1-provisionUser" in 2680.21ms {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finished \"us-central1-provisionUser\" in 2680.21ms"}}
+[debug] [2025-09-28T08:25:02.980Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: IDLE"}}
+[debug] [2025-09-28T08:25:02.980Z] Finishing up request with event=finish {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=finish"}}
+[debug] [2025-09-28T08:25:02.981Z] Finishing up request with event=close {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"Finishing up request with event=close"}}
+[debug] [2025-09-28T08:25:02.981Z] [work-queue] {"queuedWork":[],"queueLength":0,"runningWork":[],"workRunningCount":0}
+[info] i  To reset your email address to admin.ae71bd6b@barangaymed.app, follow this link: http://127.0.0.1:9099/emulator/action?mode=recoverEmail&lang=en&oobCode=mkev3_JIQxuOFoYiUD_eXuvi1b4Iu4Lfn6IFhaUF9mtHuNszQew8oo&apiKey=fake-api-key {"metadata":{"emulator":{"name":"auth"},"message":"To reset your email address to admin.ae71bd6b@barangaymed.app, follow this link: http://127.0.0.1:9099/emulator/action?mode=recoverEmail&lang=en&oobCode=mkev3_JIQxuOFoYiUD_eXuvi1b4Iu4Lfn6IFhaUF9mtHuNszQew8oo&apiKey=fake-api-key"}}
+[debug] [2025-09-28T08:29:02.343Z] File C:\Users\Clarence\Documents\barangaymed\functions\src\index.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\src\\index.ts changed, reloading triggers"}}
+[debug] [2025-09-28T08:29:03.350Z] Validating nodejs source
+[debug] [2025-09-28T08:29:04.869Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:29:04.870Z] Building nodejs source
+[debug] [2025-09-28T08:29:04.870Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:29:04.872Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:29:04.880Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8930
+
+[debug] [2025-09-28T08:29:05.760Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:29:09.812Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:29:09.815Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[debug] [2025-09-28T08:29:09.818Z] [worker-pool] Shutting down IDLE worker (us-central1-api) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] Shutting down IDLE worker (us-central1-api)"}}
+[debug] [2025-09-28T08:29:09.818Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: FINISHING {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: FINISHING"}}
+[debug] [2025-09-28T08:29:09.819Z] [worker-pool] Shutting down IDLE worker (us-central1-provisionUser) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] Shutting down IDLE worker (us-central1-provisionUser)"}}
+[debug] [2025-09-28T08:29:09.819Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: FINISHING {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: FINISHING"}}
+[debug] [2025-09-28T08:29:09.862Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: exited {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: exited"}}
+[debug] [2025-09-28T08:29:09.862Z] [worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: FINISHED {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-api"},"extension":{},"message":"[worker-us-central1-api-8f91f5b1-467f-4e83-881b-3a801811ae31]: FINISHED"}}
+[debug] [2025-09-28T08:29:09.863Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: exited {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: exited"}}
+[debug] [2025-09-28T08:29:09.864Z] [worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: FINISHED {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-provisionUser"},"extension":{},"message":"[worker-us-central1-provisionUser-9b3bcc15-64b4-4e2e-9e75-bd1a56ec70b3]: FINISHED"}}
+[debug] [2025-09-28T08:29:10.943Z] File C:\Users\Clarence\Documents\barangaymed\functions\src\index.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File C:\\Users\\Clarence\\Documents\\barangaymed\\functions\\src\\index.ts changed, reloading triggers"}}
+[debug] [2025-09-28T08:29:11.946Z] Validating nodejs source
+[debug] [2025-09-28T08:29:13.324Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-09-28T08:29:13.325Z] Building nodejs source
+[debug] [2025-09-28T08:29:13.325Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-09-28T08:29:13.330Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-28T08:29:13.343Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8817
+
+[debug] [2025-09-28T08:29:14.269Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"deleteUserDocuments":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"deleteUserDocuments"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-09-28T08:29:18.319Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-09-28T08:29:18.320Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, deleteUserDocuments, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}

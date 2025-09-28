@@ -67,8 +67,8 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   const [contactNumber, setContactNumber] = useState('');
 
   // Step 3: Document Uploads
-  const [barangayIdFile, setBarangayIdFile] = useState<File | null>(null);
-  const [barangayCertificateFile, setBarangayCertificateFile] = useState<File | null>(null);
+  const [idType, setIdType] = useState<string>('');
+  const [idFile, setIdFile] = useState<File | null>(null);
 
   // Removed Maskito phone mask usage to align with FullRegistrationStep1 phone input style
   const ionInputRef = null;
@@ -247,18 +247,18 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   };
 
   const validateStep3 = () => {
-    if (!barangayIdFile) {
-      setError('Barangay ID upload is required.');
+    if (!idType) {
+      setError('Please select an ID type.');
       return false;
     }
-    if (!barangayCertificateFile) {
-      setError('Barangay Certificate upload is required.');
+    if (!idFile) {
+      setError('Please upload your selected ID.');
       return false;
     }
     return true;
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'id' | 'certificate') => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -276,11 +276,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       return;
     }
 
-    if (type === 'id') {
-      setBarangayIdFile(file);
-    } else {
-      setBarangayCertificateFile(file);
-    }
+    setIdFile(file);
     setError(null);
   };
 
@@ -317,15 +313,10 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       if (zipCode.trim()) addressParts.push(zipCode.trim());
       const fullAddress = addressParts.join(', ');
 
-      // Upload files to Firebase Storage
-      const barangayIdUrl = await uploadFile(
-        barangayIdFile!,
-        `user-documents/${currentUser.uid}/barangay-id-${Date.now()}`
-      );
-
-      const barangayCertificateUrl = await uploadFile(
-        barangayCertificateFile!,
-        `user-documents/${currentUser.uid}/barangay-certificate-${Date.now()}`
+      // Upload file to Firebase Storage
+      const idVerificationUrl = await uploadFile(
+        idFile!,
+        `user-documents/${currentUser.uid}/${idType}-${Date.now()}`
       );
 
       // Determine the correct base URL for the function based on the environment
@@ -353,8 +344,8 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
                   subdivisionVillageZonePurok,
                   contactNumber: unmaskedContactNumber,
                   address: fullAddress,
-                  barangayIdUrl,
-                  barangayCertificateUrl,
+                  idVerificationUrl,
+                  idVerificationType: idType,
               },
           }),
       });
@@ -387,8 +378,8 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
         setStreetName('');
         setSubdivisionVillageZonePurok('');
         setContactNumber('');
-        setBarangayIdFile(null);
-        setBarangayCertificateFile(null);
+        setIdType('');
+        setIdFile(null);
       }, 2000);
 
     } catch (error: any) {
@@ -621,65 +612,58 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
             <IonCardContent>
               <IonCardTitle>
                 <IonItem className='ion-margin-bottom'>
-                  Step 5: Upload your Brgy. Documents
+                  Step 3: Upload Document for Verification
                 </IonItem>
               </IonCardTitle>
 
               <IonItem  className='ion-margin-bottom'>
-                Upload the required documents to be verified by our admins. After verification, your uploaded documents will be deleted.
+                Upload one of the following IDs for address verification. After verification, your uploaded document will be deleted.
               </IonItem>
 
               <IonGrid>
                 <IonRow>
-                  <IonCol size="12" sizeMd="6">
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={(e) => handleFileUpload(e, 'id')}
-                      style={{ display: 'none' }}
-                      id="barangay-id-upload"
-                    />
-                    <IonButton
-                      expand="block"
-                     
-                      fill={barangayIdFile ? 'solid' : 'outline'}
-                      color={barangayIdFile ? 'success' : 'primary'}
-                      onClick={() => document.getElementById('barangay-id-upload')?.click()}
-                      className="ion-margin-vertical"
-                    >
-                      <IonIcon slot="start" icon={barangayIdFile ? checkmarkCircle : cloudUpload} />
-                      <IonText className='ion-padding-vertical'>  {barangayIdFile ? 'Barangay ID Uploaded' : 'Upload Barangay ID'}</IonText>
-                    
-                    </IonButton>
-                    {barangayIdFile && (
-                      <IonText color="success">
-                       Uploaded file:  {barangayIdFile.name}
-                      </IonText>
-                    )}
+                  <IonCol size="12">
+                    <IonItem>
+                      <IonSelect
+                        label="ID Type *"
+                        fill="outline"
+                        value={idType}
+                        placeholder="Select ID Type"
+                        onIonChange={(e) => setIdType(e.detail.value)}
+                        interface="alert"
+                        className="ion-margin-bottom"
+                      >
+                        <IonSelectOption value="National ID">National ID</IonSelectOption>
+                        <IonSelectOption value="Barangay ID">Barangay ID</IonSelectOption>
+                        <IonSelectOption value="PhilHealth ID">PhilHealth ID</IonSelectOption>
+                      </IonSelect>
+                    </IonItem>
                   </IonCol>
-
-                  <IonCol size="12" sizeMd="6">
+                  <IonCol size="12">
                     <input
                       type="file"
                       accept="image/*,.pdf"
-                      onChange={(e) => handleFileUpload(e, 'certificate')}
+                      onChange={handleFileUpload}
                       style={{ display: 'none' }}
-                      id="barangay-certificate-upload"
+                      id="id-upload"
+                      disabled={!idType}
                     />
                     <IonButton
                       expand="block"
-                     
-                      fill={barangayCertificateFile ? 'solid' : 'outline'}
-                      color={barangayCertificateFile ? 'success' : 'primary'}
-                      onClick={() => document.getElementById('barangay-certificate-upload')?.click()}
+                      fill={idFile ? 'solid' : 'outline'}
+                      color={idFile ? 'success' : 'primary'}
+                      onClick={() => document.getElementById('id-upload')?.click()}
                       className="ion-margin-vertical"
+                      disabled={!idType}
                     >
-                      <IonIcon slot="start" icon={barangayCertificateFile ? checkmarkCircle : cloudUpload} />
-                      <IonText className='ion-padding-vertical'>{barangayCertificateFile ? 'Certificate Uploaded' : 'Upload Barangay Certificate'}</IonText>
+                      <IonIcon slot="start" icon={idFile ? checkmarkCircle : cloudUpload} />
+                      <IonText className='ion-padding-vertical'>
+                        {idFile ? 'ID Uploaded' : `Upload ${idType || 'ID'}`}
+                      </IonText>
                     </IonButton>
-                    {barangayCertificateFile && (
+                    {idFile && (
                       <IonText color="success">
-                      Uploaded file:  {barangayCertificateFile.name}
+                        Uploaded file: {idFile.name}
                       </IonText>
                     )}
                   </IonCol>

@@ -21,8 +21,8 @@ interface UserForVerification {
   subdivisionVillageZonePurok?: string;
   zipCode?: string;
   contactNumber?: string;
-  barangayIdUrl?: string;
-  barangayCertificateUrl?: string;
+  idVerificationUrl?: string;
+  idVerificationType?: string;
   fullRegistrationSubmittedAt?: string | { toDate: () => Date; } | Date | null | undefined;
 }
 
@@ -101,8 +101,8 @@ const AdminUserVerification: React.FC = () => {
           zipCode: data.zipCode,
           verificationStatus: data.verificationStatus,
           barangayId: data.barangayId,
-          barangayIdUrl: data.barangayIdUrl,
-          barangayCertificateUrl: data.barangayCertificateUrl,
+          idVerificationUrl: data.idVerificationUrl,
+          idVerificationType: data.idVerificationType,
           fullRegistrationSubmittedAt: data.submittedAt,
         };
       });
@@ -280,16 +280,10 @@ const AdminUserVerification: React.FC = () => {
                
                 <IonItemDivider className="ion-margin-top">Uploaded Documents</IonItemDivider> 
                 
-                {selectedUser.barangayIdUrl && (
-                  <IonItem button onClick={() => window.open(selectedUser.barangayIdUrl, '_blank')}>
+                {selectedUser.idVerificationUrl && (
+                  <IonItem button onClick={() => window.open(selectedUser.idVerificationUrl, '_blank')}>
                     <IonIcon slot="start" icon={eyeOutline} />
-                    <IonLabel>View Barangay ID</IonLabel>
-                  </IonItem>
-                )}
-                {selectedUser.barangayCertificateUrl && (
-                  <IonItem button onClick={() => window.open(selectedUser.barangayCertificateUrl, '_blank')}>
-                    <IonIcon slot="start" icon={eyeOutline} />
-                    <IonLabel>View Barangay Certificate</IonLabel>
+                    <IonLabel>View {selectedUser.idVerificationType}</IonLabel>
                   </IonItem>
                 )}
 

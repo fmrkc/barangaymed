@@ -110,8 +110,8 @@ email: string, password: string, name: string, role: string, userData: UserData)
       submittedAt: null,
       reviewedAt: null,
       rejectionReason: null,
-      barangayIdUrl: null,
-      barangayCertificateUrl: null,
+      idVerificationUrl: null,
+      idVerificationType: null,
       barangayId: userData.barangayId // Add barangayId here
     });
 

@@ -71,10 +71,10 @@ const generatePassword = (length = 12) => {
   return randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
 };
 
-// Helper to generate a random admin email
-const generateAdminEmail = (domain = "barangaymed.app") => {
+// Helper to generate a random role-based email
+const generateRoleBasedEmail = (role: string, domain = "barangaymed.app") => {
   const randomString = randomBytes(4).toString('hex');
-  return `admin.${randomString}@${domain}`;
+  return `${role}.${randomString}@${domain}`;
 };
 
 async function getCityMunicipalityIdFromBarangayId(barangayId: string): Promise<string | undefined> {
@@ -264,7 +264,7 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
 
     const {
       lotBlkHouseNo, streetName, subdivisionVillageZonePurok, zipCode, contactNumber,
-      barangayId, barangayIdUrl, barangayCertificateUrl
+      barangayId, idVerificationUrl, idVerificationType
     } = registrationDetails;
 
     const db = admin.firestore();
@@ -280,8 +280,8 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
     await fullRegRef.add({
       status: 'pending',
       submittedAt: admin.firestore.FieldValue.serverTimestamp(),
-      barangayIdUrl: registrationDetails.barangayIdUrl,
-      barangayCertificateUrl: registrationDetails.barangayCertificateUrl,
+      idVerificationUrl: registrationDetails.idVerificationUrl,
+      idVerificationType: registrationDetails.idVerificationType,
       barangayId: registrationDetails.barangayId,
       // Denormalized user data for efficient admin queries
       firstName: decodedToken.name.split(' ')[0] || 'N/A',
@@ -310,8 +310,7 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
   <li><strong>Address:</strong> ${[lotBlkHouseNo, streetName, subdivisionVillageZonePurok, barangayId, zipCode].filter(Boolean).join(', ')}</li>
   <li><strong>Contact Number:</strong> ${contactNumber}</li>
   <li><strong>Barangay:</strong> ${barangayId}</li>
-  ${barangayIdUrl ? `<li><strong>Barangay ID:</strong> <a href="${barangayIdUrl}">View Document</a></li>` : ''}
-  ${barangayCertificateUrl ? `<li><strong>Barangay Certificate:</strong> <a href="${barangayCertificateUrl}">View Document</a></li>` : ''}
+  ${idVerificationUrl ? `<li><strong>${idVerificationType}:</strong> <a href="${idVerificationUrl}">View Document</a></li>` : ''}
 </ul>
 <p>You will receive another notification once your request has been reviewed.</p>
 <p>Sincerely,</p>
@@ -525,7 +524,7 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
     throw new HttpsError('invalid-argument', 'City/Municipality ID is required for superadmin role.');
   }
 
-  const generatedEmail = generateAdminEmail();
+  const generatedEmail = generateRoleBasedEmail(role);
   const temporaryPassword = generatePassword();
 
   try {
@@ -664,7 +663,7 @@ export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, G
     const bucket = admin.storage().bucket();
     const deletePromises: Promise<unknown>[] = [];
 
-    const urlsToDelete = [userData.barangayIdUrl, userData.barangayCertificateUrl];
+    const urlsToDelete = [userData.idVerificationUrl];
 
     for (const url of urlsToDelete) {
       if (url && typeof url === 'string') {
@@ -692,8 +691,8 @@ export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, G
     }
     
     await userDocRef.update({
-        barangayIdUrl: admin.firestore.FieldValue.delete(),
-        barangayCertificateUrl: admin.firestore.FieldValue.delete(),
+        idVerificationUrl: admin.firestore.FieldValue.delete(),
+        idVerificationType: admin.firestore.FieldValue.delete(),
     });
 
     return { success: true, message: 'User documents deleted successfully.' };
@@ -795,7 +794,7 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
 
     // 5. Clean up uploaded documents from storage
     const bucket = admin.storage().bucket();
-    const urlsToDelete = [userData.barangayIdUrl, userData.barangayCertificateUrl];
+    const urlsToDelete = [userData.idVerificationUrl];
     for (const url of urlsToDelete) {
         if (url && typeof url === 'string') {
             try {
@@ -812,8 +811,8 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
         }
     }
     await userRef.update({
-        barangayIdUrl: admin.firestore.FieldValue.delete(),
-        barangayCertificateUrl: admin.firestore.FieldValue.delete(),
+        idVerificationUrl: admin.firestore.FieldValue.delete(),
+        idVerificationType: admin.firestore.FieldValue.delete(),
     });
 
     return { success: true, message: `User has been ${action}.` };

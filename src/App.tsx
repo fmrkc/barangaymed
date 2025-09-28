@@ -35,7 +35,7 @@ import './theme/global.scss';
 
 import './firebaseConfig';
 import { AuthProvider } from './contexts/AuthContext';
-import { RegistrationModalProvider } from './contexts/RegistrationModalContext';
+import { RegistrationModalProvider, useRegistrationModal } from './contexts/RegistrationModalContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
@@ -44,7 +44,6 @@ import Login from './pages/login';
 import SuperRegister from './pages/superadmin/sa-admin-register';
 
 import AMenu from './pages/admin/admin-menu';
-import AAnnouncements from './pages/admin/admin-brgy-announcements';
 
 import UserRegister from './pages/user/user-register-steps/user-register';
 import UserDashboard from './pages/user/user-menu';
@@ -54,9 +53,15 @@ import RegisterInvited from './pages/auth/RegisterInvited';
 import PendingVerification from './pages/user/PendingVerification';
 import RejectedVerification from './pages/user/RejectedVerification';
 import StartRegistration from './pages/user/StartRegistration';
+import FullRegistrationModal from './pages/user/user-register-steps/full-registration-modal';
 
 
 setupIonicReact();
+
+const ModalRenderer: React.FC = () => {
+  const { isModalOpen, closeModal } = useRegistrationModal();
+  return <FullRegistrationModal isOpen={isModalOpen} onDidDismiss={closeModal} />;
+};
 
 const App: React.FC = () => (
   <AuthProvider>
@@ -156,6 +161,7 @@ const App: React.FC = () => (
             </Switch>
           </IonRouterOutlet>
         </IonReactRouter>
+        <ModalRenderer />
       </IonApp>
     </RegistrationModalProvider>
   </AuthProvider>

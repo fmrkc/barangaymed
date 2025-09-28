@@ -37,7 +37,7 @@ export const submitFullRegistration = onCall(
 
     const {
         lotBlkHouseNo, streetName, subdivisionVillageZonePurok, zipCode, contactNumber,
-        barangayId, barangayIdUrl, barangayCertificateUrl
+        barangayId, idVerificationUrl, idVerificationType
     } = registrationDetails;
 
     const subject = "BarangayMed+ Full Registration Request Received";
@@ -51,8 +51,7 @@ export const submitFullRegistration = onCall(
   <li><strong>Address:</strong> ${[lotBlkHouseNo, streetName, subdivisionVillageZonePurok, barangayId, zipCode].filter(Boolean).join(', ')}</li>
   <li><strong>Contact Number:</strong> ${contactNumber}</li>
   <li><strong>Barangay:</strong> ${barangayId}</li>
-  ${barangayIdUrl ? `<li><strong>Barangay ID:</strong> <a href="${barangayIdUrl}">View Document</a></li>` : ''}
-  ${barangayCertificateUrl ? `<li><strong>Barangay Certificate:</strong> <a href="${barangayCertificateUrl}">View Document</a></li>` : ''}
+  ${idVerificationUrl ? `<li><strong>${idVerificationType}:</strong> <a href="${idVerificationUrl}">View Document</a></li>` : ''}
 </ul>
 <p>You will receive another notification once your request has been reviewed.</p>
 <p>Sincerely,</p>

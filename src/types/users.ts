@@ -14,4 +14,6 @@ export interface UserData {
   selectedRegion?: string;
   selectedProvince?: string;
   selectedCityMunicipality?: string;
+  idVerificationUrl?: string;
+  idVerificationType?: string;
 }

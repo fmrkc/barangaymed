@@ -63,7 +63,7 @@ service cloud.firestore {
                       'firstName', 'lastName', 'email', 'address', 'contactNumber',
                       'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',
                       'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',
-                      'barangayIdUrl', 'barangayCertificateUrl', 'rejectionReason', 'verificationStatus'
+                      'idVerificationUrl', 'idVerificationType', 'rejectionReason', 'verificationStatus'
                     ]) &&
                     // Prevent users from changing their own role or verification status directly.
                     request.resource.data.role == resource.data.role;
