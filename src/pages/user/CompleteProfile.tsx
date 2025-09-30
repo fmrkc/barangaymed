@@ -34,6 +34,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useIonRouter } from '@ionic/react';
 
 import { logEvent } from '../../utils/logger';
 import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../services/addressService';
@@ -42,6 +43,7 @@ interface CompleteProfileProps {}
 
 const CompleteProfile: React.FC<CompleteProfileProps> = () => {
   const { currentUser } = useAuth();
+  const history = useIonRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -323,8 +325,7 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
       setSuccessMessage('Profile submitted for verification! Please wait for admin approval.');
 
       setTimeout(() => {
-        // Redirect to a pending verification page or dashboard
-        // history.push('/user/dashboard');
+        history.push('/user/pending-verification');
       }, 2000);
 
     } catch (error: any) {
