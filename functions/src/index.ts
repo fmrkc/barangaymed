@@ -598,11 +598,7 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
 
     logger.log(`Successfully provisioned user ${generatedEmail} and sent credentials to ${contactEmail}.`);
 
-    return {
-      success: true,
-      message: `User created successfully. Credentials sent to ${contactEmail}.`,
-      newUser: { uid: userRecord.uid, email: generatedEmail }
-    };
+    return { success: true, message: `User created successfully. Credentials sent to ${contactEmail}.`, newUser: { uid: userRecord.uid, email: generatedEmail } };
 
   } catch (error) {
     logger.error("Error provisioning user:", error);
@@ -611,98 +607,6 @@ export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://lo
       await admin.auth().deleteUser(user.uid);
     }
     throw new HttpsError('internal', 'An error occurred while creating the user.');
-  }
-});
-
-export const deleteUserDocuments = onCall({ cors: true, secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError(
-      'unauthenticated',
-      'You must be logged in to perform this action.'
-    );
-  }
-
-  const { role, barangayId: adminBarangayId } = request.auth.token;
-  const isSuperAdmin = role === 'superadmin';
-  const isAdmin = role === 'admin';
-
-  if (!isAdmin && !isSuperAdmin) {
-    throw new HttpsError(
-      'permission-denied',
-      'You do not have permission to perform this action.'
-    );
-  }
-
-  const { userId } = request.data;
-  if (!userId) {
-    throw new HttpsError('invalid-argument', 'Missing required field: userId.');
-  }
-
-  try {
-    const db = admin.firestore();
-    const userDocRef = db.collection('users').doc(userId);
-    const userDoc = await userDocRef.get();
-
-    if (!userDoc.exists) {
-      throw new HttpsError('not-found', `User with ID ${userId} not found.`);
-    }
-
-    const userData = userDoc.data()!;
-    const userBarangayId = userData.barangayId;
-
-    logger.log(`deleteUserDocuments: adminBarangayId: ${adminBarangayId}, userBarangayId: ${userBarangayId}`);
-    logger.log(`deleteUserDocuments: isAdmin: ${isAdmin}, isSuperAdmin: ${isSuperAdmin}, comparison: ${isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId}`);
-
-    if (isAdmin && !isSuperAdmin && adminBarangayId !== userBarangayId) {
-      throw new HttpsError(
-        'permission-denied',
-        'Admins can only delete documents for users in their own barangay.'
-      );
-    }
-
-    const bucket = admin.storage().bucket();
-    const deletePromises: Promise<unknown>[] = [];
-
-    const urlsToDelete = [userData.idVerificationUrl];
-
-    for (const url of urlsToDelete) {
-      if (url && typeof url === 'string') {
-        try {
-          const decodedUrl = decodeURIComponent(url);
-          const pathStartIndex = decodedUrl.indexOf('/o/');
-          if (pathStartIndex !== -1) {
-            const pathEndIndex = decodedUrl.indexOf('?');
-            const filePath = decodedUrl.substring(pathStartIndex + 3, pathEndIndex);
-            const file = bucket.file(filePath);
-            logger.log(`Attempting to delete file: ${filePath}`);
-            deletePromises.push(file.delete());
-          }
-        } catch (e) {
-          logger.error(`Failed to parse or delete file for URL: ${url}`, e);
-        }
-      }
-    }
-
-    if (deletePromises.length > 0) {
-      await Promise.all(deletePromises);
-      logger.log(`Successfully deleted ${deletePromises.length} documents for user ${userId}.`);
-    } else {
-      logger.log(`No documents to delete for user ${userId}.`);
-    }
-    
-    await userDocRef.update({
-        idVerificationUrl: admin.firestore.FieldValue.delete(),
-        idVerificationType: admin.firestore.FieldValue.delete(),
-    });
-
-    return { success: true, message: 'User documents deleted successfully.' };
-
-  } catch (error) {
-    logger.error(`Error deleting documents for user ${userId}:`, error);
-    if (error instanceof HttpsError) {
-      throw error;
-    }
-    throw new HttpsError('internal', 'An unexpected error occurred while deleting user documents.');
   }
 });
 
@@ -791,30 +695,6 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
         html: `<p>Dear ${userData.firstName || 'User'},</p><p>${emailMessage}</p>`,
     }, GMAIL_EMAIL.value(), GMAIL_APP_PASSWORD.value());
 
-
-    // 5. Clean up uploaded documents from storage
-    const bucket = admin.storage().bucket();
-    const urlsToDelete = [userData.idVerificationUrl];
-    for (const url of urlsToDelete) {
-        if (url && typeof url === 'string') {
-            try {
-                const decodedUrl = decodeURIComponent(url);
-                const pathStartIndex = decodedUrl.indexOf('/o/');
-                if (pathStartIndex !== -1) {
-                    const pathEndIndex = decodedUrl.indexOf('?');
-                    const filePath = decodedUrl.substring(pathStartIndex + 3, pathEndIndex);
-                    await bucket.file(filePath).delete();
-                }
-            } catch (e) {
-                logger.error(`Failed to delete file for URL: ${url}`, e);
-            }
-        }
-    }
-    await userRef.update({
-        idVerificationUrl: admin.firestore.FieldValue.delete(),
-        idVerificationType: admin.firestore.FieldValue.delete(),
-    });
-
     return { success: true, message: `User has been ${action}.` };
 
   } catch (error) {
@@ -826,53 +706,7 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
   }
 });
 
-// Update User Verification Status route
-app.post('/updateUserVerificationStatus', async (req, res) => {
-  try {
-    // Authentication check (simplified)
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-
-    const { email, verificationStatus } = req.body;
-
-    // Input Validation
-    if (!email || !verificationStatus) {
-      res.status(400).json({ error: 'Required fields are missing: email and verificationStatus.' });
-      return;
-    }
-
-    if (!['verified', 'unverified', 'rejected'].includes(verificationStatus)) {
-      res.status(400).json({ error: 'Verification status must be either "verified", "unverified", or "rejected".' });
-      return;
-    }
-
-    // Update Custom Claims
-    const userToUpdate = await admin.auth().getUserByEmail(email);
-    const currentClaims = userToUpdate.customClaims || {};
-
-    const newClaims = {
-      ...currentClaims,
-      verificationStatus: verificationStatus
-    };
-
-    await admin.auth().setCustomUserClaims(userToUpdate.uid, newClaims);
-
-    // Update Firestore Document
-    await admin.firestore().collection('users').doc(userToUpdate.uid).update({
-      verificationStatus: verificationStatus
-    });
-
-    logger.log(`Successfully updated verification status for ${email} to ${verificationStatus}`, newClaims);
-    res.json({ success: true, message: `Verification status for ${email} updated to ${verificationStatus}.` });
-  } catch (error) {
-    logger.error("Error in updateUserVerificationStatus:", error);
-    res.status(500).json({ error: 'An error occurred while updating the user verification status.' });
-  }
-});
-
 // Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 export { sendVerificationEmail } from './sendVerificationEmail.js';
+

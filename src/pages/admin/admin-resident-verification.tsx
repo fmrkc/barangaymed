@@ -1,16 +1,14 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonButton, IonIcon, IonButtons, IonModal, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonMenuButton } from '@ionic/react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { db } from '../../firebaseConfig';
-import { query, where, getDocs, collectionGroup } from 'firebase/firestore';
+import { auth, db } from '../../firebaseConfig';
+import { query, where, getDocs, collection, doc, updateDoc, deleteField } from 'firebase/firestore';
+import { getStorage, ref, deleteObject } from 'firebase/storage';
 import { call, checkmarkCircleOutline, close, closeCircleOutline, eyeOutline, home, mail, mailOutline, open, person, phonePortrait } from 'ionicons/icons';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../firebaseConfig';
 import { getBarangayNameByCode } from '../../services/addressService';
 
 interface UserForVerification {
   uid: string;
-  attemptId: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -78,36 +76,35 @@ const AdminUserVerification: React.FC = () => {
 
     setLoading(true);
     try {
-      const registrationStatusQuery = query(
-        collectionGroup(db, 'full_registration'),
-        where('verificationStatus', '==', 'pending'),
+      const usersRef = collection(db, 'users');
+      const q = query(
+        usersRef,
+        where('verificationStatus', '==', 'pending_approval'),
         where('barangayId', '==', adminBarangayId)
       );
 
-      const statusSnapshot = await getDocs(registrationStatusQuery);
-      const users = statusSnapshot.docs.map((doc) => {
+      const querySnapshot = await getDocs(q);
+      const users = querySnapshot.docs.map((doc) => {
         const data = doc.data();
-        const userId = doc.ref.parent.parent?.id; // Get the user ID from the path
         return {
-          uid: userId || '',
-          attemptId: doc.id,
+          uid: doc.id,
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
-          contactNumber: data.contactNumber, // This might not be on the denormalized doc yet
-          lotBlkHouseNo: data.lotBlkHouseNo,
-          streetName: data.streetName,
-          subdivisionVillageZonePurok: data.subdivisionVillageZonePurok,
-          zipCode: data.zipCode,
-          verificationStatus: data.verificationStatus,
           barangayId: data.barangayId,
-          idVerificationUrl: data.idVerificationUrl,
-          idVerificationType: data.idVerificationType,
-          fullRegistrationSubmittedAt: data.submittedAt,
+          verificationStatus: data.verificationStatus,
+          lotBlkHouseNo: data.lotBlkHouseNo || '',
+          streetName: data.streetName || '',
+          subdivisionVillageZonePurok: data.subdivisionVillageZonePurok || '',
+          zipCode: data.zipCode || '',
+          contactNumber: data.contactNumber || '',
+          idVerificationUrl: data.idVerificationUrl || '',
+          idVerificationType: data.idVerificationType || '',
+          fullRegistrationSubmittedAt: data.createdAt, // Assuming createdAt is the timestamp
         };
       });
       
-      setPendingUsers(users.filter((user: UserForVerification) => user.uid)); // Filter out any with no UID
+      setPendingUsers(users.filter((user: UserForVerification) => user.uid));
 
     } catch (error) {
       console.error('Error fetching pending users:', error);
@@ -136,16 +133,15 @@ const AdminUserVerification: React.FC = () => {
     }
   }, [selectedUser]);
 
-  const reviewRegistration = httpsCallable(functions, 'reviewUserRegistration');
-
   const handleReview = async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
     setIsReviewing(true);
     try {
-      await reviewRegistration({ 
-        userId: user.uid, 
-        attemptId: user.attemptId, 
-        action,
-        reason
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        verificationStatus: action,
+        rejectionReason: action === 'rejected' ? reason : deleteField(),
+        verifiedAt: action === 'verified' ? new Date() : deleteField(),
+        verifiedBy: action === 'verified' ? auth.currentUser?.uid : deleteField(),
       });
 
       setToastMessage(`User has been ${action}.`);

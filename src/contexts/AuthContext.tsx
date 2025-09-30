@@ -153,7 +153,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               barangayId: claimsBarangayId || null,
               cityMunicipalityId: claimsCityMunicipalityId || null,
               createdAt: new Date(),
-              createdFromClaims: true
+              createdFromClaims: true,
+              verificationStatus: 'unverified'
             });
           };
 

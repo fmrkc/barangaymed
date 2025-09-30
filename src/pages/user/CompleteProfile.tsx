@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import {
-  IonModal,
+  IonPage,
   IonHeader,
   IonToolbar,
   IonTitle,
@@ -23,31 +24,24 @@ import {
   IonSelectOption,
   IonLabel,
   IonCardTitle,
-  IonCardSubtitle,
-  IonItem,
   IonCardHeader,
+  IonItem,
   IonItemDivider,
 } from '@ionic/react';
 
 import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home } from 'ionicons/icons';
-import { useAuth } from '../../../contexts/AuthContext';
-import { db } from '../../../firebaseConfig';
-import { doc, updateDoc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuth } from '../../contexts/AuthContext';
+import { db } from '../../firebaseConfig';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+import { logEvent } from '../../utils/logger';
+import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../services/addressService';
 
-import { logEvent } from '../../../utils/logger';
-import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../../firebaseConfig';
+interface CompleteProfileProps {}
 
-interface FullRegistrationModalProps {
-  isOpen: boolean;
-  onDidDismiss: () => void;
-}
-
-const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, onDidDismiss }) => {
-  const { currentUser, userRole } = useAuth();
+const CompleteProfile: React.FC<CompleteProfileProps> = () => {
+  const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,22 +64,11 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   const [idType, setIdType] = useState<string>('');
   const [idFile, setIdFile] = useState<File | null>(null);
 
-  // Removed Maskito phone mask usage to align with FullRegistrationStep1 phone input style
-  const ionInputRef = null;
-
-  useEffect(() => {
-    // No phone mask assignment needed as per FullRegistrationStep1 style
-  }, []);
-  
-  
-
   const [regions, setRegions] = useState<Region[]>([]);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
   const [isLoadingBarangays, setIsLoadingBarangays] = useState(false);
-
-
 
   useEffect(() => {
     const loadRegions = async () => {
@@ -98,20 +81,17 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       }
     };
 
-    if (isOpen) {
-      loadRegions();
-      if (currentUser) {
-        loadExistingData();
-      }
+    loadRegions();
+    if (currentUser) {
+      loadExistingData();
     }
-  }, [isOpen, currentUser]);
+  }, [currentUser]);
 
   useEffect(() => {
     const loadProvinces = async () => {
       if (selectedRegion) {
         try {
           const provincesData = await getProvincesByRegion(selectedRegion);
-          // Sort provinces alphabetically by name
           provincesData.sort((a, b) => a.name.localeCompare(b.name));
           setProvinces(provincesData);
         } catch (error) {
@@ -134,7 +114,6 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       if (selectedProvince) {
         try {
           const citiesData = await getCitiesMunicipalitiesByProvince(selectedProvince);
-          // Sort cities/municipalities alphabetically by name
           citiesData.sort((a, b) => a.name.localeCompare(b.name));
           setCitiesMunicipalities(citiesData);
         } catch (error) {
@@ -157,7 +136,6 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       if (selectedCityMunicipality) {
         try {
           const barangaysData = await getBarangaysByCityMunicipality(selectedCityMunicipality);
-          // Sort barangays alphabetically by name
           barangaysData.sort((a, b) => a.name.localeCompare(b.name));
           setBarangays(barangaysData);
         } catch (error) {
@@ -173,8 +151,6 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
     };
     loadBarangays();
   }, [selectedCityMunicipality]);
-
-
 
   const loadExistingData = async () => {
     if (!currentUser) return;
@@ -313,78 +289,47 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
       if (zipCode.trim()) addressParts.push(zipCode.trim());
       const fullAddress = addressParts.join(', ');
 
+      console.log('Current User UID:', currentUser.uid);
+      const storagePath = `user-documents/${currentUser.uid}/${idType}-${Date.now()}`;
+      console.log('Storage Path for upload:', storagePath);
+
       // Upload file to Firebase Storage
       const idVerificationUrl = await uploadFile(
         idFile!,
-        `user-documents/${currentUser.uid}/${idType}-${Date.now()}`
+        storagePath
       );
 
-      // Determine the correct base URL for the function based on the environment
-      const isEmulating = import.meta.env.DEV;
-      const functionsBaseUrl = isEmulating
-        ? "http://localhost:5001/barangaymed/us-central1/api" // Local emulator URL
-        : "https://api-gy7oflie2a-uc.a.run.app"; // Deployed function URL
-
-      const idToken = await currentUser.getIdToken(true); // Force refresh for fresh token
-      const response = await fetch(`${functionsBaseUrl}/submitFullRegistrationV2`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({
-              registrationDetails: {
-                  selectedRegion,
-                  selectedProvince,
-                  selectedCityMunicipality,
-                  barangayId,
-                  zipCode,
-                  lotBlkHouseNo,
-                  streetName,
-                  subdivisionVillageZonePurok,
-                  contactNumber: unmaskedContactNumber,
-                  address: fullAddress,
-                  idVerificationUrl,
-                  idVerificationType: idType,
-              },
-          }),
+      // Update user document in Firestore
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        selectedRegion,
+        selectedProvince,
+        selectedCityMunicipality,
+        barangayId,
+        zipCode,
+        lotBlkHouseNo,
+        streetName,
+        subdivisionVillageZonePurok,
+        contactNumber: unmaskedContactNumber,
+        address: fullAddress,
+        idVerificationUrl,
+        idVerificationType: idType,
+        verificationStatus: 'pending_approval',
       });
 
-      if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to submit registration via Cloud Function.');
-      }
-
-      logEvent('info', 'Full registration submitted via Cloud Function', {
+      logEvent('info', 'Full profile submitted for verification', {
         userId: currentUser.uid,
       });
 
-      setSuccessMessage('Full registration submitted successfully! Your account is now pending admin verification.');
-
-      const result = await response.json();
-
-      console.log('Full registration submitted:', result.data);
+      setSuccessMessage('Profile submitted for verification! Please wait for admin approval.');
 
       setTimeout(() => {
-        onDidDismiss();
-        // Reset form
-        setCurrentStep(1);
-        setSelectedRegion('');
-        setSelectedProvince('');
-        setSelectedCityMunicipality('');
-        setBarangayId('');
-        setZipCode('');
-        setLotBlkHouseNo('');
-        setStreetName('');
-        setSubdivisionVillageZonePurok('');
-        setContactNumber('');
-        setIdType('');
-        setIdFile(null);
+        // Redirect to a pending verification page or dashboard
+        // history.push('/user/dashboard');
       }, 2000);
 
     } catch (error: any) {
-      console.error('Error submitting full registration:', error);
-      setError(error.message || 'Failed to submit registration. Please try again.');
+      console.error('Error submitting full profile:', error);
+      setError(error.message || 'Failed to submit profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -413,12 +358,12 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
   const progress = currentStep / 3;
 
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
+    <IonPage>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonTitle>Complete Your Registration</IonTitle>
+          <IonTitle>Complete Your Profile</IonTitle>
           <IonButtons slot="end">
-            <IonButton onClick={onDidDismiss}>
+            <IonButton routerLink="/user/dashboard" routerDirection="back">
               <IonIcon slot="icon-only" icon={close} />
             </IonButton>
           </IonButtons>
@@ -432,7 +377,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
             <IonCardHeader>
               <IonCardTitle>
                 <IonItem >
-                  Step 3: Select your Location
+                  Step 1: Select your Location
                 </IonItem>
               </IonCardTitle>
             </IonCardHeader>
@@ -532,7 +477,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
             <IonCardHeader>
               <IonCardTitle>
                 <IonItem>
-                  Step 4: Enter your Address & Contact Number
+                  Step 2: Enter your Address & Contact Number
                 </IonItem>
               </IonCardTitle>
             </IonCardHeader>
@@ -673,7 +618,7 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
           </IonCard>
         )}
 
-        <IonLoading isOpen={isLoading} message="Submitting registration..." />
+        <IonLoading isOpen={isLoading} message="Submitting profile..." />
         <IonToast isOpen={!!error} message={error || ''} duration={3000} color="danger" />
         <IonToast isOpen={!!successMessage} message={successMessage || ''} duration={5000} color="success" />
       </IonContent>
@@ -753,8 +698,8 @@ const FullRegistrationModal: React.FC<FullRegistrationModalProps> = ({ isOpen, o
           )}
         </IonToolbar>
       </IonFooter>
-    </IonModal>
+    </IonPage>
   );
 };
 
-export default FullRegistrationModal;
+export default CompleteProfile;

@@ -35,13 +35,9 @@ service cloud.firestore {
 
     // Checks if the user is an admin for a specific barangay.
     // This assumes the admin's assigned barangayId is stored in custom claims
-    function isAdminOfBarangay(barangayId) {
-      return isAdmin() && request.auth.token.barangayId == barangayId;
-    }
 
-    match /{path=**}/full_registration/{attemptId} {
-      allow read: if isAdmin() && resource.data.barangayId == request.auth.token.barangayId;
-    }
+
+
 
 // =================================================================
 // Collection: users
@@ -59,32 +55,34 @@ service cloud.firestore {
 
       // UPDATE: A user can update their own non-sensitive info. Admins/SuperAdmins have their own backend functions for updates.
       allow update: if isOwner(userId) &&
-                    request.resource.data.keys().hasOnly([
-                      'firstName', 'lastName', 'email', 'address', 'contactNumber',
-                      'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',
-                      'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',
-                      'idVerificationUrl', 'idVerificationType', 'rejectionReason', 'verificationStatus'
-                    ]) &&
-                    // Prevent users from changing their own role or verification status directly.
-                    request.resource.data.role == resource.data.role;
+                       // User can update specific profile fields
+                       request.resource.data.role == resource.data.role &&
+                       (request.resource.data.verificationStatus == 'pending_approval' ||
+                        request.resource.data.verificationStatus == resource.data.verificationStatus) &&
+                       // Ensure only allowed fields are being updated by the user
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                         'firstName', 'lastName', 'contactNumber',
+                         'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',
+                         'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',
+                         'address', 'idVerificationUrl', 'idVerificationType', 'verificationStatus'
+                       ])
+                    ||
+                    // OR an Admin can update verification-related fields
+                    (isAdmin() &&
+                     // Admin can only update users within their barangay
+                     resource.data.barangayId == request.auth.token.barangayId &&
+                     // Admin can change status to 'verified' or 'rejected'
+                     (request.resource.data.verificationStatus == 'verified' ||
+                      request.resource.data.verificationStatus == 'rejected') &&
+                     // Admin can update these specific fields
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                       'verificationStatus', 'rejectionReason', 'verifiedAt', 'verifiedBy'
+                     ]));
 
       // DELETE: Disallowed from client.
       allow delete: if false;
 
-      // Subcollection: full_registration
-      match /full_registration/{attemptId} {
-        allow get: if isOwner(userId) ||
-                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                      isSuperAdmin();
-        allow list: if isOwner(userId) ||
-                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                       isSuperAdmin();
 
-        allow create: if isOwner(userId);
-
-        allow update: if (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                        isSuperAdmin();
-      }
 
       // Subcollection: notifications
       match /notifications/{notificationId} {

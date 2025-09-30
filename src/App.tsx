@@ -35,7 +35,6 @@ import './theme/global.scss';
 
 import './firebaseConfig';
 import { AuthProvider } from './contexts/AuthContext';
-import { RegistrationModalProvider, useRegistrationModal } from './contexts/RegistrationModalContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
@@ -45,27 +44,23 @@ import SuperRegister from './pages/superadmin/sa-admin-register';
 
 import AMenu from './pages/admin/admin-menu';
 
-import UserRegister from './pages/user/user-register-steps/user-register';
+import UserRegister from './pages/user/UserRegister';
 import UserDashboard from './pages/user/user-menu';
-import UserVerifyEmail from './pages/user/user-register-steps/user-verify-email';
+import UserVerifyEmail from './pages/user/UserVerifyEmail';
 import SAMenu from './pages/superadmin/sa-menu';
 import RegisterInvited from './pages/auth/RegisterInvited';
 import PendingVerification from './pages/user/PendingVerification';
 import RejectedVerification from './pages/user/RejectedVerification';
-import StartRegistration from './pages/user/StartRegistration';
-import FullRegistrationModal from './pages/user/user-register-steps/full-registration-modal';
+import CompleteProfile from './pages/user/CompleteProfile';
+
 
 
 setupIonicReact();
 
-const ModalRenderer: React.FC = () => {
-  const { isModalOpen, closeModal } = useRegistrationModal();
-  return <FullRegistrationModal isOpen={isModalOpen} onDidDismiss={closeModal} />;
-};
+
 
 const App: React.FC = () => (
   <AuthProvider>
-    <RegistrationModalProvider>
       <IonApp>
         <IonReactRouter>
           <IonRouterOutlet>
@@ -120,6 +115,11 @@ const App: React.FC = () => (
               <Route exact path="/user/verify-email"> {/* NEW ROUTE */}
                 <UserVerifyEmail />
               </Route>
+              <Route exact path="/user/complete-profile">
+                <ProtectedRoute requiredRole="user" redirectTo="/login">
+                  <CompleteProfile />
+                </ProtectedRoute>
+              </Route>
               <Route exact path="/user/pending-verification">
                 <ProtectedRoute requiredRole="user" redirectTo="/login">
                   <PendingVerification />
@@ -130,11 +130,7 @@ const App: React.FC = () => (
                   <RejectedVerification />
                 </ProtectedRoute>
               </Route>
-              <Route exact path="/user/start-registration">
-                <ProtectedRoute requiredRole="user" redirectTo="/login">
-                  <StartRegistration />
-                </ProtectedRoute>
-              </Route>
+
               
               {/* Invitation Registration Route */}
               <Route exact path="/register-invited">
@@ -161,9 +157,8 @@ const App: React.FC = () => (
             </Switch>
           </IonRouterOutlet>
         </IonReactRouter>
-        <ModalRenderer />
+
       </IonApp>
-    </RegistrationModalProvider>
   </AuthProvider>
 );
 

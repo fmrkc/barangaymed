@@ -134,24 +134,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // NEW: Redirect based on verification status for users
   if (userRole === 'user' && requiredRole === 'user') {
-    const status = verificationStatus || 'not_submitted'; // Treat null as not_submitted
+    const status = verificationStatus || 'unverified'; // Treat null as unverified
 
-    if (status === 'not_submitted' && location.pathname !== '/user/start-registration') {
-      return <Redirect to="/user/start-registration" />;
+    // If user is unverified or rejected, redirect to complete-profile page
+    if ((status === 'unverified' || status === 'rejected') && location.pathname !== '/user/complete-profile') {
+      return <Redirect to="/user/complete-profile" />;
     }
-    if (status === 'pending' && location.pathname !== '/user/pending-verification') {
+    // If user is pending approval, redirect to pending-verification page
+    if (status === 'pending_approval' && location.pathname !== '/user/pending-verification') {
       return <Redirect to="/user/pending-verification" />;
     }
-    if (status === 'rejected' && location.pathname !== '/user/rejected-verification') {
-      return <Redirect to="/user/rejected-verification" />;
-    }
-    // Allow verified users to proceed, and redirect them from status pages
+    // If user is verified, and they are on a status page, redirect to dashboard
     if (status === 'verified' && [
-      '/user/start-registration',
+      '/user/complete-profile',
       '/user/pending-verification',
       '/user/rejected-verification'
     ].includes(location.pathname)) {
-        return <Redirect to="/dashboard" />;
+        return <Redirect to="/user/dashboard" />;
     }
   }
 

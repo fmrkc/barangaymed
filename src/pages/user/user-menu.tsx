@@ -2,8 +2,6 @@ import { IonPage, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, Io
 import React, { useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
-import { useRegistrationModal } from '../../contexts/RegistrationModalContext';
-import FullRegistrationModal from './user-register-steps/full-registration-modal';
 
 import Home from './user-home';
 import Notifications from './user-notifications';
@@ -16,7 +14,6 @@ import { clipboard, home, notifications, person } from 'ionicons/icons';
 
 const UserDashboard: React.FC = () => {
   const { currentUser, refreshUserClaims } = useAuth();
-  const { isModalOpen, closeModal } = useRegistrationModal();
   const [selectedTab, setSelectedTab] = useState('home'); // State to track selected tab
 
   useEffect(() => {
@@ -59,13 +56,6 @@ const UserDashboard: React.FC = () => {
           </Route>
         </IonRouterOutlet>
       </IonTabs>
-      <FullRegistrationModal
-        isOpen={isModalOpen}
-        onDidDismiss={() => {
-          closeModal();
-          refreshUserClaims();
-        }}
-      />
     </>
   );
 };
