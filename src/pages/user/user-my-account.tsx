@@ -36,12 +36,10 @@ import { doc, getDoc, updateDoc, collection, query, orderBy, limit, getDocs } fr
 import { logEvent } from "../../utils/logger";
 import { MaskitoOptions } from '@maskito/core';
 import { useMaskito } from '@maskito/react';
-import { useRegistrationModal } from "../../contexts/RegistrationModalContext";
 import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus, refreshUserClaims } = useAuth();
-  const { isModalOpen, openModal, closeModal } = useRegistrationModal();
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -256,100 +254,6 @@ const Account: React.FC = () => {
               Edit Profile
             </IonButton>
           </IonCard>
-
-          {/* Card for 'not_submitted' status */}
-          {registrationStatus?.verificationStatus === 'not_submitted' && (
-            <IonCard color={"warning"}>
-              <IonCardContent className="ion-padding-vertical">
-                <div style={{ textAlign: 'center' }}>
-                  <IonIcon
-                    icon={document}
-                    style={{ fontSize: '48px', color: 'var(--ion-color-warning-contrast)', marginBottom: '20px' }}
-                  />
-                  <IonCardTitle style={{ color: 'var(--ion-color-warning-contrast)' }}>
-                    Complete Your Registration
-                  </IonCardTitle>
-                  <IonText style={{ color: 'var(--ion-color-warning-contrast)' }}>
-                    <p>To access all features, please complete your full registration with address details and document verification.</p>
-                  </IonText>
-                  <IonButton
-                    expand="block"
-                    shape="round"
-                    color="light"
-                    onClick={openModal}
-                    className="ion-margin-top"
-                  >
-                    <IonIcon slot="start" icon={document} />
-                    Full Registration
-                  </IonButton>
-                </div>
-              </IonCardContent>
-            </IonCard>
-          )}
-
-          {/* Card for 'rejected' status */}
-          {registrationStatus?.verificationStatus === 'rejected' && (
-            <IonCard color={"danger"}>
-              <IonCardHeader>
-                <IonCardTitle style={{color: 'var(--ion-color-danger-contrast)'}}>Registration Rejected</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Your registration was rejected for the following reason:</p>
-                <p style={{color: 'var(--ion-color-danger-contrast)'}}><strong>{registrationStatus.rejectionReason || "No reason provided."}</strong></p>
-                <p style={{color: 'var(--ion-color-danger-contrast)'}}>Please correct the issues and resubmit.</p>
-                <IonButton
-                    expand="block"
-                    shape="round"
-                    color="light"
-                    onClick={openModal}
-                    className="ion-margin-top"
-                  >
-                    <IonIcon slot="start" icon={document} />
-                    Resubmit Registration
-                  </IonButton>
-              </IonCardContent>
-            </IonCard>
-          )}
-
-          {/* Pending Verification Card */}
-          {registrationStatus?.verificationStatus === 'pending' && (
-            <IonCard color="secondary">
-              <IonCardContent className="ion-padding-vertical">
-                <div style={{ textAlign: 'center' }}>
-                  <IonIcon
-                    icon={checkmarkDoneOutline}
-                    style={{ fontSize: '48px', color: 'var(--ion-color-secondary-contrast)', marginBottom: '20px' }}
-                  />
-                  <IonCardTitle style={{ color: 'var(--ion-color-secondary-contrast)' }}>
-                    Registration Submitted
-                  </IonCardTitle>
-                  <IonText style={{ color: 'var(--ion-color-secondary-contrast)' }}>
-                    <p>Your full registration has been submitted and is pending admin verification. You will receive a notification once it's approved.</p>
-                  </IonText>
-                </div>
-              </IonCardContent>
-            </IonCard>
-          )}
-
-          {/* Verified Card */}
-          {registrationStatus?.verificationStatus === 'verified' && (
-            <IonCard color="success">
-              <IonCardContent className="ion-padding-vertical">
-                <div style={{ textAlign: 'center' }}>
-                  <IonIcon
-                    icon={checkmark}
-                    style={{ fontSize: '48px', color: 'var(--ion-color-success-contrast)', marginBottom: '20px' }}
-                  />
-                  <IonCardTitle style={{ color: 'var(--ion-color-success-contrast)' }}>
-                    Registration Verified
-                  </IonCardTitle>
-                  <IonText style={{ color: 'var(--ion-color-success-contrast)' }}>
-                    <p>Your registration has been verified! You can now access all features.</p>
-                  </IonText>
-                </div>
-              </IonCardContent>
-            </IonCard>
-          )}
 
           <IonCardContent>
              <IonItemDivider>
