@@ -1,10 +1,24 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter } from '@ionic/react';
 import { logOutOutline } from 'ionicons/icons';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const PendingVerification: React.FC = () => {
-  const { logout } = useAuth();
+  const { logout, refreshUserClaims, verificationStatus } = useAuth();
+  const history = useIonRouter();
+
+  useEffect(() => {
+    if (verificationStatus === 'verified') {
+      history.push('/user/dashboard/home', 'back');
+    } else if (verificationStatus === 'rejected') {
+      history.push('/user/rejected-verification', 'back');
+    }
+  }, [verificationStatus, history]);
+
+  const handleRefresh = async (event: CustomEvent) => {
+    await refreshUserClaims();
+    event.detail.complete();
+  };
 
   return (
     <IonPage>
@@ -14,6 +28,9 @@ const PendingVerification: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <IonCard style={{ maxWidth: '400px', textAlign: 'center' }}>
             <IonCardHeader>
