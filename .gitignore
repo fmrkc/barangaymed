@@ -33,3 +33,4 @@ yarn-error.log*
 /.history
 /functions/node_modules
 /emulator-seed-data
+/.emulator-data
