@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   IonPage,
@@ -27,9 +26,10 @@ import {
   IonCardHeader,
   IonItem,
   IonItemDivider,
+  IonAlert,
 } from '@ionic/react';
 
-import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home } from 'ionicons/icons';
+import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home, logOutOutline } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
@@ -42,12 +42,13 @@ import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, ge
 interface CompleteProfileProps {}
 
 const CompleteProfile: React.FC<CompleteProfileProps> = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   const history = useIonRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
 
   // Step 1: Region, Province, City/Municipality, Barangay
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -323,15 +324,11 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
       });
 
       setSuccessMessage('Profile submitted for verification! Please wait for admin approval.');
-
-      setTimeout(() => {
-        history.push('/user/pending-verification');
-      }, 2000);
+      history.push('/user/pending-verification');
 
     } catch (error: any) {
       console.error('Error submitting full profile:', error);
       setError(error.message || 'Failed to submit profile. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -356,6 +353,10 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   const progress = currentStep / 3;
 
   return (
@@ -363,7 +364,11 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>Complete Your Profile</IonTitle>
-          {/* No close button for mandatory profile completion */}
+          <IonButtons slot="end">
+            <IonButton onClick={() => setShowAlert(true)}>
+              <IonIcon icon={logOutOutline} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
         <IonProgressBar value={progress} />
       </IonHeader>
@@ -618,6 +623,23 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
         <IonLoading isOpen={isLoading} message="Submitting profile..." />
         <IonToast isOpen={!!error} message={error || ''} duration={3000} color="danger" />
         <IonToast isOpen={!!successMessage} message={successMessage || ''} duration={5000} color="success" />
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header={'Confirm Logout'}
+          message={'Are you sure you want to log out?'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Logout',
+              handler: handleLogout,
+            },
+          ]}
+        />
       </IonContent>
 
       <IonFooter>

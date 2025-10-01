@@ -250,6 +250,7 @@ const UserRegister: React.FC = () => {
                   label="Birthdate"
                   type="date"
                   value={birthdate}
+                  max={new Date().toISOString().split('T')[0]}
                   onIonChange={(e) => setBirthdate(e.detail.value!)}
                   className="ion-margin-bottom"
                   required

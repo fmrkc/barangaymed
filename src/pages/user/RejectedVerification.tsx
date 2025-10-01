@@ -1,5 +1,5 @@
 import {
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonText
+  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonText, IonAlert
 } from '@ionic/react';
 import { logOutOutline, createOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ const RejectedVerification: React.FC = () => {
   const { currentUser, logout, refreshUserClaims } = useAuth();
   const [rejectionReason, setRejectionReason] = useState('');
   const history = useHistory();
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const fetchRejectionReason = async () => {
@@ -34,6 +35,10 @@ const RejectedVerification: React.FC = () => {
       await refreshUserClaims();
     }
     history.push('/user/complete-profile');
+  };
+
+  const handleLogout = async () => {
+    await logout();
   };
 
   return (
@@ -62,13 +67,30 @@ const RejectedVerification: React.FC = () => {
                 Resubmit Application
               </IonButton>
 
-              <IonButton expand="block" fill="clear" onClick={logout} className="ion-margin-top">
+              <IonButton expand="block" fill="clear" onClick={() => setShowAlert(true)} className="ion-margin-top">
                 <IonIcon slot="start" icon={logOutOutline} />
                 Logout
               </IonButton>
             </IonCardContent>
           </IonCard>
         </div>
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header={'Confirm Logout'}
+          message={'Are you sure you want to log out?'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Logout',
+              handler: handleLogout,
+            },
+          ]}
+        />
       </IonContent>
     </IonPage>
   );

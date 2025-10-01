@@ -1,11 +1,13 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter, IonAlert, IonLoading } from '@ionic/react';
 import { logOutOutline } from 'ionicons/icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const PendingVerification: React.FC = () => {
-  const { logout, refreshUserClaims, verificationStatus } = useAuth();
+  const { logout, refreshUserClaims, verificationStatus, loading } = useAuth();
   const history = useIonRouter();
+  const [showAlert, setShowAlert] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (verificationStatus === 'verified') {
@@ -16,8 +18,17 @@ const PendingVerification: React.FC = () => {
   }, [verificationStatus, history]);
 
   const handleRefresh = async (event: CustomEvent) => {
-    await refreshUserClaims();
-    event.detail.complete();
+    setIsRefreshing(true);
+    try {
+      await refreshUserClaims();
+    } finally {
+      setIsRefreshing(false);
+      event.detail.complete();
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
   };
 
   return (
@@ -28,8 +39,12 @@ const PendingVerification: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>
+        <IonLoading 
+          isOpen={loading || isRefreshing}
+          message={'Checking status...'}
+        />
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent></IonRefresherContent>
+          <IonRefresherContent refreshingSpinner="bubbles"></IonRefresherContent>
         </IonRefresher>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <IonCard style={{ maxWidth: '400px', textAlign: 'center' }}>
@@ -40,13 +55,30 @@ const PendingVerification: React.FC = () => {
               <p>Thank you for submitting your registration details.</p>
               <p>Your account is currently being reviewed by your barangay admin. You will be notified once the review is complete.</p>
               <p>Please check back later.</p>
-              <IonButton expand="block" fill="clear" onClick={logout} className="ion-margin-top">
+              <IonButton expand="block" fill="clear" onClick={() => setShowAlert(true)} className="ion-margin-top">
                 <IonIcon slot="start" icon={logOutOutline} />
                 Logout
               </IonButton>
             </IonCardContent>
           </IonCard>
         </div>
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header={'Confirm Logout'}
+          message={'Are you sure you want to log out?'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            },
+            {
+              text: 'Logout',
+              handler: handleLogout,
+            },
+          ]}
+        />
       </IonContent>
     </IonPage>
   );

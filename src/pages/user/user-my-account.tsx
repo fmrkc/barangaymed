@@ -270,10 +270,6 @@ const Account: React.FC = () => {
               <IonIcon slot="start" icon={logIn} />
               <IonLabel>Recent Logins</IonLabel>
             </IonItem>
-            {/* <IonItem detail={false} button>
-              <IonIcon slot="start" icon={lockClosed} />
-              <IonLabel>Account Info</IonLabel>
-            </IonItem> */}
             <IonItem detail={false} button id="user-logout">
               <IonIcon slot="start"  icon={logOut} />
               Logout
