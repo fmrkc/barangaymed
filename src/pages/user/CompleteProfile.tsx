@@ -363,11 +363,7 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>Complete Your Profile</IonTitle>
-          <IonButtons slot="end">
-            <IonButton routerLink="/user/dashboard" routerDirection="back">
-              <IonIcon slot="icon-only" icon={close} />
-            </IonButton>
-          </IonButtons>
+          {/* No close button for mandatory profile completion */}
         </IonToolbar>
         <IonProgressBar value={progress} />
       </IonHeader>
