@@ -38,6 +38,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
+import VerificationRedirector from './components/VerificationRedirector';
 
 import Login from './pages/login';
 import SuperRegister from './pages/superadmin/sa-admin-register';
@@ -60,9 +61,10 @@ setupIonicReact();
 
 
 const App: React.FC = () => (
-  <AuthProvider>
-      <IonApp>
-        <IonReactRouter>
+  <IonApp>
+    <IonReactRouter>
+      <AuthProvider>
+        <VerificationRedirector>
           <IonRouterOutlet>
             <Switch>
               {/* Login Routes */}
@@ -156,10 +158,10 @@ const App: React.FC = () => (
               <Route render={() => <Redirect to="/login" />} />
             </Switch>
           </IonRouterOutlet>
-        </IonReactRouter>
-
-      </IonApp>
-  </AuthProvider>
+        </VerificationRedirector>
+      </AuthProvider>
+    </IonReactRouter>
+  </IonApp>
 );
 
 export default App;

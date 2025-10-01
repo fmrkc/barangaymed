@@ -95,6 +95,11 @@ service cloud.firestore {
       match /logs/{logId} {
         allow read, write: if false; // Written by backend services only
       }
+
+      // Subcollection: full_registration
+      match /full_registration/{attemptId} {
+        allow read: if isAdmin() && get(/databases/$(database)/documents/users/$(userId)).data.barangayId == request.auth.token.barangayId;
+      }
     }
 
 // =================================================================

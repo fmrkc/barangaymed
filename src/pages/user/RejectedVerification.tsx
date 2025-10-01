@@ -6,13 +6,12 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-
-import { useRegistrationModal } from '../../contexts/RegistrationModalContext';
+import { useHistory } from 'react-router-dom';
 
 const RejectedVerification: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const [rejectionReason, setRejectionReason] = useState('');
-  const { openModal } = useRegistrationModal();
+  const history = useHistory();
 
   useEffect(() => {
     const fetchRejectionReason = async () => {

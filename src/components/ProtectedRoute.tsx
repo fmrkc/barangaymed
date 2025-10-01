@@ -132,28 +132,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Redirect to={`/login?returnUrl=${encodeURIComponent(location.pathname)}`} />;
   }
 
-  // NEW: Redirect based on verification status for users
-  if (userRole === 'user' && requiredRole === 'user') {
-    const status = verificationStatus || 'unverified'; // Treat null as unverified
-
-    // If user is unverified or rejected, redirect to complete-profile page
-    if ((status === 'unverified' || status === 'rejected') && location.pathname !== '/user/complete-profile') {
-      return <Redirect to="/user/complete-profile" />;
-    }
-    // If user is pending approval, redirect to pending-verification page
-    if (status === 'pending_approval' && location.pathname !== '/user/pending-verification') {
-      return <Redirect to="/user/pending-verification" />;
-    }
-    // If user is verified, and they are on a status page, redirect to dashboard
-    if (status === 'verified' && [
-      '/user/complete-profile',
-      '/user/pending-verification',
-      '/user/rejected-verification'
-    ].includes(location.pathname)) {
-        return <Redirect to="/user/dashboard" />;
-    }
-  }
-
   // NEW: Check for email verification
   if (!currentUser.emailVerified) {
     logSecurityEvent(
