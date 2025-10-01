@@ -180,3 +180,25 @@ Issues? Report them at https://github.com/firebase/firebase-tools/issues and att
 [debug] [2025-10-01T08:27:57.076Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"3537d67a-42a4-4e2d-9bd3-37da9f5cb3e5","type":"google.cloud.storage.object.v1.finalized","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/user-documents/km4SNozPZs08q8mB4rfxBs0RJ1tf/PhilHealth ID-1759307276669","time":"2025-10-01T08:27:57.037Z","data":{"kind":"storage#object","name":"user-documents/km4SNozPZs08q8mB4rfxBs0RJ1tf/PhilHealth ID-1759307276669","bucket":"barangaymed.firebasestorage.app","generation":"1759307277037","metageneration":"1","contentType":"image/jpeg","timeCreated":"2025-10-01T08:27:57.037Z","updated":"2025-10-01T08:27:57.037Z","storageClass":"STANDARD","size":"626683","md5Hash":"5hHyWSZKNoX+N0spmKZncA==","etag":"x0EoIg2v/6PQ4y/p93qD+yhHpfo","metadata":{"firebaseStorageDownloadTokens":"38944ba7-3581-46b3-b617-0038126e2eea"},"crc32c":"7RQiJw==","timeStorageClassUpdated":"2025-10-01T08:27:57.037Z","id":"barangaymed.firebasestorage.app/user-documents/km4SNozPZs08q8mB4rfxBs0RJ1tf/PhilHealth ID-1759307276669/1759307277037","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2Fkm4SNozPZs08q8mB4rfxBs0RJ1tf%2FPhilHealth%20ID-1759307276669","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/user-documents%2Fkm4SNozPZs08q8mB4rfxBs0RJ1tf%2FPhilHealth%20ID-1759307276669?generation=1759307277037&alt=media"}}
 [debug] [2025-10-01T08:27:57.087Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
 [debug] [2025-10-01T08:27:57.087Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-10-01T08:57:08.230Z] Received signal SIGHUP 1
+[info]  
+[info] i  emulators: Received SIGHUP for the first time. Starting a clean shutdown. 
+[info] i  emulators: Please wait for a clean shutdown or send the SIGHUP signal again to stop right now. 
+[info] i  Automatically exporting data using --export-on-exit "./.emulator-data" please wait for the export to finish... 
+[debug] [2025-10-01T08:57:08.244Z] Emulator locator file path: C:\Users\Clarence\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-10-01T08:57:08.248Z] >>> [apiv2][query] GET http://127.0.0.1:4400/ [none]
+[debug] [2025-10-01T08:57:08.261Z] <<< [apiv2][status] GET http://127.0.0.1:4400/ 200
+[debug] [2025-10-01T08:57:08.262Z] <<< [apiv2][body] GET http://127.0.0.1:4400/ {"version":"14.17.0","origins":["http://127.0.0.1:4400","http://[::1]:4400"],"host":"127.0.0.1","port":4400}
+[info] i  Found running emulator hub for project barangaymed at http://127.0.0.1:4400 
+[info] i  Exporting data to: C:\Users\Clarence\Documents\barangaymed\.emulator-data 
+[debug] [2025-10-01T08:57:08.269Z] >>> [apiv2][query] GET http://127.0.0.1:4400/ [none]
+[debug] [2025-10-01T08:57:08.274Z] <<< [apiv2][status] GET http://127.0.0.1:4400/ 200
+[debug] [2025-10-01T08:57:08.275Z] <<< [apiv2][body] GET http://127.0.0.1:4400/ {"version":"14.17.0","origins":["http://127.0.0.1:4400","http://[::1]:4400"],"host":"127.0.0.1","port":4400}
+[debug] [2025-10-01T08:57:08.275Z] >>> [apiv2][query] POST http://127.0.0.1:4400/_admin/export [none]
+[debug] [2025-10-01T08:57:08.275Z] >>> [apiv2][body] POST http://127.0.0.1:4400/_admin/export {"path":"C:\\Users\\Clarence\\Documents\\barangaymed\\.emulator-data","initiatedBy":"exit"}
+[info] i  emulators: Received export request. Exporting data to C:\Users\Clarence\Documents\barangaymed\.emulator-data. 
+[debug] [2025-10-01T08:57:08.304Z] >>> [apiv2][query] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed:export [none]
+[debug] [2025-10-01T08:57:08.305Z] >>> [apiv2][body] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed:export {"database":"projects/barangaymed/databases/(default)","export_directory":"firebase-export-1759309028282O2PnnB","export_name":"firestore_export"}
+[debug] [2025-10-01T08:57:08.524Z] <<< [apiv2][status] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed:export 200
+[debug] [2025-10-01T08:57:08.525Z] <<< [apiv2][body] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed:export {}
+[debug] [2025-10-01T08:57:08.535Z] Exporting auth users in Project barangaymed to firebase-export-1759309028282O2PnnB\auth_export\accounts.json
