@@ -58,13 +58,14 @@ service cloud.firestore {
                        // User can update specific profile fields
                        request.resource.data.role == resource.data.role &&
                        (request.resource.data.verificationStatus == 'pending_approval' ||
-                        request.resource.data.verificationStatus == resource.data.verificationStatus) &&
+                        request.resource.data.verificationStatus == resource.data.verificationStatus ||
+                        (resource.data.verificationStatus == 'rejected' && request.resource.data.verificationStatus == 'unverified')) &&
                        // Ensure only allowed fields are being updated by the user
                        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                          'firstName', 'lastName', 'contactNumber',
                          'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',
                          'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',
-                         'address', 'idVerificationUrl', 'idVerificationType', 'verificationStatus'
+                         'address', 'idVerificationUrl', 'idVerificationType', 'verificationStatus', 'rejectionReason'
                        ])
                     ||
                     // OR an Admin can update verification-related fields

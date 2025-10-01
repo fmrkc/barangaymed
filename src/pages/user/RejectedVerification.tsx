@@ -4,12 +4,12 @@ import {
 import { logOutOutline, createOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 
 const RejectedVerification: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, refreshUserClaims } = useAuth();
   const [rejectionReason, setRejectionReason] = useState('');
   const history = useHistory();
 
@@ -25,8 +25,15 @@ const RejectedVerification: React.FC = () => {
     fetchRejectionReason();
   }, [currentUser]);
 
-  const handleResubmit = () => {
-    openModal();
+  const handleResubmit = async () => {
+    if (currentUser) {
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        verificationStatus: 'unverified',
+        rejectionReason: null,
+      });
+      await refreshUserClaims();
+    }
+    history.push('/user/complete-profile');
   };
 
   return (
