@@ -3,18 +3,25 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const VerificationRedirector: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentUser, userRole, verificationStatus, loading } = useAuth();
+  const { currentUser, userRole, verificationStatus, loading, emailVerified } = useAuth();
   const history = useHistory();
   const location = useLocation();
 
   useEffect(() => {
+    console.log('VerificationRedirector: Evaluating redirection...');
+    console.log('  Loading:', loading);
+    console.log('  CurrentUser:', !!currentUser);
+    console.log('  UserRole:', userRole);
+    console.log('  VerificationStatus:', verificationStatus);
+    console.log('  EmailVerified:', emailVerified);
+    console.log('  CurrentPath:', location.pathname);
+
     if (loading || !currentUser) {
+      console.log('VerificationRedirector: Skipping redirect - loading or no current user.');
       return; // Wait for loading to complete or if no user is logged in
     }
 
     const currentPath = location.pathname;
-
-    // Define paths that this component should manage
     const userVerificationPaths = [
       '/user/pending-verification',
       '/user/rejected-verification',
@@ -24,6 +31,11 @@ const VerificationRedirector: React.FC<{ children: React.ReactNode }> = ({ child
     // --- Redirection Logic ---
     if (userRole === 'user') {
       const targetPath = (() => {
+        // NEW: Check for email verification first
+        if (!emailVerified) {
+          return '/user/verify-email';
+        }
+        // Existing verificationStatus checks
         if (verificationStatus === 'rejected') {
           return '/user/rejected-verification';
         } else if (verificationStatus === 'pending_approval') {
@@ -56,8 +68,7 @@ const VerificationRedirector: React.FC<{ children: React.ReactNode }> = ({ child
       history.push('/user/complete-profile');
     }
 
-
-  }, [loading, currentUser, userRole, verificationStatus, history, location.pathname]);
+  }, [loading, currentUser, userRole, verificationStatus, emailVerified, history, location.pathname]);
 
   return <>{children}</>;
 };
