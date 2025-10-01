@@ -13,6 +13,7 @@ interface AuthContextType {
   cityMunicipalityId: string | null;
   emailVerified: boolean;
   verificationStatus: string | null;
+  rejectionReason: string | null;
   loading: boolean;
   login: (user: FirebaseUser) => Promise<void>;
   logout: () => Promise<void>;
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   cityMunicipalityId: null,
   emailVerified: false,
   verificationStatus: null,
+  rejectionReason: null,
   loading: true,
   login: async () => {},
   logout: async () => {},
@@ -41,6 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [cityMunicipalityId, setCityMunicipalityId] = useState<string | null>(null);
   const [emailVerified, setEmailVerified] = useState<boolean>(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Function to extract user data from Firestore with retry logic
@@ -51,6 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCityMunicipalityId(null);
       setEmailVerified(false);
       setVerificationStatus(null);
+      setRejectionReason(null);
       return;
     }
 
@@ -78,6 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const barangayId = data?.barangayId as string | undefined;
         const cityMunicipalityId = data?.cityMunicipalityId as string | undefined;
         const verificationStatus = data?.verificationStatus as string | undefined;
+        const rejectionReason = data?.rejectionReason as string | undefined;
 
         const claimsVerificationStatus = idTokenResult.claims?.verificationStatus as string | undefined;
 
@@ -125,6 +130,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setBarangayId(barangayId || null);
         setCityMunicipalityId(cityMunicipalityId || null);
         setVerificationStatus(claimsVerificationStatus || verificationStatus || null);
+        setRejectionReason(rejectionReason || null);
       } else {
         console.warn("AuthContext: User doc not found in Firestore for UID:", user.uid);
 
@@ -179,6 +185,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setBarangayId(null);
           setCityMunicipalityId(null);
           setVerificationStatus(null);
+          setRejectionReason(null);
         }
       }
     } catch (error) {
@@ -192,6 +199,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setCityMunicipalityId(null);
       setEmailVerified(false);
       setVerificationStatus(null);
+      setRejectionReason(null);
     }
   };
 
@@ -252,6 +260,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setBarangayId(null);
       setCityMunicipalityId(null);
       setVerificationStatus(null);
+      setRejectionReason(null);
     } catch (error) {
       logFirestoreError('logout', error, {
         userId: currentUser?.uid,
@@ -275,6 +284,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setBarangayId(null);
           setCityMunicipalityId(null);
           setVerificationStatus(null);
+          setRejectionReason(null);
         }
       } catch (error) {
         logFirestoreError('onAuthStateChanged', error, {
@@ -296,6 +306,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     cityMunicipalityId,
     emailVerified,
     verificationStatus,
+    rejectionReason,
     loading,
     login,
     logout,
