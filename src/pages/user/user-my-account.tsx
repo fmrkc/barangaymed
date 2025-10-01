@@ -39,7 +39,7 @@ import { useMaskito } from '@maskito/react';
 import { getBarangayNameByCode } from "../../services/addressService";
 
 const Account: React.FC = () => {
-  const { logout, currentUser, verificationStatus, refreshUserClaims } = useAuth();
+  const { logout, currentUser, verificationStatus, rejectionReason, refreshUserClaims } = useAuth();
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -62,13 +62,6 @@ const Account: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(true);
-
-  // New state for detailed registration status
-  interface RegistrationStatus {
-    verificationStatus: string;
-    rejectionReason?: string;
-  }
-  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus | null>(null);
 
   // Fetch user data including separate name components
   useEffect(() => {
@@ -102,16 +95,7 @@ const Account: React.FC = () => {
           setEditContactNumber(userData.contactNumber || "");
         }
 
-        // Fetch latest registration status from sub-collection
-        const regStatusCollection = collection(db, "users", currentUser.uid, "full_registration");
-        const q = query(regStatusCollection, orderBy("submittedAt", "desc"), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const latestStatusDoc = querySnapshot.docs[0];
-          setRegistrationStatus(latestStatusDoc.data() as RegistrationStatus);
-        } else {
-          setRegistrationStatus({ verificationStatus: 'not_submitted' });
-        }
+        // No longer fetch from full_registration sub-collection
 
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -121,7 +105,7 @@ const Account: React.FC = () => {
     };
 
     fetchUserData();
-  }, [currentUser]);
+  }, [currentUser, verificationStatus, rejectionReason]);
 
 
 
@@ -242,9 +226,9 @@ const Account: React.FC = () => {
                       Resident of Barangay {barangayName || "Not specified"}
                     </div>
                   </IonCardSubtitle>
-                  <IonChip color={registrationStatus?.verificationStatus === 'verified' ? 'success' : registrationStatus?.verificationStatus === 'pending' ? 'warning' : registrationStatus?.verificationStatus === 'not_submitted' ? 'medium' : 'danger'}>
-                    <IonIcon icon={registrationStatus?.verificationStatus === 'verified' ? checkmark : registrationStatus?.verificationStatus === 'pending' ? time : registrationStatus?.verificationStatus === 'not_submitted' ? document : warning} />
-                    <IonLabel>{registrationStatus?.verificationStatus ? (registrationStatus.verificationStatus.charAt(0).toUpperCase() + registrationStatus.verificationStatus.slice(1)).replace('_', ' ') : "Unverified"}</IonLabel>
+                  <IonChip color={verificationStatus === 'verified' ? 'success' : verificationStatus === 'pending_approval' ? 'warning' : verificationStatus === 'not_submitted' ? 'medium' : 'danger'}>
+                    <IonIcon icon={verificationStatus === 'verified' ? checkmark : verificationStatus === 'pending_approval' ? time : verificationStatus === 'not_submitted' ? document : warning} />
+                    <IonLabel>{verificationStatus ? (verificationStatus.charAt(0).toUpperCase() + verificationStatus.slice(1)).replace('_', ' ') : "Unverified"}</IonLabel>
                   </IonChip>
                 </div>
               </div>
