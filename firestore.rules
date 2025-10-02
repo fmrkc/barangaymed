@@ -174,8 +174,8 @@ service cloud.firestore {
 // Users can create teleconsultation requests. Admins and Superadmins can manage them.
 // =================================================================
     match /teleconsultationRequests/{requestId} {
-      // CREATE: Verified users can create teleconsultation requests for themselves only
-      allow create: if isVerifiedResident()
+      // CREATE: Users can create teleconsultation requests for themselves only
+      allow create: if isUserRole()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.barangayId is string
                     && request.resource.data.reason is string

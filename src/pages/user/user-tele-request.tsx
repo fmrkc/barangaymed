@@ -30,11 +30,18 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setShowToast(true);
       return;
     }
+    if (!barangayId) {
+      setToastMessage('Barangay information is missing. Please update your profile.');
+      setShowToast(true);
+      return;
+    }
     setLoading(true);
     try {
+      // Refresh the user's ID token to ensure latest claims
+      await currentUser?.getIdToken(true);
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
-        barangayId: barangayId || '',
+        barangayId: barangayId,
         reason: reason.trim(),
         status: 'pending',
         createdAt: serverTimestamp(),
@@ -43,6 +50,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setShowToast(true);
       setReason('');
     } catch (error) {
+      console.error('Error submitting teleconsultation request:', error);
       setToastMessage('Failed to submit request. Please try again.');
       setShowToast(true);
     } finally {
