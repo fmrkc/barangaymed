@@ -33,3 +33,4 @@ yarn-error.log*
 /functions/node_modules
 /.firebase
 /.emulator-data
+.emulator-data/auth_export/accounts.json
