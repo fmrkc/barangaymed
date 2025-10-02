@@ -3,9 +3,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth, db } from '../../firebaseConfig';
 import { query, where, getDocs, collection, doc, updateDoc, deleteField } from 'firebase/firestore';
-import { getStorage, ref, deleteObject } from 'firebase/storage';
 import { call, checkmarkCircleOutline, close, closeCircleOutline, eyeOutline, home, mail, mailOutline, open, person, phonePortrait } from 'ionicons/icons';
 import { getBarangayNameByCode } from '../../services/addressService';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 interface UserForVerification {
   uid: string;
@@ -30,9 +30,9 @@ function getTimeAgo(timestamp: string | { toDate: () => Date; } | Date | null | 
   if (typeof timestamp === 'string') {
     // Try to parse string date
     date = new Date(timestamp);
-  } else if (timestamp && typeof (timestamp as any).toDate === 'function') {
+  } else if (timestamp && typeof (timestamp as { toDate: () => Date; }).toDate === 'function') {
     // Firestore Timestamp object
-    date = (timestamp as any).toDate();
+    date = (timestamp as { toDate: () => Date; }).toDate();
   } else if (timestamp instanceof Date) {
     date = timestamp;
   } else {
@@ -133,8 +133,6 @@ const AdminUserVerification: React.FC = () => {
     }
   }, [selectedUser]);
 
-  import { getFunctions, httpsCallable } from 'firebase/functions';
-
 const functions = getFunctions();
 const setCustomClaimsOnVerification = httpsCallable(functions, 'setCustomClaimsOnVerification');
 
@@ -162,12 +160,11 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
     setShowModal(false); // Close modal
     setShowAlert(false); // Close alert
 
-  } catch (error: unknown) {
-    console.error(`Error ${action} user:`, error);
-    setToastMessage((error as any).message || `Error ${action} user.`);
-    setToastColor('danger');
-    setShowToast(true);
-  } finally {
+      } catch (error: unknown) {
+        console.error(`Error ${action} user:`, error);
+        setToastMessage((error as Error).message || `Error ${action} user.`);
+        setToastColor('danger');
+        setShowToast(true);  } finally {
     setIsReviewing(false);
   }
 };
