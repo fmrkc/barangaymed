@@ -104,6 +104,23 @@ service cloud.firestore {
     }
 
 // =================================================================
+// Collection: medicalRecords
+// Stores user's private medical information.
+// =================================================================
+    match /medicalRecords/{userId} {
+      // A user can manage their own record.
+      allow read, write: if isOwner(userId);
+      // Super Admins can read any user's medical record.
+      allow get, list: if isSuperAdmin();
+
+      // Rules for subcollections like historyFiles
+      match /historyFiles/{fileId} {
+        allow read, write: if isOwner(userId);
+        allow get, list: if isSuperAdmin();
+      }
+    }
+
+// =================================================================
 // Collection: announcements
 // Managed by Admins and Super Admins.
 // =================================================================

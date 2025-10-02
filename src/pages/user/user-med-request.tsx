@@ -19,6 +19,7 @@ const UserMedRequestModal: React.FC<UserMedRequestModalProps> = ({ isOpen, onDid
           <h2>Medicine Request Form</h2>
           <p>This is a placeholder for the medicine request modal component.</p>
           <p>Please implement the actual medicine request functionality here.</p>
+          <p><small><i>By submitting, your medical record will be made available to the Rural Health Unit for review.</i></small></p>
         </IonText>
         <IonButton expand="full" onClick={onDidDismiss}>
           Close
