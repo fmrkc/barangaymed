@@ -14,6 +14,7 @@ import {
   IonCardTitle,
   IonCardContent,
   IonItem,
+  IonItemDivider,
   IonInput,
   IonButton,
   IonIcon,
@@ -25,8 +26,9 @@ import {
   IonProgressBar,
   IonToast,
   IonLoading,
+  IonCardSubtitle,
 } from '@ionic/react';
-import { arrowForward, checkmarkDoneOutline, close, eye, eyeOff, person, arrowBack } from 'ionicons/icons';
+import { arrowForward, checkmarkDoneOutline, close, eye, eyeOff, person, arrowBack, mail, lockClosed, transgender } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { auth, db } from '../../firebaseConfig';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
@@ -159,7 +161,7 @@ const UserRegister: React.FC = () => {
               <IonIcon slot="icon-only" icon={close} />
             </IonButton>
           </IonButtons>
-          <IonTitle>Create Account</IonTitle>
+          <IonTitle>Create New Account</IonTitle>
         </IonToolbar>
         <IonProgressBar value={progress} />
       </IonHeader>
@@ -180,16 +182,22 @@ const UserRegister: React.FC = () => {
         />
         {currentStep === 1 && (
           <IonCard>
+            <br />
             <IonCardHeader>
               <IonCardTitle>
-                <IonItem>Step 1: Your Name</IonItem>
+                Step 1: Your Name
               </IonCardTitle>
+              <IonCardSubtitle>
+                  Please provide your full name. Middle Name and Suffix can be left out if not applicable.
+              </IonCardSubtitle>
             </IonCardHeader>
             <IonCardContent>
+              <br />
+              <IonItemDivider>First Name *</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="First Name"
+                  placeholder="Enter your first name"
                   value={firstName}
                   onIonChange={(e) => setFirstName(e.detail.value!)}
                   className="ion-margin-bottom"
@@ -198,10 +206,11 @@ const UserRegister: React.FC = () => {
                   <IonIcon slot="start" icon={person}></IonIcon>
                 </IonInput>
               </IonItem>
+              <IonItemDivider>Middle Name (Optional)</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Middle Name (Optional)"
+                  placeholder="Enter your middle name (optional)"
                   value={middleName}
                   onIonChange={(e) => setMiddleName(e.detail.value!)}
                   className="ion-margin-bottom"
@@ -209,10 +218,11 @@ const UserRegister: React.FC = () => {
                   <IonIcon slot="start" icon={person}></IonIcon>
                 </IonInput>
               </IonItem>
+              <IonItemDivider>Last Name *</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Last Name"
+                  placeholder="Enter your last name"
                   value={lastName}
                   onIonChange={(e) => setLastName(e.detail.value!)}
                   className="ion-margin-bottom"
@@ -221,10 +231,11 @@ const UserRegister: React.FC = () => {
                   <IonIcon slot="start" icon={person}></IonIcon>
                 </IonInput>
               </IonItem>
+              <IonItemDivider>Suffix (Optional)</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Suffix (Optional)"
+                  placeholder="e.g. Jr., Sr. (optional)"
                   value={suffix}
                   onIonChange={(e) => setSuffix(e.detail.value!)}
                   className="ion-margin-bottom"
@@ -238,34 +249,42 @@ const UserRegister: React.FC = () => {
 
         {currentStep === 2 && (
           <IonCard>
+            <br />
             <IonCardHeader>
               <IonCardTitle>
-                <IonItem>Step 2: Personal Details</IonItem>
+                Step 2: Personal Details
               </IonCardTitle>
+              <IonCardSubtitle>
+                  Please provide your birthdate and gender.
+              </IonCardSubtitle>
             </IonCardHeader>
             <IonCardContent>
+              <br />
+              <IonItemDivider>Birthdate *</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Birthdate"
                   type="date"
+                  placeholder="Select your birthdate"
                   value={birthdate}
                   max={new Date().toISOString().split('T')[0]}
                   onIonChange={(e) => setBirthdate(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
                 />
+                
               </IonItem>
+              <IonItemDivider>Gender *</IonItemDivider>
               <IonItem>
                 <IonSelect
                   fill="outline"
-                  label="Gender"
                   value={gender}
                   onIonChange={(e) => setGender(e.detail.value!)}
                   placeholder="Select Gender"
                   className="ion-margin-bottom"
                   required
                 >
+                  <IonIcon slot="start" icon={person}></IonIcon>
                   <IonSelectOption value="Male">Male</IonSelectOption>
                   <IonSelectOption value="Female">Female</IonSelectOption>
                 </IonSelect>
@@ -276,33 +295,45 @@ const UserRegister: React.FC = () => {
 
         {currentStep === 3 && (
           <IonCard>
+            <br />
             <IonCardHeader>
               <IonCardTitle>
-                <IonItem className='ion-margin-bottom'>Step 3: Account Credentials</IonItem>
+                Step 3: Account Credentials
               </IonCardTitle>
+              <IonCardSubtitle>
+                  Please provide a valid email address and create a secure password.
+              </IonCardSubtitle>
             </IonCardHeader>
             <IonCardContent>
+              <br />
+              <IonItemDivider>Email *</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Email"
                   type="email"
+                  placeholder="Enter your email address"
                   value={email}
                   onIonChange={(e) => setEmail(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
-                />
+                  helperText="Please enter a valid email address. We'll send a verification email to this address."
+                >
+                  <IonIcon slot="start" icon={mail}></IonIcon>
+                </IonInput>
               </IonItem>
+              <IonItemDivider>Password *</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Password"
                   type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
                   value={password}
                   onIonChange={(e) => setPassword(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
+                  helperText="Password must be at least 8 characters long."
                 >
+
                   <IonIcon
                     icon={showPassword ? eyeOff : eye}
                     slot="end"
@@ -311,16 +342,19 @@ const UserRegister: React.FC = () => {
                   />
                 </IonInput>
               </IonItem>
+              <IonItemDivider>Confirm Password *</IonItemDivider>
               <IonItem>
                 <IonInput
                   fill="outline"
-                  label="Confirm Password"
                   type={showPassword ? 'text' : 'password'}
+                  placeholder="Confirm your password"
                   value={confirmPassword}
                   onIonChange={(e) => setConfirmPassword(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
+                  helperText="Re-enter your password to confirm."
                 >
+
                   <IonIcon
                     icon={showPassword ? eyeOff : eye}
                     slot="end"
