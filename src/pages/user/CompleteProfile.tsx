@@ -29,7 +29,7 @@ import {
   IonAlert,
 } from '@ionic/react';
 
-import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home, logOutOutline } from 'ionicons/icons';
+import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home, logOutOutline, logOut } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
@@ -366,7 +366,7 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
           <IonTitle>Complete Your Profile</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => setShowAlert(true)}>
-              <IonIcon icon={logOutOutline} />
+              <IonIcon slot='icon-only' icon={logOut} />
             </IonButton>
           </IonButtons>
         </IonToolbar>

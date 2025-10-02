@@ -1,5 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter, IonAlert, IonLoading, IonButtons } from '@ionic/react';
-import { logOutOutline } from 'ionicons/icons';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter, IonAlert, IonLoading, IonButtons, IonText } from '@ionic/react';
+import { checkmarkCircle, documentAttach, logOut, logOutOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -33,12 +33,12 @@ const PendingVerification: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>Verification Pending</IonTitle>
           <IonButtons slot="end">
             <IonButton fill="clear" onClick={() => setShowAlert(true)}>
-              <IonIcon slot="icon-only" icon={logOutOutline} />
+              <IonIcon slot="icon-only" icon={logOut} />
             </IonButton>
           </IonButtons>
         </IonToolbar>
@@ -54,11 +54,14 @@ const PendingVerification: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <IonCard style={{ maxWidth: '400px', textAlign: 'center' }}>
             <IonCardHeader>
+              <IonText class='ion-text-center'>
+                <IonIcon icon={checkmarkCircle} style={{ fontSize: '48px', color: 'var(--ion-color-success)' }} />
+              </IonText>
               <IonCardTitle>Your Account is Under Review</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              <p>Thank you for submitting your registration details.</p>
-              <p>Your account is currently being reviewed by your barangay admin. You will be notified once the review is complete.</p>
+              <p>Your verification form has been sent successfully!</p>
+              <p>Your form will soon be reviewed by your barangay. You will be notified once the review is complete.</p>
               <p>Please check back later.</p>
             </IonCardContent>
           </IonCard>
