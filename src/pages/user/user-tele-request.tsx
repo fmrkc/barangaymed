@@ -1,23 +1,8 @@
 import React, { useState } from 'react';
-import {
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonText,
-  IonCard,
-  IonCardContent,
-  IonItem,
-  IonLabel,
-  IonTextarea,
-  IonInput,
-  IonToast
-} from '@ionic/react';
+import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { TeleconsultationService } from '../../services/teleconsultationService';
-import { TeleconsultationRequestFormData } from '../../types/teleconsultationRequests';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { UserService } from '../../services/userService';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -25,125 +10,99 @@ interface UserTeleRequestProps {
 }
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
-  const { currentUser, barangayId, emailVerified, verificationStatus } = useAuth();
+  const { currentUser, userRole, verificationStatus, barangayId } = useAuth();
   const [reason, setReason] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
-  // Check if user can submit request
-  const canSubmit = currentUser && barangayId && verificationStatus === 'verified' && reason.trim();
+  const db = getFirestore();
+
+  const isUser = userRole === 'user';
 
   const handleSubmit = async () => {
-    if (!currentUser || !reason.trim()) {
-      setShowErrorToast(true);
+    if (!isUser) {
+      setToastMessage('You must be a registered user to submit a teleconsultation request.');
+      setShowToast(true);
       return;
     }
-
-    setIsSubmitting(true);
+    if (!reason.trim()) {
+      setToastMessage('Please provide a reason for the teleconsultation request.');
+      setShowToast(true);
+      return;
+    }
+    if (!barangayId) {
+      setToastMessage('Barangay information is missing. Please update your profile.');
+      setShowToast(true);
+      return;
+    }
+    setLoading(true);
     try {
-      const teleconsultationService = TeleconsultationService.getInstance();
-      const formData: TeleconsultationRequestFormData = {
-        reason: reason.trim()
-      };
+      // Refresh the user's ID token to ensure latest claims
+      await currentUser?.getIdToken(true);
 
-      await teleconsultationService.createRequest(currentUser.uid, formData);
+      // Fetch complete user data
+      const userService = UserService.getInstance();
+      const userData = await userService.getUserData(currentUser?.uid!);
 
-      setShowSuccessToast(true);
+      await addDoc(collection(db, 'teleconsultationRequests'), {
+        userId: currentUser?.uid,
+        barangayId: barangayId,
+        userData: userData,
+        reason: reason.trim(),
+        status: 'pending',
+        createdAt: serverTimestamp(),
+      });
+      setToastMessage('Teleconsultation request submitted successfully.');
+      setShowToast(true);
       setReason('');
-      onDidDismiss();
     } catch (error) {
       console.error('Error submitting teleconsultation request:', error);
-      setShowErrorToast(true);
+      setToastMessage('Failed to submit request. Please try again.');
+      setShowToast(true);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
-  };
-
-  const handleClose = () => {
-    setReason('');
-    onDidDismiss();
   };
 
   return (
-    <>
-      <IonModal isOpen={isOpen} onDidDismiss={handleClose}>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Teleconsultation Request</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonText>
-            <h2>Request Teleconsultation</h2>
-            <p>Please provide the reason for your teleconsultation request below.</p>
-            {!barangayId || verificationStatus !== 'verified' ? (
-              <p style={{ color: 'red' }}>
-                <strong>Note:</strong> You must complete your registration and be verified by an admin to submit a teleconsultation request.
-              </p>
-            ) : null}
-          </IonText>
-
-          <IonCard>
-            <IonCardContent>
-              <IonItem>
-                <IonLabel position="stacked">Reason for Request *</IonLabel>
-                <IonTextarea
-                  value={reason}
-                  onIonChange={(e) => setReason(e.detail.value!)}
-                  placeholder="Please describe your health concern or reason for needing a teleconsultation..."
-                  rows={4}
-                  maxlength={500}
-                  required
-                />
-              </IonItem>
-
-              <div className="ion-text-center ion-margin-top">
-                <IonText color="medium">
-                  <small>{reason.length}/500 characters</small>
-                </IonText>
-              </div>
-            </IonCardContent>
-          </IonCard>
-
-          <div className="ion-margin-top">
-            <IonButton
-              expand="full"
-              onClick={handleSubmit}
-              disabled={!reason.trim() || isSubmitting}
-              className="ion-margin-bottom"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Request'}
-            </IonButton>
-
-            <IonButton
-              expand="full"
-              fill="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </IonButton>
-          </div>
-        </IonContent>
-      </IonModal>
-
-      <IonToast
-        isOpen={showSuccessToast}
-        onDidDismiss={() => setShowSuccessToast(false)}
-        message="Your teleconsultation request has been submitted successfully!"
-        duration={3000}
-        color="success"
-      />
-
-      <IonToast
-        isOpen={showErrorToast}
-        onDidDismiss={() => setShowErrorToast(false)}
-        message="Failed to submit request. Please try again."
-        duration={3000}
-        color="danger"
-      />
-    </>
+    <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Teleconsultation Request</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="ion-padding">
+        <IonText>
+          <h2>Request a Teleconsultation</h2>
+          <p>Please provide the reason for your teleconsultation request below.</p>
+        </IonText>
+        <IonItem>
+          <IonLabel position="floating">Reason</IonLabel>
+          <IonTextarea
+            value={reason}
+            onIonChange={e => setReason(e.detail.value!)}
+            rows={6}
+            maxlength={500}
+            placeholder="Describe your reason for teleconsultation"
+          />
+        </IonItem>
+        <IonButton expand="block" onClick={handleSubmit} disabled={loading}>
+          Submit Request
+        </IonButton>
+        <IonButton expand="block" fill="clear" onClick={onDidDismiss}>
+          Close
+        </IonButton>
+        <IonLoading isOpen={loading} message={'Submitting request...'} />
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={3000}
+          color={toastMessage.includes('successfully') ? 'success' : 'danger'}
+        />
+      </IonContent>
+    </IonModal>
   );
 };
 
