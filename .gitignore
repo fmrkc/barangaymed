@@ -34,3 +34,5 @@ yarn-error.log*
 /functions/node_modules
 /emulator-seed-data
 /.emulator-data
+/.firebase
+/.emulator-data
