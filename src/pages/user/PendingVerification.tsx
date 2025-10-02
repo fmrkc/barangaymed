@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter, IonAlert, IonLoading } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter, IonAlert, IonLoading, IonButtons } from '@ionic/react';
 import { logOutOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -36,6 +36,11 @@ const PendingVerification: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Verification Pending</IonTitle>
+          <IonButtons slot="end">
+            <IonButton fill="clear" onClick={() => setShowAlert(true)}>
+              <IonIcon slot="icon-only" icon={logOutOutline} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>
@@ -55,10 +60,6 @@ const PendingVerification: React.FC = () => {
               <p>Thank you for submitting your registration details.</p>
               <p>Your account is currently being reviewed by your barangay admin. You will be notified once the review is complete.</p>
               <p>Please check back later.</p>
-              <IonButton expand="block" fill="clear" onClick={() => setShowAlert(true)} className="ion-margin-top">
-                <IonIcon slot="start" icon={logOutOutline} />
-                Logout
-              </IonButton>
             </IonCardContent>
           </IonCard>
         </div>

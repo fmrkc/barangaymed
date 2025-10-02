@@ -1,5 +1,5 @@
 import {
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonText, IonAlert
+  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonText, IonAlert, IonButtons
 } from '@ionic/react';
 import { logOutOutline, createOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -46,6 +46,11 @@ const RejectedVerification: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Verification Rejected</IonTitle>
+          <IonButtons slot="end">
+            <IonButton fill="clear" onClick={() => setShowAlert(true)}>
+              <IonIcon slot="icon-only" icon={logOutOutline} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" fullscreen>
@@ -61,15 +66,10 @@ const RejectedVerification: React.FC = () => {
                 <p>{rejectionReason}</p>
               </IonText>
               <p className="ion-margin-top">Please review the reason and prepare the correct information or documents.</p>
-              
+
               <IonButton expand="block" onClick={handleResubmit} className="ion-margin-top">
                 <IonIcon slot="start" icon={createOutline} />
                 Resubmit Application
-              </IonButton>
-
-              <IonButton expand="block" fill="clear" onClick={() => setShowAlert(true)} className="ion-margin-top">
-                <IonIcon slot="start" icon={logOutOutline} />
-                Logout
               </IonButton>
             </IonCardContent>
           </IonCard>

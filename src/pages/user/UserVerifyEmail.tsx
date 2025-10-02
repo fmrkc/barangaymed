@@ -84,7 +84,7 @@ const UserVerifyEmail: React.FC = () => {
           <IonTitle>Verify Your Email</IonTitle>
           <IonButtons slot="end">
             <IonButton id="logout-confirm">
-              <IonIcon icon={logOut} />
+              <IonIcon slot="icon-only" icon={logOut} />
             </IonButton>
           </IonButtons>
         </IonToolbar>
