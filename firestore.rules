@@ -175,7 +175,7 @@ service cloud.firestore {
 // =================================================================
     match /teleconsultationRequests/{requestId} {
       // CREATE: Users can create teleconsultation requests for themselves only
-      allow create: if isAuthenticated()
+      allow create: if isVerifiedResident()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.userData is map
                     && request.resource.data.reason is string
@@ -183,7 +183,7 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time;
 
       // READ: Users can read their own requests. Admins can read requests from their barangay. Superadmins can read all requests.
-      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
+      allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||
                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                    isSuperAdmin();
 
