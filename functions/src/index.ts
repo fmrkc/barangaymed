@@ -651,7 +651,8 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
 
       // 2. Update main user document and custom claims
       await userRef.update({ verificationStatus: 'verified' });
-      await admin.auth().setCustomUserClaims(userId, { ...request.auth.token, verificationStatus: 'verified' });
+      await admin.auth().setCustomUserClaims(userId, { role: 'user', verificationStatus: 'verified', barangayId: userData.barangayId });
+      await admin.auth().revokeRefreshTokens(userId);
 
       notificationMessage = 'Congratulations! Your registration has been verified. You can now access all features.';
       notificationType = 'registration_verified';
