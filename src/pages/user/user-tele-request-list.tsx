@@ -31,6 +31,7 @@ const UserTeleRequestList: React.FC = () => {
   const db = getFirestore();
 
   useEffect(() => {
+    console.log('Current user:', currentUser);
     if (!currentUser) {
       setError('User not authenticated');
       setLoading(false);
@@ -48,6 +49,7 @@ const UserTeleRequestList: React.FC = () => {
         const reqs: TeleconsultationRequest[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
+          console.log('Fetched request doc:', doc.id, data);
           const req: TeleconsultationRequest = {
             id: doc.id,
             userId: data.userId,
@@ -68,7 +70,8 @@ const UserTeleRequestList: React.FC = () => {
         setLoading(false);
       },
       (err) => {
-        setError('Failed to fetch teleconsultation requests');
+        console.error('Error fetching teleconsultation requests:', err);
+        setError(`Failed to fetch teleconsultation requests: ${err.message}`);
         setLoading(false);
       }
     );
@@ -142,8 +145,18 @@ const UserTeleRequestList: React.FC = () => {
                 <IonCardTitle>Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
+                <p><strong>Barangay ID:</strong> {request.barangayId}</p>
                 <p><strong>Reason:</strong> {request.reason}</p>
-                <p><strong>Requested On:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
+                <p><strong>Status:</strong> {request.status.charAt(0).toUpperCase() + request.status.slice(1)}</p>
+                <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
+                {request.userData && (
+                  <>
+                    <p><strong>Name:</strong> {request.userData.firstName} {request.userData.middleName || ''} {request.userData.lastName} {request.userData.suffix || ''}</p>
+                    <p><strong>Contact Number:</strong> {request.userData.contactNumber || 'N/A'}</p>
+                    <p><strong>Email:</strong> {request.userData.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> {request.userData.lotBlkHouseNo || ''} {request.userData.streetName || ''}, {request.userData.subdivisionVillageZonePurok || ''}, {request.userData.selectedCityMunicipality || ''}, {request.userData.selectedProvince || ''}, {request.userData.selectedRegion || ''}, {request.userData.zipCode || ''}</p>
+                  </>
+                )}
                 {request.scheduledAt && (
                   <p><strong>Scheduled At:</strong> {request.scheduledAt.toLocaleString()}</p>
                 )}
