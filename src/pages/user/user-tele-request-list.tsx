@@ -20,6 +20,7 @@ import {
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
+import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
 
 const UserTeleRequestList: React.FC = () => {
   const { currentUser } = useAuth();
@@ -28,10 +29,10 @@ const UserTeleRequestList: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'unsuccessful'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const db = getFirestore();
 
   useEffect(() => {
-    console.log('Current user:', currentUser);
     if (!currentUser) {
       setError('User not authenticated');
       setLoading(false);
@@ -49,7 +50,6 @@ const UserTeleRequestList: React.FC = () => {
         const reqs: TeleconsultationRequest[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log('Fetched request doc:', doc.id, data);
           const req: TeleconsultationRequest = {
             id: doc.id,
             userId: data.userId,
@@ -70,8 +70,7 @@ const UserTeleRequestList: React.FC = () => {
         setLoading(false);
       },
       (err) => {
-        console.error('Error fetching teleconsultation requests:', err);
-        setError(`Failed to fetch teleconsultation requests: ${err.message}`);
+        setError('Failed to fetch teleconsultation requests');
         setLoading(false);
       }
     );
@@ -100,6 +99,38 @@ const UserTeleRequestList: React.FC = () => {
     }
     setFilteredRequests(filtered);
   }, [filter, requests]);
+
+  useEffect(() => {
+    const resolveAddresses = async () => {
+      const newResolvedAddresses: Record<string, string> = {};
+      for (const request of requests) {
+        if (request.userData) {
+          const { lotBlkHouseNo, streetName, subdivisionVillageZonePurok, selectedCityMunicipality, selectedProvince, selectedRegion, barangayId, zipCode } = request.userData;
+          let barangayName = '';
+          if (barangayId) {
+            barangayName = await getBarangayNameByCode(barangayId) || '';
+          }
+          let zip = zipCode || '';
+          if (!zip && barangayId) {
+            zip = await getZipCodeByBarangay(barangayId) || '';
+          }
+          const addressParts = [
+            lotBlkHouseNo,
+            streetName,
+            subdivisionVillageZonePurok,
+            barangayName,
+            selectedCityMunicipality,
+            selectedProvince,
+            selectedRegion,
+            zip
+          ].filter(Boolean);
+          newResolvedAddresses[request.id || ''] = addressParts.join(', ');
+        }
+      }
+      setResolvedAddresses(newResolvedAddresses);
+    };
+    resolveAddresses();
+  }, [requests]);
 
   return (
     <>
@@ -145,16 +176,14 @@ const UserTeleRequestList: React.FC = () => {
                 <IonCardTitle>Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
-                <p><strong>Barangay ID:</strong> {request.barangayId}</p>
                 <p><strong>Reason:</strong> {request.reason}</p>
-                <p><strong>Status:</strong> {request.status.charAt(0).toUpperCase() + request.status.slice(1)}</p>
                 <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
                 {request.userData && (
                   <>
                     <p><strong>Name:</strong> {request.userData.firstName} {request.userData.middleName || ''} {request.userData.lastName} {request.userData.suffix || ''}</p>
                     <p><strong>Contact Number:</strong> {request.userData.contactNumber || 'N/A'}</p>
                     <p><strong>Email:</strong> {request.userData.email || 'N/A'}</p>
-                    <p><strong>Address:</strong> {request.userData.lotBlkHouseNo || ''} {request.userData.streetName || ''}, {request.userData.subdivisionVillageZonePurok || ''}, {request.userData.selectedCityMunicipality || ''}, {request.userData.selectedProvince || ''}, {request.userData.selectedRegion || ''}, {request.userData.zipCode || ''}</p>
+                    <p><strong>Address:</strong> {resolvedAddresses[request.id || ''] || 'N/A'}</p>
                   </>
                 )}
                 {request.scheduledAt && (
