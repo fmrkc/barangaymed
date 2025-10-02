@@ -11,18 +11,29 @@ import {
   useIonToast,
   IonIcon,
   IonFooter,
+  IonAlert,
+  IonButtons,
 } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
 import { auth, db } from '../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
-import { arrowBack, checkmarkDone, refresh } from 'ionicons/icons';
+import { checkmarkDone, refresh, logOut } from 'ionicons/icons';
 
 const UserVerifyEmail: React.FC = () => {
-  const { currentUser, refreshUserClaims } = useAuth();
+  const { currentUser, refreshUserClaims, logout } = useAuth();
   const [presentToast] = useIonToast();
   const history = useHistory();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      history.push('/user/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const handleResendVerification = async () => {
     if (currentUser) {
@@ -71,6 +82,11 @@ const UserVerifyEmail: React.FC = () => {
       <IonHeader className="ion-no-border">
         <IonToolbar>
           <IonTitle>Verify Your Email</IonTitle>
+          <IonButtons slot="end">
+            <IonButton id="logout-confirm">
+              <IonIcon icon={logOut} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -95,12 +111,32 @@ const UserVerifyEmail: React.FC = () => {
             <IonText className='ion-padding-vertical'>I have verified my email</IonText>
             <IonIcon slot='start' icon={checkmarkDone}></IonIcon>
           </IonButton>
-          <IonButton expand="block" routerLink="/user/login" routerDirection="back" className="ion-margin-top" fill='clear'>
-            <IonText color={'dark'} className='ion-padding-vertical'>Back to Login</IonText>
-            <IonIcon slot='start' icon={arrowBack}></IonIcon>
-          </IonButton>
         </IonToolbar>
       </IonFooter>
+      <IonAlert
+        trigger="logout-confirm"
+        header="Are you sure?"
+        message="Do you really want to log out?"
+        buttons={[
+          {
+            text: "Cancel",
+            role: "cancel",
+            handler: () => {
+              console.log("Alert canceled");
+            },
+          },
+          {
+            text: "OK",
+            role: "confirm",
+            handler: () => {
+              handleLogout();
+            },
+          },
+        ]}
+        onDidDismiss={({ detail }) =>
+          console.log(`Dismissed with role: ${detail.role}`)
+        }
+      ></IonAlert>
     </IonPage>
   );
 };
