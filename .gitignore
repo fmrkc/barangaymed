@@ -30,7 +30,6 @@ yarn-error.log*
 # Optional eslint cache
 .eslintcache
 /.history
-/.history
 /functions/node_modules
-/emulator-seed-data
+/.firebase
 /.emulator-data
