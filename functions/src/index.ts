@@ -710,4 +710,5 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
 // Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 export { sendVerificationEmail } from './sendVerificationEmail.js';
+export * from "./user-verification.js";
 

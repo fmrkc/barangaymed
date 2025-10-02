@@ -59,6 +59,19 @@ export const submitFullRegistration = onCall(
 `;
 
     try {
+        // Set custom claims to indicate pending approval
+        await admin.auth().setCustomUserClaims(userId, {
+            ...request.auth.token,
+            verificationStatus: 'pending_approval',
+        });
+
+        // Update user document in Firestore
+        await admin.firestore().collection('users').doc(userId).update({
+            verificationStatus: 'pending_approval',
+            fullRegistrationSubmittedAt: admin.firestore.FieldValue.serverTimestamp(),
+            ...registrationDetails
+        });
+
         // Send email confirmation
         await sendEmail({
             to: email,

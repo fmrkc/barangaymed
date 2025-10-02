@@ -133,33 +133,44 @@ const AdminUserVerification: React.FC = () => {
     }
   }, [selectedUser]);
 
-  const handleReview = async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
-    setIsReviewing(true);
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, {
-        verificationStatus: action,
-        rejectionReason: action === 'rejected' ? reason : deleteField(),
-        verifiedAt: action === 'verified' ? new Date() : deleteField(),
-        verifiedBy: action === 'verified' ? auth.currentUser?.uid : deleteField(),
-      });
+  import { getFunctions, httpsCallable } from 'firebase/functions';
 
-      setToastMessage(`User has been ${action}.`);
-      setToastColor('success');
-      setShowToast(true);
-      fetchPendingUsers(); // Refresh list
-      setShowModal(false); // Close modal
-      setShowAlert(false); // Close alert
+const functions = getFunctions();
+const setCustomClaimsOnVerification = httpsCallable(functions, 'setCustomClaimsOnVerification');
 
-    } catch (error: unknown) {
-      console.error(`Error ${action} user:`, error);
-      setToastMessage((error as any).message || `Error ${action} user.`);
-      setToastColor('danger');
-      setShowToast(true);
-    } finally {
-      setIsReviewing(false);
-    }
-  };
+const handleReview = async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
+  setIsReviewing(true);
+  try {
+    await setCustomClaimsOnVerification({ 
+      userId: user.uid, 
+      action, 
+      barangayId: user.barangayId 
+    });
+
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, {
+      verificationStatus: action,
+      rejectionReason: action === 'rejected' ? reason : deleteField(),
+      verifiedAt: action === 'verified' ? new Date() : deleteField(),
+      verifiedBy: action === 'verified' ? auth.currentUser?.uid : deleteField(),
+    });
+
+    setToastMessage(`User has been ${action}.`);
+    setToastColor('success');
+    setShowToast(true);
+    fetchPendingUsers(); // Refresh list
+    setShowModal(false); // Close modal
+    setShowAlert(false); // Close alert
+
+  } catch (error: unknown) {
+    console.error(`Error ${action} user:`, error);
+    setToastMessage((error as any).message || `Error ${action} user.`);
+    setToastColor('danger');
+    setShowToast(true);
+  } finally {
+    setIsReviewing(false);
+  }
+};
 
   const openModal = (user: UserForVerification) => {
     setSelectedUser(user);
