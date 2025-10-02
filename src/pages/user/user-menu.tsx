@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Home from './user-home';
 import Notifications from './user-notifications';
 import User_Requests from './user-requests';
-import UserTeleRequests from './user-tele-requests';
+import UserTeleRequests from './user-tele-request';
 import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
 import { clipboard, home, notifications, person } from 'ionicons/icons';
