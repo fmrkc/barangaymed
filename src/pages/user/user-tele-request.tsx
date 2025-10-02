@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { UserService } from '../../services/userService';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -9,7 +10,7 @@ interface UserTeleRequestProps {
 }
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
-  const { currentUser, verificationStatus, barangayId } = useAuth();
+  const { currentUser, userRole, verificationStatus, barangayId } = useAuth();
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -17,11 +18,11 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
 
   const db = getFirestore();
 
-  const isVerified = verificationStatus === 'verified';
+  const isUser = userRole === 'user';
 
   const handleSubmit = async () => {
-    if (!isVerified) {
-      setToastMessage('You must be a verified user to submit a teleconsultation request.');
+    if (!isUser) {
+      setToastMessage('You must be a registered user to submit a teleconsultation request.');
       setShowToast(true);
       return;
     }
@@ -39,9 +40,15 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     try {
       // Refresh the user's ID token to ensure latest claims
       await currentUser?.getIdToken(true);
+
+      // Fetch complete user data
+      const userService = UserService.getInstance();
+      const userData = await userService.getUserData(currentUser?.uid!);
+
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
+        userData: userData,
         reason: reason.trim(),
         status: 'pending',
         createdAt: serverTimestamp(),
