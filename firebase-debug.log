@@ -1,0 +1,160 @@
+[debug] [2025-10-02T01:11:24.159Z] ----------------------------------------------------------------------
+[debug] [2025-10-02T01:11:24.169Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Jefferson\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2025-10-02T01:11:24.169Z] CLI Version:   14.17.0
+[debug] [2025-10-02T01:11:24.169Z] Platform:      win32
+[debug] [2025-10-02T01:11:24.169Z] Node Version:  v22.17.0
+[debug] [2025-10-02T01:11:24.170Z] Time:          Thu Oct 02 2025 09:11:24 GMT+0800 (China Standard Time)
+[debug] [2025-10-02T01:11:24.170Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-02T01:11:24.535Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-02T01:11:24.535Z] > authorizing via signed-in user (viscayno.jefferson.jv@gmail.com)
+[debug] [2025-10-02T01:11:24.721Z] java version "21.0.6" 2025-01-21 LTS
+
+[debug] [2025-10-02T01:11:24.722Z] Java(TM) SE Runtime Environment (build 21.0.6+8-LTS-188)
+Java HotSpot(TM) 64-Bit Server VM (build 21.0.6+8-LTS-188, mixed mode, sharing)
+
+[debug] [2025-10-02T01:11:24.750Z] Parsed Java major version: 21
+[info] i  emulators: Starting emulators: auth, functions, firestore, hosting, storage, extensions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, functions, firestore, hosting, storage, extensions"}}
+[debug] [2025-10-02T01:11:24.754Z] Checked if tokens are valid: false, expires at: 1759334813745
+[debug] [2025-10-02T01:11:24.754Z] Checked if tokens are valid: false, expires at: 1759334813745
+[debug] [2025-10-02T01:11:24.754Z] > refreshing access token with scopes: []
+[debug] [2025-10-02T01:11:24.757Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-02T01:11:24.757Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-02T01:11:25.353Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-02T01:11:25.353Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-02T01:11:25.377Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed [none]
+[debug] [2025-10-02T01:11:26.648Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed 200
+[debug] [2025-10-02T01:11:26.649Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed {"projectNumber":"18633162801","projectId":"barangaymed","lifecycleState":"ACTIVE","name":"BarangayMed","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-07-28T13:20:18.406720Z"}
+[debug] [2025-10-02T01:11:26.666Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.666Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.666Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.666Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.667Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.667Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.667Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-10-02T01:11:26.674Z] Emulator locator file path: C:\Users\JEFFER~1\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-10-02T01:11:26.675Z] [hub] writing locator at C:\Users\JEFFER~1\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-10-02T01:11:26.692Z] [Extensions] Started Extensions emulator, this is a noop.
+[debug] [2025-10-02T01:11:26.697Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.697Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.697Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-02T01:11:26.697Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, database, pubsub, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, database, pubsub, dataconnect\u001b[22m"}}
+[debug] [2025-10-02T01:11:26.725Z] defaultcredentials: writing to file C:\Users\Jefferson\AppData\Roaming\firebase\viscayno_jefferson.jv_gmail.com_application_default_credentials.json
+[debug] [2025-10-02T01:11:26.733Z] Setting GAC to C:\Users\Jefferson\AppData\Roaming\firebase\viscayno_jefferson.jv_gmail.com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Jefferson\\AppData\\Roaming\\firebase\\viscayno_jefferson.jv_gmail.com_application_default_credentials.json"}}
+[debug] [2025-10-02T01:11:26.734Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:26.734Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:26.734Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig [none]
+[debug] [2025-10-02T01:11:27.875Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig 200
+[debug] [2025-10-02T01:11:27.875Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig {"projectId":"barangaymed","storageBucket":"barangaymed.firebasestorage.app"}
+[debug] [2025-10-02T01:11:27.907Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2025-10-02T01:11:27.907Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2025-10-02T01:11:27.907Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Jefferson\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","barangaymed","--rules","C:\\Users\\Jefferson\\Documents\\GitHub\\barangaymed\\firestore.rules","--single_project_mode",true,"--functions_emulator","127.0.0.1:5001"],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false,"shell":false,"port":8081} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Jefferson\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.19.8.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"barangaymed\",\"--rules\",\"C:\\\\Users\\\\Jefferson\\\\Documents\\\\GitHub\\\\barangaymed\\\\firestore.rules\",\"--single_project_mode\",true,\"--functions_emulator\",\"127.0.0.1:5001\"],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false,\"shell\":false,\"port\":8081}"}}
+[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
+[info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
+[debug] [2025-10-02T01:11:40.657Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2025-10-02T01:11:41.972Z] Temp file directory for storage emulator: C:\Users\JEFFER~1\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\JEFFER~1\\AppData\\Local\\Temp/firebase/storage/blobs"}}
+[debug] [2025-10-02T01:11:41.979Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:41.979Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:41.980Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites 
+[debug] [2025-10-02T01:11:42.692Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites 200
+[debug] [2025-10-02T01:11:42.692Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites {"sites":[{"name":"projects/barangaymed/sites/barangaymed","defaultUrl":"https://barangaymed.web.app","appId":"1:18633162801:web:33c02d2c7996b44a31d510","type":"DEFAULT_SITE"}]}
+[debug] [2025-10-02T01:11:42.693Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:42.693Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:42.693Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config [none]
+[debug] [2025-10-02T01:11:43.624Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config 200
+[debug] [2025-10-02T01:11:43.624Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config {"projectId":"barangaymed","appId":"1:18633162801:web:33c02d2c7996b44a31d510","storageBucket":"barangaymed.firebasestorage.app","apiKey":"AIzaSyC-xkTe-o0WJcWU-NUIwdEQaxONfpMfAFc","authDomain":"barangaymed.firebaseapp.com","messagingSenderId":"18633162801","measurementId":"G-0FYYQVYQ6Z"}
+[debug] [2025-10-02T01:11:43.642Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:43.642Z] Checked if tokens are valid: true, expires at: 1759371084353
+[debug] [2025-10-02T01:11:43.642Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed [none]
+[debug] [2025-10-02T01:11:43.884Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed 200
+[debug] [2025-10-02T01:11:43.885Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed {"projectId":"barangaymed","projectNumber":"18633162801","displayName":"BarangayMed","name":"projects/barangaymed","resources":{"hostingSite":"barangaymed"},"state":"ACTIVE","etag":"1_73b91308-5c92-4731-ab9e-0a46cb1600a1"}
+[info] i  hosting[barangaymed]: Serving hosting files from: dist {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mdist\u001b[22m"}}
+[info] +  hosting[barangaymed]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[debug] [2025-10-02T01:11:43.921Z] [Extensions] Connecting Extensions emulator, this is a noop.
+[info] i  functions: Watching "C:\Users\Jefferson\Documents\GitHub\barangaymed\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\Users\\Jefferson\\Documents\\GitHub\\barangaymed\\functions\" for Cloud Functions..."}}
+[debug] [2025-10-02T01:11:43.929Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2025-10-02T01:11:46.378Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-10-02T01:11:46.379Z] Building nodejs source
+[debug] [2025-10-02T01:11:46.379Z] Failed to find version of module node: reached end of search path C:\Users\Jefferson\Documents\GitHub\barangaymed\functions\node_modules
+[warn] !  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[info] i  functions: You are using a version of firebase-functions SDK (5.0.1) that does not have support for the newest Firebase Extensions features. Please update firebase-functions SDK to >=5.1.0 to use them correctly 
+[debug] [2025-10-02T01:11:46.382Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-10-02T01:11:46.391Z] Found firebase-functions binary at 'C:\Users\Jefferson\Documents\GitHub\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8807
+
+[debug] [2025-10-02T01:11:47.799Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[info] +  functions: Loaded functions definitions from source: api, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, provisionUser, sendVerificationEmail, standardizeAdminBarangayIds."}}
+[info] +  functions[us-central1-api]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/api). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/api)."}}
+[info] +  functions[us-central1-provisionUser]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/provisionUser). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/provisionUser)."}}
+[info] +  functions[us-central1-sendVerificationEmail]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/sendVerificationEmail). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/sendVerificationEmail)."}}
+[info] +  functions[us-central1-standardizeAdminBarangayIds]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/standardizeAdminBarangayIds). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/standardizeAdminBarangayIds)."}}
+[debug] [2025-10-02T01:11:51.869Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬──────────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI              │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth       │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Functions      │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions  │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Firestore      │ 127.0.0.1:8081 │ http://127.0.0.1:4000/firestore  │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Hosting        │ 127.0.0.1:5000 │ n/a                              │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Storage        │ 127.0.0.1:9199 │ http://127.0.0.1:4000/storage    │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Extensions     │ 127.0.0.1:5001 │ http://127.0.0.1:4000/extensions │
+└────────────────┴────────────────┴──────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500, 9150
+┌─────────────────────────┬───────────────┬─────────────────────┐
+│ Extension Instance Name │ Extension Ref │ View in Emulator UI │
+└─────────────────────────┴───────────────┴─────────────────────┘
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
