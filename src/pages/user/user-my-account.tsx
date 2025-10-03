@@ -26,6 +26,8 @@ import { logOut, create, person, logIn, medical, document, checkmark, warning, t
 import { db } from "../../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { getBarangayNameByCode } from "../../services/addressService";
+import CreateMedicalRecord from "./medical-record/create-medical-record";
+import ViewMedicalRecord from "./medical-record/view-medical-record";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus, rejectionReason } = useAuth();
@@ -40,6 +42,14 @@ const Account: React.FC = () => {
   const [showPersonalModal, setShowPersonalModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
+  const [hasMedicalRecord, setHasMedicalRecord] = useState(false);
+
+  const fetchMedicalRecordStatus = async () => {
+    if (!currentUser) return;
+    const medicalRecordDoc = await getDoc(doc(db, "medicalRecords", currentUser.uid));
+    setHasMedicalRecord(medicalRecordDoc.exists());
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -47,16 +57,14 @@ const Account: React.FC = () => {
 
       setIsLoadingUserData(true);
       try {
+        // Fetch user data
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          
           setFullName([userData.firstName, userData.middleName, userData.lastName, userData.suffix].filter(Boolean).join(' '));
-
           setBirthdate(userData.birthdate || "Not specified");
           setGender(userData.gender || "Not specified");
           setAddress(userData.address || "Not specified");
-
           if (userData.barangayId) {
             const name = await getBarangayNameByCode(userData.barangayId);
             setBarangayName(name || "Not specified");
@@ -64,6 +72,9 @@ const Account: React.FC = () => {
             setBarangayName("Not specified");
           }
         }
+
+        // Check for medical record
+        fetchMedicalRecordStatus();
 
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -128,9 +139,17 @@ const Account: React.FC = () => {
              <IonItemDivider>
               <IonLabel>BarangayMed+ Features</IonLabel>
             </IonItemDivider>
-            <IonItem detail={false} button={isVerified}>
+            <IonItem 
+              detail={false} 
+              button={isVerified}
+              onClick={() => {
+                if (isVerified) {
+                  setShowMedicalRecordModal(true);
+                }
+              }}
+            >
               <IonIcon slot="start" icon={medical} />
-              <IonLabel>Create My Medical Record</IonLabel>
+              <IonLabel>{hasMedicalRecord ? 'View/Edit My Medical Record' : 'Create My Medical Record'}</IonLabel>
             </IonItem>
              <IonItemDivider>
               <IonLabel>Account Settings</IonLabel>
@@ -161,6 +180,24 @@ const Account: React.FC = () => {
             </IonItem>
           </IonCardContent>
         </IonCard>
+
+        {hasMedicalRecord ? (
+          <ViewMedicalRecord 
+            isOpen={showMedicalRecordModal} 
+            onDidDismiss={() => {
+              setShowMedicalRecordModal(false);
+              fetchMedicalRecordStatus();
+            }} 
+          />
+        ) : (
+          <CreateMedicalRecord 
+            isOpen={showMedicalRecordModal} 
+            onDidDismiss={() => {
+              setShowMedicalRecordModal(false);
+              fetchMedicalRecordStatus();
+            }} 
+          />
+        )}
 
          <IonAlert
          trigger="user-logout"

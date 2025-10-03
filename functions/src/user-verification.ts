@@ -1,6 +1,5 @@
-
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin"; // Changed to default import
 
 export const setCustomClaimsOnVerification = onCall(
   {

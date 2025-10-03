@@ -60,5 +60,30 @@ service firebase.storage {
       // - A superadmin can delete any document.
       allow delete: if isAuthenticated() && request.auth.uid == userId;
     }
+
+    // Medical history documents
+    // Path: /medical-history/{userId}/{fileName}
+    match /medical-history/{userId}/{fileName} {
+      // READ: Only the owner can read their own documents.
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // WRITE: Only the owner can write their own documents, with size and type checks.
+      allow write: if request.auth != null && request.auth.uid == userId
+                && request.resource.size < 5 * 1024 * 1024
+                && request.resource.contentType.matches('image/(jpeg|png)');
+    }
+
+    // Prescription uploads
+    // Path: /prescriptions/{userId}/{fileName}
+    match /prescriptions/{userId}/{fileName} {
+      // READ: Only the owner can read their own prescriptions.
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // WRITE: Only the owner can upload their own prescriptions.
+      allow write: if isAuthenticated()
+          && request.auth.uid == userId
+          && request.resource.size < 5 * 1024 * 1024
+          && request.resource.contentType.matches('image/(jpeg|png|webp|gif)|application/pdf');
+    }
   }
 }

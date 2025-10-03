@@ -76,6 +76,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         <IonText>
           <h2>Request a Teleconsultation</h2>
           <p>Please provide the reason for your teleconsultation request below.</p>
+          <p><small><i>By submitting, your medical record will be made available to the Rural Health Unit for review.</i></small></p>
         </IonText>
         <IonItem>
           <IonLabel position="floating">Reason</IonLabel>
