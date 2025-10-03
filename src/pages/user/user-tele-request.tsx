@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { UserService } from '../../services/userService';
@@ -11,6 +12,7 @@ interface UserTeleRequestProps {
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
   const { currentUser, userRole, verificationStatus, barangayId } = useAuth();
+  const history = useHistory();
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -56,6 +58,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setToastMessage('Teleconsultation request submitted successfully.');
       setShowToast(true);
       setReason('');
+      onDidDismiss(); // Close the modal
+      history.push('/user/teleconsultations'); // Redirect to the teleconsultation list page
     } catch (error) {
       console.error('Error submitting teleconsultation request:', error);
       setToastMessage('Failed to submit request. Please try again.');

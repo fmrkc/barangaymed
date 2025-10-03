@@ -6,10 +6,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import Home from './user-home';
 import Notifications from './user-notifications';
 import User_Requests from './user-requests';
-import UserTeleRequests from './user-tele-request';
+import UserTeleRequestModal from './user-tele-request';
+import UserTeleList from './user-tele-list';
 import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
-import { clipboard, home, notifications, person } from 'ionicons/icons';
+import { clipboard, home, notifications, person, videocam } from 'ionicons/icons';
 
 
 
@@ -37,6 +38,10 @@ const UserDashboard: React.FC = () => {
             <IonIcon icon={notifications} /> {/* Change icon based on selection */}
             <IonLabel>Notifications</IonLabel>
           </IonTabButton>
+          <IonTabButton tab="teleconsultations" href="/user/dashboard/teleconsultations" onClick={() => setSelectedTab('teleconsultations')}>
+            <IonIcon icon={videocam} />
+            <IonLabel>Teleconsultations</IonLabel>
+          </IonTabButton>
           <IonTabButton tab="account" href="/user/dashboard/account" onClick={() => setSelectedTab('account')}>
             <IonIcon icon={person} /> {/* Change icon based on selection */}
             <IonLabel>Account</IonLabel>
@@ -46,7 +51,7 @@ const UserDashboard: React.FC = () => {
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
             <Route path="/user/dashboard/requests" component={User_Requests} exact />
-            <Route path="/user/dashboard/requests/teleconsultation-requests" component={UserTeleRequests} exact />
+            <Route path="/user/dashboard/teleconsultations" component={UserTeleList} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
 
