@@ -16,8 +16,11 @@ import {
   IonLoading,
   IonButtons,
   IonBackButton,
+  IonModal,
+  IonButton,
+  IonAlert,
 } from '@ionic/react';
-import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp } from 'firebase/firestore';
+import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
@@ -32,6 +35,10 @@ const UserTeleRequestList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
+  const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showCancelAlert, setShowCancelAlert] = useState(false);
+  const [requestToCancel, setRequestToCancel] = useState<string | null>(null);
   const userId = currentUser?.uid;
 
   useEffect(() => {
@@ -148,6 +155,26 @@ const UserTeleRequestList: React.FC = () => {
     resolveAddresses();
   }, [requests]);
 
+  const handleViewDetails = (request: TeleconsultationRequest) => {
+    setSelectedRequest(request);
+    setShowModal(true);
+  };
+
+  const handleCancelRequest = async () => {
+    if (!requestToCancel) return;
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestToCancel);
+      await updateDoc(requestRef, {
+        status: 'cancelled',
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error cancelling request: ", error);
+      setError("Failed to cancel the request.");
+    }
+    setRequestToCancel(null);
+  };
+
   return (
     <>
       <IonHeader>
@@ -187,31 +214,85 @@ const UserTeleRequestList: React.FC = () => {
 
         <IonList>
           {filteredRequests.map((request) => (
-            <IonCard key={request.id}>
+            <IonCard key={request.id} style={{ borderLeft: `5px solid var(--ion-color-primary)`}}>
               <IonCardHeader>
-                <IonCardTitle>Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}</IonCardTitle>
+                <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+                  Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                </IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <p><strong>Reason:</strong> {request.reason}</p>
                 <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
-                {request.userData && (
-                  <>
-                    <p><strong>Name:</strong> {request.userData.firstName} {request.userData.middleName || ''} {request.userData.lastName} {request.userData.suffix || ''}</p>
-                    <p><strong>Contact Number:</strong> {request.userData.contactNumber || 'N/A'}</p>
-                    <p><strong>Email:</strong> {request.userData.email || 'N/A'}</p>
-                    <p><strong>Address:</strong> {resolvedAddresses[request.id || ''] || 'N/A'}</p>
-                  </>
-                )}
-                {request.scheduledAt && (
-                  <p><strong>Scheduled At:</strong> {request.scheduledAt.toLocaleString()}</p>
-                )}
-                {request.notes && (
-                  <p><strong>Notes:</strong> {request.notes}</p>
-                )}
+                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                  <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                  {['pending', 'accepted', 'scheduled'].includes(request.status) && (
+                    <IonButton color="danger" onClick={() => {
+                      setRequestToCancel(request.id!);
+                      setShowCancelAlert(true);
+                    }}>Cancel</IonButton>
+                  )}
+                </div>
               </IonCardContent>
             </IonCard>
           ))}
         </IonList>
+
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Request Details</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            {selectedRequest && (
+              <>
+                <p><strong>Status:</strong> {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}</p>
+                <p><strong>Reason:</strong> {selectedRequest.reason}</p>
+                <p><strong>Created At:</strong> {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</p>
+                {selectedRequest.userData && (
+                  <>
+                    <p><strong>Name:</strong> {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</p>
+                    <p><strong>Contact Number:</strong> {selectedRequest.userData.contactNumber || 'N/A'}</p>
+                    <p><strong>Email:</strong> {selectedRequest.userData.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> {resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</p>
+                  </>
+                )}
+                {selectedRequest.scheduledAt && (
+                  <p><strong>Scheduled At:</strong> {selectedRequest.scheduledAt.toLocaleString()}</p>
+                )}
+                {selectedRequest.notes && (
+                  <p><strong>Notes:</strong> {selectedRequest.notes}</p>
+                )}
+                 {selectedRequest.meetingLink && (
+                  <p><strong>Meeting Link:</strong> <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a></p>
+                )}
+              </>
+            )}
+          </IonContent>
+        </IonModal>
+
+        <IonAlert
+          isOpen={showCancelAlert}
+          onDidDismiss={() => setShowCancelAlert(false)}
+          header={'Confirm Cancellation'}
+          message={'Are you sure you want to cancel this teleconsultation request?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToCancel(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: handleCancelRequest
+            }
+          ]}
+        />
       </IonContent>
     </>
   );
