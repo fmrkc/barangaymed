@@ -24,8 +24,8 @@ export const onUserDocUpdate = onDocumentUpdated('users/{userId}', async (event)
     const newVerificationStatus = newData.verificationStatus;
     const oldVerificationStatus = previousData.verificationStatus;
 
-    // Only update claims if relevant fields have changed
-    if (newBarangayId === oldBarangayId && newRole === oldRole && newVerificationStatus === oldVerificationStatus) {
+    // Only update claims if relevant fields have changed, or if role is present in newData but not in claims
+    if (newBarangayId === oldBarangayId && newRole === oldRole && newVerificationStatus === oldVerificationStatus && !newData.role) {
       logger.log(`No relevant changes for user ${userId}. Skipping custom claims update.`);
       return null;
     }
@@ -42,7 +42,8 @@ export const onUserDocUpdate = onDocumentUpdated('users/{userId}', async (event)
         logger.log(`Updating barangayId claim for user ${userId} to ${newBarangayId}`);
       }
 
-      if (newRole !== oldRole && newRole) {
+      // Always set role if it's present in newData, or if it has changed
+      if (newRole && (newRole !== oldRole || !customClaims.role)) {
         customClaims.role = newRole;
         claimsUpdated = true;
         logger.log(`Updating role claim for user ${userId} to ${newRole}`);
