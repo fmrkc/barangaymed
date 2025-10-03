@@ -42,7 +42,9 @@ interface AddressesDataType {
   [key: string]: RegionData;
 }
 
-admin.initializeApp();
+if (admin.apps.length === 0) {
+  admin.initializeApp();
+}
 
 const app = express();
 const allowedOrigins = [

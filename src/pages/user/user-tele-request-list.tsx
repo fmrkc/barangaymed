@@ -22,6 +22,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
 
+const db = getFirestore();
+
 const UserTeleRequestList: React.FC = () => {
   const { currentUser } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
@@ -30,23 +32,30 @@ const UserTeleRequestList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
-  const db = getFirestore();
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!currentUser || !currentUser.uid) {
       setError('User not authenticated');
       setLoading(false);
       return;
     }
     setLoading(true);
+
     const q = query(
       collection(db, 'teleconsultationRequests'),
       where('userId', '==', currentUser.uid),
       orderBy('createdAt', 'desc')
     );
+
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
         const reqs: TeleconsultationRequest[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
@@ -70,12 +79,28 @@ const UserTeleRequestList: React.FC = () => {
         setLoading(false);
       },
       (err) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
         setError('Failed to fetch teleconsultation requests');
         setLoading(false);
       }
     );
-    return () => unsubscribe();
-  }, [currentUser, db]);
+
+    // Fallback timeout to stop loading if onSnapshot does not fire within 10 seconds
+    timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError('Loading timed out. Please try again.');
+    }, 10000);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      unsubscribe();
+    };
+  }, [currentUser]);
 
   useEffect(() => {
     let filtered: TeleconsultationRequest[] = [];
