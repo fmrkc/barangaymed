@@ -9,6 +9,7 @@ import Super_Admin_Register from './sa-superadmin-register';
 import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-requests';
+import SuperAdminTeleRequestList from './sa-tele-request-list';
 
 import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,6 +24,7 @@ const Menu: React.FC = () => {
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
         { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+        { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
         { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
         { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
         { name: 'All Admins', url: '/superadmin/dashboard/admin-management', icon: people },
@@ -127,6 +129,7 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard" component={Dashboard} />
             <Route exact path="/superadmin/dashboard/medicine-inventory" component={Med_Inventory} />
             <Route exact path="/superadmin/dashboard/medicine-requests" component={Med_Requests} />
+            <Route exact path="/superadmin/dashboard/teleconsultation-requests" component={SuperAdminTeleRequestList} />
             <Route exact path="/superadmin/dashboard/admin-management" component={Admin_Management} />
             <Route exact path="/superadmin/dashboard/sa-register" component={Admin_Register} />
             <Route exact path="/superadmin/dashboard/sa-superadmin-register" component={Super_Admin_Register} />

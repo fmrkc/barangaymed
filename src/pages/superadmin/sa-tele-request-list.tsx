@@ -20,39 +20,35 @@ import {
   IonButton,
   IonAlert,
 } from '@ionic/react';
-import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
 
 const db = getFirestore();
 
-const UserTeleRequestList: React.FC = () => {
+const SuperAdminTeleRequestList: React.FC = () => {
   const { currentUser } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('all');
+  const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [showCancelAlert, setShowCancelAlert] = useState(false);
-  const [requestToCancel, setRequestToCancel] = useState<string | null>(null);
-  const userId = currentUser?.uid;
+  
+  const [showAcceptAlert, setShowAcceptAlert] = useState(false);
+  const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
+  const [showRejectAlert, setShowRejectAlert] = useState(false);
+  const [requestToReject, setRequestToReject] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) {
-      setError('User not authenticated');
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     setError(null);
 
     const q = query(
         collection(db, 'teleconsultationRequests'),
-        where('userId', '==', userId),
         orderBy('createdAt', 'desc')
     );
 
@@ -98,7 +94,7 @@ const UserTeleRequestList: React.FC = () => {
         clearTimeout(timeoutId);
         unsubscribe();
     };
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     let filtered: TeleconsultationRequest[] = [];
@@ -108,7 +104,7 @@ const UserTeleRequestList: React.FC = () => {
         break;
       case 'pending':
         filtered = requests.filter((r) => r.status === 'pending');
-        break;  
+        break;
       case 'active':
         filtered = requests.filter((r) =>
           ['accepted', 'scheduled'].includes(r.status)
@@ -119,7 +115,7 @@ const UserTeleRequestList: React.FC = () => {
         break;
       case 'unsuccessful':
         filtered = requests.filter((r) =>
-          ['rejected', 'cancelled', 'no show'].includes(r.status)
+          ['rejected', 'no show'].includes(r.status)
         );
         break;
     }
@@ -163,19 +159,29 @@ const UserTeleRequestList: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleCancelRequest = async () => {
-    if (!requestToCancel) return;
+  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected') => {
     try {
-      const requestRef = doc(db, 'teleconsultationRequests', requestToCancel);
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
       await updateDoc(requestRef, {
-        status: 'cancelled',
+        status: status,
         updatedAt: new Date(),
       });
     } catch (error) {
-      console.error("Error cancelling request: ", error);
-      setError("Failed to cancel the request.");
+      console.error(`Error updating request to ${status}: `, error);
+      setError(`Failed to update the request.`);
     }
-    setRequestToCancel(null);
+  };
+
+  const handleAcceptRequest = () => {
+    if (!requestToAccept) return;
+    handleUpdateRequestStatus(requestToAccept, 'accepted');
+    setRequestToAccept(null);
+  };
+
+  const handleRejectRequest = () => {
+    if (!requestToReject) return;
+    handleUpdateRequestStatus(requestToReject, 'rejected');
+    setRequestToReject(null);
   };
 
   return (
@@ -183,13 +189,13 @@ const UserTeleRequestList: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/user/dashboard/requests" />
+            <IonBackButton defaultHref="/superadmin/dashboard" />
           </IonButtons>
-          <IonTitle>My Teleconsultation Requests</IonTitle>
+          <IonTitle>Teleconsultation Requests</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonSegment value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
+        <IonSegment value={filter} onIonChange={e => setFilter(e.detail.value as any)}>          
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -231,11 +237,17 @@ const UserTeleRequestList: React.FC = () => {
                 <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                  {['pending', 'accepted', 'scheduled'].includes(request.status) && (
-                    <IonButton color="danger" onClick={() => {
-                      setRequestToCancel(request.id!);
-                      setShowCancelAlert(true);
-                    }}>Cancel</IonButton>
+                  {request.status === 'pending' && (
+                    <>
+                      <IonButton color="success" onClick={() => {
+                        setRequestToAccept(request.id!);
+                        setShowAcceptAlert(true);
+                      }}>Accept</IonButton>
+                      <IonButton color="danger" onClick={() => {
+                        setRequestToReject(request.id!);
+                        setShowRejectAlert(true);
+                      }}>Reject</IonButton>
+                    </>
                   )}
                 </div>
               </IonCardContent>
@@ -281,21 +293,41 @@ const UserTeleRequestList: React.FC = () => {
         </IonModal>
 
         <IonAlert
-          isOpen={showCancelAlert}
-          onDidDismiss={() => setShowCancelAlert(false)}
-          header={'Confirm Cancellation'}
-          message={'Are you sure you want to cancel this teleconsultation request?'}
+          isOpen={showAcceptAlert}
+          onDidDismiss={() => setShowAcceptAlert(false)}
+          header={'Confirm Accept'}
+          message={'Are you sure you want to accept this teleconsultation request?'}
           buttons={[
             {
               text: 'No',
               role: 'cancel',
               handler: () => {
-                setRequestToCancel(null);
+                setRequestToAccept(null);
               }
             },
             {
               text: 'Yes',
-              handler: handleCancelRequest
+              handler: handleAcceptRequest
+            }
+          ]}
+        />
+
+        <IonAlert
+          isOpen={showRejectAlert}
+          onDidDismiss={() => setShowRejectAlert(false)}
+          header={'Confirm Reject'}
+          message={'Are you sure you want to reject this teleconsultation request?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToReject(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: handleRejectRequest
             }
           ]}
         />
@@ -304,4 +336,4 @@ const UserTeleRequestList: React.FC = () => {
   );
 };
 
-export default UserTeleRequestList;
+export default SuperAdminTeleRequestList;
