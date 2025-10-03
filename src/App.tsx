@@ -53,7 +53,6 @@ import RegisterInvited from './pages/auth/RegisterInvited';
 import PendingVerification from './pages/user/PendingVerification';
 import RejectedVerification from './pages/user/RejectedVerification';
 import CompleteProfile from './pages/user/CompleteProfile';
-import UserTeleList from './pages/user/user-tele-list';
 
 
 
@@ -131,11 +130,6 @@ const App: React.FC = () => (
               <Route exact path="/user/rejected-verification">
                 <ProtectedRoute requiredRole="user" redirectTo="/login">
                   <RejectedVerification />
-                </ProtectedRoute>
-              </Route>
-              <Route exact path="/user/teleconsultations">
-                <ProtectedRoute requiredRole="user" redirectTo="/login">
-                  <UserTeleList />
                 </ProtectedRoute>
               </Route>
 
