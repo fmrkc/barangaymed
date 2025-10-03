@@ -32,75 +32,66 @@ const UserTeleRequestList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
+  const userId = currentUser?.uid;
 
   useEffect(() => {
-    if (!currentUser || !currentUser.uid) {
+    if (!userId) {
       setError('User not authenticated');
       setLoading(false);
       return;
     }
     setLoading(true);
+    setError(null);
 
     const q = query(
-      collection(db, 'teleconsultationRequests'),
-      where('userId', '==', currentUser.uid),
-      orderBy('createdAt', 'desc')
+        collection(db, 'teleconsultationRequests'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
     );
 
-    let timeoutId: NodeJS.Timeout | null = null;
-
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-        const reqs: TeleconsultationRequest[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const req: TeleconsultationRequest = {
-            id: doc.id,
-            userId: data.userId,
-            barangayId: data.barangayId,
-            userData: data.userData,
-            reason: data.reason,
-            status: data.status,
-            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
-            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : data.updatedAt,
-            scheduledAt: data.scheduledAt instanceof Timestamp ? data.scheduledAt.toDate() : data.scheduledAt,
-            notes: data.notes,
-            doctorId: data.doctorId,
-            meetingLink: data.meetingLink,
-          };
-          reqs.push(req);
-        });
-        setRequests(reqs);
+    const timeoutId = setTimeout(() => {
         setLoading(false);
-      },
-      (err) => {
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-        setError('Failed to fetch teleconsultation requests');
-        setLoading(false);
-      }
-    );
-
-    // Fallback timeout to stop loading if onSnapshot does not fire within 10 seconds
-    timeoutId = setTimeout(() => {
-      setLoading(false);
-      setError('Loading timed out. Please try again.');
+        setError('Loading timed out. Please try again.');
     }, 10000);
 
+    const unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+            clearTimeout(timeoutId);
+            const reqs: TeleconsultationRequest[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const req: TeleconsultationRequest = {
+                    id: doc.id,
+                    userId: data.userId,
+                    barangayId: data.barangayId,
+                    userData: data.userData,
+                    reason: data.reason,
+                    status: data.status,
+                    createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
+                    updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
+                    scheduledAt: data.scheduledAt ? (data.scheduledAt instanceof Timestamp ? data.scheduledAt.toDate() : new Date(data.scheduledAt)) : undefined,
+                    notes: data.notes,
+                    doctorId: data.doctorId,
+                    meetingLink: data.meetingLink,
+                };
+                reqs.push(req);
+            });
+            setRequests(reqs);
+            setLoading(false);
+        },
+        (err) => {
+            clearTimeout(timeoutId);
+            setError('Failed to fetch teleconsultation requests');
+            setLoading(false);
+        }
+    );
+
     return () => {
-      if (timeoutId) {
         clearTimeout(timeoutId);
-      }
-      unsubscribe();
+        unsubscribe();
     };
-  }, [currentUser]);
+  }, [userId]);
 
   useEffect(() => {
     let filtered: TeleconsultationRequest[] = [];
