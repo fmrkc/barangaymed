@@ -1,0 +1,189 @@
+[debug] [2025-10-04T13:53:35.431Z] ----------------------------------------------------------------------
+[debug] [2025-10-04T13:53:35.432Z] Command:       C:\nvm4w\nodejs\node.exe C:\nvm4w\nodejs\node_modules\firebase-tools\lib\bin\firebase.js emulators:start --import ./.emulator-data
+[debug] [2025-10-04T13:53:35.433Z] CLI Version:   14.18.0
+[debug] [2025-10-04T13:53:35.433Z] Platform:      win32
+[debug] [2025-10-04T13:53:35.433Z] Node Version:  v20.19.5
+[debug] [2025-10-04T13:53:35.433Z] Time:          Sat Oct 04 2025 21:53:35 GMT+0800 (Philippine Standard Time)
+[debug] [2025-10-04T13:53:35.433Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-04T13:53:35.608Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-04T13:53:35.608Z] > authorizing via signed-in user (fmarkclarence@gmail.com)
+[debug] [2025-10-04T13:53:35.687Z] java version "21.0.6" 2025-01-21 LTS
+Java(TM) SE Runtime Environment (build 21.0.6+8-LTS-188)
+Java HotSpot(TM) 64-Bit Server VM (build 21.0.6+8-LTS-188, mixed mode, sharing)
+
+[debug] [2025-10-04T13:53:35.710Z] Parsed Java major version: 21
+[info] i  emulators: Starting emulators: auth, functions, firestore, hosting, storage, extensions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, functions, firestore, hosting, storage, extensions"}}
+[debug] [2025-10-04T13:53:35.712Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:35.712Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:35.713Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed [none]
+[debug] [2025-10-04T13:53:36.728Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed 200
+[debug] [2025-10-04T13:53:36.729Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/barangaymed {"projectNumber":"18633162801","projectId":"barangaymed","lifecycleState":"ACTIVE","name":"BarangayMed","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-07-28T13:20:18.406720Z"}
+[debug] [2025-10-04T13:53:36.744Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.744Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.744Z] [firestore] Firestore Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.744Z] [firestore.websocket] websocket server for firestore only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.744Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.744Z] [storage] Storage Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.744Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-10-04T13:53:36.749Z] Emulator locator file path: C:\Users\Clarence\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-10-04T13:53:36.750Z] [hub] writing locator at C:\Users\Clarence\AppData\Local\Temp\hub-barangaymed.json
+[debug] [2025-10-04T13:53:36.762Z] [Extensions] Started Extensions emulator, this is a noop.
+[debug] [2025-10-04T13:53:36.769Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.769Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.769Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-04T13:53:36.769Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"storage":[{"address":"127.0.0.1","family":"IPv4","port":9199}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, database, pubsub, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, database, pubsub, dataconnect\u001b[22m"}}
+[debug] [2025-10-04T13:53:36.786Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-10-04T13:53:36.788Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[debug] [2025-10-04T13:53:36.788Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:36.789Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:36.789Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig [none]
+[debug] [2025-10-04T13:53:37.451Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig 200
+[debug] [2025-10-04T13:53:37.452Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/adminSdkConfig {"projectId":"barangaymed","storageBucket":"barangaymed.firebasestorage.app"}
+[info] i  firestore: Importing data from C:\Users\Clarence\Documents\barangaymed\.emulator-data\firestore_export\firestore_export.overall_export_metadata {"metadata":{"emulator":{"name":"firestore"},"message":"Importing data from C:\\Users\\Clarence\\Documents\\barangaymed\\.emulator-data\\firestore_export\\firestore_export.overall_export_metadata"}}
+[debug] [2025-10-04T13:53:37.473Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2025-10-04T13:53:37.473Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2025-10-04T13:53:37.473Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Clarence\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","barangaymed","--seed_from_export","C:\\Users\\Clarence\\Documents\\barangaymed\\.emulator-data\\firestore_export\\firestore_export.overall_export_metadata","--rules","C:\\Users\\Clarence\\Documents\\barangaymed\\firestore.rules","--single_project_mode",true,"--functions_emulator","127.0.0.1:5001"],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false,"shell":false,"port":8081} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Clarence\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.19.8.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"barangaymed\",\"--seed_from_export\",\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\.emulator-data\\\\firestore_export\\\\firestore_export.overall_export_metadata\",\"--rules\",\"C:\\\\Users\\\\Clarence\\\\Documents\\\\barangaymed\\\\firestore.rules\",\"--single_project_mode\",true,\"--functions_emulator\",\"127.0.0.1:5001\"],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false,\"shell\":false,\"port\":8081}"}}
+[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to \u001b[1mfirestore-debug.log\u001b[22m"}}
+[info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
+[info] i  auth: Importing config from C:\Users\Clarence\Documents\barangaymed\.emulator-data\auth_export\config.json {"metadata":{"emulator":{"name":"auth"},"message":"Importing config from C:\\Users\\Clarence\\Documents\\barangaymed\\.emulator-data\\auth_export\\config.json"}}
+[info] i  auth: Importing accounts from C:\Users\Clarence\Documents\barangaymed\.emulator-data\auth_export\accounts.json {"metadata":{"emulator":{"name":"auth"},"message":"Importing accounts from C:\\Users\\Clarence\\Documents\\barangaymed\\.emulator-data\\auth_export\\accounts.json"}}
+[debug] [2025-10-04T13:53:43.794Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"storage"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2025-10-04T13:53:44.804Z] Temp file directory for storage emulator: C:\Users\Clarence\AppData\Local\Temp/firebase/storage/blobs {"metadata":{"emulator":{"name":"storage"},"message":"Temp file directory for storage emulator: C:\\Users\\Clarence\\AppData\\Local\\Temp/firebase/storage/blobs"}}
+[debug] [2025-10-04T13:53:44.810Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:44.811Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:44.811Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites 
+[debug] [2025-10-04T13:53:45.451Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites 200
+[debug] [2025-10-04T13:53:45.451Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/barangaymed/sites {"sites":[{"name":"projects/barangaymed/sites/barangaymed","defaultUrl":"https://barangaymed.web.app","appId":"1:18633162801:web:33c02d2c7996b44a31d510","type":"DEFAULT_SITE"}]}
+[debug] [2025-10-04T13:53:45.451Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:45.451Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:45.451Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config [none]
+[debug] [2025-10-04T13:53:46.167Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config 200
+[debug] [2025-10-04T13:53:46.167Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed/webApps/1:18633162801:web:33c02d2c7996b44a31d510/config {"projectId":"barangaymed","appId":"1:18633162801:web:33c02d2c7996b44a31d510","storageBucket":"barangaymed.firebasestorage.app","apiKey":"AIzaSyC-xkTe-o0WJcWU-NUIwdEQaxONfpMfAFc","authDomain":"barangaymed.firebaseapp.com","messagingSenderId":"18633162801","measurementId":"G-0FYYQVYQ6Z","projectNumber":"18633162801","version":"2"}
+[debug] [2025-10-04T13:53:46.173Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:46.173Z] Checked if tokens are valid: true, expires at: 1759589544316
+[debug] [2025-10-04T13:53:46.173Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed [none]
+[debug] [2025-10-04T13:53:46.466Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed 200
+[debug] [2025-10-04T13:53:46.466Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/barangaymed {"projectId":"barangaymed","projectNumber":"18633162801","displayName":"BarangayMed","name":"projects/barangaymed","resources":{"hostingSite":"barangaymed"},"state":"ACTIVE","etag":"1_73b91308-5c92-4731-ab9e-0a46cb1600a1"}
+[info] i  hosting[barangaymed]: Serving hosting files from: dist {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mdist\u001b[22m"}}
+[info] +  hosting[barangaymed]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[debug] [2025-10-04T13:53:46.486Z] [Extensions] Connecting Extensions emulator, this is a noop.
+[info] i  functions: Watching "C:\Users\Clarence\Documents\barangaymed\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\Users\\Clarence\\Documents\\barangaymed\\functions\" for Cloud Functions..."}}
+[debug] [2025-10-04T13:53:46.491Z] Validating nodejs source
+[debug] [2025-10-04T13:53:47.278Z] > [functions] package.json contents: {
+  "name": "functions",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@firebase/auth": "latest",
+    "@firebase/functions": "latest",
+    "@types/cors": "latest",
+    "@types/nodemailer": "latest",
+    "@types/uuid": "latest",
+    "cors": "^2.8.5",
+    "firebase-admin": "latest",
+    "firebase-functions": "^6.4.0",
+    "nodemailer": "latest",
+    "resend": "latest",
+    "uuid": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "typescript": "latest"
+  },
+  "private": true
+}
+[debug] [2025-10-04T13:53:47.279Z] Building nodejs source
+[debug] [2025-10-04T13:53:47.279Z] Failed to find version of module node: reached end of search path C:\Users\Clarence\Documents\barangaymed\functions\node_modules
+[info] +  functions: Using node@20 from host. 
+[debug] [2025-10-04T13:53:47.282Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-10-04T13:53:47.286Z] Found firebase-functions binary at 'C:\Users\Clarence\Documents\barangaymed\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8393
+
+[debug] [2025-10-04T13:53:47.824Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"httpsTrigger":{},"entryPoint":"api"},"onUserDocUpdate":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.updated","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{userId}"},"retry":false},"entryPoint":"onUserDocUpdate"},"provisionUser":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"provisionUser"},"reviewUserRegistration":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"reviewUserRegistration"},"sendVerificationEmail":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GMAIL_EMAIL"},{"key":"GMAIL_APP_PASSWORD"}],"labels":{},"callableTrigger":{},"entryPoint":"sendVerificationEmail"},"setCustomClaimsOnVerification":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"setCustomClaimsOnVerification"},"standardizeAdminBarangayIds":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"standardizeAdminBarangayIds"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"type":"secret","name":"GMAIL_EMAIL"},{"type":"secret","name":"GMAIL_APP_PASSWORD"}]}
+[debug] [2025-10-04T13:53:51.862Z] defaultcredentials: writing to file C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json
+[debug] [2025-10-04T13:53:51.863Z] Setting GAC to C:\Users\Clarence\AppData\Roaming\firebase\fmarkclarence_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Clarence\\AppData\\Roaming\\firebase\\fmarkclarence_gmail_com_application_default_credentials.json"}}
+[info] +  functions: Loaded functions definitions from source: api, onUserDocUpdate, provisionUser, reviewUserRegistration, sendVerificationEmail, setCustomClaimsOnVerification, standardizeAdminBarangayIds. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api, onUserDocUpdate, provisionUser, reviewUserRegistration, sendVerificationEmail, setCustomClaimsOnVerification, standardizeAdminBarangayIds."}}
+[info] +  functions[us-central1-api]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/api). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/api)."}}
+[debug] [2025-10-04T13:53:51.868Z] Found a v2 firestore trigger.
+[debug] [2025-10-04T13:53:51.868Z] addFirestoreTrigger "{\"eventType\":\"google.cloud.firestore.document.v1.updated\",\"database\":\"(default)\",\"namespace\":\"(default)\",\"document\":{\"value\":\"users/{userId}\",\"matchType\":\"PATH_PATTERN\"}}"
+[debug] [2025-10-04T13:53:51.868Z] >>> [apiv2][query] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed/eventarcTrigger?eventarcTriggerId=us-central1-onUserDocUpdate-0 [none]
+[debug] [2025-10-04T13:53:51.868Z] >>> [apiv2][body] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed/eventarcTrigger?eventarcTriggerId=us-central1-onUserDocUpdate-0 "{\"eventType\":\"google.cloud.firestore.document.v1.updated\",\"database\":\"(default)\",\"namespace\":\"(default)\",\"document\":{\"value\":\"users/{userId}\",\"matchType\":\"PATH_PATTERN\"}}"
+[debug] [2025-10-04T13:53:52.896Z] <<< [apiv2][status] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed/eventarcTrigger?eventarcTriggerId=us-central1-onUserDocUpdate-0 200
+[debug] [2025-10-04T13:53:52.896Z] <<< [apiv2][body] POST http://127.0.0.1:8081/emulator/v1/projects/barangaymed/eventarcTrigger?eventarcTriggerId=us-central1-onUserDocUpdate-0 {"eventType":"google.cloud.firestore.document.v1.updated","database":"(default)","namespace":"(default)","document":{"value":"users/{userId}","matchType":"PATH_PATTERN"}}
+[info] +  functions[us-central1-onUserDocUpdate]: firestore function initialized. {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mfirestore\u001b[22m function initialized."}}
+[info] +  functions[us-central1-provisionUser]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/provisionUser). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/provisionUser)."}}
+[info] +  functions[us-central1-reviewUserRegistration]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/reviewUserRegistration). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/reviewUserRegistration)."}}
+[info] +  functions[us-central1-sendVerificationEmail]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/sendVerificationEmail). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/sendVerificationEmail)."}}
+[info] +  functions[us-central1-setCustomClaimsOnVerification]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/setCustomClaimsOnVerification). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/setCustomClaimsOnVerification)."}}
+[info] +  functions[us-central1-standardizeAdminBarangayIds]: http function initialized (http://127.0.0.1:5001/barangaymed/us-central1/standardizeAdminBarangayIds). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://127.0.0.1:5001/barangaymed/us-central1/standardizeAdminBarangayIds)."}}
+[debug] [2025-10-04T13:53:52.902Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬──────────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI              │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth       │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Functions      │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions  │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Firestore      │ 127.0.0.1:8081 │ http://127.0.0.1:4000/firestore  │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Hosting        │ 127.0.0.1:5000 │ n/a                              │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Storage        │ 127.0.0.1:9199 │ http://127.0.0.1:4000/storage    │
+├────────────────┼────────────────┼──────────────────────────────────┤
+│ Extensions     │ 127.0.0.1:5001 │ http://127.0.0.1:4000/extensions │
+└────────────────┴────────────────┴──────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500, 9150
+┌─────────────────────────┬───────────────┬─────────────────────┐
+│ Extension Instance Name │ Extension Ref │ View in Emulator UI │
+└─────────────────────────┴───────────────┴─────────────────────┘
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2025-10-04T13:55:21.598Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-10-04T13:55:21.598Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"1759586121598","timestamp":"2025-10-04T13:55:21.598Z","eventType":"google.storage.object.finalize","resource":{"service":"storage.googleapis.com","name":"projects/_/buckets/barangaymed.firebasestorage.app/objects/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","type":"storage#object"},"data":{"kind":"storage#object","name":"announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","bucket":"barangaymed.firebasestorage.app","generation":"1759586121321","metageneration":"1","contentType":"image/jpeg","timeCreated":"2025-10-04T13:55:21.322Z","updated":"2025-10-04T13:55:21.322Z","storageClass":"STANDARD","size":"1177106","md5Hash":"vW/D0T5A+cNnLQs4UEtyKg==","etag":"0Swrrx/VUlkRmf2YsOxKBCkKCx0","metadata":{"firebaseStorageDownloadTokens":"5e96e60d-0944-48a2-82b7-adeb5d1e5df3"},"crc32c":"jOj+Dg==","timeStorageClassUpdated":"2025-10-04T13:55:21.322Z","id":"barangaymed.firebasestorage.app/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg/1759586121321","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg?generation=1759586121321&alt=media"}}
+[debug] [2025-10-04T13:55:21.603Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-10-04T13:55:21.604Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-10-04T13:55:21.604Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-10-04T13:55:21.604Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"08e02612-ba92-454b-b63a-9c6a0b30dd3e","type":"google.cloud.storage.object.v1.finalized","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","time":"2025-10-04T13:55:21.322Z","data":{"kind":"storage#object","name":"announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","bucket":"barangaymed.firebasestorage.app","generation":"1759586121321","metageneration":"1","contentType":"image/jpeg","timeCreated":"2025-10-04T13:55:21.322Z","updated":"2025-10-04T13:55:21.322Z","storageClass":"STANDARD","size":"1177106","md5Hash":"vW/D0T5A+cNnLQs4UEtyKg==","etag":"0Swrrx/VUlkRmf2YsOxKBCkKCx0","metadata":{"firebaseStorageDownloadTokens":"5e96e60d-0944-48a2-82b7-adeb5d1e5df3"},"crc32c":"jOj+Dg==","timeStorageClassUpdated":"2025-10-04T13:55:21.322Z","id":"barangaymed.firebasestorage.app/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg/1759586121321","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg?generation=1759586121321&alt=media"}}
+[debug] [2025-10-04T13:55:21.608Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-10-04T13:55:21.608Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-10-04T13:55:21.677Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-10-04T13:55:21.677Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"1759586121677","timestamp":"2025-10-04T13:55:21.677Z","eventType":"google.storage.object.finalize","resource":{"service":"storage.googleapis.com","name":"projects/_/buckets/barangaymed.firebasestorage.app/objects/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586121616_6sihmuka25y4b8cr.jpg","type":"storage#object"},"data":{"kind":"storage#object","name":"announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586121616_6sihmuka25y4b8cr.jpg","bucket":"barangaymed.firebasestorage.app","generation":"1759586121652","metageneration":"1","contentType":"image/jpeg","timeCreated":"2025-10-04T13:55:21.652Z","updated":"2025-10-04T13:55:21.652Z","storageClass":"STANDARD","size":"3119789","md5Hash":"lMH5e78m69XBm4YhDVuH8Q==","etag":"78feVha+udTGxegPbhxtqZsDQVc","metadata":{"firebaseStorageDownloadTokens":"4c1a6253-c801-43a5-a4ab-7ae713a5772a"},"crc32c":"/B759g==","timeStorageClassUpdated":"2025-10-04T13:55:21.652Z","id":"barangaymed.firebasestorage.app/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586121616_6sihmuka25y4b8cr.jpg/1759586121652","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586121616_6sihmuka25y4b8cr.jpg","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586121616_6sihmuka25y4b8cr.jpg?generation=1759586121652&alt=media"}}
+[debug] [2025-10-04T13:55:21.682Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-10-04T13:55:21.682Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-10-04T13:55:21.682Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-10-04T13:55:21.683Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"0ca06649-1f1a-439f-a24e-43635fba22fa","type":"google.cloud.storage.object.v1.finalized","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586121616_6sihmuka25y4b8cr.jpg","time":"2025-10-04T13:55:21.652Z","data":{"kind":"storage#object","name":"announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586121616_6sihmuka25y4b8cr.jpg","bucket":"barangaymed.firebasestorage.app","generation":"1759586121652","metageneration":"1","contentType":"image/jpeg","timeCreated":"2025-10-04T13:55:21.652Z","updated":"2025-10-04T13:55:21.652Z","storageClass":"STANDARD","size":"3119789","md5Hash":"lMH5e78m69XBm4YhDVuH8Q==","etag":"78feVha+udTGxegPbhxtqZsDQVc","metadata":{"firebaseStorageDownloadTokens":"4c1a6253-c801-43a5-a4ab-7ae713a5772a"},"crc32c":"/B759g==","timeStorageClassUpdated":"2025-10-04T13:55:21.652Z","id":"barangaymed.firebasestorage.app/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586121616_6sihmuka25y4b8cr.jpg/1759586121652","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586121616_6sihmuka25y4b8cr.jpg","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586121616_6sihmuka25y4b8cr.jpg?generation=1759586121652&alt=media"}}
+[debug] [2025-10-04T13:55:21.686Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-10-04T13:55:21.686Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-10-04T13:57:16.512Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-10-04T13:57:16.512Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"eventId":"1759586236512","timestamp":"2025-10-04T13:57:16.512Z","eventType":"google.storage.object.delete","resource":{"service":"storage.googleapis.com","name":"projects/_/buckets/barangaymed.firebasestorage.app/objects/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","type":"storage#object"},"data":{"kind":"storage#object","name":"announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","bucket":"barangaymed.firebasestorage.app","generation":"1759586121321","metageneration":"1","contentType":"image/jpeg","contentDisposition":"inline","timeCreated":"2025-10-04T13:55:21.322Z","updated":"2025-10-04T13:55:21.322Z","storageClass":"STANDARD","size":"1177106","md5Hash":"vW/D0T5A+cNnLQs4UEtyKg==","etag":"0Swrrx/VUlkRmf2YsOxKBCkKCx0","metadata":{"firebaseStorageDownloadTokens":"5e96e60d-0944-48a2-82b7-adeb5d1e5df3"},"crc32c":"jOj+Dg==","timeStorageClassUpdated":"2025-10-04T13:55:21.322Z","id":"barangaymed.firebasestorage.app/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg/1759586121321","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg?generation=1759586121321&alt=media"}}
+[debug] [2025-10-04T13:57:16.516Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-10-04T13:57:16.517Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}
+[debug] [2025-10-04T13:57:16.517Z] >>> [apiv2][query] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast [none]
+[debug] [2025-10-04T13:57:16.517Z] >>> [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"specversion":"1.0","id":"5f015a14-904b-49b7-b1de-56eba09fb6fb","type":"google.cloud.storage.object.v1.deleted","source":"//storage.googleapis.com/projects/_/buckets/barangaymed.firebasestorage.app/objects/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","time":"2025-10-04T13:55:21.322Z","data":{"kind":"storage#object","name":"announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg","bucket":"barangaymed.firebasestorage.app","generation":"1759586121321","metageneration":"1","contentType":"image/jpeg","contentDisposition":"inline","timeCreated":"2025-10-04T13:55:21.322Z","updated":"2025-10-04T13:55:21.322Z","storageClass":"STANDARD","size":"1177106","md5Hash":"vW/D0T5A+cNnLQs4UEtyKg==","etag":"0Swrrx/VUlkRmf2YsOxKBCkKCx0","metadata":{"firebaseStorageDownloadTokens":"5e96e60d-0944-48a2-82b7-adeb5d1e5df3"},"crc32c":"jOj+Dg==","timeStorageClassUpdated":"2025-10-04T13:55:21.322Z","id":"barangaymed.firebasestorage.app/announcements/035406012/B9gLqUo66v7jAsaTypKR/1759586120978_0zijv1fqph73ysn8.jpg/1759586121321","selfLink":"http://127.0.0.1:9199/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg","mediaLink":"http://127.0.0.1:9199/download/storage/v1/b/barangaymed.firebasestorage.app/o/announcements%2F035406012%2FB9gLqUo66v7jAsaTypKR%2F1759586120978_0zijv1fqph73ysn8.jpg?generation=1759586121321&alt=media"}}
+[debug] [2025-10-04T13:57:16.519Z] <<< [apiv2][status] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast 200
+[debug] [2025-10-04T13:57:16.519Z] <<< [apiv2][body] POST http://127.0.0.1:5001/functions/projects/barangaymed/trigger_multicast {"status":"multicast_acknowledged"}

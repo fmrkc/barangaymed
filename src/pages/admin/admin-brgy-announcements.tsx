@@ -434,10 +434,31 @@ const BarangayAnnouncements: React.FC = () => {
     setImagePreviews(newImagePreviews);
   };
 
-  const removeExistingImage = (index: number) => {
-    const newExistingImages = [...existingImages];
-    newExistingImages.splice(index, 1);
-    setExistingImages(newExistingImages);
+  const removeExistingImage = (imageUrl: string) => {
+    handleDeleteImage(imageUrl);
+  };
+
+  const handleDeleteImage = async (imageUrl: string) => {
+    if (!currentUser) return;
+
+    setLoading(true);
+    try {
+      await announcementsService.deleteImageFromStorage(
+        imageUrl,
+        currentUser.uid,
+        currentUser.email || '',
+        editingAnnouncement!.id!
+      );
+
+      setExistingImages((prev) => prev.filter((img) => img.url !== imageUrl));
+      setToastMessage('Image deleted successfully');
+    } catch (error) {
+      setToastMessage('Error deleting image');
+      console.error('Error deleting image:', error);
+    } finally {
+      setLoading(false);
+      setShowToast(true);
+    }
   };
 
   const resetImageSelection = () => {
@@ -689,7 +710,7 @@ const BarangayAnnouncements: React.FC = () => {
                                   '--padding-start': '4px',
                                   '--padding-end': '4px'
                                 }}
-                                onClick={() => removeExistingImage(index)}
+                                onClick={() => removeExistingImage(image.url)}
                               >
                                 <IonIcon icon={closeCircleSharp} />
                               </IonButton>

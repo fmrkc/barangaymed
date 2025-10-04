@@ -3,42 +3,43 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Helper functions (mirroring firestore.rules)
+    // Helper functions for authentication and role checks
     function isAuthenticated() {
       return request.auth != null;
-    }
-
-    function isAdmin() {
-      return isAuthenticated() && request.auth.token.role == 'admin';
     }
 
     function isSuperAdmin() {
       return isAuthenticated() && request.auth.token.role == 'superadmin';
     }
 
-
-
-    // Announcement images:
-    // Path: /announcements/{barangayId}/{announcementId}/{imageName}
-    match /announcements/{barangayId}/{announcementId}/{imageName} {
-      // READ: Anyone can view announcement images (public content).
-      allow read: if true;
-
-      // WRITE (Create, Update, Delete):
-      // - Must be an admin of the corresponding barangay or a superadmin.
-      // - File size must be less than 5MB.
-      // - File must be an allowed image type.
-      allow write: if (isAdmin() && request.auth.token.barangayId == barangayId || isSuperAdmin())
-                    && request.resource.size < 5 * 1024 * 1024
-                    && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
     }
 
-    // Other potential storage paths can be added here later.
-    // Example for user profile pictures:
-    // match /users/{userId}/profile-picture.jpg {
-    //   allow read: if true;
-    //   allow write: if request.auth.uid == userId;
-    // }
+    function isUser() {
+      return isAuthenticated() && request.auth.token.role == 'user';
+    }
+
+    // Announcement images
+    // Path: /announcements/{barangayId}/{announcementId}/{imageName}
+    match /announcements/{barangayId}/{announcementId}/{imageName} {
+      // READ: Anyone can view announcement images (public content)
+      allow read: if true;
+
+      // WRITE (Create, Update):
+      // - Admins can write to their own barangay's announcements.
+      // - Superadmins can write to any announcement.
+      // - File size must be less than 5MB.
+      // - File must be an allowed image type.
+      allow create, update: if (isAdmin() && request.auth.token.barangayId == barangayId || isSuperAdmin())
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+
+      // DELETE:
+      // - Admins can delete images from their own barangay's announcements.
+      // - Superadmins can delete any image.
+      allow delete: if isAdmin() && request.auth.token.barangayId == barangayId || isSuperAdmin();
+    }
 
     // User documents (e.g., ID, certificates)
     // Path: /user-documents/{userId}/{fileName}
