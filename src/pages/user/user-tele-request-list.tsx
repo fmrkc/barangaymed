@@ -160,6 +160,9 @@ const UserTeleRequestList: React.FC = () => {
     }, 1500);
   };
 
+  const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
+  const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
+
   const handleMarkAsComplete = async (requestId: string) => {
     try {
       const requestRef = doc(db, 'teleconsultationRequests', requestId);
@@ -171,6 +174,11 @@ const UserTeleRequestList: React.FC = () => {
       console.error("Error marking request as complete: ", error);
       setError("Failed to mark the request as complete.");
     }
+  };
+
+  const confirmMarkAsComplete = (requestId: string) => {
+    setRequestToMarkComplete(requestId);
+    setShowMarkCompleteAlert(true);
   };
 
   return (
@@ -239,6 +247,9 @@ const UserTeleRequestList: React.FC = () => {
                       setShowCancelAlert(true);
                     }}>Cancel</IonButton>
                   )}
+                  {request.status === 'pending completion' && (
+                    <IonButton color="success" onClick={() => confirmMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
+                  )}
                 </div>
               </IonCardContent>
             </IonCard>
@@ -304,6 +315,30 @@ const UserTeleRequestList: React.FC = () => {
             {
               text: 'Yes',
               handler: handleCancelRequest
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showMarkCompleteAlert}
+          onDidDismiss={() => setShowMarkCompleteAlert(false)}
+          header={'Confirm Mark as Complete'}
+          message={'Are you sure you want to mark this teleconsultation request as completed?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToMarkComplete(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                if (requestToMarkComplete) {
+                  handleMarkAsComplete(requestToMarkComplete);
+                  setRequestToMarkComplete(null);
+                }
+              }
             }
           ]}
         />

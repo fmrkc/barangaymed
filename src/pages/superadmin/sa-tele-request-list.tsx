@@ -52,6 +52,10 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
   const [showRejectAlert, setShowRejectAlert] = useState(false);
   const [requestToReject, setRequestToReject] = useState<string | null>(null);
+  const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
+  const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
+  const [showNoShowAlert, setShowNoShowAlert] = useState(false);
+  const [requestToNoShow, setRequestToNoShow] = useState<string | null>(null);
 
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
@@ -363,8 +367,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   )}
                   {request.status === 'scheduled' && (
                     <>
-                      <IonButton color="success" onClick={() => handleMarkAsCompleteForScheduled(request.id!)}>Mark as Complete</IonButton>
-                      <IonButton color="danger" onClick={() => handleNoShow(request.id!)}>No Show</IonButton>
+                      <IonButton color="success" onClick={() => {
+                        setRequestToMarkComplete(request.id!);
+                        setShowMarkCompleteAlert(true);
+                      }}>Mark as Complete</IonButton>
+                      <IonButton color="danger" onClick={() => {
+                        setRequestToNoShow(request.id!);
+                        setShowNoShowAlert(true);
+                      }}>No Show</IonButton>
                     </>
                   )}
                 </div>
@@ -553,6 +563,73 @@ const SuperAdminTeleRequestList: React.FC = () => {
             {
               text: 'Yes',
               handler: handleAcceptRequest
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showRejectAlert}
+          onDidDismiss={() => setShowRejectAlert(false)}
+          header={'Confirm Reject'}
+          message={'Are you sure you want to reject this teleconsultation request?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToReject(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: handleRejectRequest
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showMarkCompleteAlert}
+          onDidDismiss={() => setShowMarkCompleteAlert(false)}
+          header={'Confirm Mark as Complete'}
+          message={'Are you sure you want to mark this teleconsultation request as completed?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToMarkComplete(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                if (requestToMarkComplete) {
+                  handleMarkAsCompleteForScheduled(requestToMarkComplete);
+                  setRequestToMarkComplete(null);
+                }
+              }
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showNoShowAlert}
+          onDidDismiss={() => setShowNoShowAlert(false)}
+          header={'Confirm No Show'}
+          message={'Are you sure you want to mark this teleconsultation request as no show?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToNoShow(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                if (requestToNoShow) {
+                  handleNoShow(requestToNoShow);
+                  setRequestToNoShow(null);
+                }
+              }
             }
           ]}
         />
