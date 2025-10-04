@@ -27,7 +27,6 @@ import {
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
-import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
 
 const db = getFirestore();
 

@@ -32,7 +32,6 @@ import {
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
-import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from '../../services/addressService';
 import { close } from 'ionicons/icons';
 import './sa-tele-request-list.css';
 
@@ -48,9 +47,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
-  const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
@@ -147,50 +143,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
     }
     setFilteredRequests(filtered);
   }, [filter, requests]);
-
-  useEffect(() => {
-    const resolveAddresses = async () => {
-      const newResolvedAddresses: Record<string, string> = {};
-      for (const request of requests) {
-        if (request.userData) {
-          const { lotBlkHouseNo, streetName, subdivisionVillageZonePurok, selectedCityMunicipality, selectedProvince, selectedRegion, barangayId, zipCode } = request.userData;
-          let barangayName = '';
-          if (barangayId) {
-            barangayName = await getBarangayNameByCode(barangayId) || '';
-          }
-          let cityMunName = selectedCityMunicipality;
-          if (selectedCityMunicipality) {
-            cityMunName = await getCityMunNameByCode(selectedCityMunicipality) || selectedCityMunicipality;
-          }
-          let provinceName = selectedProvince;
-          if (selectedProvince) {
-            provinceName = await getProvinceNameByCode(selectedProvince) || selectedProvince;
-          }
-          let regionName = selectedRegion;
-          if (selectedRegion) {
-            regionName = await getRegionNameByCode(selectedRegion) || selectedRegion;
-          }
-          let zip = zipCode || '';
-          if (!zip && barangayId) {
-            zip = await getZipCodeByBarangay(barangayId) || '';
-          }
-          const addressParts = [
-            lotBlkHouseNo,
-            streetName,
-            subdivisionVillageZonePurok,
-            barangayName,
-            cityMunName,
-            provinceName,
-            regionName,
-            zip
-          ].filter(Boolean);
-          newResolvedAddresses[request.id || ''] = addressParts.join(', ');
-        }
-      }
-      setResolvedAddresses(newResolvedAddresses);
-    };
-    resolveAddresses();
-  }, [requests]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
