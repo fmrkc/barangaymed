@@ -23,6 +23,8 @@ let barangaysCache: { [cityMunCode: string]: Barangay[] } = {};
 // New, more efficient caches
 let barangayMap: Map<string, Barangay> = new Map();
 let cityMunMap: Map<string, CityMunicipality> = new Map();
+let regionMap: Map<string, string> = new Map();
+let provinceMap: Map<string, string> = new Map();
 let zipCodeMap: Map<string, string> = new Map(); // Maps municipality/city name to zip code
 
 let isInitialized = false;
@@ -51,6 +53,10 @@ async function initializeCaches() {
         code: regionCode,
         name: addressesData[regionCode].region_name,
       })).sort((a: Region, b: Region) => a.name.localeCompare(b.name));
+      // Populate regionMap
+      Object.keys(addressesData).forEach((regionCode: string) => {
+        regionMap.set(regionCode, addressesData[regionCode].region_name);
+      });
 
       // Process provinces, cities/municipalities, barangays
       Object.keys(addressesData).forEach((regionCode: string) => {
@@ -65,6 +71,7 @@ async function initializeCaches() {
             name: provinceData.name,
             regionCode: regionCode,
           });
+          provinceMap.set(provinceCode, provinceData.name);
           const municipalityList = provinceData.municipality_list;
           citiesMunicipalitiesCache[provinceCode] = [];
 
@@ -163,4 +170,23 @@ export const getZipCodeByBarangay = async (barangayCode: string): Promise<string
       console.warn(`Zip code not found for city: ${cityMun.name}`);
     }
     return zip;
+};
+
+// Get region name by code
+export const getRegionNameByCode = async (code: string): Promise<string | undefined> => {
+  await initializeCaches();
+  return regionMap.get(code);
+};
+
+// Get province name by code
+export const getProvinceNameByCode = async (code: string): Promise<string | undefined> => {
+  await initializeCaches();
+  return provinceMap.get(code);
+};
+
+// Get city/municipality name by code
+export const getCityMunNameByCode = async (code: string): Promise<string | undefined> => {
+  await initializeCaches();
+  const cityMun = cityMunMap.get(code);
+  return cityMun?.name;
 };
