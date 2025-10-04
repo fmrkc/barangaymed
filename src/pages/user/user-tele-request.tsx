@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast } from '@ionic/react';
+import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { UserService } from '../../services/userService';
+import { send } from 'ionicons/icons';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -60,40 +61,59 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       console.error('Error submitting teleconsultation request:', error);
       setToastMessage('Failed to submit request. Please try again.');
       setShowToast(true);
-    } finally {
+    } finally { 
       setLoading(false);
     }
   };
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonTitle>Teleconsultation Request</IonTitle>
+          <IonTitle>Create a Consultation Request</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={onDidDismiss}>Close</IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonText>
-          <h2>Request a Teleconsultation</h2>
-          <p>Please provide the reason for your teleconsultation request below.</p>
-          <p><small><i>By submitting, your medical record will be made available to the Rural Health Unit for review.</i></small></p>
-        </IonText>
-        <IonItem>
-          <IonLabel position="floating">Reason</IonLabel>
+      <IonContent>
+     
+        <IonCard className="ion-padding">
+          <IonItem lines='none'>
+            Consultation Reason:
+          </IonItem>
+          <IonItem lines='none'>
           <IonTextarea
+            fill='outline'
             value={reason}
             onIonChange={e => setReason(e.detail.value!)}
             rows={6}
             maxlength={500}
-            placeholder="Describe your reason for teleconsultation"
+            placeholder="Describe your reason for scheduling a consultation. Include any symptoms or concerns you have."
           />
         </IonItem>
-        <IonButton expand="block" onClick={handleSubmit} disabled={loading}>
-          Submit Request
-        </IonButton>
-        <IonButton expand="block" fill="clear" onClick={onDidDismiss}>
-          Close
-        </IonButton>
+        <IonItem>
+          <small>Please provide accurate information to help us assist you better.</small>
+        </IonItem>
+        </IonCard>
+
+        <IonCard className='ion-padding'>
+          <IonItem>
+            Attach Medical Record (Optional)
+            <IonCheckbox slot="end" />
+          </IonItem>
+          <IonItem lines='none'>
+            <small>
+              This medical record will be sent to the RHU along with your request. Ensure that it does not contain sensitive information you do not wish to share.
+            </small>
+          </IonItem>
+        </IonCard>
+        <IonText>
+          
+         
+        </IonText>
+       
+       
         <IonLoading isOpen={loading} message={'Submitting request...'} />
         <IonToast
           isOpen={showToast}
@@ -103,6 +123,18 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           color={toastMessage.includes('successfully') ? 'success' : 'danger'}
         />
       </IonContent>
+      <IonFooter>
+        <IonToolbar>
+           <IonItem lines='none'>
+             <p><small>Note that submission of this form does not guarantee an appointment. You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
+          </IonItem>
+          <IonButton className='ion-padding-vertical' expand="block" onClick={handleSubmit} disabled={loading}>
+            Submit Request
+            <IonIcon slot="end" name='send' />
+          </IonButton>
+
+        </IonToolbar>
+      </IonFooter>
     </IonModal>
   );
 };
