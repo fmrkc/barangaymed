@@ -146,7 +146,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
         );
         break;
       case 'completed':
-        filtered = requests.filter((r) => r.status === 'completed');
+        filtered = requests.filter((r) =>
+          ['completed', 'pending completion'].includes(r.status)
+        );
         break;
       case 'unsuccessful':
         filtered = requests.filter((r) =>
@@ -156,26 +158,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
     }
     setFilteredRequests(filtered);
   }, [filter, requests]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      requests.forEach(async (request) => {
-        if (request.status === 'scheduled' && request.endTime && new Date() > request.endTime) {
-          try {
-            const requestRef = doc(db, 'teleconsultationRequests', request.id!);
-            await updateDoc(requestRef, {
-              status: 'pending completion',
-              updatedAt: new Date(),
-            });
-          } catch (error) {
-            console.error('Error updating request status to pending completion: ', error);
-          }
-        }
-      });
-    }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, [requests]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
@@ -235,6 +217,19 @@ const SuperAdminTeleRequestList: React.FC = () => {
     } catch (error) {
       console.error('Error marking request as no show: ', error);
       setError('Failed to mark the request as no show.');
+    }
+  };
+
+  const handleMarkAsCompleteForScheduled = async (requestId: string) => {
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      await updateDoc(requestRef, {
+        status: 'pending completion',
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error('Error marking request as pending completion: ', error);
+      setError('Failed to mark the request as pending completion.');
     }
   };
 
@@ -366,9 +361,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   {request.status === 'accepted' && (
                     <IonButton color="primary" onClick={() => handleScheduleClick(request)}>Schedule</IonButton>
                   )}
-                  {request.status === 'pending completion' && (
+                  {request.status === 'scheduled' && (
                     <>
-                      <IonButton color="success" onClick={() => handleMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
+                      <IonButton color="success" onClick={() => handleMarkAsCompleteForScheduled(request.id!)}>Mark as Complete</IonButton>
                       <IonButton color="danger" onClick={() => handleNoShow(request.id!)}>No Show</IonButton>
                     </>
                   )}

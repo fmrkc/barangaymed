@@ -208,9 +208,9 @@ service cloud.firestore {
       // Admins can update requests in their barangay. Superadmins can update any request to any valid status.
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
                         ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
-                         (resource.data.status == 'accepted' && request.resource.data.status == 'completed'))) ||
+                         (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                    (isSuperAdmin() && request.resource.data.status in ['pending', 'cancelled', 'accepted', 'rejected', 'scheduled', 'completed', 'no show']);
+                    (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion']);
 
       // DELETE: Deletion not allowed from client
       allow delete: if false;

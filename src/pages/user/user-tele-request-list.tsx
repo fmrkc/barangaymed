@@ -116,7 +116,7 @@ const UserTeleRequestList: React.FC = () => {
         break;  
       case 'active':
         filtered = requests.filter((r) =>
-          ['accepted', 'scheduled'].includes(r.status)
+          ['accepted', 'scheduled', 'pending completion'].includes(r.status)
         );
         break;
       case 'completed':
@@ -158,6 +158,19 @@ const UserTeleRequestList: React.FC = () => {
       setLoading(false);
       event.detail.complete();
     }, 1500);
+  };
+
+  const handleMarkAsComplete = async (requestId: string) => {
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      await updateDoc(requestRef, {
+        status: 'completed',
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error marking request as complete: ", error);
+      setError("Failed to mark the request as complete.");
+    }
   };
 
   return (
