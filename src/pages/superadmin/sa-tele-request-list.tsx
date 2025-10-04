@@ -466,7 +466,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     <IonItem>
                       <IonLabel>
                         Address: &nbsp;
-                        <IonText>{resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</IonText>
+                        <IonText>{selectedRequest.userData?.address || 'N/A'}</IonText>
                       </IonLabel>
                     </IonItem>
                     <IonItem>
