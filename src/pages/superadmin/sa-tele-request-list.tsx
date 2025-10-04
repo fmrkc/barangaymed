@@ -19,6 +19,7 @@ import {
   IonModal,
   IonButton,
   IonAlert,
+  IonPage,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -185,7 +186,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
   };
 
   return (
-    <>
+    <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
@@ -332,7 +333,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           ]}
         />
       </IonContent>
-    </>
+    </IonPage>
   );
 };
 
