@@ -166,9 +166,12 @@ service cloud.firestore {
 // Users can create requests. Admins can view requests from their barangay. Superadmins can view all.
 // =================================================================
     match /medicineRequests/{requestId} {
-      allow create: if isVerifiedResident() && request.resource.data.userId == request.auth.uid
-                    && request.resource.data.medicineId is string
+      allow create: if isVerifiedResident()
+                    && request.resource.data.userId == request.auth.uid
                     && request.resource.data.barangayId == request.auth.token.barangayId
+                    && request.resource.data.reason is string
+                    && request.resource.data.hasPrescription is bool
+                    && request.resource.data.userData is map
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
 
@@ -176,12 +179,11 @@ service cloud.firestore {
                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                    isSuperAdmin();
 
-      allow update: if (isUserRole() && resource.data.userId == request.auth.uid && resource.data.status == 'accepted' && request.resource.data.status == 'completed') ||
-                     (isUserRole() && resource.data.userId == request.auth.uid && resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
-                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                     isSuperAdmin()
-                    && resource.data.status == 'pending'
-                    && request.resource.data.status in ['accepted', 'rejected'];
+      allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
+                      ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
+                      (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
+                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'completed', 'cancelled', 'no show', 'pending completion']);
 
       allow delete: if false; // Deletion not allowed from client
     }
@@ -207,10 +209,10 @@ service cloud.firestore {
       // UPDATE: Users can cancel pending requests or mark accepted requests as completed.
       // Admins can update requests in their barangay. Superadmins can update any request to any valid status.
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                        ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
-                         (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
-                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                    (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion']);
+                      ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
+                      (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
+                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion']);
 
       // DELETE: Deletion not allowed from client
       allow delete: if false;
