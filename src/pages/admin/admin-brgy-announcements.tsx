@@ -435,30 +435,7 @@ const BarangayAnnouncements: React.FC = () => {
   };
 
   const removeExistingImage = (imageUrl: string) => {
-    handleDeleteImage(imageUrl);
-  };
-
-  const handleDeleteImage = async (imageUrl: string) => {
-    if (!currentUser) return;
-
-    setLoading(true);
-    try {
-      await announcementsService.deleteImageFromStorage(
-        imageUrl,
-        currentUser.uid,
-        currentUser.email || '',
-        editingAnnouncement!.id!
-      );
-
-      setExistingImages((prev) => prev.filter((img) => img.url !== imageUrl));
-      setToastMessage('Image deleted successfully');
-    } catch (error) {
-      setToastMessage('Error deleting image');
-      console.error('Error deleting image:', error);
-    } finally {
-      setLoading(false);
-      setShowToast(true);
-    }
+    setExistingImages((prev) => prev.filter((img) => img.url !== imageUrl));
   };
 
   const resetImageSelection = () => {

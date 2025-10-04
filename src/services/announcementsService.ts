@@ -377,7 +377,13 @@ export class AnnouncementsService {
   
   async deleteImageFromStorage(imageUrl: string, userId: string, userEmail: string, announcementId: string): Promise<void> {
     try {
-      const imageRef = ref(storage, imageUrl);
+      const path = imageUrl.split('/o/')[1]?.split('?')[0];
+      if (!path) {
+        throw new Error('Invalid image URL');
+      }
+      const decodedPath = decodeURIComponent(path);
+      const imageRef = ref(storage, decodedPath);
+
       await deleteObject(imageRef);
   
       logEvent('info', 'Image deleted from storage', {
