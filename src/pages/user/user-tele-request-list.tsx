@@ -33,10 +33,9 @@ const UserTeleRequestList: React.FC = () => {
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('all');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState<string | null>(null);
   const userId = currentUser?.uid;
@@ -125,38 +124,6 @@ const UserTeleRequestList: React.FC = () => {
     }
     setFilteredRequests(filtered);
   }, [filter, requests]);
-
-  useEffect(() => {
-    const resolveAddresses = async () => {
-      const newResolvedAddresses: Record<string, string> = {};
-      for (const request of requests) {
-        if (request.userData) {
-          const { lotBlkHouseNo, streetName, subdivisionVillageZonePurok, selectedCityMunicipality, selectedProvince, selectedRegion, barangayId, zipCode } = request.userData;
-          let barangayName = '';
-          if (barangayId) {
-            barangayName = await getBarangayNameByCode(barangayId) || '';
-          }
-          let zip = zipCode || '';
-          if (!zip && barangayId) {
-            zip = await getZipCodeByBarangay(barangayId) || '';
-          }
-          const addressParts = [
-            lotBlkHouseNo,
-            streetName,
-            subdivisionVillageZonePurok,
-            barangayName,
-            selectedCityMunicipality,
-            selectedProvince,
-            selectedRegion,
-            zip
-          ].filter(Boolean);
-          newResolvedAddresses[request.id || ''] = addressParts.join(', ');
-        }
-      }
-      setResolvedAddresses(newResolvedAddresses);
-    };
-    resolveAddresses();
-  }, [requests]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
@@ -263,7 +230,7 @@ const UserTeleRequestList: React.FC = () => {
                     <p><strong>Name:</strong> {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</p>
                     <p><strong>Contact Number:</strong> {selectedRequest.userData.contactNumber || 'N/A'}</p>
                     <p><strong>Email:</strong> {selectedRequest.userData.email || 'N/A'}</p>
-                    <p><strong>Address:</strong> {resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</p>
+                    <p><strong>Address:</strong> {selectedRequest.userData.address || 'N/A'}</p>
                   </>
                 )}
                 {selectedRequest.scheduledAt && (
