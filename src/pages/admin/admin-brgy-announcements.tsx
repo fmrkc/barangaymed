@@ -504,7 +504,7 @@ const BarangayAnnouncements: React.FC = () => {
             >
               <IonCardHeader>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <IonCardTitle style={{ color: 'white' }} >{announcement.title}</IonCardTitle>
+                  <IonCardTitle>{announcement.title}</IonCardTitle>
                   <IonChip color={getPriorityColor(announcement.priority)}>
                     {announcement.priority.toUpperCase()}
                   </IonChip>

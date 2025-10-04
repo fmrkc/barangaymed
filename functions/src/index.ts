@@ -714,4 +714,5 @@ export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app
 export { sendVerificationEmail } from './sendVerificationEmail.js';
 export { onUserDocUpdate } from './user-claims-triggers.js';
 export * from "./user-verification.js";
+export { sendAnnouncementNotification } from './sendAnnouncementNotification.js';
 

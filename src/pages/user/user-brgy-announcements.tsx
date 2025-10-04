@@ -240,16 +240,16 @@ const UserAnnouncements: React.FC = () => {
           </div>
         )}
 
-        <IonGrid>
+        <IonGrid  className='ion-no-padding'>
           <IonRow>
             {announcements.map((announcement) => (
-              <IonCol size="12" size-md="6" size-lg="4" key={announcement.id}>
+              <IonCol className='ion-no-padding' size="12" size-md="6" size-lg="4" key={announcement.id}>
                 <IonCard onClick={() => handleViewDetails(announcement)} style={{ cursor: 'pointer' }}>
                   {announcement.images && announcement.images.length > 0 ? (
                     <>
                       <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <IonCardHeader>
-                        <IonCardTitle style={{ color: 'white', fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
+                        <IonCardTitle style={{ fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
                       </IonCardHeader>
                     </>
                   ) : (
