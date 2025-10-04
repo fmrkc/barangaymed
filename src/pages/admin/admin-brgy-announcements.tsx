@@ -597,7 +597,7 @@ const BarangayAnnouncements: React.FC = () => {
         </IonFab>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>
                 {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
@@ -774,7 +774,7 @@ const BarangayAnnouncements: React.FC = () => {
             setSelectedAnnouncement(null);
           }}
         >
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Announcement Details</IonTitle>
               <IonButtons slot="end">
@@ -794,33 +794,34 @@ const BarangayAnnouncements: React.FC = () => {
                     <IonLabel>History</IonLabel>
                   </IonSegmentButton>
                 </IonSegment>
-               <div className='ion-padding'>
-              {selectedSegment === 'details' && (
-                  <>
-                    <div style={{ marginBottom: '20px' }}>
-                      <IonLabel color={'medium'}>
-                        <h3>Title:</h3>
-                      </IonLabel>
-                      <h2 style={{ marginBottom: '10px' }}>{selectedAnnouncement.title}</h2>
-                      Priority:
-                      <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
-                        {selectedAnnouncement.priority.toUpperCase()}
-                      </IonChip>
-                    </div>
-                    <div style={{ marginBottom: '20px' }}>
-                      <IonLabel color={'medium'}>
-                        <h3>Content:</h3>
-                      </IonLabel>
-                      <p style={{ whiteSpace: 'pre-wrap', marginTop: '10px', lineHeight: '1.5' }}>
-                        {selectedAnnouncement.content}
-                      </p>
-                    </div>
+               
+                  {selectedSegment === 'details' && (
+                    <>
+                      <IonCard style={{ marginBottom: '20px' }}>
+                        <IonItemDivider>Title:</IonItemDivider>
+                        <IonItem lines='none'>
+                          {selectedAnnouncement.title}
+                        </IonItem>
 
-                    {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
-                      <div style={{ marginBottom: '20px' }}>
-                        <IonLabel color={'medium'}>
-                          <h3>Images: ({selectedAnnouncement.images.length})</h3>
-                        </IonLabel>
+                        <IonItemDivider className='ion-margin-top'>Content:</IonItemDivider>
+                        <IonItem lines='none'>
+                          <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedAnnouncement.content}</p>
+
+                        </IonItem>
+
+                        <IonItemDivider className='ion-margin-top'> Priority:</IonItemDivider>
+                        <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
+                          {selectedAnnouncement.priority.toUpperCase()}
+                        </IonChip>
+                      
+
+                      {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
+                      <>
+                        <IonItemDivider className='ion-margin-top'>
+                      
+                          Images: ({selectedAnnouncement.images.length})
+                       
+                        </IonItemDivider>
                         <IonGrid style={{ marginTop: '10px' }}>
                           <IonRow>
                             {selectedAnnouncement.images.map((image, index) => (
@@ -844,11 +845,12 @@ const BarangayAnnouncements: React.FC = () => {
                             ))}
                           </IonRow>
                         </IonGrid>
-                      </div>
+                      </>
                     )}
+                    </IonCard>
                   </>
                 )}
-            </div>
+          
                 
 
                 {selectedSegment === 'history' && (
@@ -872,7 +874,7 @@ const BarangayAnnouncements: React.FC = () => {
               </>
             )}
           </IonContent>
-          <IonFooter className='ion-padding'>
+          <IonFooter>
             <IonToolbar>
                   <IonButton
                     expand="block"
