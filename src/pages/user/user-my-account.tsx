@@ -19,13 +19,14 @@ import {
   IonItemDivider,
   IonChip,
   IonModal,
+  IonInput,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { logOut, create, person, logIn, medical, document, checkmark, warning, time, mail, home } from "ionicons/icons";
 import { db } from "../../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
-import { getBarangayNameByCode } from "../../services/addressService";
+import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from "../../services/addressService";
 import CreateMedicalRecord from "./medical-record/create-medical-record";
 import ViewMedicalRecord from "./medical-record/view-medical-record";
 
@@ -34,6 +35,7 @@ const Account: React.FC = () => {
   const router = useIonRouter();
   const [showLoading, setShowLoading] = useState(false);
   const [FullName, setFullName] = useState("");
+  const [FullLocation, setFullLocation] = useState("");
   const [barangayName, setBarangayName] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [gender, setGender] = useState("");
@@ -64,13 +66,37 @@ const Account: React.FC = () => {
           setFullName([userData.firstName, userData.middleName, userData.lastName, userData.suffix].filter(Boolean).join(' '));
           setBirthdate(userData.birthdate || "Not specified");
           setGender(userData.gender || "Not specified");
-          setAddress(userData.address || "Not specified");
+
+          let barangayNameTemp = "Not specified";
+          let regionName = "Not specified";
+          let provinceName = "Not specified";
+          let cityMunName = "Not specified";
+          let zipCode = userData.zipCode || "Not specified";
+
           if (userData.barangayId) {
             const name = await getBarangayNameByCode(userData.barangayId);
-            setBarangayName(name || "Not specified");
-          } else {
-            setBarangayName("Not specified");
+            barangayNameTemp = name || "Not specified";
           }
+          if (userData.selectedRegion) {
+            const name = await getRegionNameByCode(userData.selectedRegion);
+            regionName = name || "Not specified";
+          }
+          if (userData.selectedProvince) {
+            const name = await getProvinceNameByCode(userData.selectedProvince);
+            provinceName = name || "Not specified";
+          }
+          if (userData.selectedCityMunicipality) {
+            const name = await getCityMunNameByCode(userData.selectedCityMunicipality);
+            cityMunName = name || "Not specified";
+          }
+          if (userData.barangayId) {
+            const zip = await getZipCodeByBarangay(userData.barangayId);
+            zipCode = zip || zipCode;
+          }
+
+          setBarangayName(barangayNameTemp);
+          setFullLocation([regionName, provinceName, cityMunName, barangayNameTemp, zipCode].filter(Boolean).join(', '));
+          setAddress([userData.lotBlkHouseNo, userData.streetName, userData.subdivisionVillageZonePurok].filter(Boolean).join(', ') || userData.address || "Not specified");
         }
 
         // Check for medical record
@@ -226,59 +252,90 @@ const Account: React.FC = () => {
               ></IonAlert>
 
         <IonModal isOpen={showPersonalModal} onDidDismiss={() => setShowPersonalModal(false)}>
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Personal Info</IonTitle>
               <IonButton slot="end" fill="clear" onClick={() => setShowPersonalModal(false)}>Close</IonButton>
             </IonToolbar>
           </IonHeader>
-          <IonContent>
+          <IonContent className="ion-padding">
+           <IonCard>
+            <IonCardContent>
+              <IonItemDivider className="ion-margin-top">Full Name:</IonItemDivider>
             <IonItem>
-              <IonLabel>Name: {FullName}</IonLabel>
+              <IonLabel style={{ fontWeight: 'bold'}}>
+                {FullName || "No Name Provided"}
+              </IonLabel>
             </IonItem>
+            <IonItemDivider className="ion-margin-top">Birthdate:</IonItemDivider>
             <IonItem>
-              <IonLabel>Birthdate: {birthdate}</IonLabel>
+              <IonLabel style={{ fontWeight: 'bold'}}>
+                {birthdate || "Not specified"}
+              </IonLabel>
             </IonItem>
+            <IonItemDivider className="ion-margin-top">Gender:</IonItemDivider>
             <IonItem>
-              <IonLabel>Gender: {gender}</IonLabel>
+              <IonLabel style={{ fontWeight: 'bold'}}>
+                {gender || "Not specified"}
+              </IonLabel>
             </IonItem>
+            </IonCardContent>
+           </IonCard>
           </IonContent>
         </IonModal>
 
         <IonModal isOpen={showLocationModal} onDidDismiss={() => setShowLocationModal(false)}>
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Location Info</IonTitle>
               <IonButton slot="end" fill="clear" onClick={() => setShowLocationModal(false)}>Close</IonButton>
             </IonToolbar>
           </IonHeader>
-          <IonContent>
-            <IonItem>
-              <IonLabel>Location: {barangayName}</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Address: {address}</IonLabel>
-            </IonItem>
+          <IonContent className="ion-padding">
+            <IonCard>
+              <IonCardContent>
+                <IonItemDivider className="ion-margin-top">Full Location:</IonItemDivider>
+                <IonItem>
+                  <IonLabel style={{ fontWeight: 'bold' }}>
+                    {FullLocation || "Not specified"}
+                  </IonLabel>
+                </IonItem>
+                <IonItemDivider className="ion-margin-top">Address:</IonItemDivider>
+                <IonItem>
+                  <IonLabel style={{ fontWeight: 'bold' }}>
+                    {address || "Not specified"}
+                  </IonLabel>
+                </IonItem>
+              </IonCardContent>
+            </IonCard>
           </IonContent>
         </IonModal>
 
         <IonModal isOpen={showAccountModal} onDidDismiss={() => setShowAccountModal(false)}>
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Account Info</IonTitle>
               <IonButton slot="end" fill="clear" onClick={() => setShowAccountModal(false)}>Close</IonButton>
             </IonToolbar>
           </IonHeader>
-          <IonContent>
-            <IonItem>
-              <IonLabel>Email: {currentUser?.email}</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonButton expand="block">Change Email</IonButton>
-            </IonItem>
-            <IonItem>
-              <IonButton expand="block">Change Password</IonButton>
-            </IonItem>
+          <IonContent className="ion-padding">
+            <IonCard>
+              <IonCardContent>
+                <IonItemDivider className="ion-margin-top">Email:</IonItemDivider>
+                <IonItem>
+                  <IonLabel style={{ fontWeight: 'bold' }}>
+                    {currentUser?.email || "Not specified"}
+                  </IonLabel>
+                </IonItem>
+                <IonButton className="ion-padding-vertical" expand="block">Change Email</IonButton>
+                 <IonItemDivider className="ion-margin-top">Password:</IonItemDivider>
+                
+                <IonButton className="ion-padding-vertical" expand="block">Change Password</IonButton>
+              
+              </IonCardContent>
+            </IonCard>
+            
+          
           </IonContent>
         </IonModal>
 
