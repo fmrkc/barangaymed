@@ -19,6 +19,8 @@ import {
   IonModal,
   IonButton,
   IonAlert,
+  IonItem,
+  IonItemDivider,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -180,7 +182,7 @@ const UserTeleRequestList: React.FC = () => {
 
   return (
     <>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/user/dashboard/requests" />
@@ -188,8 +190,8 @@ const UserTeleRequestList: React.FC = () => {
           <IonTitle>My Teleconsultation Requests</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonSegment value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
+      <IonContent>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -218,9 +220,9 @@ const UserTeleRequestList: React.FC = () => {
           <IonText className="ion-padding">No requests found for this category.</IonText>
         )}
 
-        <IonList>
+        <IonList style={{ backgroundColor: 'transparent' }}>
           {filteredRequests.map((request) => (
-            <IonCard key={request.id} style={{ borderLeft: `5px solid var(--ion-color-primary)`}}>
+            <IonCard key={request.id} style={{ borderLeft: `10px solid var(--ion-color-primary)`}}>
               <IonCardHeader>
                 <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
                   Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
@@ -244,7 +246,7 @@ const UserTeleRequestList: React.FC = () => {
         </IonList>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
               <IonButtons slot="end">
@@ -252,30 +254,93 @@ const UserTeleRequestList: React.FC = () => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="ion-padding">
+          <IonContent>
             {selectedRequest && (
-              <>
-                <p><strong>Status:</strong> {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}</p>
-                <p><strong>Reason:</strong> {selectedRequest.reason}</p>
-                <p><strong>Created At:</strong> {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</p>
-                {selectedRequest.userData && (
-                  <>
-                    <p><strong>Name:</strong> {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</p>
-                    <p><strong>Contact Number:</strong> {selectedRequest.userData.contactNumber || 'N/A'}</p>
-                    <p><strong>Email:</strong> {selectedRequest.userData.email || 'N/A'}</p>
-                    <p><strong>Address:</strong> {resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</p>
-                  </>
-                )}
-                {selectedRequest.scheduledAt && (
-                  <p><strong>Scheduled At:</strong> {selectedRequest.scheduledAt.toLocaleString()}</p>
-                )}
-                {selectedRequest.notes && (
-                  <p><strong>Notes:</strong> {selectedRequest.notes}</p>
-                )}
-                 {selectedRequest.meetingLink && (
-                  <p><strong>Meeting Link:</strong> <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a></p>
-                )}
-              </>
+             <IonCard>
+                             <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>               
+                             <IonItem>
+                               <IonLabel>
+                                 Status: &nbsp;
+                                 <IonText color={
+                                   selectedRequest.status === 'pending'
+                                     ? 'warning'
+                                     : selectedRequest.status === 'accepted' || selectedRequest.status === 'scheduled'
+                                     ? 'primary'
+                                     : selectedRequest.status === 'completed'
+                                     ? 'success'
+                                     : 'danger'
+                                 } style={{ fontWeight: 'bold'}}>
+                                   {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+                                 </IonText>
+                               </IonLabel>
+                             </IonItem>
+                             <IonItem>
+                               <IonLabel>
+                                 Reason: &nbsp;
+                                 <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
+                               </IonLabel>
+                             </IonItem>
+                             <IonItem>
+                               <IonLabel>
+                                 Created At: &nbsp;
+                                 <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                               </IonLabel>
+                             </IonItem>
+                             <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>
+                             {selectedRequest.userData && (
+                               <>
+                                 <IonItem>
+                                   <IonLabel>
+                                     Name: &nbsp;
+                                     <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
+                                   </IonLabel>
+                                 </IonItem>
+                                  <IonItem>
+                                   <IonLabel>
+                                     Address: &nbsp;
+                                     <IonText>{resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</IonText>
+                                   </IonLabel>
+                                 </IonItem>
+                                 <IonItem>
+                                   <IonLabel>
+                                     Contact Number: &nbsp;
+                                     <IonText>{selectedRequest.userData.contactNumber || 'N/A'}</IonText>
+                                   </IonLabel>
+                                 </IonItem>
+                                 <IonItem>
+                                   <IonLabel>
+                                     Email: &nbsp;
+                                     <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
+                                   </IonLabel>
+                                 </IonItem>
+                                
+                               </>
+                             )}
+                             {selectedRequest.scheduledAt && (
+                               <IonItem>
+                                 <IonLabel>
+                                   Scheduled at: &nbsp;
+                                   <IonText>{selectedRequest.scheduledAt.toLocaleString()}</IonText>
+                                 </IonLabel>
+                               </IonItem>
+                             )}
+                             {selectedRequest.notes && (
+                               <IonItem>
+                                 <IonLabel>
+                                   Notes: &nbsp;
+                                   <IonText>{selectedRequest.notes}</IonText>
+                                 </IonLabel>
+                               </IonItem>
+                             )}
+                             {selectedRequest.meetingLink && (
+                               <IonItem>
+                                 <IonLabel>
+                                   Meeting Link: &nbsp;
+                                   <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a>
+                                 </IonLabel>
+                               </IonItem>
+                             )}
+                           </IonCard>
             )}
           </IonContent>
         </IonModal>

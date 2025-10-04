@@ -20,11 +20,21 @@ import {
   IonButton,
   IonAlert,
   IonPage,
+  IonRefresher,
+  IonRefresherContent,
+  IonChip,
+  IonIcon,
+  IonItem,
+  IonInput,
+  IonItemDivider,
+  IonMenuButton,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
-import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
+import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from '../../services/addressService';
+import { close } from 'ionicons/icons';
+import './sa-tele-request-list.css';
 
 const db = getFirestore();
 
@@ -38,11 +48,21 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
-  
+
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
   const [showRejectAlert, setShowRejectAlert] = useState(false);
   const [requestToReject, setRequestToReject] = useState<string | null>(null);
+
+  // Add refresher handler
+  const handleRefresh = (event: CustomEvent) => {
+    setLoading(true);
+    // Simulate refresh delay, e.g. 1 second
+    setTimeout(() => {
+      setLoading(false);
+      event.detail.complete();
+    }, 1000);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -133,6 +153,18 @@ const SuperAdminTeleRequestList: React.FC = () => {
           if (barangayId) {
             barangayName = await getBarangayNameByCode(barangayId) || '';
           }
+          let cityMunName = selectedCityMunicipality;
+          if (selectedCityMunicipality) {
+            cityMunName = await getCityMunNameByCode(selectedCityMunicipality) || selectedCityMunicipality;
+          }
+          let provinceName = selectedProvince;
+          if (selectedProvince) {
+            provinceName = await getProvinceNameByCode(selectedProvince) || selectedProvince;
+          }
+          let regionName = selectedRegion;
+          if (selectedRegion) {
+            regionName = await getRegionNameByCode(selectedRegion) || selectedRegion;
+          }
           let zip = zipCode || '';
           if (!zip && barangayId) {
             zip = await getZipCodeByBarangay(barangayId) || '';
@@ -142,9 +174,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
             streetName,
             subdivisionVillageZonePurok,
             barangayName,
-            selectedCityMunicipality,
-            selectedProvince,
-            selectedRegion,
+            cityMunName,
+            provinceName,
+            regionName,
             zip
           ].filter(Boolean);
           newResolvedAddresses[request.id || ''] = addressParts.join(', ');
@@ -187,16 +219,19 @@ const SuperAdminTeleRequestList: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/superadmin/dashboard" />
+            <IonMenuButton />
           </IonButtons>
           <IonTitle>Teleconsultation Requests</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonSegment value={filter} onIonChange={e => setFilter(e.detail.value as any)}>          
+      <IonContent>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -222,20 +257,53 @@ const SuperAdminTeleRequestList: React.FC = () => {
         )}
 
         {!loading && !error && filteredRequests.length === 0 && (
-          <IonText className="ion-padding">No requests found for this category.</IonText>
+          <IonCard>
+            <IonCardContent>
+              <IonText className="ion-padding">No requests found.</IonText>
+            </IonCardContent>
+          </IonCard>
         )}
 
-        <IonList>
+        <IonList style={{ backgroundColor: 'transparent' }}>
           {filteredRequests.map((request) => (
-            <IonCard key={request.id} style={{ borderLeft: `5px solid var(--ion-color-primary)`}}>
+            <IonCard
+              key={request.id}
+              style={{
+                borderLeft: `8px solid ${
+                  request.status === 'pending'
+                    ? '#ffc409' // warning (yellow)
+                    : request.status === 'accepted' || request.status === 'scheduled'
+                    ? '#017457' // primary (blue)
+                    : request.status === 'completed'
+                    ? '#2dd36f' // success (green)
+                    : '#eb445a' // danger (red)
+                }`
+              }}
+            >
               <IonCardHeader>
                 <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                  Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {request.userData?.firstName} {request.userData?.lastName}
+                    <IonChip
+                      color={
+                        request.status === 'pending'
+                          ? 'warning'
+                          : request.status === 'accepted' || request.status === 'scheduled'
+                          ? 'primary'
+                          : request.status === 'completed'
+                          ? 'success'
+                          : 'danger'
+                      }
+                      style={{ margin: '0' }}
+                    >
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    </IonChip>
+                  </div>
                 </IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
-                <p><strong>Reason:</strong> {request.reason}</p>
-                <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
+                <p>Reason: <strong>{request.reason}</strong></p>
+                <p>Approved by: <strong>Not yet implemented</strong> </p>
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
                   {request.status === 'pending' && (
@@ -257,39 +325,105 @@ const SuperAdminTeleRequestList: React.FC = () => {
         </IonList>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
               <IonButtons slot="end">
-                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+                <IonButton onClick={() => setShowModal(false)}>
+                  Close
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="ion-padding">
+          <IonContent >
             {selectedRequest && (
-              <>
-                <p><strong>Status:</strong> {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}</p>
-                <p><strong>Reason:</strong> {selectedRequest.reason}</p>
-                <p><strong>Created At:</strong> {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</p>
+              <IonCard>
+                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>               
+                <IonItem>
+                  <IonLabel>
+                    Status: &nbsp;
+                    <IonText color={
+                      selectedRequest.status === 'pending'
+                        ? 'warning'
+                        : selectedRequest.status === 'accepted' || selectedRequest.status === 'scheduled'
+                        ? 'primary'
+                        : selectedRequest.status === 'completed'
+                        ? 'success'
+                        : 'danger'
+                    } style={{ fontWeight: 'bold'}}>
+                      {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+                    </IonText>
+                  </IonLabel>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>
+                    Reason: &nbsp;
+                    <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
+                  </IonLabel>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>
+                    Created At: &nbsp;
+                    <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                  </IonLabel>
+                </IonItem>
+                <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>
                 {selectedRequest.userData && (
                   <>
-                    <p><strong>Name:</strong> {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</p>
-                    <p><strong>Contact Number:</strong> {selectedRequest.userData.contactNumber || 'N/A'}</p>
-                    <p><strong>Email:</strong> {selectedRequest.userData.email || 'N/A'}</p>
-                    <p><strong>Address:</strong> {resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</p>
+                    <IonItem>
+                      <IonLabel>
+                        Name: &nbsp;
+                        <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
+                      </IonLabel>
+                    </IonItem>
+                     <IonItem>
+                      <IonLabel>
+                        Address: &nbsp;
+                        <IonText>{resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</IonText>
+                      </IonLabel>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel>
+                        Contact Number: &nbsp;
+                        <IonText>{selectedRequest.userData.contactNumber || 'N/A'}</IonText>
+                      </IonLabel>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel>
+                        Email: &nbsp;
+                        <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
+                      </IonLabel>
+                    </IonItem>
+                   
                   </>
                 )}
                 {selectedRequest.scheduledAt && (
-                  <p><strong>Scheduled At:</strong> {selectedRequest.scheduledAt.toLocaleString()}</p>
+                  <IonItem>
+                    <IonLabel>
+                      Scheduled at: &nbsp;
+                      <IonText>{selectedRequest.scheduledAt.toLocaleString()}</IonText>
+                    </IonLabel>
+                  </IonItem>
                 )}
                 {selectedRequest.notes && (
-                  <p><strong>Notes:</strong> {selectedRequest.notes}</p>
+                  <IonItem>
+                    <IonLabel>
+                      Notes: &nbsp;
+                      <IonText>{selectedRequest.notes}</IonText>
+                    </IonLabel>
+                  </IonItem>
                 )}
-                 {selectedRequest.meetingLink && (
-                  <p><strong>Meeting Link:</strong> <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a></p>
+                {selectedRequest.meetingLink && (
+                  <IonItem>
+                    <IonLabel>
+                      Meeting Link: &nbsp;
+                      <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a>
+                    </IonLabel>
+                  </IonItem>
                 )}
-              </>
+              </IonCard>
             )}
+
           </IonContent>
         </IonModal>
 
