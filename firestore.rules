@@ -175,9 +175,8 @@ service cloud.firestore {
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
 
-      allow read: if (isUserRole() && resource.data.userId == request.auth.uid) ||
-                   (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                   isSuperAdmin();
+      allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||
+                    isSuperAdmin();
 
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
                       ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
@@ -203,8 +202,7 @@ service cloud.firestore {
 
       // READ: Users can read their own requests. Admins can read requests from their barangay. Superadmins can read all requests.
       allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||
-                   (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                   isSuperAdmin();
+                    isSuperAdmin();
 
       // UPDATE: Users can cancel pending requests or mark accepted requests as completed.
       // Admins can update requests in their barangay. Superadmins can update any request to any valid status.
