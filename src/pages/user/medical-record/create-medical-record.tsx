@@ -14,7 +14,22 @@ import {
   IonAlert,
   IonModal,
   IonNote,
+
+  IonFooter,
+  IonProgressBar,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonIcon,
+  IonText,
+  IonCardSubtitle,
+  IonItemDivider,
 } from '@ionic/react';
+import { arrowBack, arrowForward, checkmarkCircle, cloudUpload } from 'ionicons/icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db, storage } from '../../../firebaseConfig';
 import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -114,30 +129,67 @@ const CreateMedicalRecord: React.FC<CreateMedicalRecordProps> = ({ isOpen, onDid
     switch (step) {
       case 1:
         return (
-          <>
-            <IonItem>
-              <IonLabel position="stacked">Symptoms (Optional)</IonLabel>
-              <IonTextarea placeholder="Enter one symptom per line" value={symptoms} onIonChange={e => setSymptoms(e.detail.value!)}></IonTextarea>
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Existing Conditions (Optional)</IonLabel>
-              <IonTextarea placeholder="Enter one condition per line" value={conditions} onIonChange={e => setConditions(e.detail.value!)}></IonTextarea>
-            </IonItem>
-          </>
+          <IonCard>
+            <IonCardContent>
+              <p>This is a multi-step form to help you create your medical record. This form will be used to provide context behind your medicine & consultation requests. </p>
+              <br />
+              <p>Please note that any information shared here are information you are okay with sharing. All information will be kept confidential. You may skip any fields you are not comfortable sharing.</p>
+            </IonCardContent>
+          </IonCard>
         );
       case 2:
         return (
-          <IonItem>
-            <IonLabel position="stacked">Allergies (Optional)</IonLabel>
-            <IonTextarea placeholder="Enter one allergy per line" value={allergies} onIonChange={e => setAllergies(e.detail.value!)}></IonTextarea>
-          </IonItem>
+          <>
+            <IonItemDivider>Existing Symptoms (Optional)</IonItemDivider>
+            <IonItem>
+              <IonTextarea rows={8} fill="outline" placeholder="Enter one symptom per line" value={symptoms} onIonChange={e => setSymptoms(e.detail.value!)} className="ion-margin-bottom"></IonTextarea>
+            </IonItem>
+            <IonItemDivider>Existing Conditions (Optional)</IonItemDivider>
+            <IonItem>
+              <IonTextarea rows={8} fill="outline" placeholder="Enter one condition per line." value={conditions} onIonChange={e => setConditions(e.detail.value!)} className="ion-margin-bottom"></IonTextarea>
+            </IonItem>
+          </>
         );
       case 3:
         return (
-          <IonItem>
-            <IonLabel>Upload Medical History (Optional)</IonLabel>
-            <input type="file" onChange={handleFileChange} />
-          </IonItem>
+          <>
+            <IonItemDivider>Allergies (Optional)</IonItemDivider>
+            <IonItem>
+              <IonTextarea rows={10} fill="outline" placeholder="Enter one allergy per line." value={allergies} onIonChange={e => setAllergies(e.detail.value!)} className="ion-margin-bottom"></IonTextarea>
+            </IonItem>
+          </>
+        );
+      case 4:
+        return (
+          <>
+            <IonItem className="ion-margin-bottom">
+              Upload one of the following medical history documents. After upload, the document will be securely stored.
+            </IonItem>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+              id="medical-history-upload"
+            />
+            <IonButton
+              expand="block"
+              fill={file ? 'solid' : 'outline'}
+              color={file ? 'success' : 'primary'}
+              onClick={() => document.getElementById('medical-history-upload')?.click()}
+              className="ion-margin-vertical"
+            >
+              <IonIcon slot="start" icon={file ? checkmarkCircle : cloudUpload} />
+              <IonText className="ion-padding-vertical">
+                {file ? 'Medical History Uploaded' : 'Upload Medical History'}
+              </IonText>
+            </IonButton>
+            {file && (
+              <IonText color="success">
+                Uploaded file: {file.name}
+              </IonText>
+            )}
+          </>
         );
       default:
         return null;
@@ -146,37 +198,68 @@ const CreateMedicalRecord: React.FC<CreateMedicalRecordProps> = ({ isOpen, onDid
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>Create Medical Record</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={handleDismiss}>Close</IonButton>
           </IonButtons>
         </IonToolbar>
+        <IonProgressBar value={step / 4} />
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonNote>All fields are optional.</IonNote>
-        <h2 style={{ marginTop: '1.5rem' }}>Step {step} of 3</h2>
-        
-        {renderStep()}
+        <IonContent className="ion-padding">
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>
+                {step === 1 && 'Step 1: Introduction'}
+                {step === 2 && 'Step 2: Symptoms and Conditions'}
+                {step === 3 && 'Step 3: Allergies'}
+                {step === 4 && 'Step 4: Upload Medical History'}
+              </IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              {renderStep()}
+            </IonCardContent>
+          </IonCard>
+        </IonContent>
+        <IonFooter>
+            <IonToolbar>
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="3">
+                    {step > 1 && (
+                      <IonButton className='ion-padding-vertical' expand="block" shape="round" fill="outline" onClick={prevStep}>
+                        <IonIcon slot="start" icon={arrowBack} />
+                        Back
+                      </IonButton>
+                    )}
+                  </IonCol>
+                  <IonCol size="9">
+                    {step < 4 ? (
+                      <IonButton className='ion-padding-vertical' expand="block" shape="round" onClick={nextStep}>
+                        Next
+                        <IonIcon slot="end" icon={arrowForward} />
+                      </IonButton>
+                    ) : (
+                      <IonButton className='ion-padding-vertical' color="success" expand="block" shape="round" onClick={handleSave}>
+                        Save Medical Record
+                        <IonIcon slot="end" icon={checkmarkCircle} />
+                      </IonButton>
+                    )}
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonToolbar>
+          </IonFooter>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'absolute', bottom: '20px', width: 'calc(100% - 32px)' }}>
-          {step > 1 && <IonButton onClick={prevStep}>Back</IonButton>}
-          {step < 3 ? 
-            <IonButton onClick={nextStep} style={{ marginLeft: 'auto' }}>Next</IonButton> :
-            <IonButton color="success" onClick={handleSave} style={{ marginLeft: 'auto' }}>Save Medical Record</IonButton>
-          }
-        </div>
-        
-        <IonLoading isOpen={showLoading} message={'Saving...'} />
-        <IonAlert
-          isOpen={showAlert}
-          onDidDismiss={() => setShowAlert(false)}
-          header={alertHeader}
-          message={alertMessage}
-          buttons={['OK']}
-        />
-      </IonContent>
+          <IonLoading isOpen={showLoading} message={'Saving...'} />
+          <IonAlert
+            isOpen={showAlert}
+            onDidDismiss={() => setShowAlert(false)}
+            header={alertHeader}
+            message={alertMessage}
+            buttons={['OK']}
+          />
     </IonModal>
   );
 };
