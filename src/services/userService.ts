@@ -1,22 +1,6 @@
 import { db } from '../firebaseConfig';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-
-export interface UserData {
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  suffix: string;
-  lotBlkHouseNo: string;
-  streetName: string;
-  subdivisionVillageZonePurok: string;
-  zipCode: string;
-  contactNumber: string;
-  email: string;
-  barangayId: string;
-  selectedRegion: string;
-  selectedProvince: string;
-  selectedCityMunicipality: string;
-}
+import { UserData } from '../types/users'; // Import the shared UserData type
 
 export class UserService {
   private static instance: UserService;
@@ -43,6 +27,8 @@ export class UserService {
         middleName: data.middleName || '',
         lastName: data.lastName || '',
         suffix: data.suffix || '',
+        birthdate: data.birthdate || '',
+        gender: data.gender || '',
         lotBlkHouseNo: data.lotBlkHouseNo || '',
         streetName: data.streetName || '',
         subdivisionVillageZonePurok: data.subdivisionVillageZonePurok || '',
@@ -53,6 +39,9 @@ export class UserService {
         selectedRegion: data.selectedRegion || '',
         selectedProvince: data.selectedProvince || '',
         selectedCityMunicipality: data.selectedCityMunicipality || '',
+        idVerificationUrl: data.idVerificationUrl || '',
+        idVerificationType: data.idVerificationType || '',
+        address: data.address || ''
       };
       }
       return this.getEmptyUserData();
@@ -72,6 +61,8 @@ export class UserService {
       middleName: '',
       lastName: '',
       suffix: '',
+      birthdate: '',
+      gender: '',
       lotBlkHouseNo: '',
       streetName: '',
       subdivisionVillageZonePurok: '',
@@ -82,6 +73,9 @@ export class UserService {
       selectedRegion: '',
       selectedProvince: '',
       selectedCityMunicipality: '',
+      idVerificationUrl: '',
+      idVerificationType: '',
+      address: ''
     };
   }
 

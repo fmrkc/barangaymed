@@ -16,4 +16,6 @@ export interface UserData {
   selectedCityMunicipality?: string;
   idVerificationUrl?: string;
   idVerificationType?: string;
+  address?: string;
+  email?: string;
 }

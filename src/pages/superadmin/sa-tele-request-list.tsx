@@ -32,7 +32,6 @@ import {
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
-import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from '../../services/addressService';
 import { close } from 'ionicons/icons';
 import './sa-tele-request-list.css';
 
@@ -44,15 +43,28 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
   const [showRejectAlert, setShowRejectAlert] = useState(false);
   const [requestToReject, setRequestToReject] = useState<string | null>(null);
+  const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
+  const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
+  const [showNoShowAlert, setShowNoShowAlert] = useState(false);
+  const [requestToNoShow, setRequestToNoShow] = useState<string | null>(null);
+
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [doctorName, setDoctorName] = useState('');
+  const [doctorSpecialty, setDoctorSpecialty] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
+
 
   // Add refresher handler
   const handleRefresh = (event: CustomEvent) => {
@@ -81,7 +93,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
     const unsubscribe = onSnapshot(
         q,
         (querySnapshot) => {
+            console.log("Data received from Firestore. Number of documents:", querySnapshot.size);
             clearTimeout(timeoutId);
+            setLoading(false); // Just stop loading, do nothing else.
             const reqs: TeleconsultationRequest[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -94,10 +108,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     status: data.status,
                     createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
                     updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
-                    scheduledAt: data.scheduledAt ? (data.scheduledAt instanceof Timestamp ? data.scheduledAt.toDate() : new Date(data.scheduledAt)) : undefined,
+                    startTime: data.startTime ? (data.startTime instanceof Timestamp ? data.startTime.toDate() : new Date(data.startTime)) : undefined,
+                    endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
                     notes: data.notes,
                     doctorId: data.doctorId,
+                    doctorName: data.doctorName,
+                    doctorSpecialty: data.doctorSpecialty,
                     meetingLink: data.meetingLink,
+                    superadminMarkedComplete: data.superadminMarkedComplete,
                 };
                 reqs.push(req);
             });
@@ -132,7 +150,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
         );
         break;
       case 'completed':
-        filtered = requests.filter((r) => r.status === 'completed');
+        filtered = requests.filter((r) =>
+          ['completed', 'pending completion'].includes(r.status)
+        );
         break;
       case 'unsuccessful':
         filtered = requests.filter((r) =>
@@ -143,53 +163,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
     setFilteredRequests(filtered);
   }, [filter, requests]);
 
-  useEffect(() => {
-    const resolveAddresses = async () => {
-      const newResolvedAddresses: Record<string, string> = {};
-      for (const request of requests) {
-        if (request.userData) {
-          const { lotBlkHouseNo, streetName, subdivisionVillageZonePurok, selectedCityMunicipality, selectedProvince, selectedRegion, barangayId, zipCode } = request.userData;
-          let barangayName = '';
-          if (barangayId) {
-            barangayName = await getBarangayNameByCode(barangayId) || '';
-          }
-          let cityMunName = selectedCityMunicipality;
-          if (selectedCityMunicipality) {
-            cityMunName = await getCityMunNameByCode(selectedCityMunicipality) || selectedCityMunicipality;
-          }
-          let provinceName = selectedProvince;
-          if (selectedProvince) {
-            provinceName = await getProvinceNameByCode(selectedProvince) || selectedProvince;
-          }
-          let regionName = selectedRegion;
-          if (selectedRegion) {
-            regionName = await getRegionNameByCode(selectedRegion) || selectedRegion;
-          }
-          let zip = zipCode || '';
-          if (!zip && barangayId) {
-            zip = await getZipCodeByBarangay(barangayId) || '';
-          }
-          const addressParts = [
-            lotBlkHouseNo,
-            streetName,
-            subdivisionVillageZonePurok,
-            barangayName,
-            cityMunName,
-            provinceName,
-            regionName,
-            zip
-          ].filter(Boolean);
-          newResolvedAddresses[request.id || ''] = addressParts.join(', ');
-        }
-      }
-      setResolvedAddresses(newResolvedAddresses);
-    };
-    resolveAddresses();
-  }, [requests]);
-
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
     setShowModal(true);
+  };
+
+  const handleScheduleClick = (request: TeleconsultationRequest) => {
+    setSelectedRequest(request);
+    setShowScheduleModal(true);
   };
 
   const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected') => {
@@ -215,6 +196,69 @@ const SuperAdminTeleRequestList: React.FC = () => {
     if (!requestToReject) return;
     handleUpdateRequestStatus(requestToReject, 'rejected');
     setRequestToReject(null);
+  };
+
+  const handleMarkAsComplete = async (requestId: string) => {
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      await updateDoc(requestRef, {
+        superadminMarkedComplete: true,
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error('Error marking request as complete: ', error);
+      setError('Failed to mark the request as complete.');
+    }
+  };
+
+  const handleNoShow = async (requestId: string) => {
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      await updateDoc(requestRef, {
+        status: 'no show',
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error('Error marking request as no show: ', error);
+      setError('Failed to mark the request as no show.');
+    }
+  };
+
+  const handleMarkAsCompleteForScheduled = async (requestId: string) => {
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      await updateDoc(requestRef, {
+        status: 'pending completion',
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error('Error marking request as pending completion: ', error);
+      setError('Failed to mark the request as pending completion.');
+    }
+  };
+
+  const handleScheduleSubmit = async () => {
+    if (!selectedRequest) return;
+
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', selectedRequest.id!);
+      const startDateTime = new Date(`${scheduleDate}T${startTime}`);
+      const endDateTime = new Date(`${scheduleDate}T${endTime}`);
+
+      await updateDoc(requestRef, {
+        status: 'scheduled',
+        startTime: startDateTime,
+        endTime: endDateTime,
+        doctorName: doctorName,
+        doctorSpecialty: doctorSpecialty,
+        meetingLink: meetingLink,
+        updatedAt: new Date(),
+      });
+      setShowScheduleModal(false);
+    } catch (error) {
+      console.error('Error updating request to scheduled: ', error);
+      setError('Failed to schedule the request.');
+    }
   };
 
   return (
@@ -318,11 +362,64 @@ const SuperAdminTeleRequestList: React.FC = () => {
                       }}>Reject</IonButton>
                     </>
                   )}
+                  {request.status === 'accepted' && (
+                    <IonButton color="primary" onClick={() => handleScheduleClick(request)}>Schedule</IonButton>
+                  )}
+                  {request.status === 'scheduled' && (
+                    <>
+                      <IonButton color="success" onClick={() => {
+                        setRequestToMarkComplete(request.id!);
+                        setShowMarkCompleteAlert(true);
+                      }}>Mark as Complete</IonButton>
+                      <IonButton color="danger" onClick={() => {
+                        setRequestToNoShow(request.id!);
+                        setShowNoShowAlert(true);
+                      }}>No Show</IonButton>
+                    </>
+                  )}
                 </div>
               </IonCardContent>
             </IonCard>
           ))}
         </IonList>
+
+        <IonModal isOpen={showScheduleModal} onDidDismiss={() => setShowScheduleModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Schedule Teleconsultation</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowScheduleModal(false)}>Cancel</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonItem>
+              <IonLabel position="stacked">Date</IonLabel>
+              <IonInput type="date" value={scheduleDate} onIonChange={e => setScheduleDate(e.detail.value!)} min={new Date().toISOString().split('T')[0]} />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Start Time</IonLabel>
+              <IonInput type="time" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">End Time</IonLabel>
+              <IonInput type="time" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Assigned Doctor's Name</IonLabel>
+              <IonInput type="text" value={doctorName} onIonChange={e => setDoctorName(e.detail.value!)} />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Doctor's Specialty</IonLabel>
+              <IonInput type="text" value={doctorSpecialty} onIonChange={e => setDoctorSpecialty(e.detail.value!)} />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Meeting Link</IonLabel>
+              <IonInput type="text" value={meetingLink} onIonChange={e => setMeetingLink(e.detail.value!)} />
+            </IonItem>
+            <IonButton expand="full" onClick={() => handleScheduleSubmit()}>Save</IonButton>
+          </IonContent>
+        </IonModal>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader className='ion-no-border'>
@@ -338,7 +435,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonContent >
             {selectedRequest && (
               <IonCard>
-                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>               
+                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
                 <IonItem>
                   <IonLabel>
                     Status: &nbsp;
@@ -376,10 +473,10 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
                       </IonLabel>
                     </IonItem>
-                     <IonItem>
+                    <IonItem>
                       <IonLabel>
                         Address: &nbsp;
-                        <IonText>{resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</IonText>
+                        <IonText>{selectedRequest.userData?.address || 'N/A'}</IonText>
                       </IonLabel>
                     </IonItem>
                     <IonItem>
@@ -394,14 +491,21 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
                       </IonLabel>
                     </IonItem>
-                   
                   </>
                 )}
-                {selectedRequest.scheduledAt && (
+                {selectedRequest.startTime && (
                   <IonItem>
                     <IonLabel>
-                      Scheduled at: &nbsp;
-                      <IonText>{selectedRequest.scheduledAt.toLocaleString()}</IonText>
+                      Start Time: &nbsp;
+                      <IonText>{selectedRequest.startTime.toLocaleString()}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
+                {selectedRequest.endTime && (
+                  <IonItem>
+                    <IonLabel>
+                      End Time: &nbsp;
+                      <IonText>{selectedRequest.endTime.toLocaleString()}</IonText>
                     </IonLabel>
                   </IonItem>
                 )}
@@ -418,6 +522,22 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     <IonLabel>
                       Meeting Link: &nbsp;
                       <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a>
+                    </IonLabel>
+                  </IonItem>
+                )}
+                {selectedRequest.doctorName && (
+                  <IonItem>
+                    <IonLabel>
+                      Doctor's Name: &nbsp;
+                      <IonText>{selectedRequest.doctorName}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
+                {selectedRequest.doctorSpecialty && (
+                  <IonItem>
+                    <IonLabel>
+                      Doctor's Specialty: &nbsp;
+                      <IonText>{selectedRequest.doctorSpecialty}</IonText>
                     </IonLabel>
                   </IonItem>
                 )}
@@ -443,6 +563,73 @@ const SuperAdminTeleRequestList: React.FC = () => {
             {
               text: 'Yes',
               handler: handleAcceptRequest
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showRejectAlert}
+          onDidDismiss={() => setShowRejectAlert(false)}
+          header={'Confirm Reject'}
+          message={'Are you sure you want to reject this teleconsultation request?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToReject(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: handleRejectRequest
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showMarkCompleteAlert}
+          onDidDismiss={() => setShowMarkCompleteAlert(false)}
+          header={'Confirm Mark as Complete'}
+          message={'Are you sure you want to mark this teleconsultation request as completed?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToMarkComplete(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                if (requestToMarkComplete) {
+                  handleMarkAsCompleteForScheduled(requestToMarkComplete);
+                  setRequestToMarkComplete(null);
+                }
+              }
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showNoShowAlert}
+          onDidDismiss={() => setShowNoShowAlert(false)}
+          header={'Confirm No Show'}
+          message={'Are you sure you want to mark this teleconsultation request as no show?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToNoShow(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                if (requestToNoShow) {
+                  handleNoShow(requestToNoShow);
+                  setRequestToNoShow(null);
+                }
+              }
             }
           ]}
         />

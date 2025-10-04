@@ -27,7 +27,6 @@ import {
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
-import { getBarangayNameByCode, getZipCodeByBarangay } from '../../services/addressService';
 
 const db = getFirestore();
 
@@ -37,10 +36,9 @@ const UserTeleRequestList: React.FC = () => {
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('all');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState<string | null>(null);
   const userId = currentUser?.uid;
@@ -68,7 +66,9 @@ const UserTeleRequestList: React.FC = () => {
     const unsubscribe = onSnapshot(
         q,
         (querySnapshot) => {
+            console.log("Data received from Firestore. Number of documents:", querySnapshot.size);
             clearTimeout(timeoutId);
+            setLoading(false); // Just stop loading, do nothing else.
             const reqs: TeleconsultationRequest[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -81,7 +81,8 @@ const UserTeleRequestList: React.FC = () => {
                     status: data.status,
                     createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
                     updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
-                    scheduledAt: data.scheduledAt ? (data.scheduledAt instanceof Timestamp ? data.scheduledAt.toDate() : new Date(data.scheduledAt)) : undefined,
+                    startTime: data.startTime ? (data.startTime instanceof Timestamp ? data.startTime.toDate() : new Date(data.startTime)) : undefined,
+                    endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
                     notes: data.notes,
                     doctorId: data.doctorId,
                     meetingLink: data.meetingLink,
@@ -115,7 +116,7 @@ const UserTeleRequestList: React.FC = () => {
         break;  
       case 'active':
         filtered = requests.filter((r) =>
-          ['accepted', 'scheduled'].includes(r.status)
+          ['accepted', 'scheduled', 'pending completion'].includes(r.status)
         );
         break;
       case 'completed':
@@ -129,38 +130,6 @@ const UserTeleRequestList: React.FC = () => {
     }
     setFilteredRequests(filtered);
   }, [filter, requests]);
-
-  useEffect(() => {
-    const resolveAddresses = async () => {
-      const newResolvedAddresses: Record<string, string> = {};
-      for (const request of requests) {
-        if (request.userData) {
-          const { lotBlkHouseNo, streetName, subdivisionVillageZonePurok, selectedCityMunicipality, selectedProvince, selectedRegion, barangayId, zipCode } = request.userData;
-          let barangayName = '';
-          if (barangayId) {
-            barangayName = await getBarangayNameByCode(barangayId) || '';
-          }
-          let zip = zipCode || '';
-          if (!zip && barangayId) {
-            zip = await getZipCodeByBarangay(barangayId) || '';
-          }
-          const addressParts = [
-            lotBlkHouseNo,
-            streetName,
-            subdivisionVillageZonePurok,
-            barangayName,
-            selectedCityMunicipality,
-            selectedProvince,
-            selectedRegion,
-            zip
-          ].filter(Boolean);
-          newResolvedAddresses[request.id || ''] = addressParts.join(', ');
-        }
-      }
-      setResolvedAddresses(newResolvedAddresses);
-    };
-    resolveAddresses();
-  }, [requests]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
@@ -189,6 +158,27 @@ const UserTeleRequestList: React.FC = () => {
       setLoading(false);
       event.detail.complete();
     }, 1500);
+  };
+
+  const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
+  const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
+
+  const handleMarkAsComplete = async (requestId: string) => {
+    try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      await updateDoc(requestRef, {
+        status: 'completed',
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error marking request as complete: ", error);
+      setError("Failed to mark the request as complete.");
+    }
+  };
+
+  const confirmMarkAsComplete = (requestId: string) => {
+    setRequestToMarkComplete(requestId);
+    setShowMarkCompleteAlert(true);
   };
 
   return (
@@ -257,6 +247,9 @@ const UserTeleRequestList: React.FC = () => {
                       setShowCancelAlert(true);
                     }}>Cancel</IonButton>
                   )}
+                  {request.status === 'pending completion' && (
+                    <IonButton color="success" onClick={() => confirmMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
+                  )}
                 </div>
               </IonCardContent>
             </IonCard>
@@ -274,91 +267,34 @@ const UserTeleRequestList: React.FC = () => {
           </IonHeader>
           <IonContent>
             {selectedRequest && (
-             <IonCard>
-                             <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>               
-                             <IonItem>
-                               <IonLabel>
-                                 Status: &nbsp;
-                                 <IonText color={
-                                   selectedRequest.status === 'pending'
-                                     ? 'warning'
-                                     : selectedRequest.status === 'accepted' || selectedRequest.status === 'scheduled'
-                                     ? 'primary'
-                                     : selectedRequest.status === 'completed'
-                                     ? 'success'
-                                     : 'danger'
-                                 } style={{ fontWeight: 'bold'}}>
-                                   {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
-                                 </IonText>
-                               </IonLabel>
-                             </IonItem>
-                             <IonItem>
-                               <IonLabel>
-                                 Reason: &nbsp;
-                                 <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
-                               </IonLabel>
-                             </IonItem>
-                             <IonItem>
-                               <IonLabel>
-                                 Created At: &nbsp;
-                                 <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
-                               </IonLabel>
-                             </IonItem>
-                             <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>
-                             {selectedRequest.userData && (
-                               <>
-                                 <IonItem>
-                                   <IonLabel>
-                                     Name: &nbsp;
-                                     <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
-                                   </IonLabel>
-                                 </IonItem>
-                                  <IonItem>
-                                   <IonLabel>
-                                     Address: &nbsp;
-                                     <IonText>{resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</IonText>
-                                   </IonLabel>
-                                 </IonItem>
-                                 <IonItem>
-                                   <IonLabel>
-                                     Contact Number: &nbsp;
-                                     <IonText>{selectedRequest.userData.contactNumber || 'N/A'}</IonText>
-                                   </IonLabel>
-                                 </IonItem>
-                                 <IonItem>
-                                   <IonLabel>
-                                     Email: &nbsp;
-                                     <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
-                                   </IonLabel>
-                                 </IonItem>
-                                
-                               </>
-                             )}
-                             {selectedRequest.scheduledAt && (
-                               <IonItem>
-                                 <IonLabel>
-                                   Scheduled at: &nbsp;
-                                   <IonText>{selectedRequest.scheduledAt.toLocaleString()}</IonText>
-                                 </IonLabel>
-                               </IonItem>
-                             )}
-                             {selectedRequest.notes && (
-                               <IonItem>
-                                 <IonLabel>
-                                   Notes: &nbsp;
-                                   <IonText>{selectedRequest.notes}</IonText>
-                                 </IonLabel>
-                               </IonItem>
-                             )}
-                             {selectedRequest.meetingLink && (
-                               <IonItem>
-                                 <IonLabel>
-                                   Meeting Link: &nbsp;
-                                   <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a>
-                                 </IonLabel>
-                               </IonItem>
-                             )}
-                           </IonCard>
+              <>
+                <p><strong>Status:</strong> {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}</p>
+                <p><strong>Reason:</strong> {selectedRequest.reason}</p>
+                <p><strong>Created At:</strong> {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</p>
+                {selectedRequest.userData && (
+                  <>
+                    <p><strong>Name:</strong> {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</p>
+                    <p><strong>Contact Number:</strong> {selectedRequest.userData.contactNumber || 'N/A'}</p>
+                    <p><strong>Email:</strong> {selectedRequest.userData.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> {selectedRequest.userData.address || 'N/A'}</p>
+                  </>
+                )}
+                {selectedRequest.startTime && (
+                  <>
+                    <p><strong>Scheduled Date:</strong> {selectedRequest.startTime.toLocaleDateString()}</p>
+                    <p><strong>Start Time:</strong> {selectedRequest.startTime.toLocaleTimeString()}</p>
+                  </>
+                )}
+                {selectedRequest.endTime && (
+                  <p><strong>End Time:</strong> {selectedRequest.endTime.toLocaleTimeString()}</p>
+                )}
+                {selectedRequest.notes && (
+                  <p><strong>Notes:</strong> {selectedRequest.notes}</p>
+                )}
+                 {selectedRequest.meetingLink && (
+                  <p><strong>Meeting Link:</strong> <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a></p>
+                )}
+              </>
             )}
           </IonContent>
         </IonModal>
@@ -379,6 +315,30 @@ const UserTeleRequestList: React.FC = () => {
             {
               text: 'Yes',
               handler: handleCancelRequest
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showMarkCompleteAlert}
+          onDidDismiss={() => setShowMarkCompleteAlert(false)}
+          header={'Confirm Mark as Complete'}
+          message={'Are you sure you want to mark this teleconsultation request as completed?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => {
+                setRequestToMarkComplete(null);
+              }
+            },
+            {
+              text: 'Yes',
+              handler: () => {
+                if (requestToMarkComplete) {
+                  handleMarkAsComplete(requestToMarkComplete);
+                  setRequestToMarkComplete(null);
+                }
+              }
             }
           ]}
         />
