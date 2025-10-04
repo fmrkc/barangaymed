@@ -21,6 +21,8 @@ import {
   IonAlert,
   IonItem,
   IonItemDivider,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -180,6 +182,15 @@ const UserTeleRequestList: React.FC = () => {
     setRequestToCancel(null);
   };
 
+  const handleRefresh = async (event: CustomEvent) => {
+    setLoading(true);
+    // Simulate refresh delay to show loading
+    setTimeout(() => {
+      setLoading(false);
+      event.detail.complete();
+    }, 1500);
+  };
+
   return (
     <>
       <IonHeader className='ion-no-border'>
@@ -191,6 +202,11 @@ const UserTeleRequestList: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
+
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
+
         <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
@@ -217,7 +233,9 @@ const UserTeleRequestList: React.FC = () => {
         )}
 
         {!loading && !error && filteredRequests.length === 0 && (
-          <IonText className="ion-padding">No requests found for this category.</IonText>
+          <IonCard className="ion-padding">
+            <IonText className="ion-padding">No requests found for this category.</IonText>
+          </IonCard>
         )}
 
         <IonList style={{ backgroundColor: 'transparent' }}>
