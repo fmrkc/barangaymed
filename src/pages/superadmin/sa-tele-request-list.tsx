@@ -44,10 +44,13 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
+  const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
@@ -81,7 +84,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
     const unsubscribe = onSnapshot(
         q,
         (querySnapshot) => {
+            console.log("Data received from Firestore. Number of documents:", querySnapshot.size);
             clearTimeout(timeoutId);
+            setLoading(false); // Just stop loading, do nothing else.
             const reqs: TeleconsultationRequest[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -338,7 +343,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonContent >
             {selectedRequest && (
               <IonCard>
-                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>               
+                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
                 <IonItem>
                   <IonLabel>
                     Status: &nbsp;
@@ -376,7 +381,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
                       </IonLabel>
                     </IonItem>
-                     <IonItem>
+                    <IonItem>
                       <IonLabel>
                         Address: &nbsp;
                         <IonText>{resolvedAddresses[selectedRequest.id || ''] || 'N/A'}</IonText>
@@ -394,7 +399,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
                       </IonLabel>
                     </IonItem>
-                   
                   </>
                 )}
                 {selectedRequest.scheduledAt && (
