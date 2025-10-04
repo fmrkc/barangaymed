@@ -23,7 +23,7 @@ import {
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, logIn, medical, document, checkmark, warning, time, mail, home } from "ionicons/icons";
+import { logOut, create, person, logIn, medical, document, checkmark, warning, time, mail, home, heartCircle, ellipse } from "ionicons/icons";
 import { db } from "../../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from "../../services/addressService";
@@ -196,10 +196,7 @@ const Account: React.FC = () => {
             <IonItemDivider>
               <IonLabel>Security</IonLabel>
             </IonItemDivider>
-            <IonItem detail={false} button>
-              <IonIcon slot="start" icon={logIn} />
-              <IonLabel>Recent Logins</IonLabel>
-            </IonItem>
+
             <IonItem detail={false} button id="user-logout">
               <IonIcon slot="start"  icon={logOut} />
               Logout
@@ -207,6 +204,32 @@ const Account: React.FC = () => {
           </IonCardContent>
         </IonCard>
 
+        <IonAlert
+          trigger="user-logout"
+          backdropDismiss={false}
+          header="Are you sure?"
+          message="Do you really want to log out?"
+          buttons={[
+            {
+              text: "Cancel",
+              role: "cancel",
+              handler: () => {
+                console.log("Alert canceled");
+              },
+            },
+            {
+              text: "OK",
+              role: "confirm",
+              handler: () => {
+                handleLogout();
+              },
+            },
+          ]}
+          onDidDismiss={({ detail }) =>
+            console.log(`Dismissed with role: ${detail.role}`)
+          }
+        ></IonAlert>
+        
         {hasMedicalRecord ? (
           <ViewMedicalRecord 
             isOpen={showMedicalRecordModal} 
@@ -225,31 +248,7 @@ const Account: React.FC = () => {
           />
         )}
 
-         <IonAlert
-         trigger="user-logout"
-         backdropDismiss={false}
-                header="Are you sure?"
-                message="Do you really want to log out?"
-                buttons={[
-                  {
-                    text: "Cancel",
-                    role: "cancel",
-                    handler: () => {
-                      console.log("Alert canceled");
-                    },
-                  },
-                  {
-                    text: "OK",
-                    role: "confirm",
-                    handler: () => {
-                      handleLogout();
-                    },
-                  },
-                ]}
-                onDidDismiss={({ detail }) =>
-                  console.log(`Dismissed with role: ${detail.role}`)
-                }
-              ></IonAlert>
+         
 
         <IonModal isOpen={showPersonalModal} onDidDismiss={() => setShowPersonalModal(false)}>
           <IonHeader className="ion-no-border">
