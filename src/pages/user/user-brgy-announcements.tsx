@@ -35,11 +35,13 @@ import { Announcement } from '../../types/announcements';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { megaphone, calendar, person, close, pencil, colorFill } from 'ionicons/icons';
+import { getBarangayNameByCode } from '../../services/addressService';
 
 const UserAnnouncements: React.FC = () => {
   const { currentUser, userRole, loading: authLoading, verificationStatus } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [barangayId, setbarangayId] = useState<string>('');
+  const [barangayName, setBarangayName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,16 @@ const UserAnnouncements: React.FC = () => {
 
   useEffect(() => {
     if (barangayId) {
+      getBarangayNameByCode(barangayId).then(name => {
+        if (name) {
+          setBarangayName(name);
+        } else {
+          setBarangayName('');
+        }
+      }).catch(error => {
+        console.error('Error fetching barangay name:', error);
+        setBarangayName('');
+      });
       loadAnnouncements();
     }
   }, [barangayId]);
@@ -194,17 +206,17 @@ const UserAnnouncements: React.FC = () => {
   return (
     <>
       <IonHeader className='ion-no-border'>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref='/user/dashboard' />
-          </IonButtons>
-          <IonTitle>Barangay {barangayId} Announcements</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding with-tab-padding">
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent />
-        </IonRefresher>
+      <IonToolbar>
+        <IonButtons slot="start">
+          <IonBackButton defaultHref='/user/dashboard' />
+        </IonButtons>
+        <IonTitle>Barangay {barangayName || barangayId} Announcements</IonTitle>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent className="ion-padding with-tab-padding">
+      <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+        <IonRefresherContent />
+      </IonRefresher>
 
         {loading && announcements.length === 0 && (
           <div style={{ textAlign: 'center', marginTop: '50px' }}>
@@ -224,7 +236,7 @@ const UserAnnouncements: React.FC = () => {
               style={{ fontSize: '48px', color: 'gray', marginBottom: '20px' }} 
             />
             <h3>No Announcements</h3>
-            <p>There are no active announcements for {barangayId} at this time.</p>
+            <p>There are no active announcements for {barangayName || barangayId} at this time.</p>
           </div>
         )}
 

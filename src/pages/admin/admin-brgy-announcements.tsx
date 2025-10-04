@@ -49,6 +49,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { validateAccess, validateAdminBarangayAccess } from '../../utils/securityUtils';
 import { logSecurityEvent, logEvent } from '../../utils/logger';
+import { getBarangayNameByCode } from '../../services/addressService';
 
 const BarangayAnnouncements: React.FC = () => {
   const { currentUser, userRole } = useAuth();
@@ -61,6 +62,7 @@ const BarangayAnnouncements: React.FC = () => {
     priority: 'medium'
   });
   const [barangayId, setbarangayId] = useState<string>('');
+  const [barangayName, setBarangayName] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -82,6 +84,21 @@ const BarangayAnnouncements: React.FC = () => {
       loadbarangayId();
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (barangayId) {
+      getBarangayNameByCode(barangayId).then(name => {
+        if (name) {
+          setBarangayName(name);
+        } else {
+          setBarangayName('');
+        }
+      }).catch(error => {
+        console.error('Error fetching barangay name:', error);
+        setBarangayName('');
+      });
+    }
+  }, [barangayId]);
 
   useEffect(() => {
     if (barangayId && userRole) {
@@ -477,7 +494,7 @@ const BarangayAnnouncements: React.FC = () => {
         <IonLoading isOpen={loading} message="Please wait..." />
 
         <div className="ion-margin-bottom">
-          <IonNote>Showing all announcements for Barangay {barangayId}.</IonNote>
+          <IonNote>Showing all announcements for Barangay {barangayName || barangayId}.</IonNote>
         </div>
 
         
