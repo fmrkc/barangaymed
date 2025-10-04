@@ -48,7 +48,16 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
-        userData: userData,
+        userData: {
+          firstName: userData.firstName,
+          middleName: userData.middleName,
+          lastName: userData.lastName,
+          suffix: userData.suffix,
+          address: userData.address,
+          gender: userData.gender,
+          contactNumber: userData.contactNumber,
+          email: userData.email,
+        },
         reason: reason.trim(),
         status: 'pending',
         createdAt: serverTimestamp(),
