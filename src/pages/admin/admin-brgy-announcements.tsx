@@ -624,7 +624,7 @@ const BarangayAnnouncements: React.FC = () => {
                   <IonInput
                     name="title"
                     value={formData.title}
-                    onIonChange={handleFormChange}
+                    onIonInput={handleFormChange}
                     placeholder="Enter announcement title"
                   />
                 </IonItem>
@@ -646,7 +646,7 @@ const BarangayAnnouncements: React.FC = () => {
                     
                     name="content"
                     value={formData.content}
-                    onIonChange={handleFormChange}
+                    onIonInput={handleFormChange}
                     placeholder="Enter announcement content"
                     rows={15}
                   />

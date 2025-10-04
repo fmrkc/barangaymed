@@ -307,7 +307,7 @@ export class AnnouncementsService {
     try {
       const { existingImages, newImages, ...otherData } = data;
   
-        const announcementDocRef = doc(db, this.collectionName, announcementId);
+      const announcementDocRef = doc(db, this.collectionName, announcementId);
       const announcementDoc = await getDoc(announcementDocRef);
   
       if (!announcementDoc.exists()) {
@@ -347,7 +347,13 @@ export class AnnouncementsService {
         updateData.images = (updateData.images || []).concat(uploadedImages);
       }
   
-      await updateDoc(announcementDocRef, updateData);
+      await updateDoc(announcementDocRef, {
+        title: updateData.title,
+        content: updateData.content,
+        priority: updateData.priority,
+        images: updateData.images,
+        updatedAt: updateData.updatedAt
+      });
   
       // Log the update
       logEvent('info', `Announcement updated: ${data.title || 'Untitled'}`, {
