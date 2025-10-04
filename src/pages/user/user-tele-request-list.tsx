@@ -81,7 +81,8 @@ const UserTeleRequestList: React.FC = () => {
                     status: data.status,
                     createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
                     updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
-                    scheduledAt: data.scheduledAt ? (data.scheduledAt instanceof Timestamp ? data.scheduledAt.toDate() : new Date(data.scheduledAt)) : undefined,
+                    startTime: data.startTime ? (data.startTime instanceof Timestamp ? data.startTime.toDate() : new Date(data.startTime)) : undefined,
+                    endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
                     notes: data.notes,
                     doctorId: data.doctorId,
                     meetingLink: data.meetingLink,
@@ -254,8 +255,14 @@ const UserTeleRequestList: React.FC = () => {
                     <p><strong>Address:</strong> {selectedRequest.userData.address || 'N/A'}</p>
                   </>
                 )}
-                {selectedRequest.scheduledAt && (
-                  <p><strong>Scheduled At:</strong> {selectedRequest.scheduledAt.toLocaleString()}</p>
+                {selectedRequest.startTime && (
+                  <>
+                    <p><strong>Scheduled Date:</strong> {selectedRequest.startTime.toLocaleDateString()}</p>
+                    <p><strong>Start Time:</strong> {selectedRequest.startTime.toLocaleTimeString()}</p>
+                  </>
+                )}
+                {selectedRequest.endTime && (
+                  <p><strong>End Time:</strong> {selectedRequest.endTime.toLocaleTimeString()}</p>
                 )}
                 {selectedRequest.notes && (
                   <p><strong>Notes:</strong> {selectedRequest.notes}</p>

@@ -6,11 +6,15 @@ export interface TeleconsultationRequest {
   barangayId: string;
   userData?: UserData;
   reason: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'scheduled' | 'completed' | 'cancelled' | 'no show';
+  status: 'pending' | 'accepted' | 'rejected' | 'scheduled' | 'completed' | 'cancelled' | 'no show' | 'pending completion';
   createdAt: Date;
   updatedAt?: Date;
-  scheduledAt?: Date;
+  startTime?: Date;
+  endTime?: Date;
   notes?: string;
   doctorId?: string;
+  doctorName?: string;
+  doctorSpecialty?: string;
   meetingLink?: string;
+  superadminMarkedComplete?: boolean;
 }
