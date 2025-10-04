@@ -15,6 +15,34 @@
       ]
     },
     {
+      "collectionGroup": "medicineRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "barangayId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "medicineRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "teleconsultationRequests",
       "queryScope": "COLLECTION",
       "fields": [
