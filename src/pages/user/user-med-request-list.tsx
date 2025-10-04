@@ -31,7 +31,7 @@ import { MedicineRequest } from '../../types/medicineRequests';
 const db = getFirestore();
 
 const UserMedRequestList: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, verificationStatus } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MedicineRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('all');
@@ -49,6 +49,13 @@ const UserMedRequestList: React.FC = () => {
       setLoading(false);
       return;
     }
+
+    if (verificationStatus !== 'verified') {
+      setError('You must be a verified resident to view medicine requests.');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -102,7 +109,8 @@ const UserMedRequestList: React.FC = () => {
         clearTimeout(timeoutId);
         unsubscribe();
     };
-  }, [userId]);
+  }, [userId, verificationStatus]);
+
 
   useEffect(() => {
     let filtered: MedicineRequest[] = [];
