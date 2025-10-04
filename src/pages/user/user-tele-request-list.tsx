@@ -63,7 +63,10 @@ const UserTeleRequestList: React.FC = () => {
     const unsubscribe = onSnapshot(
         q,
         (querySnapshot) => {
+            console.log("Data received from Firestore. Number of documents:", querySnapshot.size);
             clearTimeout(timeoutId);
+            setLoading(false); // Just stop loading, do nothing else.
+            /*
             const reqs: TeleconsultationRequest[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -85,6 +88,7 @@ const UserTeleRequestList: React.FC = () => {
             });
             setRequests(reqs);
             setLoading(false);
+            */
         },
         (err) => {
             clearTimeout(timeoutId);

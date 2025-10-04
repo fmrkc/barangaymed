@@ -43,23 +43,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
 
       // Fetch complete user data
       const userService = UserService.getInstance();
-      const fullUserData = await userService.getUserData(currentUser?.uid!);
-
-      // Create a simplified user data object for the request
-      const simplifiedUserData = {
-        firstName: fullUserData.firstName,
-        lastName: fullUserData.lastName,
-        middleName: fullUserData.middleName || '',
-        suffix: fullUserData.suffix || '',
-        contactNumber: fullUserData.contactNumber || '',
-        email: fullUserData.email || '',
-        address: fullUserData.address || '' // Use the complete address field
-      };
+      const userData = await userService.getUserData(currentUser?.uid!);
 
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
-        userData: simplifiedUserData, // Save the simplified object
+        userData: userData,
         reason: reason.trim(),
         status: 'pending',
         createdAt: serverTimestamp(),
