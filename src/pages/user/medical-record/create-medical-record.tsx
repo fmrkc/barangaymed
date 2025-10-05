@@ -131,7 +131,7 @@ const CreateMedicalRecord: React.FC<CreateMedicalRecordProps> = ({ isOpen, onDid
         return (
           <IonCard>
             <IonCardContent>
-              <p>This is a multi-step form to help you create your medical record. This form will be used to provide context behind your medicine & consultation requests. </p>
+              <p>This is a form to help you create your medical record. This form will be used to provide context behind your medicine & consultation requests. </p>
               <br />
               <p>Please note that any information shared here are information you are okay with sharing. All information will be kept confidential. You may skip any fields you are not comfortable sharing.</p>
             </IonCardContent>

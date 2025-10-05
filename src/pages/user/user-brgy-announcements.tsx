@@ -240,16 +240,16 @@ const UserAnnouncements: React.FC = () => {
           </div>
         )}
 
-        <IonGrid>
+        <IonGrid  className='ion-no-padding'>
           <IonRow>
             {announcements.map((announcement) => (
-              <IonCol size="12" size-md="6" size-lg="4" key={announcement.id}>
+              <IonCol className='ion-no-padding' size="12" size-md="6" size-lg="4" key={announcement.id}>
                 <IonCard onClick={() => handleViewDetails(announcement)} style={{ cursor: 'pointer' }}>
                   {announcement.images && announcement.images.length > 0 ? (
                     <>
                       <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <IonCardHeader>
-                        <IonCardTitle style={{ color: 'white', fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
+                        <IonCardTitle style={{ fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
                       </IonCardHeader>
                     </>
                   ) : (
@@ -272,7 +272,7 @@ const UserAnnouncements: React.FC = () => {
         )}
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonHeader>
+          <IonHeader className='ion-no-border with-tab-padding'>
             <IonToolbar>
               <IonTitle>Announcement Details</IonTitle>
               <IonButtons slot="end">
@@ -293,34 +293,29 @@ const UserAnnouncements: React.FC = () => {
             </IonSegment>
 
             {selectedSegment === 'details' && selectedAnnouncement && (
-              <>
-                <IonCardHeader>
-                  <IonLabel color={'medium'}>
-                    <h3>Title:</h3>
-                  </IonLabel>
-                  <IonCardTitle style={{ color: 'white' }}>{selectedAnnouncement.title}</IonCardTitle>
-                </IonCardHeader>
-
+              <IonCard>
                 <IonCardContent>
-                  Priority:
+                  <IonItemDivider>Title:</IonItemDivider>
+                  <IonItem lines='none'>
+                    {selectedAnnouncement.title}
+                  </IonItem>
+
+                  <IonItemDivider className='ion-margin-top'>Content:</IonItemDivider>
+                  <IonItem lines='none'>
+                    <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedAnnouncement.content}</p>
+                    
+                  </IonItem>
+
+                  <IonItemDivider className='ion-margin-top'> Priority:</IonItemDivider>
                   <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
                     {selectedAnnouncement.priority.toUpperCase()}
                   </IonChip>
 
-                  <div style={{ marginBottom: '15px' }}>
-                    <IonLabel color={'medium'}>
-                        <h3>Content:</h3>
-                      </IonLabel>
-                        <IonText>
-                            <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                                {selectedAnnouncement.content}
-                            </p>
-                        </IonText>
-                    </div>
+                  
 
                     {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
                       <div style={{ marginTop: '15px' }}>
-                        <IonLabel color={'medium'}>Images:</IonLabel>
+                        <IonItemDivider className='ion-margin-top'>Images:</IonItemDivider>
                         <IonGrid>
                           <IonRow>
                             {selectedAnnouncement.images.map((image, index) => (
@@ -343,7 +338,7 @@ const UserAnnouncements: React.FC = () => {
                     )}
 
                 </IonCardContent>
-              </>
+              </IonCard>
             )}
 
             {selectedSegment === 'history' && selectedAnnouncement && (

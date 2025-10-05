@@ -299,65 +299,124 @@ export class AnnouncementsService {
    * Update an announcement
    */
   async updateAnnouncement(
-    announcementId: string, 
-    data: Partial<AnnouncementFormData> & { existingImages?: AnnouncementImage[], newImages?: File[] }, 
-    userId: string, 
+    announcementId: string,
+    data: Partial<AnnouncementFormData> & { existingImages?: AnnouncementImage[], newImages?: File[] },
+    userId: string,
     userEmail: string
   ): Promise<void> {
     try {
       const { existingImages, newImages, ...otherData } = data;
-
+  
+      const announcementDocRef = doc(db, this.collectionName, announcementId);
+      const announcementDoc = await getDoc(announcementDocRef);
+  
+      if (!announcementDoc.exists()) {
+        throw new Error('Announcement not found');
+      }
+  
+      const originalAnnouncementData = announcementDoc.data();
+      const originalImages = originalAnnouncementData.images || [];
+  
+      // Determine which images to delete from storage
+      const imagesToDelete = originalImages.filter(
+        (originalImage: AnnouncementImage) =>
+          !existingImages?.some((existingImage) => existingImage.url === originalImage.url)
+      );
+  
+      // Delete images from Firebase Storage
+      for (const image of imagesToDelete) {
+        await this.deleteImageFromStorage(image.url, userId, userEmail, announcementId);
+      }
+  
       const updateData: any = {
         ...otherData,
         images: existingImages, // Update with the potentially filtered list of existing images
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       };
-
+  
       // Upload new images if any
       if (newImages && newImages.length > 0) {
-        const announcementDoc = await getDoc(doc(db, this.collectionName, announcementId));
-        const announcementData = announcementDoc.data();
-
-        if (!announcementData) {
-          throw new Error('Announcement not found');
-        }
-
         const existingImageCount = (existingImages || []).length;
         if (existingImageCount + newImages.length > this.maxImagesPerAnnouncement) {
           throw new Error(`Maximum ${this.maxImagesPerAnnouncement} images allowed per announcement`);
         }
-
-        const barangayId = announcementData.barangayId;
+  
+        const barangayId = originalAnnouncementData.barangayId;
         const uploadedImages = await this.uploadImages(newImages, barangayId, announcementId, userId, userEmail);
-
+  
         updateData.images = (updateData.images || []).concat(uploadedImages);
       }
-
-      await updateDoc(doc(db, this.collectionName, announcementId), updateData);
-
+  
+      await updateDoc(announcementDocRef, {
+        title: updateData.title,
+        content: updateData.content,
+        priority: updateData.priority,
+        images: updateData.images,
+        updatedAt: updateData.updatedAt
+      });
+  
       // Log the update
       logEvent('info', `Announcement updated: ${data.title || 'Untitled'}`, {
         userId,
         userEmail,
-        userRole: 'admin', // Assuming announcements are updated by admins
+        userRole: 'admin',
         metadata: {
           action: 'update_announcement',
           announcementId,
-          updatedFields: Object.keys(data)
-        }
+          updatedFields: Object.keys(data),
+        },
       });
     } catch (error) {
       logEvent('error', 'Failed to update announcement', {
         userId,
         userEmail,
-        userRole: 'admin', // Assuming announcements are updated by admins
+        userRole: 'admin',
         metadata: {
           action: 'update_announcement_failed',
           error: error instanceof Error ? error.message : 'Unknown error',
-          announcementId
-        }
+          announcementId,
+        },
       });
       throw error;
+    }
+  }
+  
+  async deleteImageFromStorage(imageUrl: string, userId: string, userEmail: string, announcementId: string): Promise<void> {
+    try {
+      const path = imageUrl.split('/o/')[1]?.split('?')[0];
+      if (!path) {
+        throw new Error('Invalid image URL');
+      }
+      const decodedPath = decodeURIComponent(path);
+      const imageRef = ref(storage, decodedPath);
+
+      await deleteObject(imageRef);
+  
+      logEvent('info', 'Image deleted from storage', {
+        userId,
+        userEmail,
+        userRole: 'admin',
+        metadata: {
+          action: 'image_delete',
+          announcementId,
+          imageUrl,
+        },
+      });
+    } catch (error) {
+      logEvent('error', 'Failed to delete image from storage', {
+        userId,
+        userEmail,
+        userRole: 'admin',
+        metadata: {
+          action: 'image_delete_failed',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          announcementId,
+          imageUrl,
+        },
+      });
+      // We don't rethrow the error here to allow the announcement update to proceed
+      // even if an image deletion fails. You might want to handle this differently.
+      console.error('Failed to delete image from storage:', error);
     }
   }
 
