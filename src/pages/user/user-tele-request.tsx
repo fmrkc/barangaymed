@@ -139,7 +139,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         reason: reason.trim(),
         status: 'pending',
         createdAt: serverTimestamp(),
-        medicalRecord,
+        ...(medicalRecord && { medicalRecord }),
       });
       setToastMessage('Teleconsultation request submitted successfully.');
       setShowToast(true);
