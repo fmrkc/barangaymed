@@ -92,6 +92,9 @@ const UserMedRequestList: React.FC = () => {
                     updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
                     notes: data.notes,
                     adminId: data.adminId,
+                    scheduleDate: data.scheduleDate ? (data.scheduleDate instanceof Timestamp ? data.scheduleDate.toDate() : new Date(data.scheduleDate)) : undefined,
+                    scheduleTime: data.scheduleTime,
+                    schedulePlace: data.schedulePlace,
                 };
                 reqs.push(req);
             });
@@ -277,6 +280,19 @@ const UserMedRequestList: React.FC = () => {
             {selectedRequest && (
               <>
                 <p><strong>Status:</strong> {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}</p>
+                {selectedRequest.status === 'scheduled' && (
+                  <>
+                    {selectedRequest.scheduleDate && (
+                      <p><strong>Scheduled Date:</strong> {selectedRequest.scheduleDate.toLocaleDateString()}</p>
+                    )}
+                    {selectedRequest.scheduleTime && (
+                      <p><strong>Scheduled Time:</strong> {selectedRequest.scheduleTime}</p>
+                    )}
+                    {selectedRequest.schedulePlace && (
+                      <p><strong>Scheduled Place:</strong> {selectedRequest.schedulePlace}</p>
+                    )}
+                  </>
+                )}
                 <p><strong>Reason:</strong> {selectedRequest.reason}</p>
                 <p><strong>Has Prescription:</strong> {selectedRequest.hasPrescription ? 'Yes' : 'No'}</p>
                 {selectedRequest.prescriptionUrl && (
