@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol, IonCardHeader } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, getDocs, where } from 'firebase/firestore';
 import { UserService } from '../../services/userService';
-import { paperPlane, send, arrowBack, arrowForward } from 'ionicons/icons';
+import { paperPlane, send, arrowBack, arrowForward, open } from 'ionicons/icons';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -19,6 +19,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [hasMedicalRecord, setHasMedicalRecord] = useState(false);
+  const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
   const db = getFirestore();
 
@@ -30,8 +31,21 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     setHasMedicalRecord(medicalRecordDoc.exists());
   };
 
+  const checkActiveRequest = async () => {
+    if (!currentUser) return;
+    const activeStatuses = ['pending', 'accepted', 'scheduled', 'pending completion'];
+    const activeRequestsQuery = query(
+      collection(db, 'teleconsultationRequests'),
+      where('userId', '==', currentUser.uid),
+      where('status', 'in', activeStatuses)
+    );
+    const activeRequestsSnapshot = await getDocs(activeRequestsQuery);
+    setHasActiveRequest(!activeRequestsSnapshot.empty);
+  };
+
   useEffect(() => {
     fetchMedicalRecordStatus();
+    checkActiveRequest();
   }, [currentUser]);
 
   const nextStep = () => {
@@ -66,6 +80,13 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setShowToast(true);
       return;
     }
+
+    if (hasActiveRequest) {
+      setToastMessage('You have an active teleconsultation request. Please check your existing requests for updates.');
+      setShowToast(true);
+      return;
+    }
+
     setLoading(true);
     try {
       // Refresh the user's ID token to ensure latest claims
@@ -124,6 +145,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setShowToast(true);
       setReason('');
       setAttachMedicalRecord(false);
+      setHasActiveRequest(true);
+      onDidDismiss();
     } catch (error) {
       console.error('Error submitting teleconsultation request:', error);
       setToastMessage('Failed to submit request. Please try again.');
@@ -132,6 +155,40 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setLoading(false);
     }
   };
+
+  if (hasActiveRequest) {
+    return (
+      <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
+        <IonHeader className='ion-no-border'>
+          <IonToolbar>
+            <IonTitle>Teleconsultation Request</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={handleDismiss}>Close</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonCard className="ion-padding">
+            <IonCardHeader>
+              <IonText color={'primary'}>
+                <h1>You already have an active request.</h1>
+              </IonText>
+            </IonCardHeader>
+          <IonItem lines='none'>
+              <IonText>
+            You already have an active teleconsultation request. Please check your existing request for updates on the <strong>My Requests</strong> page.
+          </IonText>
+          </IonItem>
+          <IonButton expand="block" routerLink="/user/dashboard/requests/teleconsultation-requests" className="ion-padding-vertical" onClick={handleDismiss}>
+            Go to My Requests
+            <IonIcon slot="end" icon={open} />
+          </IonButton>
+          </IonCard>
+          
+        </IonContent>
+      </IonModal>
+    );
+  }
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
