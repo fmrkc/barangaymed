@@ -559,6 +559,22 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </IonLabel>
                   </IonItem>
                 )}
+                {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
+                  <>
+                    <IonItem>
+                      <IonLabel>
+                        Dispensed Medicines: &nbsp;
+                        <IonText style={{ fontWeight: 'bold' }}>{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => `${id}: ${qty}`).join(', ')}</IonText>
+                      </IonLabel>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel>
+                        Process Note: &nbsp;
+                        <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote}</IonText>
+                      </IonLabel>
+                    </IonItem>
+                  </>
+                )}
               </IonCard>
             )}
 

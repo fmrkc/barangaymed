@@ -95,6 +95,8 @@ const UserMedRequestList: React.FC = () => {
                     scheduleDate: data.scheduleDate ? (data.scheduleDate instanceof Timestamp ? data.scheduleDate.toDate() : new Date(data.scheduleDate)) : undefined,
                     scheduleTime: data.scheduleTime,
                     schedulePlace: data.schedulePlace,
+                    dispensedMedicines: data.dispensedMedicines,
+                    processNote: data.processNote,
                 };
                 reqs.push(req);
             });
@@ -250,6 +252,12 @@ const UserMedRequestList: React.FC = () => {
                 <p><strong>Reason:</strong> {request.reason}</p>
                 <p><strong>Has Prescription:</strong> {request.hasPrescription ? 'Yes' : 'No'}</p>
                 <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
+                {(request.status === 'pending completion' || request.status === 'completed') && (
+                  <>
+                    <p><strong>Dispensed Medicines:</strong> {Object.entries(request.dispensedMedicines || {}).map(([id, qty]) => `${id}: ${qty}`).join(', ')}</p>
+                    <p><strong>Process Note:</strong> {request.processNote}</p>
+                  </>
+                )}
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
                   {['pending', 'accepted', 'scheduled'].includes(request.status) && (
@@ -309,6 +317,12 @@ const UserMedRequestList: React.FC = () => {
                 )}
                 {selectedRequest.notes && (
                   <p><strong>Notes:</strong> {selectedRequest.notes}</p>
+                )}
+                {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
+                  <>
+                    <p><strong>Dispensed Medicines:</strong> {Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => `${id}: ${qty}`).join(', ')}</p>
+                    <p><strong>Process Note:</strong> {selectedRequest.processNote}</p>
+                  </>
                 )}
               </>
             )}
