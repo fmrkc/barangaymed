@@ -270,11 +270,16 @@ const UserTeleRequestList: React.FC = () => {
                 <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                  {['pending', 'accepted', 'scheduled'].includes(request.status) && (
+                  {['pending', 'accepted'].includes(request.status) && (
                     <IonButton color="danger" onClick={() => {
                       setRequestToCancel(request.id!);
                       setShowCancelAlert(true);
                     }}>Cancel</IonButton>
+                  )}
+                  {request.status === 'scheduled' && request.meetingLink && (
+                    <IonButton color="primary" href={request.meetingLink} target="_blank" rel="noopener noreferrer">
+                      Join Consultation
+                    </IonButton>
                   )}
                   {request.status === 'pending completion' && (
                     <IonButton color="success" onClick={() => confirmMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
