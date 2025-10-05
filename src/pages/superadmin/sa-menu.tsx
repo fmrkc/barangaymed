@@ -8,7 +8,7 @@ import Admin_Register from './sa-admin-register';
 import Super_Admin_Register from './sa-superadmin-register';
 import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
-import Med_Requests from './sa-med-requests';
+import Med_Requests from './sa-med-request-list';
 import SuperAdminTeleRequestList from './sa-tele-request-list';
 
 import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar } from 'ionicons/icons';
