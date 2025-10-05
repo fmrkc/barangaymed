@@ -33,3 +33,4 @@ yarn-error.log*
 /functions/node_modules
 /.firebase
 /.emulator-data
+firebase-debug.log
