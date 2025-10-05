@@ -13,4 +13,7 @@ export interface MedicineRequest {
   updatedAt?: Date;
   notes?: string;
   adminId?: string;
+  scheduleDate?: Date;
+  scheduleTime?: string;
+  schedulePlace?: string;
 }

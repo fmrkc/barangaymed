@@ -25,6 +25,8 @@ import {
   IonItem,
   IonItemDivider,
   IonMenuButton,
+  IonDatetime,
+  IonInput,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -48,6 +50,12 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [requestToReject, setRequestToReject] = useState<string | null>(null);
   const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
   const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
+
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [requestToSchedule, setRequestToSchedule] = useState<string | null>(null);
+  const [scheduleDate, setScheduleDate] = useState<string>('');
+  const [scheduleTime, setScheduleTime] = useState<string>('');
+  const [schedulePlace, setSchedulePlace] = useState<string>('');
 
   const handleRefresh = (event: CustomEvent) => {
     setLoading(true);
@@ -93,6 +101,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                     updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
                     notes: data.notes,
                     adminId: data.adminId,
+                    scheduleDate: data.scheduleDate ? (data.scheduleDate instanceof Timestamp ? data.scheduleDate.toDate() : new Date(data.scheduleDate)) : undefined,
+                    scheduleTime: data.scheduleTime,
+                    schedulePlace: data.schedulePlace,
                 };
                 reqs.push(req);
             });
@@ -168,6 +179,30 @@ const SuperAdminMedRequestList: React.FC = () => {
     if (!requestToMarkComplete) return;
     handleUpdateRequestStatus(requestToMarkComplete, 'completed');
     setRequestToMarkComplete(null);
+  };
+
+  const handleScheduleRequest = async () => {
+    if (!requestToSchedule || !scheduleDate || !scheduleTime || !schedulePlace) return;
+    try {
+      const requestRef = doc(db, 'medicineRequests', requestToSchedule);
+      await updateDoc(requestRef, {
+        status: 'scheduled',
+        scheduleDate: new Date(scheduleDate),
+        scheduleTime,
+        schedulePlace,
+        updatedAt: new Date(),
+      });
+      // Update local state
+      setRequests(prev => prev.map(r => r.id === requestToSchedule ? { ...r, status: 'scheduled', scheduleDate: new Date(scheduleDate), scheduleTime, schedulePlace } : r));
+      setShowScheduleModal(false);
+      setRequestToSchedule(null);
+      setScheduleDate('');
+      setScheduleTime('');
+      setSchedulePlace('');
+    } catch (error) {
+      console.error('Error scheduling request:', error);
+      setError('Failed to schedule the request.');
+    }
   };
 
   return (
@@ -272,10 +307,10 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </>
                   )}
                   {request.status === 'accepted' && (
-                    <IonButton color="success" onClick={() => {
-                      setRequestToMarkComplete(request.id!);
-                      setShowMarkCompleteAlert(true);
-                    }}>Mark as Completed</IonButton>
+                    <IonButton color="primary" onClick={() => {
+                      setRequestToSchedule(request.id!);
+                      setShowScheduleModal(true);
+                    }}>Schedule</IonButton>
                   )}
                 </div>
               </IonCardContent>
@@ -440,6 +475,46 @@ const SuperAdminMedRequestList: React.FC = () => {
             }
           ]}
         />
+
+        <IonModal isOpen={showScheduleModal} onDidDismiss={() => setShowScheduleModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Schedule Request</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowScheduleModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonItem>
+              <IonLabel>Schedule Date</IonLabel>
+              <IonDatetime
+                value={scheduleDate}
+                onIonChange={e => setScheduleDate(e.detail.value as string)}
+                min={new Date().toISOString()}
+                max="3000-12-31"
+                presentation="date"
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel>Starting Time</IonLabel>
+              <IonInput
+                type="time"
+                value={scheduleTime}
+                onIonChange={e => setScheduleTime(e.detail.value!)}
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel>Place</IonLabel>
+              <IonInput
+                value={schedulePlace}
+                onIonChange={e => setSchedulePlace(e.detail.value!)}
+                placeholder="Enter place"
+              />
+            </IonItem>
+            <IonButton expand="full" onClick={handleScheduleRequest}>Schedule</IonButton>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
