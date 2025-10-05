@@ -43,6 +43,24 @@
       ]
     },
     {
+      "collectionGroup": "medicineRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "teleconsultationRequests",
       "queryScope": "COLLECTION",
       "fields": [

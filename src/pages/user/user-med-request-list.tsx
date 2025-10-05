@@ -98,12 +98,12 @@ const UserMedRequestList: React.FC = () => {
             setRequests(reqs);
             setLoading(false);
         },
-        (err) => {
-            clearTimeout(timeoutId);
-            setError('Failed to fetch medicine requests');
-            setLoading(false);
-        }
-    );
+                    (err) => {
+                        clearTimeout(timeoutId);
+                        console.error("Firestore error fetching medicine requests:", err);
+                        setError('Failed to fetch medicine requests');
+                        setLoading(false);
+                    }    );
 
     return () => {
         clearTimeout(timeoutId);
