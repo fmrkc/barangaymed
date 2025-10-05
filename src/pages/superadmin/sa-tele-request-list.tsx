@@ -116,6 +116,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     doctorSpecialty: data.doctorSpecialty,
                     meetingLink: data.meetingLink,
                     superadminMarkedComplete: data.superadminMarkedComplete,
+                    medicalRecord: data.medicalRecord,
                 };
                 reqs.push(req);
             });
@@ -542,6 +543,53 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     </IonItem>
                   </>
                 )}
+
+                {selectedRequest.medicalRecord && (
+                  <>
+                    <IonItemDivider style={{ marginTop: '20px' }}>Medical Record</IonItemDivider>
+                    {selectedRequest.medicalRecord.symptoms.length > 0 && (
+                      <IonItem>
+                        <IonLabel>
+                          Symptoms: &nbsp;
+                          <IonText>{selectedRequest.medicalRecord.symptoms.join(', ')}</IonText>
+                        </IonLabel>
+                      </IonItem>
+                    )}
+                    {selectedRequest.medicalRecord.conditions.length > 0 && (
+                      <IonItem>
+                        <IonLabel>
+                          Conditions: &nbsp;
+                          <IonText>{selectedRequest.medicalRecord.conditions.join(', ')}</IonText>
+                        </IonLabel>
+                      </IonItem>
+                    )}
+                    {selectedRequest.medicalRecord.allergies.length > 0 && (
+                      <IonItem>
+                        <IonLabel>
+                          Allergies: &nbsp;
+                          <IonText>{selectedRequest.medicalRecord.allergies.join(', ')}</IonText>
+                        </IonLabel>
+                      </IonItem>
+                    )}
+                    {selectedRequest.medicalRecord.historyFiles.length > 0 && (
+                      <>
+                        <IonItemDivider>Medical History Files</IonItemDivider>
+                        {selectedRequest.medicalRecord.historyFiles.map((file, index) => (
+                          <IonItem key={index}>
+                            <IonLabel>
+                              <IonText>{file.fileName}</IonText>
+                              <br />
+                              <small>Uploaded: {file.uploadedAt.toLocaleString()}</small>
+                            </IonLabel>
+                            <IonButton slot="end" fill="outline" onClick={() => window.open(file.fileURL, '_blank')}>
+                              View
+                            </IonButton>
+                          </IonItem>
+                        ))}
+                      </>
+                    )}
+                  </>
+                )}
                 
               </IonCard>
             )}
@@ -636,25 +684,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
           ]}
         />
 
-        <IonAlert
-          isOpen={showRejectAlert}
-          onDidDismiss={() => setShowRejectAlert(false)}
-          header={'Confirm Reject'}
-          message={'Are you sure you want to reject this teleconsultation request?'}
-          buttons={[
-            {
-              text: 'No',
-              role: 'cancel',
-              handler: () => {
-                setRequestToReject(null);
-              }
-            },
-            {
-              text: 'Yes',
-              handler: handleRejectRequest
-            }
-          ]}
-        />
       </IonContent>
     </IonPage>
   );

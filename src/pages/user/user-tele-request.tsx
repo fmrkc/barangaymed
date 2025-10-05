@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, getDocs } from 'firebase/firestore';
 import { UserService } from '../../services/userService';
 import { paperPlane, send, arrowBack, arrowForward } from 'ionicons/icons';
 
@@ -18,10 +18,21 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [hasMedicalRecord, setHasMedicalRecord] = useState(false);
 
   const db = getFirestore();
 
   const isUser = userRole === 'user';
+
+  const fetchMedicalRecordStatus = async () => {
+    if (!currentUser) return;
+    const medicalRecordDoc = await getDoc(doc(db, 'medicalRecords', currentUser!.uid));
+    setHasMedicalRecord(medicalRecordDoc.exists());
+  };
+
+  useEffect(() => {
+    fetchMedicalRecordStatus();
+  }, [currentUser]);
 
   const nextStep = () => {
     if (step < 3) setStep(step + 1);
@@ -39,6 +50,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   };
 
   const handleSubmit = async () => {
+    if (!currentUser) return;
     if (!isUser) {
       setToastMessage('You must be a registered user to submit a teleconsultation request.');
       setShowToast(true);
@@ -63,6 +75,33 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       const userService = UserService.getInstance();
       const userData = await userService.getUserData(currentUser?.uid!);
 
+      let medicalRecord = undefined;
+      if (attachMedicalRecord) {
+        const medicalRecordRef = doc(db, 'medicalRecords', currentUser?.uid!);
+        const medicalRecordSnap = await getDoc(medicalRecordRef);
+        if (medicalRecordSnap.exists()) {
+          const data = medicalRecordSnap.data();
+          const historyFilesQuery = query(collection(db, 'medicalRecords', currentUser.uid!, 'historyFiles'));
+          const historyFilesSnap = await getDocs(historyFilesQuery);
+          const historyFiles = historyFilesSnap.docs.map(doc => ({
+            fileName: doc.data().fileName,
+            fileURL: doc.data().fileURL,
+            uploadedAt: doc.data().uploadedAt.toDate()
+          }));
+          medicalRecord = {
+            symptoms: data.symptoms || [],
+            conditions: data.conditions || [],
+            allergies: data.allergies || [],
+            historyFiles,
+            createdAt: data.createdAt.toDate(),
+            updatedAt: data.updatedAt.toDate()
+          };
+        } else {
+          setToastMessage('Medical record not found. Request submitted without attachment.');
+          setShowToast(true);
+        }
+      }
+
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
@@ -79,15 +118,17 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         reason: reason.trim(),
         status: 'pending',
         createdAt: serverTimestamp(),
+        medicalRecord,
       });
       setToastMessage('Teleconsultation request submitted successfully.');
       setShowToast(true);
       setReason('');
+      setAttachMedicalRecord(false);
     } catch (error) {
       console.error('Error submitting teleconsultation request:', error);
       setToastMessage('Failed to submit request. Please try again.');
       setShowToast(true);
-    } finally { 
+    } finally {
       setLoading(false);
     }
   };
@@ -111,8 +152,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
             <IonItem lines='none'>
               <p>
                 BarangayMed+'s teleconsultation service allows you to consult with healthcare professionals in your barangay remotely via Google Meet. 
-                <br /> <br />
-                This is especially useful for non-emergency medical concerns, follow-up consultations, or when visiting a healthcare facility is not feasible.'
+              <br /> <br />
+                This form will ask for your current symptoms and/or conditions. You may also choose to attach your medical record if you have created one.
+              <br /> <br />
+                After submitting this form, your request will be reviewed by the Rural Health Unit (RHU). If your request is accepted, you will be scheduled a date & time for your consultation.
+              <br /><br />
+                Your Consultations will be done via Google Meet. Ensure that you have a stable internet connection and a device with a camera and microphone.
               </p>
             </IonItem>
           </IonCard>
@@ -139,21 +184,23 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
               </IonItem>
             </IonCard>
 
-            <IonCard className='ion-padding'>
-              <IonItem>
-                Attach Medical Record (Optional)
-                <IonCheckbox
-                  slot="end"
-                  checked={attachMedicalRecord}
-                  onIonChange={e => setAttachMedicalRecord(e.detail.checked)}
-                />
-              </IonItem>
-              <IonItem lines='none'>
-                <small>
-                  This medical record will be sent to the RHU along with your request. Ensure that it does not contain sensitive information you do not wish to share.
-                </small>
-              </IonItem>
-            </IonCard>
+            {hasMedicalRecord && (
+              <IonCard className='ion-padding'>
+                <IonItem>
+                  Attach Medical Record (Optional)
+                  <IonCheckbox
+                    slot="end"
+                    checked={attachMedicalRecord}
+                    onIonChange={e => setAttachMedicalRecord(e.detail.checked)}
+                  />
+                </IonItem>
+                <IonItem lines='none'>
+                  <small>
+                    This medical record will be sent to the RHU along with your request. Ensure that it does not contain sensitive information you do not wish to share.
+                  </small>
+                </IonItem>
+              </IonCard>
+            )}
           </>
         )}
 
@@ -166,10 +213,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
               <IonLabel>Consultation Reason:</IonLabel>
               <IonText>{reason || 'Not provided'}</IonText>
             </IonItem>
-            <IonItem>
-              <IonLabel>Attach Medical Record:</IonLabel>
-              <IonText>{attachMedicalRecord ? 'Yes' : 'No'}</IonText>
-            </IonItem>
+            {hasMedicalRecord && (
+              <IonItem>
+                <IonLabel>Attach Medical Record:</IonLabel>
+                <IonText>{attachMedicalRecord ? 'Yes' : 'No'}</IonText>
+              </IonItem>
+            )}
           </IonCard>
         )}
 

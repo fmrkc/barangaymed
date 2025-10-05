@@ -1,5 +1,18 @@
 import { UserData } from './users';
 
+export interface MedicalRecord {
+  symptoms: string[];
+  conditions: string[];
+  allergies: string[];
+  historyFiles: {
+    fileName: string;
+    fileURL: string;
+    uploadedAt: Date;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface TeleconsultationRequest {
   id?: string;
   userId: string;
@@ -17,4 +30,5 @@ export interface TeleconsultationRequest {
   doctorSpecialty?: string;
   meetingLink?: string;
   superadminMarkedComplete?: boolean;
+  medicalRecord?: MedicalRecord;
 }
