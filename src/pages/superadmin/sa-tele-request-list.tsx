@@ -399,7 +399,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">Start Time</IonLabel>
-              <IonInput type="time" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} />
+              <IonInput type="time" value={startTime && endTime} onIonChange={e => setStartTime(e.detail.value!)} />
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">End Time</IonLabel>
@@ -452,6 +452,54 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     </IonText>
                   </IonLabel>
                 </IonItem>
+                {selectedRequest.meetingLink && (
+                  <IonButton expand='block' className='ion-padding' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
+                    Join Consultation (opens Google Meet)
+                  </IonButton>
+                )}
+
+                {selectedRequest.startTime && (
+                  <IonItem>
+                    <IonLabel>
+                      Scheduled Time: &nbsp;
+                      <IonText>{selectedRequest.startTime.toLocaleString()}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
+                {selectedRequest.endTime && (
+                  <IonItem>
+                    <IonLabel>
+                      End Time: &nbsp;
+                      <IonText>{selectedRequest.endTime.toLocaleString()}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
+
+                {selectedRequest.notes && (
+                  <IonItem>
+                    <IonLabel>
+                      Notes: &nbsp;
+                      <IonText>{selectedRequest.notes}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
+               
+                {selectedRequest.doctorName && (
+                  <IonItem>
+                    <IonLabel>
+                      Doctor's Name: &nbsp;
+                      <IonText>{selectedRequest.doctorName}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
+                {selectedRequest.doctorSpecialty && (
+                  <IonItem>
+                    <IonLabel>
+                      Doctor's Specialty: &nbsp;
+                      <IonText>{selectedRequest.doctorSpecialty}</IonText>
+                    </IonLabel>
+                  </IonItem>
+                )}
                 <IonItem>
                   <IonLabel>
                     Reason: &nbsp;
@@ -464,6 +512,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
                   </IonLabel>
                 </IonItem>
+
                 <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>
                 {selectedRequest.userData && (
                   <>
@@ -493,54 +542,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     </IonItem>
                   </>
                 )}
-                {selectedRequest.startTime && (
-                  <IonItem>
-                    <IonLabel>
-                      Start Time: &nbsp;
-                      <IonText>{selectedRequest.startTime.toLocaleString()}</IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {selectedRequest.endTime && (
-                  <IonItem>
-                    <IonLabel>
-                      End Time: &nbsp;
-                      <IonText>{selectedRequest.endTime.toLocaleString()}</IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {selectedRequest.notes && (
-                  <IonItem>
-                    <IonLabel>
-                      Notes: &nbsp;
-                      <IonText>{selectedRequest.notes}</IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {selectedRequest.meetingLink && (
-                  <IonItem>
-                    <IonLabel>
-                      Meeting Link: &nbsp;
-                      <a href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">{selectedRequest.meetingLink}</a>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {selectedRequest.doctorName && (
-                  <IonItem>
-                    <IonLabel>
-                      Doctor's Name: &nbsp;
-                      <IonText>{selectedRequest.doctorName}</IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {selectedRequest.doctorSpecialty && (
-                  <IonItem>
-                    <IonLabel>
-                      Doctor's Specialty: &nbsp;
-                      <IonText>{selectedRequest.doctorSpecialty}</IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
+                
               </IonCard>
             )}
 
