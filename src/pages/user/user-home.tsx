@@ -72,36 +72,18 @@ const Home: React.FC = () => {
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
-                                        <IonText>OTC Medicine Request</IonText>
+                                        <IonText>Medicine Request</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <IonText>
-                                        Request over-the-counter medicines from your barangay.
+                                        Request medicines from your barangay.
                                        
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
 
-                        <IonCol size="12" size-md="6">
-                            <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowMedicineModal(true) : undefined}>
-                                <IonCardHeader>
-                                    <IonCardTitle>
-                                        <IonIcon icon={receipt} style={{ marginRight: '8px' }} />
-                                        <IonText>Prescription Medicine Request</IonText>
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <IonCardContent>
-                                    <IonText>
-                                        Upload your prescription here and we'll try to fulfill it.
-                                      
-                                    </IonText>
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
-
-                        
                         <IonCol size="12" size-md="6">
                             <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowTeleRequestModal(true) : undefined}>
                                 <IonCardHeader>
@@ -112,7 +94,7 @@ const Home: React.FC = () => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <IonText>
-                                        Request teleconsultation appointments with healthcare professionals.
+                                        Request online consultation in your barangay.
                                     </IonText>
                                 </IonCardContent>
                             </IonCard>
