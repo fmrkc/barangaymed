@@ -23,6 +23,7 @@ import {
   IonItemDivider,
   IonRefresher,
   IonRefresherContent,
+  IonChip,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -242,11 +243,39 @@ const UserMedRequestList: React.FC = () => {
 
         <IonList style={{ backgroundColor: 'transparent' }}>
           {filteredRequests.map((request) => (
-            <IonCard key={request.id} style={{ borderLeft: `10px solid var(--ion-color-primary)`}}>
+            <IonCard
+            key={request.id}
+            style={{
+                borderLeft: `8px solid ${
+                  request.status === 'pending'
+                    ? '#ffc409' // warning (yellow)
+                    : request.status === 'accepted' || request.status === 'scheduled'
+                    ? '#017457' // primary (blue)
+                    : request.status === 'completed'
+                    ? '#2dd36f' // success (green)
+                    : '#eb445a' // danger (red)
+                }`
+              }}>
               <IonCardHeader>
                 <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                  Status: {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                </IonCardTitle>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    Medicine Request
+                    <IonChip
+                      color={
+                        request.status === 'pending'
+                          ? 'warning'
+                          : request.status === 'accepted' || request.status === 'scheduled'
+                            ? 'primary'
+                            : request.status === 'completed'
+                              ? 'success'
+                              : 'danger'
+                      }
+                      style={{ margin: '0' }}
+                    >
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    </IonChip>
+                  </div>
+                  </IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <p><strong>Reason:</strong> {request.reason}</p>
@@ -260,7 +289,7 @@ const UserMedRequestList: React.FC = () => {
                 )}
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                  {['pending', 'accepted', 'scheduled'].includes(request.status) && (
+                  {['pending', 'accepted'].includes(request.status) && (
                     <IonButton color="danger" onClick={() => {
                       setRequestToCancel(request.id!);
                       setShowCancelAlert(true);
@@ -285,47 +314,155 @@ const UserMedRequestList: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {selectedRequest && (
-              <>
-                <p><strong>Status:</strong> {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}</p>
-                {selectedRequest.status === 'scheduled' && (
-                  <>
-                    {selectedRequest.scheduleDate && (
-                      <p><strong>Scheduled Date:</strong> {selectedRequest.scheduleDate.toLocaleDateString()}</p>
-                    )}
-                    {selectedRequest.scheduleTime && (
-                      <p><strong>Scheduled Time:</strong> {selectedRequest.scheduleTime}</p>
-                    )}
-                    {selectedRequest.schedulePlace && (
-                      <p><strong>Scheduled Place:</strong> {selectedRequest.schedulePlace}</p>
-                    )}
-                  </>
-                )}
-                <p><strong>Reason:</strong> {selectedRequest.reason}</p>
-                <p><strong>Has Prescription:</strong> {selectedRequest.hasPrescription ? 'Yes' : 'No'}</p>
-                {selectedRequest.prescriptionUrl && (
-                  <p><strong>Prescription:</strong> <a href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">View Prescription</a></p>
-                )}
-                <p><strong>Created At:</strong> {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</p>
-                {selectedRequest.userData && (
-                  <>
-                    <p><strong>Name:</strong> {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</p>
-                    <p><strong>Contact Number:</strong> {selectedRequest.userData.contactNumber || 'N/A'}</p>
-                    <p><strong>Email:</strong> {selectedRequest.userData.email || 'N/A'}</p>
-                    <p><strong>Address:</strong> {selectedRequest.userData.address || 'N/A'}</p>
-                  </>
-                )}
-                {selectedRequest.notes && (
-                  <p><strong>Notes:</strong> {selectedRequest.notes}</p>
-                )}
-                {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
-                  <>
-                    <p><strong>Dispensed Medicines:</strong> {Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => `${id}: ${qty}`).join(', ')}</p>
-                    <p><strong>Process Note:</strong> {selectedRequest.processNote}</p>
-                  </>
-                )}
-              </>
-            )}
+          {selectedRequest && (
+            <IonCard>
+              <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
+              <IonItem>
+                <IonLabel>
+                  Status: &nbsp;
+                  <IonText color={
+                    selectedRequest.status === 'pending'
+                      ? 'warning'
+                      : selectedRequest.status === 'accepted' || selectedRequest.status === 'scheduled'
+                        ? 'primary'
+                        : selectedRequest.status === 'completed'
+                          ? 'success'
+                          : 'danger'
+                  } style={{ fontWeight: 'bold' }}>
+                    {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+                  </IonText>
+                </IonLabel>
+              </IonItem>
+              {selectedRequest.status === 'scheduled' && (
+                <>
+                  {selectedRequest.scheduleDate && (
+                    <IonItem>
+                      <IonLabel>
+                        Scheduled Date: &nbsp;
+                        <IonText style={{ fontWeight: 'bold' }}>
+                          {selectedRequest.scheduleDate.toLocaleDateString()}
+                        </IonText>
+                      </IonLabel>
+                    </IonItem>
+                  )}
+                  {selectedRequest.scheduleTime && (
+                    <IonItem>
+                      <IonLabel>
+                        Scheduled Time: &nbsp;
+                        <IonText style={{ fontWeight: 'bold' }}>
+                          {selectedRequest.scheduleTime}
+                        </IonText>
+                      </IonLabel>
+                    </IonItem>
+                  )}
+                  {selectedRequest.schedulePlace && (
+                    <IonItem>
+                      <IonLabel>
+                        Scheduled Place: &nbsp;
+                        <IonText style={{ fontWeight: 'bold' }}>
+                          {selectedRequest.schedulePlace}
+                        </IonText>
+                      </IonLabel>
+                    </IonItem>
+                  )}
+                </>
+              )}
+              <IonItem>
+                <IonLabel>
+                  Reason: &nbsp;
+                  <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
+                </IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>
+                  Has Prescription: &nbsp;
+                  <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
+                </IonLabel>
+              </IonItem>
+              {selectedRequest.prescriptionUrl && (
+                <IonItem>
+                  <IonButton className='ion-padding' expand='full' href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                    View Prescription
+                  </IonButton>
+                </IonItem>
+              )}
+              <IonItem>
+                <IonLabel>
+                  Created At: &nbsp;
+                  <IonText style={{ fontWeight: 'bold' }}>
+                    {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}
+                  </IonText>
+                </IonLabel>
+              </IonItem>
+              <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>
+              {selectedRequest.userData && (
+                <>
+                  <IonItem>
+                    <IonLabel>
+                      Name: &nbsp;
+                      <IonText style={{ fontWeight: 'bold' }}>
+                        {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}
+                      </IonText>
+                    </IonLabel>
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel>
+                      Contact Number: &nbsp;
+                      <IonText style={{ fontWeight: 'bold' }}>
+                        {selectedRequest.userData.contactNumber || 'N/A'}
+                      </IonText>
+                    </IonLabel>
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel>
+                      Email: &nbsp;
+                      <IonText style={{ fontWeight: 'bold' }}>
+                        {selectedRequest.userData.email || 'N/A'}
+                      </IonText>
+                    </IonLabel>
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel>
+                      Address: &nbsp;
+                      <IonText style={{ fontWeight: 'bold' }}>
+                        {selectedRequest.userData.address || 'N/A'}
+                      </IonText>
+                    </IonLabel>
+                  </IonItem>
+                </>
+              )}
+              {selectedRequest.notes && (
+                <IonItem>
+                  <IonLabel>
+                    Notes: &nbsp;
+                    <IonText style={{ fontWeight: 'bold' }}>
+                      {selectedRequest.notes}
+                    </IonText>
+                  </IonLabel>
+                </IonItem>
+              )}
+              {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
+                <>
+                  <IonItem>
+                    <IonLabel>
+                      Dispensed Medicines: &nbsp;
+                      <IonText style={{ fontWeight: 'bold' }}>
+                        {Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => `${id}: ${qty}`).join(', ')}
+                      </IonText>
+                    </IonLabel>
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel>
+                      Process Note: &nbsp;
+                      <IonText style={{ fontWeight: 'bold' }}>
+                        {selectedRequest.processNote}
+                      </IonText>
+                    </IonLabel>
+                  </IonItem>
+                </>
+              )}
+            </IonCard>
+          )}
           </IonContent>
         </IonModal>
 
