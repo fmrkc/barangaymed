@@ -23,12 +23,12 @@ const Menu: React.FC = () => {
         { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium},
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
-        { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+      //  { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
-        { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
-        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
-        { name: 'All Admins', url: '/superadmin/dashboard/admin-management', icon: people },
-        { name: 'Create Admin Account', url: '/superadmin/dashboard/sa-register', icon: personAdd },
+       // { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
+      //  { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
+      //  { name: 'All Admins', url: '/superadmin/dashboard/admin-management', icon: people },
+        { name: 'Create BHW Account', url: '/superadmin/dashboard/sa-register', icon: personAdd },
     ];
 
     const handleLogout = async () => {

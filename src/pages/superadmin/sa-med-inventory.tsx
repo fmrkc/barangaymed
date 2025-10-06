@@ -120,7 +120,7 @@ const Med_Inventory: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>Super Admin - Medicine Inventory</IonTitle>
+          <IonTitle>Medicine Inventory</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">

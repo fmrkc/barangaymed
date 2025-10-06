@@ -21,13 +21,13 @@ const Menu: React.FC = () => {
 
     const paths = [
         { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
-        { name: 'All Residents', url: '/admin/dashboard/residents', icon: people},
+     //   { name: 'All Residents', url: '/admin/dashboard/residents', icon: people},
         { name: 'Resident Verification', url: '/admin/dashboard/residents/verification', icon: checkbox},
-        { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
-        { name: 'OTC Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
-        { name: 'Receipt Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
+     //   { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
+     //   { name: 'OTC Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
+     //   { name: 'Receipt Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
         { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
-        { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
+     //   { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
 
     const handleLogout = async () => {

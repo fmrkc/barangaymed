@@ -14,13 +14,13 @@ const SuperAdminDashboard: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>Super Admin Dashboard</IonTitle>
+          <IonTitle>Rural Health Unit Dashboard</IonTitle>
           
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         <h1>Welcome, {currentUser?.email}!</h1>
-        <p>You are logged in as a super admin.</p>
+        Click the menu on the top right of the page to access the dashboard features.
 
         {/* Add your other super admin dashboard content here */}
       

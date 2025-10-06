@@ -72,7 +72,7 @@ const SuperAdminRegister: React.FC = () => {
                     <IonButtons slot='start'>
                         <IonBackButton defaultHref='/superadmin/dashboard/admin-management' />
                     </IonButtons>
-                    <IonTitle>Create Admin Account</IonTitle>
+                    <IonTitle>Create BHW Account</IonTitle>
                 </IonToolbar>
             </IonHeader>
             
