@@ -106,7 +106,7 @@ const SuperAdminRegister: React.FC = () => {
             <IonHeader className="ion-no-border">
                 <IonToolbar>
                     <IonButtons slot='start'>
-                        <IonBackButton defaultHref='/superadmin/dashboard/admin-management' />
+                        <IonBackButton defaultHref='/superadmin/dashboard' />
                     </IonButtons>
                     <IonTitle>Create Super Admin</IonTitle>
                 </IonToolbar>
