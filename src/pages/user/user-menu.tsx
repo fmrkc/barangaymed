@@ -34,10 +34,10 @@ const UserDashboard: React.FC = () => {
             <IonIcon icon={clipboard} /> {/* Change icon based on selection */}
             <IonLabel>My Requests</IonLabel>
           </IonTabButton>
-          {/* <IonTabButton tab="notifications" href="/user/dashboard/notifications" onClick={() => setSelectedTab('notifications')}>
-            <IonIcon icon={notifications} /> 
+          <IonTabButton tab="notifications" href="/user/dashboard/notifications" onClick={() => setSelectedTab('notifications')}>
+            <IonIcon icon={notifications} /> {/* Change icon based on selection */}
             <IonLabel>Notifications</IonLabel>
-          </IonTabButton> */}
+          </IonTabButton>
           <IonTabButton tab="account" href="/user/dashboard/account" onClick={() => setSelectedTab('account')}>
             <IonIcon icon={person} /> {/* Change icon based on selection */}
             <IonLabel>Account</IonLabel>
