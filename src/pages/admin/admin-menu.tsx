@@ -26,7 +26,7 @@ const Menu: React.FC = () => {
      //   { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
      //   { name: 'OTC Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
      //   { name: 'Receipt Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
-        { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
+      //  { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
      //   { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
 

@@ -100,7 +100,7 @@ const Home: React.FC = () => {
                             </IonCard>
                         </IonCol>
 
-                        <IonCol size="12" size-md="6">
+                        {/* <IonCol size="12" size-md="6">
                             <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} routerLink={isVerified ? "/user/dashboard/announcements" : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
@@ -118,7 +118,7 @@ const Home: React.FC = () => {
 
                                 </IonCardContent>
                             </IonCard>
-                        </IonCol>
+                        </IonCol> */}
                     </IonRow>
                     
                     
