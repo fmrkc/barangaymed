@@ -1,0 +1,2 @@
+1. May bagong folder TO_DO. May mga todo files dun tungkol sa mga nakita na problema sa system. Di pa nareview ngayon pacheck muna kase baka may mga instructions dun na di tama.
+2. Sa ngayon, nakainstall na mga dependencies para sa iOS. Di pa den nareview kung tama ba instructions nun pero atleast nandyan na.
