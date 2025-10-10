@@ -1,4 +1,4 @@
-import { IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonAccordion, IonAccordionGroup, IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router';
 
@@ -11,7 +11,7 @@ import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-request-list';
 import SuperAdminTeleRequestList from './sa-tele-request-list';
 
-import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar } from 'ionicons/icons';
+import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar, shield, bagAdd, clipboard, videocam } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
@@ -19,15 +19,29 @@ const Menu: React.FC = () => {
     const router = useIonRouter();
     const [showLoading, setShowLoading] = useState(false);
 
-    const paths = [
-        { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium},
+    const dashboard = { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium };
+    const bmedfeatures = [
+        { name: 'Register New Resident', url: '/superadmin/dashboard', icon: personAdd },
+        { name: 'Create Medicine Request', url: '/superadmin/dashboard', icon: medkit },
+        { name: 'Create Consultation Request', url: '/superadmin/dashboard', icon: videocam },
+
+    ];
+    const medicine = [
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
-      //  { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+        { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+    ];
+    const announcements = [
+        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
+        { name: 'Brgy. Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
+    ];
+    const teleconsultation = [
         { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
-       // { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
-      //  { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
-      //  { name: 'All Admins', url: '/superadmin/dashboard/admin-management', icon: people },
+        { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
+    ];
+    const admins = [
+        { name: 'All BHW Accounts', url: '/superadmin/dashboard/admin-management', icon: people },
+        { name: 'All RHU Accounts', url: '/superadmin/dashboard/admin-management', icon: people },
         { name: 'Create BHW Account', url: '/superadmin/dashboard/sa-register', icon: personAdd },
     ];
 
@@ -61,20 +75,93 @@ const Menu: React.FC = () => {
             <IonContent>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
                 <div>
-                  {paths.map((item, index) => (
-                    <IonMenuToggle key={index} autoHide={false}>
-                      <IonItem detail={false} routerLink={item.url} routerDirection="none">
-                        <IonIcon slot="start" icon={item.icon} />
-                        {item.name}
+                  <IonMenuToggle autoHide={false}>
+                    <IonItem detail={false} routerLink={dashboard.url} routerDirection="none">
+                      <IonIcon slot="start" icon={dashboard.icon} />
+                      {dashboard.name}
+                    </IonItem>
+                  </IonMenuToggle>
+                  <IonAccordionGroup>
+                    <IonAccordion value="bmedfeatures">
+                      <IonItem slot="header">
+                        <IonLabel>BMED+ Features</IonLabel>
                       </IonItem>
-                    </IonMenuToggle>
-                  ))}
-
-                  
+                      <div slot="content">
+                        {bmedfeatures.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="medicine">
+                      <IonItem slot="header">
+                        <IonLabel>Medicine</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {medicine.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="teleconsultation">
+                      <IonItem slot="header">
+                        <IonLabel>Teleconsultation</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {teleconsultation.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="announcements">
+                      <IonItem slot="header">
+                        <IonLabel>Announcements</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {announcements.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="admins">
+                      <IonItem slot="header">
+                        <IonLabel>Accounts</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {admins.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                  </IonAccordionGroup>
                 </div>
                 
                 <div>
-                  <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>    
+                  <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
                   {currentUser?.email === 'barangaymed@gmail.com' && (
                     <IonMenuToggle autoHide={false}>
                       <IonItem detail={false} routerLink="/superadmin/dashboard/sa-superadmin-register" routerDirection="none">
@@ -83,19 +170,28 @@ const Menu: React.FC = () => {
                       </IonItem>
                     </IonMenuToggle>
                   )}
-                  <IonMenuToggle autoHide={false}>
-                    <IonItem button detail={false}>
-                      Profile
-                      <IonIcon  slot="start" icon={person} />
-                    </IonItem>
-                    
-                  </IonMenuToggle>
-                  <IonMenuToggle autoHide={false}>
-                    <IonItem  detail={false} button color="danger" id="sa-logout">
-                    <IonIcon slot="start" icon={logOut} />
-                      Logout
-                    </IonItem>
-                  </IonMenuToggle>            
+                  <IonAccordionGroup>
+                    <IonAccordion value="account">
+                      <IonItem slot="header">
+                        <IonLabel>Account</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        <IonMenuToggle autoHide={false}>
+                          <IonItem button detail={false}>
+                            Profile
+                            <IonIcon  slot="start" icon={person} />
+                          </IonItem>
+
+                        </IonMenuToggle>
+                        <IonMenuToggle autoHide={false}>
+                          <IonItem  detail={false} button color="danger" id="sa-logout">
+                          <IonIcon slot="start" icon={logOut} />
+                            Logout
+                          </IonItem>
+                        </IonMenuToggle>
+                      </div>
+                    </IonAccordion>
+                  </IonAccordionGroup>
                   <IonAlert
                     trigger="sa-logout"
                     backdropDismiss={false}

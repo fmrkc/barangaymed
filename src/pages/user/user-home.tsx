@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonText } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { megaphone, clipboard, medkit, receipt } from 'ionicons/icons';
+import { megaphone, clipboard, medkit, receipt, videocam } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import UserMedRequestModal from './user-med-request';
 import UserTeleRequest from './user-tele-request';
@@ -88,7 +88,7 @@ const Home: React.FC = () => {
                             <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} onClick={isVerified ? () => setShowTeleRequestModal(true) : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
-                                        <IonIcon icon={clipboard} style={{ marginRight: '8px' }} />
+                                        <IonIcon icon={videocam} style={{ marginRight: '8px' }} />
                                         <IonText>Book Teleconsultation</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
                             </IonCard>
                         </IonCol>
 
-                        {/* <IonCol size="12" size-md="6">
+                        <IonCol size="12" size-md="6">
                             <IonCard className='ion-padding-vertical' color={isVerified ? 'primary' : 'medium'} button={isVerified} routerLink={isVerified ? "/user/dashboard/announcements" : undefined}>
                                 <IonCardHeader>
                                     <IonCardTitle>
@@ -118,7 +118,7 @@ const Home: React.FC = () => {
 
                                 </IonCardContent>
                             </IonCard>
-                        </IonCol> */}
+                        </IonCol> 
                     </IonRow>
                     
                     

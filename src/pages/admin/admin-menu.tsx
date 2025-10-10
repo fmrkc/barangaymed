@@ -1,4 +1,4 @@
-import { IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
+import { IonAccordion, IonAccordionGroup, IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
@@ -11,7 +11,7 @@ import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
 import Medicine_Requests from './admin-medicine-requests';
 
-import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield, checkbox } from 'ionicons/icons';
+import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield, checkbox, peopleCircle, add, personAdd } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
@@ -19,15 +19,20 @@ const Menu: React.FC = () => {
     const router = useIonRouter();
     const [showLoading, setShowLoading] = useState(false);
 
-    const paths = [
-        { name: 'Dashboard', url: '/admin/dashboard', icon: podium},
-     //   { name: 'All Residents', url: '/admin/dashboard/residents', icon: people},
-        { name: 'Resident Verification', url: '/admin/dashboard/residents/verification', icon: checkbox},
-     //   { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
-     //   { name: 'OTC Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
-     //   { name: 'Receipt Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
-      //  { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
-     //   { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
+    const dashboard = { name: 'Dashboard', url: '/admin/dashboard', icon: podium };
+    const residents = [
+        { name: 'All Residents', url: '/admin/dashboard/residents', icon: people },
+        { name: 'Register New Resident', url: '/admin/dashboard', icon: personAdd },
+        { name: 'Resident Verification', url: '/admin/dashboard/residents/verification', icon: checkbox },
+    ];
+    const medicine = [
+        { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
+        { name: 'Create Medicine Request', url: '/admin/dashboard', icon: personAdd },
+        { name: 'Incoming Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
+    ];
+    const announcements = [
+        { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
+        { name: 'RHU Announcements', url: '/admin/dashboard/rhu-announcements', icon: medical },
     ];
 
     const handleLogout = async () => {
@@ -43,7 +48,7 @@ const Menu: React.FC = () => {
     };
 
     useEffect(() => {
-    document.title = 'Admin Dashboard - BarangayMed+';
+    document.title = 'BHW Dashboard - BarangayMed+';
   }, []);
 
     return (
@@ -58,57 +63,107 @@ const Menu: React.FC = () => {
             <IonContent>
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
                 <div>
-             
-                  {paths.map((item, index) => (
-                    <IonMenuToggle key={index} autoHide={false}>
-                      <IonItem detail={false} routerLink={item.url} routerDirection="none">
-                        <IonIcon slot="start" icon={item.icon} />
-                        {item.name}
+                  <IonMenuToggle autoHide={false}>
+                    <IonItem detail={false} routerLink={dashboard.url} routerDirection="none">
+                      <IonIcon slot="start" icon={dashboard.icon} />
+                      {dashboard.name}
+                    </IonItem>
+                  </IonMenuToggle>
+                  <IonAccordionGroup>
+                    <IonAccordion value="residents">
+                      <IonItem slot="header">
+                        <IonLabel>Residents</IonLabel>
                       </IonItem>
-                    </IonMenuToggle>
-                  ))}
+                      <div slot="content">
+                        {residents.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="medicine">
+                      <IonItem slot="header">
+                        <IonLabel>Medicine</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {medicine.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="announcements">
+                      <IonItem slot="header">
+                        <IonLabel>Announcements</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {announcements.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                  </IonAccordionGroup>
                 </div>
                 
                 <div>
-                  <IonItemDivider><IonLabel>Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
-                   <IonMenuToggle autoHide={false}>
-                    <IonItem detail={false} button onClick={() => router.push('/admin/profile', 'forward')}>
-                      <IonIcon slot="start" icon={person} />
-                      Profile
-                    </IonItem>
-                  </IonMenuToggle>
-                  <IonMenuToggle autoHide={false}>
-                    <IonItem detail={false} button color="danger" id="admin-logout">
-                      <IonIcon slot="start" icon={logOut} />
-                      Logout
-                    </IonItem>
-                  </IonMenuToggle>
-
-                           <IonAlert
-                           trigger="admin-logout"
-                           backdropDismiss={false}
-                                  header="Are you sure?"
-                                  message="Do you really want to log out?"
-                                  buttons={[
-                                    {
-                                      text: "Cancel",
-                                      role: "cancel",
-                                      handler: () => {
-                                        console.log("Alert cancelled");
-                                      },
-                                    },
-                                    {
-                                      text: "OK",
-                                      role: "confirm",
-                                      handler: () => {
-                                        handleLogout();
-                                      },
-                                    },
-                                  ]}
-                                  onDidDismiss={({ detail }) =>
-                                    console.log(`Dismissed with role: ${detail.role}`)
-                                  }
-                                ></IonAlert>
+                <IonAccordionGroup>
+                   <IonItemDivider><IonLabel>Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
+                   <IonAccordion value="profile">
+                      <IonItem slot="header">
+                        <IonLabel>Account</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        <IonMenuToggle autoHide={false}>
+                          <IonItem detail={false} button>
+                            <IonIcon slot="start" icon={person} />
+                            Profile
+                          </IonItem>
+                          <IonItem detail={false} button id="admin-logout">
+                            <IonIcon slot="start" icon={logOut} />
+                            Logout
+                          </IonItem>
+                          <IonAlert
+                            trigger="admin-logout"
+                            backdropDismiss={false}
+                            header="Are you sure?"
+                            message="Do you really want to log out?"
+                            buttons={[
+                              {
+                                text: "Cancel",
+                                role: "cancel",
+                                handler: () => {
+                                  console.log("Alert cancelled");
+                                },
+                              },
+                              {
+                                text: "OK",
+                                role: "confirm",
+                                handler: () => {
+                                  handleLogout();
+                                },
+                              },
+                            ]}
+                            onDidDismiss={({ detail }) =>
+                              console.log(`Dismissed with role: ${detail.role}`)
+                            }
+                          />
+                        </IonMenuToggle>
+                      </div>
+                    </IonAccordion>
+                </IonAccordionGroup>
                 </div>
               </div>
             </IonContent>

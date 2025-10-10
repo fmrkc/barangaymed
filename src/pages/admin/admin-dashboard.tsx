@@ -11,7 +11,7 @@ const ADashboard: React.FC = () => {
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>Barangay Health Worker Dashboard</IonTitle>
+          <IonTitle>BHW Dashboard</IonTitle>
           
         </IonToolbar>
       </IonHeader>
