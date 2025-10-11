@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp, query, getDocs, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { UserService } from '../../services/userService';
-import { paperPlane, send, arrowBack, arrowForward, open } from 'ionicons/icons';
+import { paperPlane, send, arrowBack, arrowForward, open, cloudUpload } from 'ionicons/icons';
 
 interface UserMedRequestProps {
   isOpen: boolean;
@@ -45,7 +45,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
   }, [currentUser]);
 
   const nextStep = () => {
-    if (step < 3) setStep(step + 1);
+    if (step < 4) setStep(step + 1);
   };
 
   const prevStep = () => {
@@ -141,7 +141,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
       <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
-            <IonTitle>Medicine Request</IonTitle>
+            <IonTitle>Active Medicine Request</IonTitle>
             <IonButtons slot="end">
               <IonButton onClick={handleDismiss}>Close</IonButton>
             </IonButtons>
@@ -174,7 +174,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
     <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonTitle>Medicine Request</IonTitle>
+          <IonTitle>Create Medicine Request</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={handleDismiss}>Close</IonButton>
           </IonButtons>
@@ -201,27 +201,38 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
         )}
 
         {step === 2 && (
-          <>
-            <IonCard className="ion-padding">
-              <IonItem lines='none'>
-                Medicine Request Reason:
-              </IonItem>
-              <IonItem lines='none'>
-                <IonTextarea
-                  fill='outline'
-                  value={reason}
-                  onIonChange={e => setReason(e.detail.value!)}
-                  rows={6}
-                  maxlength={500}
-                  placeholder="Describe your reason for requesting medicine. Include any symptoms or conditions you have."
-                />
-              </IonItem>
-              <IonItem>
-                <small>Please provide accurate information to help us assist you better.</small>
-              </IonItem>
-            </IonCard>
+          <IonCard className="ion-padding">
+            <IonItem lines='none'>
+            <h2>What are your current symptoms or conditions?</h2>
+            </IonItem>
+            <IonItem lines='none'>
+              <IonTextarea
+                fill='outline'
+                value={reason}
+                onIonChange={e => setReason(e.detail.value!)}
+                rows={10}
+                counter={true}
+                maxlength={500}
+                placeholder="Describe your reason for requesting medicine. Include any symptoms or conditions you have."
+              />
+            </IonItem>
+            <IonItem lines='none'>
+              <small>Please provide accurate information to help us assist you better.</small>
+            </IonItem>
+          </IonCard>
+        )}
 
+        {step === 3 && (
+          <>
             <IonCard className='ion-padding'>
+              <IonItem lines='none'>
+            <h2>Upload a prescription (optional)</h2>
+            </IonItem>
+            <IonItem lines='none'>
+                <small>
+                  Upload a photo of your prescription if available. This will help the RHU process your request faster.
+                </small>
+              </IonItem>
               <IonItem>
                 Do you have a prescription?
                 <IonCheckbox
@@ -230,8 +241,9 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                   onIonChange={e => setHasPrescription(e.detail.checked)}
                 />
               </IonItem>
+              
               {hasPrescription && (
-                <IonItem lines='none'>
+                <IonCard>
                   <input
                     type="file"
                     accept="image/*"
@@ -239,29 +251,39 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                     ref={fileInputRef}
                     style={{ display: 'none' }}
                   />
-                  <IonButton onClick={() => fileInputRef.current?.click()}>
-                    Upload Prescription
+                  <IonButton className='ion-padding-vertical' expand='block' onClick={() => fileInputRef.current?.click()}>
+                    {prescriptionFile ? 'Change Prescription' : 'Upload Prescription'}
+                    <IonIcon slot="start" icon={cloudUpload} />
                   </IonButton>
-                  {prescriptionFile && <IonText>{prescriptionFile.name}</IonText>}
-                </IonItem>
+                  {prescriptionFile && (
+                    <>
+                      <IonItem>
+                        Uploaded file: &nbsp;
+                        <IonText color={'primary'}>
+                          {prescriptionFile.name}
+                        </IonText>
+                      </IonItem>
+                      <IonItem lines='none'>
+                        <img src={URL.createObjectURL(prescriptionFile)} alt="Uploaded Prescription" style={{ maxWidth: '100%', marginTop: '10px' }} />
+                      </IonItem>
+                    </>
+                  )}
+                </IonCard>
               )}
-              <IonItem lines='none'>
-                <small>
-                  Upload a photo of your prescription if available. This will help the RHU process your request faster.
-                </small>
-              </IonItem>
+              
             </IonCard>
           </>
         )}
 
-        {step === 3 && (
-          <IonCard className="ion-padding">
+        {step === 4 && (
+          <>
+            <IonCard className="ion-padding">
             <IonItem lines='none'>
-              <h2>Request Summary</h2>
+              <h2>These are the information you have provided:</h2>
             </IonItem>
+
             <IonItem>
-              <IonLabel>Request Reason:</IonLabel>
-              <IonText>{reason || 'Not provided'}</IonText>
+              <IonTextarea color={'primary'} fill='outline' value={reason || 'Not provided'} rows={10} readonly></IonTextarea>
             </IonItem>
             <IonItem>
               <IonLabel>Has Prescription:</IonLabel>
@@ -274,6 +296,14 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
               </IonItem>
             )}
           </IonCard>
+          <IonCard>
+            <IonItem lines='none'>
+              <small>
+                Please review the information above before submitting your request. You can go back to make changes if needed.
+              </small>
+            </IonItem>
+          </IonCard>
+          </>
         )}
 
         <IonLoading isOpen={loading} message={'Submitting request...'} />
@@ -287,7 +317,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
       </IonContent>
       <IonFooter>
         <IonToolbar>
-          {step === 3 && (
+          {step === 4 && (
             <IonItem lines='none'>
               <p><small>Note that submission of this form does not guarantee approval. You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
             </IonItem>
@@ -304,7 +334,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
             </IonButton>
           )}
 
-          {(step === 2 || step === 3) && (
+          {(step === 2 || step === 3 || step === 4) && (
             <IonGrid>
               <IonRow>
                 <IonCol size="3">
@@ -319,7 +349,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                   </IonButton>
                 </IonCol>
                 <IonCol size="9">
-                  {step === 2 ? (
+                  {(step === 2 || step === 3) ? (
                     <IonButton
                       expand="block"
                       shape="round"
