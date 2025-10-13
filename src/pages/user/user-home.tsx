@@ -72,7 +72,7 @@ const Home: React.FC = () => {
                                 <IonCardHeader>
                                     <IonCardTitle>
                                         <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
-                                        <IonText>Medicine Request</IonText>
+                                        <IonText>Request Medicine</IonText>
                                     </IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
