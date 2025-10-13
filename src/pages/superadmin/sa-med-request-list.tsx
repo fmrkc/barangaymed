@@ -29,11 +29,20 @@ import {
   IonInput,
   IonCheckbox,
   IonTextarea,
+  IonNote,
+  IonFooter,
+  IonIcon,
+  IonBadge,
+  IonActionSheet,
+  IonSearchbar,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
+import { calendar } from 'ionicons/icons';
 
 const db = getFirestore();
 
@@ -60,11 +69,24 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [scheduleTime, setScheduleTime] = useState<string>('');
   const [schedulePlace, setSchedulePlace] = useState<string>('');
 
+  // State for detail modal segment
+  const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
+
   // New state for process modal
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
-  const [selectedMedicines, setSelectedMedicines] = useState<{ [key: string]: { checked: boolean; quantity: number } }>({});
+  const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
+  const categoryOptions = ['antibiotic', 'analgesic', 'supplement', 'antihistamine', 'antacid', 'diuretic'];
+  const [selectedMedicines, setSelectedMedicines] = useState<{ [key: string]: { quantity: number } }>({});
   const [processNote, setProcessNote] = useState<string>('');
+  const [processStep, setProcessStep] = useState<1 | 2 | 3>(1);
+  const [medicineSearch, setMedicineSearch] = useState<string>('');
+  const [medicineFilter, setMedicineFilter] = useState<string>('all');
+
+  const [showQuantityActionSheet, setShowQuantityActionSheet] = useState(false);
+  const [currentMedId, setCurrentMedId] = useState<string>('');
+  const [showQuantityAlert, setShowQuantityAlert] = useState(false);
+  const [quantityInput, setQuantityInput] = useState<string>('1');
 
   const handleRefresh = (event: CustomEvent) => {
     setLoading(true);
@@ -158,6 +180,7 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   const handleViewDetails = (request: MedicineRequest) => {
     setSelectedRequest(request);
+    setDetailSegment('request');
     setShowModal(true);
   };
 
@@ -248,48 +271,99 @@ const SuperAdminMedRequestList: React.FC = () => {
     fetchMedicines();
   }, []);
 
+  // Filter medicines based on search and filter
+  useEffect(() => {
+    let filtered = medicines;
+    if (medicineFilter !== 'all') {
+      filtered = filtered.filter(med => med.category === medicineFilter);
+    }
+    if (medicineSearch) {
+      filtered = filtered.filter(med =>
+        med.medicine_name.toLowerCase().includes(medicineSearch.toLowerCase()) ||
+        med.dosage_form.toLowerCase().includes(medicineSearch.toLowerCase()) ||
+        med.strength.toLowerCase().includes(medicineSearch.toLowerCase())
+      );
+    }
+    setFilteredMedicines(filtered);
+  }, [medicines, medicineSearch, medicineFilter]);
+
   // Open process modal and initialize selected medicines and note
   const handleProcessClick = (request: MedicineRequest) => {
     setSelectedRequest(request);
     // Initialize selectedMedicines state with dispensedMedicines or empty
-    const initialSelected: { [key: string]: { checked: boolean; quantity: number } } = {};
+    const initialSelected: { [key: string]: { quantity: number } } = {};
     medicines.forEach(med => {
       const qty = request.dispensedMedicines && request.dispensedMedicines[med.id || ''] ? request.dispensedMedicines[med.id || ''] : 0;
-      initialSelected[med.id || ''] = { checked: qty > 0, quantity: qty > 0 ? qty : 1 };
+      if (qty > 0) {
+        initialSelected[med.id || ''] = { quantity: qty };
+      }
     });
     setSelectedMedicines(initialSelected);
     setProcessNote(request.processNote || '');
+    setProcessStep(1);
+    setMedicineSearch('');
+    setMedicineFilter('all');
     setShowProcessModal(true);
   };
 
-  // Handle checkbox toggle
+  // Handle toggle selection
   const toggleMedicineSelection = (medId: string) => {
     setSelectedMedicines(prev => {
-      const current = prev[medId];
-      return {
-        ...prev,
-        [medId]: { checked: !current?.checked, quantity: current?.quantity || 1 },
-      };
+      const newSelected = { ...prev };
+      if (newSelected[medId]) {
+        delete newSelected[medId];
+      } else {
+        newSelected[medId] = { quantity: 1 };
+      }
+      return newSelected;
     });
   };
 
   // Handle quantity change
   const changeMedicineQuantity = (medId: string, quantity: number) => {
-    if (quantity < 1) quantity = 1;
-    setSelectedMedicines(prev => ({
-      ...prev,
-      [medId]: { checked: true, quantity },
-    }));
+    setSelectedMedicines(prev => {
+      if (quantity < 1) {
+        const newSelected = { ...prev };
+        delete newSelected[medId];
+        return newSelected;
+      }
+      return {
+        ...prev,
+        [medId]: { quantity },
+      };
+    });
+  };
+
+  // Open action sheet for quantity selection
+  const openQuantityActionSheet = (medId: string) => {
+    setCurrentMedId(medId);
+    setShowQuantityActionSheet(true);
+  };
+
+  // Handle action sheet button clicks
+  const handleActionSheetClick = (quantity: number | 'custom') => {
+    if (quantity === 'custom') {
+      setQuantityInput(selectedMedicines[currentMedId]?.quantity?.toString() || '1');
+      setShowQuantityAlert(true);
+    } else {
+      changeMedicineQuantity(currentMedId, quantity);
+    }
+    setShowQuantityActionSheet(false);
+  };
+
+  // Handle custom quantity input
+  const handleCustomQuantity = () => {
+    const qty = parseInt(quantityInput) || 1;
+    changeMedicineQuantity(currentMedId, qty);
+    setShowQuantityAlert(false);
   };
 
   // Save process data
   const handleSaveProcess = async () => {
     if (!selectedRequest) return;
     const dispensedMedicines: { [key: string]: number } = {};
-    Object.entries(selectedMedicines).forEach(([medId, { checked, quantity }]) => {
-      if (checked) {
-        dispensedMedicines[medId] = quantity;
-      }
+    Object.entries(selectedMedicines).forEach(([medId, { quantity }]) => {
+      dispensedMedicines[medId] = quantity;
     });
     const hasSelected = Object.keys(dispensedMedicines).length > 0;
     if (!hasSelected) {
@@ -377,6 +451,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                     ? '#ffc409' // warning (yellow)
                     : request.status === 'accepted'
                     ? '#017457' // primary (green-ish)
+                    : request.status === 'scheduled'
+                    ? '#017457' // primary (green-ish)
                     : request.status === 'completed'
                     ? '#2dd36f' // success (green)
                     : '#eb445a' // danger (red)
@@ -392,6 +468,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                         request.status === 'pending'
                           ? 'warning'
                           : request.status === 'accepted'
+                          ? 'primary'
+                          : request.status === 'scheduled'
                           ? 'primary'
                           : request.status === 'completed'
                           ? 'success'
@@ -428,7 +506,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                     }}>Schedule</IonButton>
                   )}
                   {request.status === 'scheduled' && (
-                    <IonButton color="tertiary" onClick={() => handleProcessClick(request)}>Process</IonButton>
+                    <IonButton color="primary" onClick={() => handleProcessClick(request)}>Process</IonButton>
                   )}
                 </div>
               </IonCardContent>
@@ -448,194 +526,328 @@ const SuperAdminMedRequestList: React.FC = () => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent >
+          <IonContent>
             {selectedRequest && (
-              <IonCard>
-                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
-                <IonItem>
-                  <IonLabel>
-                    Status: &nbsp;
-                    <IonText color={
-                      selectedRequest.status === 'pending'
-                        ? 'warning'
-                        : selectedRequest.status === 'accepted'
-                        ? 'primary'
-                        : selectedRequest.status === 'completed'
-                        ? 'success'
-                        : 'danger'
-                    } style={{ fontWeight: 'bold'}}>
-                      {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
-                    </IonText>
-                  </IonLabel>
-                </IonItem>
-                {selectedRequest.status === 'scheduled' && (
-                  <>
-                    {selectedRequest.scheduleDate && (
+              <>
+                <IonSegment value={detailSegment} onIonChange={e => setDetailSegment(e.detail.value as 'request' | 'resident')}>
+                  <IonSegmentButton value="request">
+                    <IonLabel>Request Info</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="resident">
+                    <IonLabel>Resident Info</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
+                <IonCard>
+                  {detailSegment === 'request' && (
+                    <>
+                      <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
                       <IonItem>
                         <IonLabel>
-                          Scheduled Date: &nbsp;
-                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.scheduleDate.toLocaleDateString()}</IonText>
+                          Status: &nbsp;
+                          <IonText color={
+                            selectedRequest.status === 'pending'
+                              ? 'warning'
+                              : selectedRequest.status === 'accepted'
+                              ? 'primary'
+                              : selectedRequest.status === 'completed'
+                              ? 'success'
+                              : 'danger'
+                          } style={{ fontWeight: 'bold'}}>
+                            {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+                          </IonText>
                         </IonLabel>
                       </IonItem>
-                    )}
-                    {selectedRequest.scheduleTime && (
+                      {selectedRequest.status === 'scheduled' && (
+                        <>
+                          {selectedRequest.scheduleDate && (
+                            <IonItem>
+                              <IonLabel>
+                                Scheduled Date: &nbsp;
+                                <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.scheduleDate.toLocaleDateString()}</IonText>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+                          {selectedRequest.scheduleTime && (
+                            <IonItem>
+                              <IonLabel>
+                                Scheduled Time: &nbsp;
+                                <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.scheduleTime}</IonText>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+                          {selectedRequest.schedulePlace && (
+                            <IonItem>
+                              <IonLabel>
+                                Scheduled Place: &nbsp;
+                                <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.schedulePlace}</IonText>
+                              </IonLabel>
+                            </IonItem>
+                          )}
+                        </>
+                      )}
                       <IonItem>
                         <IonLabel>
-                          Scheduled Time: &nbsp;
-                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.scheduleTime}</IonText>
+                          Reason: &nbsp;
+                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
                         </IonLabel>
                       </IonItem>
-                    )}
-                    {selectedRequest.schedulePlace && (
                       <IonItem>
                         <IonLabel>
-                          Scheduled Place: &nbsp;
-                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.schedulePlace}</IonText>
+                          Has Prescription: &nbsp;
+                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
                         </IonLabel>
                       </IonItem>
-                    )}
-                  </>
-                )}
-                <IonItem>
-                  <IonLabel>
-                    Reason: &nbsp;
-                    <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
-                  </IonLabel>
-                </IonItem>
-                <IonItem>
-                  <IonLabel>
-                    Has Prescription: &nbsp;
-                    <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
-                  </IonLabel>
-                </IonItem>
-                {selectedRequest.prescriptionUrl && (
-                  <IonItem>
-                    <IonLabel>
-                      Prescription: &nbsp;
-                      <a href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">View Prescription</a>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                <IonItem>
-                  <IonLabel>
-                    Created At: &nbsp;
-                    <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
-                  </IonLabel>
-                </IonItem>
-                <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>
-                {selectedRequest.userData && (
-                  <>
-                    <IonItem>
-                      <IonLabel>
-                        Name: &nbsp;
-                        <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Address: &nbsp;
-                        <IonText>{selectedRequest.userData?.address || 'N/A'}</IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Contact Number: &nbsp;
-                        <IonText>{selectedRequest.userData.contactNumber || 'N/A'}</IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Email: &nbsp;
-                        <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
-                      </IonLabel>
-                    </IonItem>
-                  </>
-                )}
-                {selectedRequest.notes && (
-                  <IonItem>
-                    <IonLabel>
-                      Notes: &nbsp;
-                      <IonText>{selectedRequest.notes}</IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
-                  <>
-                    <IonItem>
-                      <IonLabel>
-                        Dispensed Medicines: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => `${id}: ${qty}`).join(', ')}</IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Process Note: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote}</IonText>
-                      </IonLabel>
-                    </IonItem>
-                  </>
-                )}
-              </IonCard>
+                      {selectedRequest.prescriptionUrl && (
+                        <IonItem>
+                          <IonLabel>
+                            Prescription: &nbsp;
+                            <a href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">View Prescription</a>
+                          </IonLabel>
+                        </IonItem>
+                      )}
+                      <IonItem>
+                        <IonLabel>
+                          Created At: &nbsp;
+                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                        </IonLabel>
+                      </IonItem>
+                      {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
+                        <>
+                          <IonItem>
+                            <IonLabel>
+                              Dispensed Medicines: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
+                                const med = medicines.find(m => m.id === id);
+                                return `${med?.medicine_name || id}: ${qty}`;
+                              }).join(', ')}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Process Note: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                        </>
+                      )}
+                    </>
+                  )}
+                  {detailSegment === 'resident' && (
+                    <>
+                      <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
+                      {selectedRequest.userData && (
+                        <>
+                          <IonItem>
+                            <IonLabel>
+                              Name: &nbsp;
+                              <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Address: &nbsp;
+                              <IonText>{selectedRequest.userData?.address || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Contact Number: &nbsp;
+                              <IonText>{selectedRequest.userData.contactNumber || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Email: &nbsp;
+                              <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                        </>
+                      )}
+                      {selectedRequest.notes && (
+                        <IonItem>
+                          <IonLabel>
+                            Notes: &nbsp;
+                            <IonText>{selectedRequest.notes}</IonText>
+                          </IonLabel>
+                        </IonItem>
+                      )}
+                    </>
+                  )}
+                </IonCard>
+              </>
             )}
-
           </IonContent>
         </IonModal>
 
         {/* Process Modal */}
         <IonModal isOpen={showProcessModal} onDidDismiss={() => setShowProcessModal(false)}>
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
-              <IonTitle>Process Request</IonTitle>
+              <IonTitle>Process Request - Step {processStep} of 3</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowProcessModal(false)}>Close</IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {selectedRequest && (
+            {processStep === 1 && (
               <>
-                <IonItem>
-                  <IonLabel>Name</IonLabel>
-                  <IonInput value={`${selectedRequest.userData?.firstName} ${selectedRequest.userData?.lastName}`} readonly />
-                </IonItem>
-                <IonItem>
-                  <IonLabel>Gender</IonLabel>
-                  <IonInput value={selectedRequest.userData?.gender || 'N/A'} readonly />
-                </IonItem>
-                <IonItem>
-                  <IonLabel>Reason</IonLabel>
-                  <IonInput value={selectedRequest.reason} readonly />
-                </IonItem>
-                {selectedRequest.hasPrescription && selectedRequest.prescriptionUrl && (
-                  <IonButton fill="outline" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View Prescription</IonButton>
-                )}
-                <IonItemDivider>Medicines</IonItemDivider>
-                {medicines.map(med => (
-                  <IonItem key={med.id}>
-                    <IonLabel>{med.medicine_name} - {med.strength} - {med.dosage_form}</IonLabel>
-                    <IonCheckbox
-                      checked={selectedMedicines[med.id || '']?.checked || false}
-                      onIonChange={() => toggleMedicineSelection(med.id || '')}
-                    />
-                    {selectedMedicines[med.id || '']?.checked && (
-                      <IonInput
-                        type="number"
-                        value={selectedMedicines[med.id || '']?.quantity || 1}
-                        onIonChange={e => changeMedicineQuantity(med.id || '', parseInt(e.detail.value!) || 1)}
-                        placeholder="Quantity"
-                        min="1"
-                      />
+                <IonCard className="ion-padding">
+                  <IonNote>
+                    Confirm the request details before proceeding.
+                  </IonNote>
+                </IonCard>
+                <IonCard>
+                  <IonCardHeader>
+                    <IonItem lines='none'>
+                      Resident: {selectedRequest?.userData?.firstName} {selectedRequest?.userData?.lastName}
+                    </IonItem>
+                  </IonCardHeader>
+                  <IonCardContent>
+                    <IonItem>
+                      <IonLabel>
+                        Reason: <strong>{selectedRequest?.reason}</strong>
+                      </IonLabel>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel>
+                        Has Prescription: <strong>{selectedRequest?.hasPrescription ? 'Yes' : 'No'}</strong>
+                      </IonLabel>
+                    </IonItem>
+                    {selectedRequest?.hasPrescription && selectedRequest?.prescriptionUrl && (
+                      <IonButton fill="outline" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View Prescription</IonButton>
                     )}
-                  </IonItem>
-                ))}
-                <IonItem>
-                  <IonLabel>Note</IonLabel>
-                  <IonTextarea value={processNote} onIonChange={e => setProcessNote(e.detail.value!)} />
-                </IonItem>
-                <IonButton expand="full" onClick={handleSaveProcess}>Save</IonButton>
+                  </IonCardContent>
+                </IonCard>
+              </>
+            )}
+            {processStep === 2 && (
+              <>
+                <IonCard className="ion-padding">
+                  <IonNote>
+                    Select medicines from inventory. Use search and filter to find medicines quickly.
+                  </IonNote>
+                </IonCard>
+                <IonCard>
+                  <IonCardContent>
+                      <IonSearchbar
+                        value={medicineSearch}
+                        onIonChange={e => setMedicineSearch(e.detail.value!)}
+                        placeholder="Search medicines..."
+                      />
+                   
+                    <IonItem lines='none' className='ion-margin-vertical'>
+                      <IonSelect
+                        value={medicineFilter}
+                        placeholder="Filter by category"
+                        onIonChange={e => setMedicineFilter(e.detail.value)}
+                      >
+                        <IonSelectOption value="all">All Categories</IonSelectOption>
+                        {categoryOptions.map(cat => (
+                          <IonSelectOption key={cat} value={cat}>{cat}</IonSelectOption>
+                        ))}
+                      </IonSelect>
+                    </IonItem>
+                    <IonItemDivider>Medicines</IonItemDivider>
+                    {filteredMedicines.map(med => (
+                      <React.Fragment key={med.id}>
+                        <IonItem lines='none' className='ion-margin-vertical'>
+                          <IonLabel>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <div>
+                                {med.medicine_name}
+                              </div>
+                              <div>
+                                <small>{med.dosage_form} - {med.strength} ({med.unit_name})</small>
+                              </div>
+                            </div>
+                          </IonLabel>
+                          <IonCheckbox slot='end'
+                            checked={!!selectedMedicines[med.id || '']}
+                            onIonChange={() => toggleMedicineSelection(med.id || '')}
+                          />
+                        </IonItem>
+                        {selectedMedicines[med.id || ''] && (
+                          <IonItem key={`${med.id}-quantity`}>
+                            <IonLabel slot='start'>{med.medicine_name} Quantity: {selectedMedicines[med.id || '']?.quantity || 1}</IonLabel>
+                            <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id || '')}>
+                              Change
+                            </IonButton>
+                          </IonItem>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </IonCardContent>
+                </IonCard>
+              </>
+            )}
+            {processStep === 3 && (
+              <>
+                <IonCard className="ion-padding">
+                  <IonNote>
+                    Review the selected medicines and add a process note.
+                  </IonNote>
+                </IonCard>
+                <IonCard>
+                  <IonCardHeader>
+                    <IonItem lines='none'>
+                      Resident: {selectedRequest?.userData?.firstName} {selectedRequest?.userData?.lastName}
+                    </IonItem>
+                  </IonCardHeader>
+                  <IonCardContent>
+                    <IonItemDivider>Selected Medicines</IonItemDivider>
+                    {Object.entries(selectedMedicines).length === 0 ? (
+                      <IonItem>
+                        <IonText>No medicines selected.</IonText>
+                      </IonItem>
+                    ) : (
+                      Object.entries(selectedMedicines).map(([medId, { quantity }]) => {
+                        const med = medicines.find(m => m.id === medId);
+                        return (
+                          <IonItem key={medId}>
+                            <IonLabel>
+                              {med?.medicine_name} - Quantity: {quantity}
+                            </IonLabel>
+                          </IonItem>
+                        );
+                      })
+                    )}
+                    <IonItemDivider>Process Note</IonItemDivider>
+                    <IonItem lines='none' className='ion-margin-vertical'>
+                      <IonTextarea
+                        fill="outline"
+                        value={processNote}
+                        onIonChange={e => setProcessNote(e.detail.value!)}
+                        placeholder="Add a note about the processing..."
+                      />
+                    </IonItem>
+                  </IonCardContent>
+                </IonCard>
               </>
             )}
           </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonButtons slot="start">
+                {processStep > 1 && (
+                  <IonButton onClick={() => setProcessStep(prev => prev - 1 as 1 | 2 | 3)}>
+                    Back
+                  </IonButton>
+                )}
+              </IonButtons>
+              <IonButtons slot="end">
+                {processStep < 3 ? (
+                  <IonButton onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}>
+                    Next
+                  </IonButton>
+                ) : (
+                  <IonButton onClick={handleSaveProcess}>
+                    Save
+                  </IonButton>
+                )}
+              </IonButtons>
+            </IonToolbar>
+          </IonFooter>
         </IonModal>
 
         <IonAlert
@@ -697,7 +909,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         />
 
         <IonModal isOpen={showScheduleModal} onDidDismiss={() => setShowScheduleModal(false)}>
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Schedule Request</IonTitle>
               <IonButtons slot="end">
@@ -706,35 +918,136 @@ const SuperAdminMedRequestList: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonItem>
-              <IonLabel>Schedule Date</IonLabel>
-              <IonDatetime
-                value={scheduleDate}
-                onIonChange={e => setScheduleDate(e.detail.value as string)}
-                min={new Date().toISOString()}
-                max="3000-12-31"
-                presentation="date"
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel>Starting Time</IonLabel>
-              <IonInput
-                type="time"
-                value={scheduleTime}
-                onIonChange={e => setScheduleTime(e.detail.value!)}
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel>Place</IonLabel>
-              <IonInput
-                value={schedulePlace}
-                onIonChange={e => setSchedulePlace(e.detail.value!)}
-                placeholder="Enter place"
-              />
-            </IonItem>
-            <IonButton expand="full" onClick={handleScheduleRequest}>Schedule</IonButton>
+            <IonCard className="ion-padding">
+              <IonNote>
+                Please select where and when the resident can pick up their request.
+              </IonNote>
+            </IonCard>
+            <IonCard>
+              <IonCardHeader>
+              <IonItem lines='none'>
+                  You are scheduling for: {selectedRequest?.userData?.firstName} {selectedRequest?.userData?.lastName}
+              </IonItem>
+              </IonCardHeader>
+              <IonCardContent>
+                <IonItemDivider>Schedule Date</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill="outline"
+                    type="date"
+                    placeholder="Select schedule date"
+                    value={scheduleDate}
+                    min={new Date().toISOString().split('T')[0]}
+                    onIonChange={(e) => setScheduleDate(e.detail.value!)}
+                    className="ion-margin-bottom"
+                    required
+                  />
+                </IonItem>
+                <IonItemDivider>Schedule Time</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill='outline'
+                    type="time"
+                    value={scheduleTime}
+                    onIonChange={e => setScheduleTime(e.detail.value!)}
+                  />
+                </IonItem>
+                <IonItemDivider>Schedule Place</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill='outline'
+                    value={schedulePlace}
+                    onIonChange={e => setSchedulePlace(e.detail.value!)}
+                    placeholder="Enter place"
+                  />
+              </IonItem>
+             
+            </IonCardContent>
+          </IonCard>
           </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonItem lines='none'>
+                <small>  If all fields are filled out correctly, click "Schedule" to finalize the scheduling.
+              </small>
+              </IonItem>
+              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleRequest}>
+                Schedule
+                <IonIcon slot="end" icon={calendar}></IonIcon>
+                </IonButton>
+            </IonToolbar>
+          </IonFooter>
         </IonModal>
+
+        {/* Quantity Action Sheet */}
+        <IonActionSheet
+          isOpen={showQuantityActionSheet}
+          onDidDismiss={() => setShowQuantityActionSheet(false)}
+          header="Select Quantity"
+          buttons={[
+            {
+              text: '1',
+              handler: () => handleActionSheetClick(1),
+            },
+            {
+              text: '2',
+              handler: () => handleActionSheetClick(2),
+            },
+            {
+              text: '3',
+              handler: () => handleActionSheetClick(3),
+            },
+            {
+              text: '5',
+              handler: () => handleActionSheetClick(5),
+            },
+            {
+              text: '10',
+              handler: () => handleActionSheetClick(10),
+            },
+            {
+              text: 'Remove',
+              handler: () => handleActionSheetClick(0),
+            },
+            {
+              text: 'Custom',
+              handler: () => handleActionSheetClick('custom'),
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel',
+            },
+          ]}
+        />
+
+        {/* Custom Quantity Alert */}
+        <IonAlert
+          isOpen={showQuantityAlert}
+          onDidDismiss={() => setShowQuantityAlert(false)}
+          header="Enter Custom Quantity"
+          inputs={[
+            {
+              name: 'quantity',
+              type: 'number',
+              placeholder: 'Quantity',
+              value: quantityInput,
+              min: 1,
+            },
+          ]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+            },
+            {
+              text: 'OK',
+              handler: (data) => {
+                setQuantityInput(data.quantity);
+                handleCustomQuantity();
+              },
+            },
+          ]}
+        />
       </IonContent>
     </IonPage>
   );
