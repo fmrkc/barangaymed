@@ -40,6 +40,8 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonCardSubtitle,
+  IonToast,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -61,8 +63,13 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
-  const [showRejectAlert, setShowRejectAlert] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const [requestToReject, setRequestToReject] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState<string>('');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isMarkingComplete, setIsMarkingComplete] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
   const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
   const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
 
@@ -92,6 +99,11 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [quantityInput, setQuantityInput] = useState<string>('1');
 
   const [processError, setProcessError] = useState<string | null>(null);
+
+  const [toastMessage, setToastMessage] = useState<string>('');
+  const [showRejectToast, setShowRejectToast] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showAcceptToast, setShowAcceptToast] = useState(false);
 
   const handleRefresh = (event: CustomEvent) => {
     setLoading(true);
@@ -128,6 +140,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             id: doc.id,
             userId: data.userId,
             barangayId: data.barangayId,
+            barangayName: data.barangayName,
             userData: data.userData,
             reason: data.reason,
             hasPrescription: data.hasPrescription,
@@ -142,6 +155,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             schedulePlace: data.schedulePlace,
             dispensedMedicines: data.dispensedMedicines,
             processNote: data.processNote,
+            rejectionReason: data.rejectionReason,
             auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
               action: entry.action,
               userId: entry.userId,
@@ -201,14 +215,13 @@ const SuperAdminMedRequestList: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected' | 'completed' | 'scheduled' | 'processed', action: string) => {
+  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected' | 'completed' | 'scheduled' | 'processed', action: string, reason?: string) => {
     if (!currentUser || !currentUser.email) {
       setError('User authentication or email is required.');
       return;
     }
     try {
-      const requestRef = doc(db, 'medicineRequests', requestId);
-      await updateDoc(requestRef, {
+      const updateData: any = {
         status: status,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
@@ -217,23 +230,51 @@ const SuperAdminMedRequestList: React.FC = () => {
           userEmail: currentUser.email,
           timestamp: new Date(),
         }),
-      });
+      };
+      if (reason) {
+        updateData.rejectionReason = reason;
+      }
+      const requestRef = doc(db, 'medicineRequests', requestId);
+      await updateDoc(requestRef, updateData);
     } catch (error) {
       console.error(`Error updating request to ${status}: `, error);
       setError(`Failed to update the request.`);
     }
   };
 
-  const handleAcceptRequest = () => {
+  const handleAcceptRequest = async () => {
     if (!requestToAccept) return;
-    handleUpdateRequestStatus(requestToAccept, 'accepted', 'Accepted request');
-    setRequestToAccept(null);
+    setIsAccepting(true);
+    try {
+      await handleUpdateRequestStatus(requestToAccept, 'accepted', 'Accepted request');
+      const request = requests.find(r => r.id === requestToAccept);
+      setToastMessage(`You have successfully accepted ${request?.userData?.firstName} ${request?.userData?.lastName}'s request.`);
+      setShowAcceptToast(true);
+      setRequestToAccept(null);
+      setShowAcceptAlert(false);
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      setError('Failed to accept the request.');
+    } finally {
+      setIsAccepting(false);
+    }
   };
 
-  const handleRejectRequest = () => {
+  const handleRejectRequest = async (reason: string) => {
     if (!requestToReject) return;
-    handleUpdateRequestStatus(requestToReject, 'rejected', 'Rejected request');
-    setRequestToReject(null);
+    setIsRejecting(true);
+    try {
+      await handleUpdateRequestStatus(requestToReject, 'rejected', 'Rejected request', reason);
+      setRequestToReject(null);
+      setShowRejectModal(false);
+      setRejectionReason('');
+      setShowRejectToast(true);
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      setError('Failed to reject the request.');
+    } finally {
+      setIsRejecting(false);
+    }
   };
 
   const handleMarkAsComplete = () => {
@@ -425,6 +466,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       setSelectedMedicines({});
       setProcessNote('');
       setProcessError(null);
+      setShowSuccessToast(true);
     } catch (error) {
       console.error('Error saving process data:', error);
       setProcessError('Failed to save process data.');
@@ -492,6 +534,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                 borderLeft: `8px solid ${
                   request.status === 'pending'
                     ? '#ffc409' // warning (yellow)
+                    : request.status === 'rejected'
+                    ? '#eb445a' // danger (red)
                     : request.status === 'accepted'
                     ? '#017457' // primary (green-ish)
                     : request.status === 'processed'
@@ -500,25 +544,28 @@ const SuperAdminMedRequestList: React.FC = () => {
                     ? '#017457' // primary (green-ish)
                     : request.status === 'completed'
                     ? '#2dd36f' // success (green)
-                    : '#eb445a' // danger (red)
+                    : '#017457' // danger (red)
                 }`
               }}
             >
               <IonCardHeader>
                 <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {request.userData?.firstName} {request.userData?.lastName}
+                    {request.userData?.firstName} {request.userData?.lastName} 
+                  
                     <IonChip
                       color={
                         request.status === 'pending'
                           ? 'warning'
+                          : request.status === 'rejected'
+                          ? 'danger'
                           : request.status === 'accepted'
                           ? 'primary'
                           : request.status === 'scheduled'
                           ? 'primary'
                           : request.status === 'completed'
                           ? 'success'
-                          : 'danger'
+                          : 'primary'
                       }
                       style={{ margin: '0' }}
                     >
@@ -526,34 +573,63 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </IonChip>
                   </div>
                 </IonCardTitle>
+                <IonCardSubtitle>
+                  Barangay: <strong>{request.barangayName || request.barangayId}</strong>
+                </IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>
-                <p>Reason: <strong>{request.reason}</strong></p>
-                <p>Approved by: <strong>{request.adminId || 'N/A'}</strong> </p>
-                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                  <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                  {request.status === 'pending' && (
-                    <>
-                      <IonButton color="success" onClick={() => {
-                        setRequestToAccept(request.id!);
-                        setShowAcceptAlert(true);
-                      }}>Accept</IonButton>
-                      <IonButton color="danger" onClick={() => {
-                        setRequestToReject(request.id!);
-                        setShowRejectAlert(true);
-                      }}>Reject</IonButton>
-                    </>
-                  )}
-                  {request.status === 'accepted' && (
+                {request.status === 'pending' && (
+                  <>
+                    <p>Reason: <strong>{request.reason}</strong> </p>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <IonButton expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                      <IonButton expand='block' fill='outline' color="danger" onClick={() => { setRequestToReject(request.id!); setSelectedRequest(request); setShowRejectModal(true); }}>Reject</IonButton>
+                      <IonButton expand='block' color="success" onClick={() => { setRequestToAccept(request.id!); setShowAcceptAlert(true); }}>Accept</IonButton>
+                    </div>
+                
+                  </>
+                )}
+                {request.status === 'rejected' && (
+                  <>
+                    <p>Rejected by: <strong>{request.auditTrail?.[0]?.userEmail || 'N/A'}</strong> </p>
+                    <p>Reason </p>
+                      <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                  </>
+                )}
+                {request.status === 'accepted' && (
+                  <>
+                    <p>Approved by: <strong>{request.auditTrail?.[0]?.userEmail || 'N/A'}</strong> </p>
+                    
                     <IonButton color="primary" onClick={() => handleProcessClick(request)}>Process</IonButton>
-                  )}
-                  {request.status === 'processed' && (
-                    <IonButton color="primary" onClick={() => {
-                      setRequestToSchedule(request.id!);
-                      setShowScheduleModal(true);
-                    }}>Schedule</IonButton>
-                  )}
-                </div>
+                  </>
+                )}
+                {request.status === 'processed' && (
+                  <>
+                    <p>Medication/s: <strong>{Object.entries(request.dispensedMedicines || {}).map(([id, qty]) => {
+                      const med = medicines.find(m => m.id === id);
+                      return `${med?.medicine_name || id} (${qty})`;
+                    }).join(', ')}</strong> </p>
+                    <p>Processed by: <strong>{request.auditTrail?.[0]?.userEmail || 'N/A'}</strong> </p>
+                    <IonGrid>
+                      <IonRow>
+                        <IonCol size='3' >
+                          <IonButton expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                        </IonCol>
+                        <IonCol size='9'>
+                          <IonButton expand='block' color="primary" onClick={() => {
+                            setRequestToSchedule(request.id!);
+                            setShowScheduleModal(true);
+                          }}>Schedule</IonButton>
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                  </>
+                )}
+                {request.status === 'scheduled' && (
+                  <>
+                  
+                  </>
+                )}
               </IonCardContent>
             </IonCard>
           ))}
@@ -967,25 +1043,61 @@ const SuperAdminMedRequestList: React.FC = () => {
             }
           ]}
         />
-        <IonAlert
-          isOpen={showRejectAlert}
-          onDidDismiss={() => setShowRejectAlert(false)}
-          header={'Confirm Reject'}
-          message={'Are you sure you want to reject this medicine request?'}
-          buttons={[
-            {
-              text: 'No',
-              role: 'cancel',
-              handler: () => {
-                setRequestToReject(null);
-              }
-            },
-            {
-              text: 'Yes',
-              handler: handleRejectRequest
-            }
-          ]}
-        />
+        <IonModal isOpen={showRejectModal} onDidDismiss={() => { setShowRejectModal(false); setRejectionReason(''); }}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Reject Request</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => { setShowRejectModal(false); setRejectionReason(''); }}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {isRejecting && <IonLoading isOpen={isRejecting} message="Rejecting request..." />}
+            <IonCard className="ion-padding">
+              <IonNote>
+                Please provide a reason for rejecting this medicine request. 
+              </IonNote>
+            </IonCard>
+            <IonCard>
+              <IonCardHeader>
+                <IonItem lines='none'>
+                  Rejecting request for: {selectedRequest?.userData?.firstName || 'No first name'} {selectedRequest?.userData?.lastName}
+                </IonItem>
+              </IonCardHeader>
+              <IonCardContent>
+                <IonItemDivider>Rejection Reason</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonTextarea
+                    rows={8}
+                    fill="outline"
+                    value={rejectionReason}
+                    onIonChange={e => setRejectionReason(e.detail.value!)}
+                    placeholder="Enter reason for rejection..."
+                    required
+                  />
+                </IonItem>
+              </IonCardContent>
+            </IonCard>
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonItem lines='none'>
+                <small>Make sure that the reason is clear so the resident understands why their request was rejected. The resident will be notified of the rejection via email.</small>
+              </IonItem>
+              <IonButton
+                shape='round'
+                className='ion-padding-vertical'
+                expand="full"
+                color="danger"
+                onClick={() => handleRejectRequest(rejectionReason)}
+                disabled={!rejectionReason.trim()}
+              >
+                Reject
+              </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
         <IonAlert
           isOpen={showMarkCompleteAlert}
           onDidDismiss={() => setShowMarkCompleteAlert(false)}
@@ -1145,6 +1257,30 @@ const SuperAdminMedRequestList: React.FC = () => {
               },
             },
           ]}
+        />
+
+        <IonToast
+          isOpen={showSuccessToast}
+          onDidDismiss={() => setShowSuccessToast(false)}
+          message="Request processed successfully!"
+          duration={2000}
+          color="success"
+        />
+
+        <IonToast
+          isOpen={showRejectToast}
+          onDidDismiss={() => setShowRejectToast(false)}
+          message="Request rejected successfully!"
+          duration={2000}
+          color="primary"
+        />
+
+        <IonToast
+          isOpen={showAcceptToast}
+          onDidDismiss={() => setShowAcceptToast(false)}
+          message={toastMessage}
+          duration={2000}
+          color="success"
         />
       </IonContent>
     </IonPage>

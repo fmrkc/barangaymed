@@ -4,6 +4,7 @@ export interface MedicineRequest {
   id?: string;
   userId: string;
   barangayId: string;
+  barangayName?: string;
   userData?: UserData;
   reason: string;
   hasPrescription: boolean;
@@ -18,5 +19,6 @@ export interface MedicineRequest {
   schedulePlace?: string;
   dispensedMedicines?: { [key: string]: number };
   processNote?: string;
+  rejectionReason?: string;
   auditTrail?: { action: string; userId: string; userEmail: string; timestamp: Date }[];
 }

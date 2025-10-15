@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp, query, getDocs, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { UserService } from '../../services/userService';
+import { getBarangayNameByCode } from '../../services/addressService';
 import { paperPlane, send, arrowBack, arrowForward, open, cloudUpload } from 'ionicons/icons';
 
 interface UserMedRequestProps {
@@ -102,9 +103,11 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
         prescriptionUrl = await getDownloadURL(uploadResult.ref);
       }
 
+      const barangayName = await getBarangayNameByCode(barangayId);
       await addDoc(collection(db, 'medicineRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
+        barangayName: barangayName,
         userData: {
           firstName: userData.firstName,
           middleName: userData.middleName,
