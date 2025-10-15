@@ -8,7 +8,7 @@ export interface MedicineRequest {
   reason: string;
   hasPrescription: boolean;
   prescriptionUrl?: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'scheduled' | 'completed' | 'cancelled' | 'no show' | 'pending completion';
+  status: 'pending' | 'accepted' | 'rejected' | 'processed' | 'scheduled' | 'completed' | 'cancelled' | 'no show' | 'pending completion';
   createdAt: Date;
   updatedAt?: Date;
   notes?: string;
@@ -18,4 +18,5 @@ export interface MedicineRequest {
   schedulePlace?: string;
   dispensedMedicines?: { [key: string]: number };
   processNote?: string;
+  auditTrail?: { action: string; userId: string; userEmail: string; timestamp: Date }[];
 }

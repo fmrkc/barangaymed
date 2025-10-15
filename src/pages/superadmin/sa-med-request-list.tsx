@@ -37,12 +37,15 @@ import {
   IonSearchbar,
   IonSelect,
   IonSelectOption,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
-import { calendar } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane } from 'ionicons/icons';
 
 const db = getFirestore();
 
@@ -50,7 +53,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const { currentUser } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MedicineRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'not_completed' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'pending completion' | 'completed' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -87,6 +90,8 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [currentMedId, setCurrentMedId] = useState<string>('');
   const [showQuantityAlert, setShowQuantityAlert] = useState(false);
   const [quantityInput, setQuantityInput] = useState<string>('1');
+
+  const [processError, setProcessError] = useState<string | null>(null);
 
   const handleRefresh = (event: CustomEvent) => {
     setLoading(true);
@@ -137,6 +142,12 @@ const SuperAdminMedRequestList: React.FC = () => {
             schedulePlace: data.schedulePlace,
             dispensedMedicines: data.dispensedMedicines,
             processNote: data.processNote,
+            auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
+              action: entry.action,
+              userId: entry.userId,
+              userEmail: entry.userEmail,
+              timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
+            })) : [],
           };
           reqs.push(req);
         });
@@ -165,14 +176,20 @@ const SuperAdminMedRequestList: React.FC = () => {
       case 'pending':
         filtered = requests.filter((r) => r.status === 'pending');
         break;
-      case 'active':
-        filtered = requests.filter((r) => r.status === 'accepted' || r.status === 'scheduled');
+      case 'approved':
+        filtered = requests.filter((r) => r.status === 'accepted');
+        break;
+      case 'processed':
+        filtered = requests.filter((r) => r.status === 'processed');
+        break;
+      case 'scheduled':
+        filtered = requests.filter((r) => r.status === 'scheduled');
+        break;
+      case 'pending completion':
+        filtered = requests.filter((r) => r.status === 'pending completion');
         break;
       case 'completed':
-        filtered = requests.filter((r) => r.status === 'pending completion' || r.status === 'completed');
-        break;
-      case 'not_completed':
-        filtered = requests.filter((r) => r.status === 'cancelled' || r.status === 'rejected' || r.status === 'no show');
+        filtered = requests.filter((r) => r.status === 'completed');
         break;
     }
     setFilteredRequests(filtered);
@@ -184,12 +201,22 @@ const SuperAdminMedRequestList: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected' | 'completed') => {
+  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected' | 'completed' | 'scheduled' | 'processed', action: string) => {
+    if (!currentUser || !currentUser.email) {
+      setError('User authentication or email is required.');
+      return;
+    }
     try {
       const requestRef = doc(db, 'medicineRequests', requestId);
       await updateDoc(requestRef, {
         status: status,
         updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: action,
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          timestamp: new Date(),
+        }),
       });
     } catch (error) {
       console.error(`Error updating request to ${status}: `, error);
@@ -199,24 +226,24 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   const handleAcceptRequest = () => {
     if (!requestToAccept) return;
-    handleUpdateRequestStatus(requestToAccept, 'accepted');
+    handleUpdateRequestStatus(requestToAccept, 'accepted', 'Accepted request');
     setRequestToAccept(null);
   };
 
   const handleRejectRequest = () => {
     if (!requestToReject) return;
-    handleUpdateRequestStatus(requestToReject, 'rejected');
+    handleUpdateRequestStatus(requestToReject, 'rejected', 'Rejected request');
     setRequestToReject(null);
   };
 
   const handleMarkAsComplete = () => {
     if (!requestToMarkComplete) return;
-    handleUpdateRequestStatus(requestToMarkComplete, 'completed');
+    handleUpdateRequestStatus(requestToMarkComplete, 'completed', 'Marked as completed');
     setRequestToMarkComplete(null);
   };
 
   const handleScheduleRequest = async () => {
-    if (!requestToSchedule || !scheduleDate || !scheduleTime || !schedulePlace) return;
+    if (!requestToSchedule || !scheduleDate || !scheduleTime || !schedulePlace || !currentUser) return;
     try {
       const requestRef = doc(db, 'medicineRequests', requestToSchedule);
       await updateDoc(requestRef, {
@@ -225,9 +252,15 @@ const SuperAdminMedRequestList: React.FC = () => {
         scheduleTime,
         schedulePlace,
         updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: 'Scheduled request',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown',
+          timestamp: new Date(),
+        }),
       });
       // Update local state
-      setRequests(prev => prev.map(r => r.id === requestToSchedule ? { ...r, status: 'scheduled', scheduleDate: new Date(scheduleDate), scheduleTime, schedulePlace } : r));
+      setRequests(prev => prev.map(r => r.id === requestToSchedule ? { ...r, status: 'scheduled', scheduleDate: new Date(scheduleDate), scheduleTime, schedulePlace, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled request', userId: currentUser.uid, userEmail: currentUser.email!, timestamp: new Date() }] } : r));
       setShowScheduleModal(false);
       setRequestToSchedule(null);
       setScheduleDate('');
@@ -241,12 +274,12 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   // Fetch medicines for process modal
   useEffect(() => {
-    const fetchMedicines = async () => {
-      try {
-        const medicinesCol = collection(db, 'medicine');
-        const medicinesSnapshot = await getDocs(medicinesCol);
+    const medicinesCol = collection(db, 'medicine');
+    const unsubscribe = onSnapshot(
+      medicinesCol,
+      (querySnapshot) => {
         const medicinesList: Medicine[] = [];
-        medicinesSnapshot.forEach(doc => {
+        querySnapshot.forEach(doc => {
           const data = doc.data();
           medicinesList.push({
             id: doc.id,
@@ -264,11 +297,13 @@ const SuperAdminMedRequestList: React.FC = () => {
           });
         });
         setMedicines(medicinesList);
-      } catch (error) {
+      },
+      (error) => {
         console.error('Error fetching medicines:', error);
       }
-    };
-    fetchMedicines();
+    );
+
+    return () => unsubscribe();
   }, []);
 
   // Filter medicines based on search and filter
@@ -303,6 +338,7 @@ const SuperAdminMedRequestList: React.FC = () => {
     setProcessStep(1);
     setMedicineSearch('');
     setMedicineFilter('all');
+    setProcessError(null);
     setShowProcessModal(true);
   };
 
@@ -367,13 +403,13 @@ const SuperAdminMedRequestList: React.FC = () => {
     });
     const hasSelected = Object.keys(dispensedMedicines).length > 0;
     if (!hasSelected) {
-      setError('Please select at least one medicine.');
+      setProcessError('Please select at least one medicine.');
       return;
     }
     try {
       const requestRef = doc(db, 'medicineRequests', selectedRequest.id!);
       await updateDoc(requestRef, {
-        status: 'pending completion',
+        status: 'processed',
         dispensedMedicines,
         processNote,
         updatedAt: new Date(),
@@ -381,16 +417,17 @@ const SuperAdminMedRequestList: React.FC = () => {
       // Update local state
       setRequests(prev =>
         prev.map(r =>
-          r.id === selectedRequest.id ? { ...r, status: 'pending completion', dispensedMedicines, processNote } : r
+          r.id === selectedRequest.id ? { ...r, status: 'processed', dispensedMedicines, processNote } : r
         )
       );
       setShowProcessModal(false);
       setSelectedRequest(null);
       setSelectedMedicines({});
       setProcessNote('');
+      setProcessError(null);
     } catch (error) {
       console.error('Error saving process data:', error);
-      setError('Failed to save process data.');
+      setProcessError('Failed to save process data.');
     }
   };
 
@@ -412,14 +449,20 @@ const SuperAdminMedRequestList: React.FC = () => {
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="active">
-            <IonLabel>Active</IonLabel>
+          <IonSegmentButton value="approved">
+            <IonLabel>Approved</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="processed">
+            <IonLabel>Processed</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="scheduled">
+            <IonLabel>Scheduled</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="pending completion">
+            <IonLabel>Pending Completion</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="completed">
             <IonLabel>Completed</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="not_completed">
-            <IonLabel>Not Completed</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="all">
             <IonLabel>All</IonLabel>
@@ -450,6 +493,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                   request.status === 'pending'
                     ? '#ffc409' // warning (yellow)
                     : request.status === 'accepted'
+                    ? '#017457' // primary (green-ish)
+                    : request.status === 'processed'
                     ? '#017457' // primary (green-ish)
                     : request.status === 'scheduled'
                     ? '#017457' // primary (green-ish)
@@ -500,13 +545,13 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </>
                   )}
                   {request.status === 'accepted' && (
+                    <IonButton color="primary" onClick={() => handleProcessClick(request)}>Process</IonButton>
+                  )}
+                  {request.status === 'processed' && (
                     <IonButton color="primary" onClick={() => {
                       setRequestToSchedule(request.id!);
                       setShowScheduleModal(true);
                     }}>Schedule</IonButton>
-                  )}
-                  {request.status === 'scheduled' && (
-                    <IonButton color="primary" onClick={() => handleProcessClick(request)}>Process</IonButton>
                   )}
                 </div>
               </IonCardContent>
@@ -601,8 +646,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                         <IonItem>
                           <IonLabel>
                             Prescription: &nbsp;
-                            <a href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">View Prescription</a>
-                          </IonLabel>
+                            <IonButton className='ion-padding-vertical' expand='block' fill="outline" size="small" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View Prescription</IonButton>
+                            </IonLabel>
                         </IonItem>
                       )}
                       <IonItem>
@@ -628,6 +673,20 @@ const SuperAdminMedRequestList: React.FC = () => {
                               <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote}</IonText>
                             </IonLabel>
                           </IonItem>
+                        </>
+                      )}
+                      {selectedRequest.auditTrail && selectedRequest.auditTrail.length > 0 && (
+                        <>
+                          <IonItemDivider>Audit Trail</IonItemDivider>
+                          {selectedRequest.auditTrail.map((entry, index) => (
+                            <IonItem key={index}>
+                              <IonLabel>
+                                <IonText style={{ fontWeight: 'bold' }}>{entry.action}</IonText>
+                                <br />
+                                <small>By: {entry.userEmail} ({entry.userId}) at {entry.timestamp.toLocaleString()}</small>
+                              </IonLabel>
+                            </IonItem>
+                          ))}
                         </>
                       )}
                     </>
@@ -690,6 +749,11 @@ const SuperAdminMedRequestList: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
+            {processError && (
+              <IonText color="danger" className="ion-padding">
+                {processError}
+              </IonText>
+            )}
             {processStep === 1 && (
               <>
                 <IonCard className="ion-padding">
@@ -828,24 +892,58 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonContent>
           <IonFooter>
             <IonToolbar>
-              <IonButtons slot="start">
-                {processStep > 1 && (
-                  <IonButton onClick={() => setProcessStep(prev => prev - 1 as 1 | 2 | 3)}>
-                    Back
-                  </IonButton>
-                )}
-              </IonButtons>
-              <IonButtons slot="end">
-                {processStep < 3 ? (
-                  <IonButton onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}>
-                    Next
-                  </IonButton>
-                ) : (
-                  <IonButton onClick={handleSaveProcess}>
-                    Save
-                  </IonButton>
-                )}
-              </IonButtons>
+              {processStep === 1 && (
+                <IonButton
+                  expand="block"
+                  shape="round"
+                  onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}
+                  className="ion-margin"
+                >
+                  <IonIcon slot="end" icon={arrowForward} />
+                  <IonText className='ion-padding-vertical'>Next</IonText>
+                </IonButton>
+              )}
+
+              {(processStep === 2 || processStep === 3) && (
+                <IonGrid>
+                  <IonRow>
+                    <IonCol size="3">
+                      <IonButton
+                        expand="block"
+                        shape="round"
+                        fill="outline"
+                        onClick={() => setProcessStep(prev => prev - 1 as 1 | 2 | 3)}
+                      >
+                        <IonIcon slot="start" icon={arrowBack} />
+                        <IonText className='ion-padding-vertical'>Back</IonText>
+                      </IonButton>
+                    </IonCol>
+                    <IonCol size="9">
+                      {processStep === 2 ? (
+                        <IonButton
+                          expand="block"
+                          shape="round"
+                          onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}
+                        >
+                          <IonIcon slot="end" icon={arrowForward} />
+                          <IonText className='ion-padding-vertical'>Next</IonText>
+                        </IonButton>
+                      ) : (
+                        <IonButton
+                          color={'success'}
+                          expand="block"
+                          shape="round"
+                          onClick={handleSaveProcess}
+                          disabled={loading}
+                        >
+                          <IonText className='ion-padding-vertical'>Save</IonText>
+                          <IonIcon slot="end" icon={paperPlane} />
+                        </IonButton>
+                      )}
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              )}
             </IonToolbar>
           </IonFooter>
         </IonModal>

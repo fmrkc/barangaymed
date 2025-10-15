@@ -1,5 +1,5 @@
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonDatetime, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
-import { add } from 'ionicons/icons';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonDatetime, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonFooter, IonLoading, IonItemDivider, IonActionSheet, IonAlert } from '@ionic/react';
+import { add, albums } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
@@ -23,6 +23,12 @@ const Med_Inventory: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [customQuantity, setCustomQuantity] = useState('');
+  const [quantityError, setQuantityError] = useState('');
+  const [conversionFactorError, setConversionFactorError] = useState('');
 
   const resetForm = () => {
     setMedicineName('');
@@ -35,10 +41,14 @@ const Med_Inventory: React.FC = () => {
     setUnitName('');
     setQuantity(undefined);
     setConversionFactor(undefined);
+    setQuantityError('');
+    setConversionFactorError('');
   };
 
-  const handleAddMedicine = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddMedicine = async () => {
+    let hasError = false;
+    setQuantityError('');
+    setConversionFactorError('');
 
     if (!medicineName || !dosageForm || !strength || !category || !unitName || conversionFactor === undefined || quantity === undefined || !expirationDate) {
       setToastMessage('Please fill in all required fields.');
@@ -46,11 +56,21 @@ const Med_Inventory: React.FC = () => {
       return;
     }
 
-    if (conversionFactor < 0 || conversionFactor > 15) {
-      setToastMessage('Conversion factor must be between 0 and 15.');
-      setShowToast(true);
+    if (quantity === undefined || quantity <= 0) {
+      setQuantityError('Quantity must be greater than 0.');
+      hasError = true;
+    }
+
+    if (conversionFactor === undefined || conversionFactor < 0 || conversionFactor > 15) {
+      setConversionFactorError('Conversion factor must be between 0 and 15.');
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
+
+    setIsLoading(true);
 
     try {
       await addDoc(collection(db, 'medicine'), {
@@ -61,7 +81,7 @@ const Med_Inventory: React.FC = () => {
         requires_prescription: requiresPrescription,
         description: description || null,
         created_at: serverTimestamp(),
-        expiration_date: new Date(expirationDate),
+        expiration_date: new Date(expirationDate + "-01"),
         unit_name: unitName,
         conversion_factor: conversionFactor,
         quantity: quantity,
@@ -75,6 +95,8 @@ const Med_Inventory: React.FC = () => {
       setToastMessage('Failed to add medicine. Please try again.');
       setShowToast(true);
       console.error('Error adding medicine:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,10 +130,10 @@ const Med_Inventory: React.FC = () => {
     return `${med.quantity} ${med.unit_name}`;
   };
 
-  const dosageFormOptions = ['tablet', 'syrup', 'injection', 'capsule', 'cream', 'ointment'];
+  const dosageFormOptions = ['Tablet', 'Syrup', 'Injection', 'Capsule', 'Cream', 'Ointment'];
   const strengthOptions = ['500mg', '250mg', '100mg', '5ml/100mg', '10ml/200mg', '1g', '2g'];
-  const categoryOptions = ['antibiotic', 'analgesic', 'supplement', 'antihistamine', 'antacid', 'diuretic'];
-  const unitNameOptions = ['BANIG', 'SINGLE CAPSULE', 'BOX', 'BOTTLE', 'VIAL', 'TUBE'];
+  const categoryOptions = ['Antibiotic', 'Analgesic', 'Supplement', 'Antihistamine', 'Antacid', 'Diuretic'];
+  const unitNameOptions = ['Banig (Blister Pack)', 'Single Capsule', 'Box', 'Bottle', 'Vial', 'Tube'];
 
   return (
     <IonPage>
@@ -146,71 +168,248 @@ const Med_Inventory: React.FC = () => {
         </IonList>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonContent scrollY={true} className="ion-padding">
-            <form onSubmit={handleAddMedicine}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Add New Medicine</IonTitle>
+              <IonButtons slot='end'>
+                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent scrollY={true}>
+            <IonCard>
+              <IonCardContent>
             <IonItem>
-              <IonLabel position="stacked">Medicine Name (Generic/Brand)</IonLabel>
-              <IonInput value={medicineName} onIonChange={e => setMedicineName(e.detail.value!)} required />
+              <IonInput
+              label="Medicine Name"
+              fill="outline"
+              value={medicineName}
+              onIonChange={e => setMedicineName(e.detail.value!)}
+              required
+              className="ion-margin-bottom"
+            />
             </IonItem>
+           <IonItem>
+             <IonSelect
+              label="Category"
+              fill="outline"
+              value={category}
+              placeholder="Select Category"
+              onIonChange={e => setCategory(e.detail.value)}
+              interface="alert"
+              className="ion-margin-bottom"
+            >
+              {categoryOptions.map(option => (
+                <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+              ))}
+            </IonSelect>
+           </IonItem>
             <IonItem>
-              <IonLabel position="stacked">Dosage Form</IonLabel>
-              <IonSelect value={dosageForm} placeholder="Select Dosage Form" onIonChange={e => setDosageForm(e.detail.value)}>
-                {dosageFormOptions.map(option => (
-                  <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
-                ))}
-              </IonSelect>
+              <IonSelect
+              label="Dosage Form"
+              fill="outline"
+              value={dosageForm}
+              placeholder="Select Dosage Form"
+              onIonChange={e => setDosageForm(e.detail.value)}
+              interface="alert"
+              className="ion-margin-bottom"
+            >
+              {dosageFormOptions.map(option => (
+                <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+              ))}
+            </IonSelect>
             </IonItem>
+           <IonItem>
+             <IonSelect
+              label="Strength"
+              fill="outline"
+              value={strength}
+              placeholder="Select Strength"
+              onIonChange={e => setStrength(e.detail.value)}
+              interface="alert"
+              className="ion-margin-bottom"
+            >
+              {strengthOptions.map(option => (
+                <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+              ))}
+            </IonSelect>
+           </IonItem>
+
+            <IonItem lines="none" className="ion-margin-bottom">
+              <IonLabel>Requires Prescription?</IonLabel>
+              <IonToggle slot='end' checked={requiresPrescription} onIonChange={e => setRequiresPrescription(e.detail.checked)} />
+            </IonItem>
+            <IonItemDivider className='ion-margin-top'>Description (Optional)</IonItemDivider>
             <IonItem>
-              <IonLabel position="stacked">Strength</IonLabel>
-              <IonSelect value={strength} placeholder="Select Strength" onIonChange={e => setStrength(e.detail.value)}>
-                {strengthOptions.map(option => (
-                  <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
-                ))}
-              </IonSelect>
+              <IonTextarea
+              rows={4}
+              fill="outline"
+              value={description}
+              onIonChange={e => setDescription(e.detail.value!)}
+              className="ion-margin-bottom"
+            />
             </IonItem>
+            <IonItemDivider>Expiration Date *</IonItemDivider>
             <IonItem>
-              <IonLabel position="stacked">Category</IonLabel>
-              <IonSelect value={category} placeholder="Select Category" onIonChange={e => setCategory(e.detail.value)}>
-                {categoryOptions.map(option => (
-                  <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
-                ))}
-              </IonSelect>
+              <IonInput
+                fill="outline"
+                type="month"
+                placeholder="Select expiration month and year"
+                value={expirationDate}
+                min={new Date().toISOString().slice(0, 7)}
+                onIonChange={(e) => setExpirationDate(e.detail.value!)}
+                className="ion-margin-bottom"
+                required
+              />
             </IonItem>
-            <IonItem lines="none">
-              <IonLabel>Requires Prescription</IonLabel>
-              <IonToggle checked={requiresPrescription} onIonChange={e => setRequiresPrescription(e.detail.checked)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Description (Optional)</IonLabel>
-              <IonTextarea value={description} onIonChange={e => setDescription(e.detail.value!)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Expiration Date</IonLabel>
-              <IonDatetime presentation="date" value={expirationDate} onIonChange={e => setExpirationDate(e.detail.value as string)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Unit Name</IonLabel>
-              <IonSelect value={unitName} placeholder="Select Unit Name" onIonChange={e => setUnitName(e.detail.value)}>
-                {unitNameOptions.map(option => (
-                  <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
-                ))}
-              </IonSelect>
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Quantity</IonLabel>
-              <IonInput type="number" min="0" value={quantity !== undefined ? quantity : ''} onIonChange={e => setQuantity(parseInt(e.detail.value!))} required />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="stacked">Conversion Factor (0-15)</IonLabel>
-              <IonInput type="number" min="0" max="15" value={conversionFactor !== undefined ? conversionFactor : ''} onIonChange={e => setConversionFactor(parseFloat(e.detail.value!))} required />
-            </IonItem>
-            <IonButton type="submit" expand="block" className="ion-margin-top">Add Medicine</IonButton>
-            <IonButton expand="block" color="medium" onClick={() => setShowModal(false)}>Cancel</IonButton>
-          </form>
+           <IonItem>
+             <IonSelect
+              label="Unit Name"
+              fill="outline"
+              value={unitName}
+              placeholder="Select Unit Name"
+              onIonChange={e => setUnitName(e.detail.value)}
+              interface="alert"
+              className="ion-margin-bottom"
+            >
+              {unitNameOptions.map(option => (
+                <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+              ))}
+            </IonSelect>
+           </IonItem>
+           <IonItemDivider className='ion-margin-top'>Quantity *</IonItemDivider>
+           <IonItem>
+             <IonInput
+               fill="outline"
+               type="number"
+               min="0"
+               value={quantity !== undefined ? quantity : ''}
+               onIonChange={e => setQuantity(parseInt(e.detail.value!) || 0)}
+               required
+               className="ion-margin-bottom"
+               readonly
+               color={quantityError ? "danger" : undefined}
+               errorText={quantityError}
+             />
+             <IonButton shape='round' slot="end" className='ion-padding' onClick={() => setShowActionSheet(true)}>
+               Select Quantity
+               <IonIcon slot="end" icon={albums} />
+             </IonButton>
+           </IonItem>
+           <IonItemDivider className='ion-margin-top'>Conversion Factor*</IonItemDivider>
+           <IonItem>
+             <IonInput
+              placeholder="(0-15)"
+              fill="outline"
+              type="number"
+              min="0"
+              max="15"
+              value={conversionFactor !== undefined ? conversionFactor : ''}
+              onIonChange={e => {
+                const val = e.detail.value!;
+                setConversionFactor(val ? parseFloat(val) : undefined);
+                if (!val.trim()) {
+                  setConversionFactorError('Conversion factor is required.');
+                } else {
+                  const num = parseFloat(val);
+                  if (isNaN(num) || num < 0 || num > 15) {
+                    setConversionFactorError('Conversion factor must be between 0 and 15.');
+                  } else {
+                    setConversionFactorError('');
+                  }
+                }
+              }}
+              required
+              className="ion-margin-bottom"
+              color={conversionFactorError ? "danger" : undefined}
+              errorText={conversionFactorError}
+            />
+           </IonItem>
+              </IonCardContent>
+            </IonCard>
           </IonContent>
+          <IonFooter>
+            <IonToolbar>
+               <IonButton shape='round' color={'success'} expand="block" className="ion-padding-vertical" disabled={isLoading} onClick={handleAddMedicine}>
+                {isLoading ? 'Adding...' : 'Add Medicine'}
+                <IonIcon slot="end" icon={add} />
+               </IonButton>
+
+            </IonToolbar>
+          </IonFooter>
         </IonModal>
 
         <IonToast isOpen={showToast} onDidDismiss={() => setShowToast(false)} message={toastMessage} duration={3000} />
+        <IonLoading isOpen={isLoading} message="Adding medicine..." />
+
+        <IonActionSheet
+          isOpen={showActionSheet}
+          onDidDismiss={() => setShowActionSheet(false)}
+          header="Select Quantity"
+          buttons={[
+            {
+              text: '1',
+              handler: () => setQuantity(1),
+            },
+            {
+              text: '5',
+              handler: () => setQuantity(5),
+            },
+            {
+              text: '10',
+              handler: () => setQuantity(10),
+            },
+            {
+              text: '20',
+              handler: () => setQuantity(20),
+            },
+            {
+              text: '50',
+              handler: () => setQuantity(50),
+            },
+            {
+              text: '100',
+              handler: () => setQuantity(100),
+            },
+            {
+              text: 'Custom',
+              handler: () => setShowAlert(true),
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel',
+            },
+          ]}
+        />
+
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header="Enter Custom Quantity"
+          inputs={[
+            {
+              name: 'quantity',
+              type: 'number',
+              placeholder: 'Quantity',
+              min: 0,
+            },
+          ]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+            },
+            {
+              text: 'OK',
+              handler: (data) => {
+                const qty = parseInt(data.quantity);
+                if (qty > 0) {
+                  setQuantity(qty);
+                }
+              },
+            },
+          ]}
+        />
       </IonContent>
     </IonPage>
   );
