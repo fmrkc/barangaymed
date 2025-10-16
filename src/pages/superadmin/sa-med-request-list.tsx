@@ -47,7 +47,8 @@ import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, u
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
-import { calendar, arrowBack, arrowForward, paperPlane } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark } from 'ionicons/icons';
+import './sa-med-request-list.css';
 
 const db = getFirestore();
 
@@ -63,13 +64,10 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [requestToAccept, setRequestToAccept] = useState<string | null>(null);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [requestToReject, setRequestToReject] = useState<string | null>(null);
-  const [rejectionReason, setRejectionReason] = useState<string>('');
-  const [isRejecting, setIsRejecting] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
-  const [isMarkingComplete, setIsMarkingComplete] = useState(false);
-  const [isScheduling, setIsScheduling] = useState(false);
+  const [requestToReject, setRequestToReject] = useState<string | null>(null);
+  const [showRejectAlert, setShowRejectAlert] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
   const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
 
@@ -99,6 +97,9 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [quantityInput, setQuantityInput] = useState<string>('1');
 
   const [processError, setProcessError] = useState<string | null>(null);
+  const [isSavingProcess, setIsSavingProcess] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [showScheduleToast, setShowScheduleToast] = useState(false);
 
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showRejectToast, setShowRejectToast] = useState(false);
@@ -160,6 +161,7 @@ const SuperAdminMedRequestList: React.FC = () => {
               action: entry.action,
               userId: entry.userId,
               userEmail: entry.userEmail,
+              userName: entry.userName,
               timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
             })) : [],
           };
@@ -225,9 +227,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         status: status,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
-          action: action,
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
+          userName: currentUser.displayName || currentUser.email || 'Super Admin',
           timestamp: new Date(),
         }),
       };
@@ -252,6 +252,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       setShowAcceptToast(true);
       setRequestToAccept(null);
       setShowAcceptAlert(false);
+      setShowModal(false);
     } catch (error) {
       console.error('Error accepting request:', error);
       setError('Failed to accept the request.');
@@ -266,9 +267,8 @@ const SuperAdminMedRequestList: React.FC = () => {
     try {
       await handleUpdateRequestStatus(requestToReject, 'rejected', 'Rejected request', reason);
       setRequestToReject(null);
-      setShowRejectModal(false);
-      setRejectionReason('');
       setShowRejectToast(true);
+      setShowModal(false);
     } catch (error) {
       console.error('Error rejecting request:', error);
       setError('Failed to reject the request.');
@@ -285,6 +285,7 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   const handleScheduleRequest = async () => {
     if (!requestToSchedule || !scheduleDate || !scheduleTime || !schedulePlace || !currentUser) return;
+    setIsScheduling(true);
     try {
       const requestRef = doc(db, 'medicineRequests', requestToSchedule);
       await updateDoc(requestRef, {
@@ -297,19 +298,23 @@ const SuperAdminMedRequestList: React.FC = () => {
           action: 'Scheduled request',
           userId: currentUser.uid,
           userEmail: currentUser.email || 'unknown',
+          userName: currentUser.displayName || currentUser.email || 'Super Admin',
           timestamp: new Date(),
         }),
       });
       // Update local state
-      setRequests(prev => prev.map(r => r.id === requestToSchedule ? { ...r, status: 'scheduled', scheduleDate: new Date(scheduleDate), scheduleTime, schedulePlace, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled request', userId: currentUser.uid, userEmail: currentUser.email!, timestamp: new Date() }] } : r));
+      setRequests(prev => prev.map(r => r.id === requestToSchedule ? { ...r, status: 'scheduled', scheduleDate: new Date(scheduleDate), scheduleTime, schedulePlace, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled request', userId: currentUser.uid, userEmail: currentUser.email!, userName: currentUser.displayName || currentUser.email || 'Super Admin', timestamp: new Date() }] } : r));
       setShowScheduleModal(false);
       setRequestToSchedule(null);
       setScheduleDate('');
       setScheduleTime('');
       setSchedulePlace('');
+      setShowScheduleToast(true);
     } catch (error) {
       console.error('Error scheduling request:', error);
       setError('Failed to schedule the request.');
+    } finally {
+      setIsScheduling(false);
     }
   };
 
@@ -437,7 +442,10 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   // Save process data
   const handleSaveProcess = async () => {
-    if (!selectedRequest) return;
+    if (!selectedRequest || !currentUser) {
+      setProcessError('User or request data is missing.');
+      return;
+    }
     const dispensedMedicines: { [key: string]: number } = {};
     Object.entries(selectedMedicines).forEach(([medId, { quantity }]) => {
       dispensedMedicines[medId] = quantity;
@@ -447,6 +455,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       setProcessError('Please select at least one medicine.');
       return;
     }
+    setIsSavingProcess(true);
     try {
       const requestRef = doc(db, 'medicineRequests', selectedRequest.id!);
       await updateDoc(requestRef, {
@@ -454,6 +463,13 @@ const SuperAdminMedRequestList: React.FC = () => {
         dispensedMedicines,
         processNote,
         updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: 'Processed request',
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          userName: currentUser.displayName || currentUser.email || 'Super Admin',
+          timestamp: new Date(),
+        }),
       });
       // Update local state
       setRequests(prev =>
@@ -470,6 +486,8 @@ const SuperAdminMedRequestList: React.FC = () => {
     } catch (error) {
       console.error('Error saving process data:', error);
       setProcessError('Failed to save process data.');
+    } finally {
+      setIsSavingProcess(false);
     }
   };
 
@@ -581,26 +599,23 @@ const SuperAdminMedRequestList: React.FC = () => {
                 {request.status === 'pending' && (
                   <>
                     <p>Reason: <strong>{request.reason}</strong> </p>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonButton expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                      <IonButton expand='block' fill='outline' color="danger" onClick={() => { setRequestToReject(request.id!); setSelectedRequest(request); setShowRejectModal(true); }}>Reject</IonButton>
-                      <IonButton expand='block' color="success" onClick={() => { setRequestToAccept(request.id!); setShowAcceptAlert(true); }}>Accept</IonButton>
-                    </div>
-                
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                   </>
                 )}
                 {request.status === 'rejected' && (
                   <>
-                    <p>Rejected by: <strong>{request.auditTrail?.[0]?.userEmail || 'N/A'}</strong> </p>
-                    <p>Reason </p>
-                      <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                    <p>Rejected by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected request')?.userName || 'N/A'}</strong> </p>
+                    <p>Reason: <strong>{request.rejectionReason || 'N/A'}</strong></p>
+                    <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
                   </>
                 )}
                 {request.status === 'accepted' && (
                   <>
-                    <p>Approved by: <strong>{request.auditTrail?.[0]?.userEmail || 'N/A'}</strong> </p>
-                    
-                    <IonButton color="primary" onClick={() => handleProcessClick(request)}>Process</IonButton>
+                    <p>Approved by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted request')?.userName || 'N/A'}</strong> </p>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>Process<IonIcon slot='end' icon={open} /></IonButton>
+                    </div>
                   </>
                 )}
                 {request.status === 'processed' && (
@@ -609,25 +624,25 @@ const SuperAdminMedRequestList: React.FC = () => {
                       const med = medicines.find(m => m.id === id);
                       return `${med?.medicine_name || id} (${qty})`;
                     }).join(', ')}</strong> </p>
-                    <p>Processed by: <strong>{request.auditTrail?.[0]?.userEmail || 'N/A'}</strong> </p>
-                    <IonGrid>
-                      <IonRow>
-                        <IonCol size='3' >
-                          <IonButton expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                        </IonCol>
-                        <IonCol size='9'>
-                          <IonButton expand='block' color="primary" onClick={() => {
-                            setRequestToSchedule(request.id!);
-                            setShowScheduleModal(true);
-                          }}>Schedule</IonButton>
-                        </IonCol>
-                      </IonRow>
-                    </IonGrid>
+                    <p>Processed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Processed request')?.userName || 'N/A'}</strong> </p>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => {
+                        setRequestToSchedule(request.id!);
+                        setShowScheduleModal(true);
+                      }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
+                    </div>
                   </>
                 )}
                 {request.status === 'scheduled' && (
                   <>
-                  
+                    <p>Scheduled Date: <strong>{request.scheduleDate ? request.scheduleDate.toLocaleDateString() : 'N/A'}</strong></p>
+                    <p>Scheduled Time: <strong>{request.scheduleTime || 'N/A'}</strong></p>
+                    <p>Scheduled Place: <strong>{request.schedulePlace || 'N/A'}</strong></p>
+                    <IonButton expand='block' color="success" onClick={() => {
+                      setRequestToMarkComplete(request.id!);
+                      setShowMarkCompleteAlert(true);
+                    }}>Mark as Completed</IonButton>
                   </>
                 )}
               </IonCardContent>
@@ -668,16 +683,68 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonText color={
                             selectedRequest.status === 'pending'
                               ? 'warning'
+                              : selectedRequest.status === 'rejected'
+                              ? 'danger'
                               : selectedRequest.status === 'accepted'
                               ? 'primary'
                               : selectedRequest.status === 'completed'
                               ? 'success'
-                              : 'danger'
+                              : 'primary'
                           } style={{ fontWeight: 'bold'}}>
                             {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
                           </IonText>
                         </IonLabel>
                       </IonItem>
+                      {selectedRequest.status === 'accepted' && (
+                        <IonItem>
+                          <IonLabel>
+                            Approved by: &nbsp;
+                            <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.auditTrail?.[0]?.userEmail || 'N/A'}</IonText>
+                          </IonLabel>
+                        </IonItem>
+                      )}
+                      {selectedRequest.status === 'rejected' && (
+                        <>
+                          <IonItem>
+                            <IonLabel>
+                              Rejected by: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>  {selectedRequest.auditTrail?.[0]?.userEmail || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Rejection Reason: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.rejectionReason || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                        </>
+                      )}
+                      {selectedRequest.status === 'processed' && (
+                        <>
+                          <IonItem>
+                            <IonLabel>
+                              Processed by: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.auditTrail?.[0]?.userEmail || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Dispensed Medicines: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
+                                const med = medicines.find(m => m.id === id);
+                                return `${med?.medicine_name || id}: ${qty}`;
+                              }).join(', ')}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                          <IonItem>
+                            <IonLabel>
+                              Process Note: &nbsp;
+                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote || 'N/A'}</IonText>
+                            </IonLabel>
+                          </IonItem>
+                        </>
+                      )}
+                      
                       {selectedRequest.status === 'scheduled' && (
                         <>
                           {selectedRequest.scheduleDate && (
@@ -759,7 +826,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                               <IonLabel>
                                 <IonText style={{ fontWeight: 'bold' }}>{entry.action}</IonText>
                                 <br />
-                                <small>By: {entry.userEmail} ({entry.userId}) at {entry.timestamp.toLocaleString()}</small>
+                                <small>By: {entry.userName} ({entry.userEmail}) at {entry.timestamp.toLocaleString()}</small>
                               </IonLabel>
                             </IonItem>
                           ))}
@@ -812,6 +879,39 @@ const SuperAdminMedRequestList: React.FC = () => {
               </>
             )}
           </IonContent>
+          {selectedRequest?.status === 'pending' && (
+            <IonFooter>
+              <IonToolbar>
+                <IonGrid>
+                  <IonRow>
+                    <IonCol size="3">
+                      <IonButton
+                        className='ion-padding-vertical'
+                        shape='round'
+                        fill='outline'
+                        expand="block"
+                        color="danger"
+                        onClick={() => { setRequestToReject(selectedRequest.id!); setShowRejectAlert(true); }}
+                      >
+                        Reject<IonIcon slot='end' icon={close} />
+                      </IonButton>
+                    </IonCol>
+                    <IonCol size="9">
+                      <IonButton
+                        className='ion-padding-vertical'
+                        shape='round'
+                        expand="block"
+                        color="success"
+                        onClick={() => { setRequestToAccept(selectedRequest.id!); setShowAcceptAlert(true); }}
+                      >
+                        Accept<IonIcon slot='end' icon={checkmark} />
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </IonToolbar>
+            </IonFooter>
+          )}
         </IonModal>
 
         {/* Process Modal */}
@@ -825,6 +925,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
+            <IonLoading isOpen={isSavingProcess} message="Updating request..." />
             {processError && (
               <IonText color="danger" className="ion-padding">
                 {processError}
@@ -1010,9 +1111,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                           expand="block"
                           shape="round"
                           onClick={handleSaveProcess}
-                          disabled={loading}
+                          disabled={isSavingProcess}
                         >
-                          <IonText className='ion-padding-vertical'>Save</IonText>
+                          <IonText className='ion-padding-vertical'>Update</IonText>
                           <IonIcon slot="end" icon={paperPlane} />
                         </IonButton>
                       )}
@@ -1043,61 +1144,34 @@ const SuperAdminMedRequestList: React.FC = () => {
             }
           ]}
         />
-        <IonModal isOpen={showRejectModal} onDidDismiss={() => { setShowRejectModal(false); setRejectionReason(''); }}>
-          <IonHeader className='ion-no-border'>
-            <IonToolbar>
-              <IonTitle>Reject Request</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => { setShowRejectModal(false); setRejectionReason(''); }}>Close</IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {isRejecting && <IonLoading isOpen={isRejecting} message="Rejecting request..." />}
-            <IonCard className="ion-padding">
-              <IonNote>
-                Please provide a reason for rejecting this medicine request. 
-              </IonNote>
-            </IonCard>
-            <IonCard>
-              <IonCardHeader>
-                <IonItem lines='none'>
-                  Rejecting request for: {selectedRequest?.userData?.firstName || 'No first name'} {selectedRequest?.userData?.lastName}
-                </IonItem>
-              </IonCardHeader>
-              <IonCardContent>
-                <IonItemDivider>Rejection Reason</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonTextarea
-                    rows={8}
-                    fill="outline"
-                    value={rejectionReason}
-                    onIonChange={e => setRejectionReason(e.detail.value!)}
-                    placeholder="Enter reason for rejection..."
-                    required
-                  />
-                </IonItem>
-              </IonCardContent>
-            </IonCard>
-          </IonContent>
-          <IonFooter>
-            <IonToolbar>
-              <IonItem lines='none'>
-                <small>Make sure that the reason is clear so the resident understands why their request was rejected. The resident will be notified of the rejection via email.</small>
-              </IonItem>
-              <IonButton
-                shape='round'
-                className='ion-padding-vertical'
-                expand="full"
-                color="danger"
-                onClick={() => handleRejectRequest(rejectionReason)}
-                disabled={!rejectionReason.trim()}
-              >
-                Reject
-              </IonButton>
-            </IonToolbar>
-          </IonFooter>
-        </IonModal>
+        <IonAlert
+          isOpen={showRejectAlert}
+          onDidDismiss={() => setShowRejectAlert(false)}
+          header={'Reject Request'}
+          message={'Please provide a reason for rejecting this request.'}
+          inputs={[
+            {
+              name: 'rejectionReason',
+              type: 'textarea',
+              placeholder: 'Reason for rejection...'
+            }
+          ]}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => {
+                setRequestToReject(null);
+              }
+            },
+            {
+              text: 'Reject',
+              handler: (data) => {
+                handleRejectRequest(data.rejectionReason);
+              }
+            }
+          ]}
+        />
         <IonAlert
           isOpen={showMarkCompleteAlert}
           onDidDismiss={() => setShowMarkCompleteAlert(false)}
@@ -1128,6 +1202,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
+            <IonLoading isOpen={isScheduling} message="Scheduling request..." />
             <IonCard className="ion-padding">
               <IonNote>
                 Please select where and when the resident can pick up their request.
@@ -1181,7 +1256,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 <small>  If all fields are filled out correctly, click "Schedule" to finalize the scheduling.
               </small>
               </IonItem>
-              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleRequest}>
+              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleRequest} disabled={isScheduling}>
                 Schedule
                 <IonIcon slot="end" icon={calendar}></IonIcon>
                 </IonButton>
@@ -1279,6 +1354,14 @@ const SuperAdminMedRequestList: React.FC = () => {
           isOpen={showAcceptToast}
           onDidDismiss={() => setShowAcceptToast(false)}
           message={toastMessage}
+          duration={2000}
+          color="success"
+        />
+
+        <IonToast
+          isOpen={showScheduleToast}
+          onDidDismiss={() => setShowScheduleToast(false)}
+          message="Request scheduled successfully!"
           duration={2000}
           color="success"
         />
