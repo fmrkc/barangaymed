@@ -47,7 +47,7 @@ import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, u
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
-import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove } from 'ionicons/icons';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
@@ -56,7 +56,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const { currentUser } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MedicineRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'pending completion' | 'completed' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -70,6 +70,8 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [isRejecting, setIsRejecting] = useState(false);
   const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
   const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
+  const [showNoShowAlert, setShowNoShowAlert] = useState(false);
+  const [requestToMarkAsNoShow, setRequestToMarkAsNoShow] = useState<string | null>(null);
 
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [requestToSchedule, setRequestToSchedule] = useState<string | null>(null);
@@ -201,9 +203,6 @@ const SuperAdminMedRequestList: React.FC = () => {
       case 'scheduled':
         filtered = requests.filter((r) => r.status === 'scheduled');
         break;
-      case 'pending completion':
-        filtered = requests.filter((r) => r.status === 'pending completion');
-        break;
       case 'completed':
         filtered = requests.filter((r) => r.status === 'completed');
         break;
@@ -217,7 +216,7 @@ const SuperAdminMedRequestList: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected' | 'completed' | 'scheduled' | 'processed', action: string, reason?: string) => {
+  const handleUpdateRequestStatus = async (requestId: string, status: 'accepted' | 'rejected' | 'completed' | 'scheduled' | 'processed' | 'no show', action: string, reason?: string) => {
     if (!currentUser || !currentUser.email) {
       setError('User authentication or email is required.');
       return;
@@ -227,6 +226,9 @@ const SuperAdminMedRequestList: React.FC = () => {
         status: status,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
+          action: action,
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
           userName: currentUser.displayName || currentUser.email || 'Super Admin',
           timestamp: new Date(),
         }),
@@ -281,6 +283,12 @@ const SuperAdminMedRequestList: React.FC = () => {
     if (!requestToMarkComplete) return;
     handleUpdateRequestStatus(requestToMarkComplete, 'completed', 'Marked as completed');
     setRequestToMarkComplete(null);
+  };
+
+  const handleMarkAsNoShow = () => {
+    if (!requestToMarkAsNoShow) return;
+    handleUpdateRequestStatus(requestToMarkAsNoShow, 'no show', 'Marked as no show');
+    setRequestToMarkAsNoShow(null);
   };
 
   const handleScheduleRequest = async () => {
@@ -502,6 +510,8 @@ const SuperAdminMedRequestList: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
+        <IonLoading isOpen={isAccepting} message={"Accepting request..."} />
+        <IonLoading isOpen={isRejecting} message={"Rejecting request..."} />
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
@@ -517,9 +527,6 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonSegmentButton>
           <IonSegmentButton value="scheduled">
             <IonLabel>Scheduled</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="pending completion">
-            <IonLabel>Pending Completion</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="completed">
             <IonLabel>Completed</IonLabel>
@@ -552,7 +559,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 borderLeft: `8px solid ${
                   request.status === 'pending'
                     ? '#ffc409' // warning (yellow)
-                    : request.status === 'rejected'
+                    : request.status === 'rejected' || request.status === 'no show'
                     ? '#eb445a' // danger (red)
                     : request.status === 'accepted'
                     ? '#017457' // primary (green-ish)
@@ -575,7 +582,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                       color={
                         request.status === 'pending'
                           ? 'warning'
-                          : request.status === 'rejected'
+                          : request.status === 'rejected' || request.status === 'no show'
                           ? 'danger'
                           : request.status === 'accepted'
                           ? 'primary'
@@ -639,10 +646,38 @@ const SuperAdminMedRequestList: React.FC = () => {
                     <p>Scheduled Date: <strong>{request.scheduleDate ? request.scheduleDate.toLocaleDateString() : 'N/A'}</strong></p>
                     <p>Scheduled Time: <strong>{request.scheduleTime || 'N/A'}</strong></p>
                     <p>Scheduled Place: <strong>{request.schedulePlace || 'N/A'}</strong></p>
-                    <IonButton expand='block' color="success" onClick={() => {
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonButton className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>
+                      <IonIcon slot='icon-only' icon={open} />
+                    </IonButton>
+                    <IonButton className='btn-25-w ion-padding-vertical' expand='block' color="danger" onClick={() => {
+                      setRequestToMarkAsNoShow(request.id!);
+                      setShowNoShowAlert(true);
+                    }}>
+                      No Show
+                      <IonIcon slot='end' icon={personRemove} />
+                    </IonButton>
+                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
                       setRequestToMarkComplete(request.id!);
                       setShowMarkCompleteAlert(true);
-                    }}>Mark as Completed</IonButton>
+                    }}>
+                      Mark as Completed
+                      <IonIcon slot='end' icon={checkmark} />
+                    </IonButton>
+                    </div>
+                  </>
+                )}
+                {request.status === 'no show' && (
+                  <>
+                    <p>Marked as no-show by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked as no show')?.userName || 'N/A'}</strong> </p>
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                  </>
+                )}
+                {request.status === 'completed' && (
+                  <>
+                    <p>Completed by:  </p>
+                    <p>Completed at: </p>
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                   </>
                 )}
               </IonCardContent>
@@ -674,166 +709,194 @@ const SuperAdminMedRequestList: React.FC = () => {
                   </IonSegmentButton>
                 </IonSegment>
                 <IonCard>
-                  {detailSegment === 'request' && (
-                    <>
-                      <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
-                      <IonItem>
-                        <IonLabel>
-                          Status: &nbsp;
-                          <IonText color={
-                            selectedRequest.status === 'pending'
-                              ? 'warning'
-                              : selectedRequest.status === 'rejected'
-                              ? 'danger'
-                              : selectedRequest.status === 'accepted'
-                              ? 'primary'
-                              : selectedRequest.status === 'completed'
-                              ? 'success'
-                              : 'primary'
-                          } style={{ fontWeight: 'bold'}}>
+                  {detailSegment === 'request' && (() => {
+                    const acceptanceEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Accepted request');
+                    const rejectionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Rejected request');
+                    const processingEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Processed request');
+                    const schedulingEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Scheduled request');
+                    const completionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked as completed');
+                    const noShowEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked as no show');
+
+                    const isAccepted = !!acceptanceEntry || ['processed', 'scheduled', 'completed'].includes(selectedRequest.status);
+                    const isProcessed = !!processingEntry || ['scheduled', 'completed'].includes(selectedRequest.status);
+                    const isScheduled = !!schedulingEntry || ['completed'].includes(selectedRequest.status);
+                    const isCompleted = !!completionEntry;
+                    const isRejected = !!rejectionEntry;
+                    const isNoShow = !!noShowEntry;
+
+                    return (
+                      <>
+                        {/* Request Information */}
+                        <IonItemDivider style={{ marginTop: '10px' }}>Request Information</IonItemDivider>
+                        <IonItem>
+                          <IonLabel>Request ID:</IonLabel>
+                          <IonText slot="end" className="ion-text-wrap">{selectedRequest.id}</IonText>
+                        </IonItem>
+                        <IonItem>
+                          <IonLabel>Status:</IonLabel>
+                          <IonChip
+                            slot="end"
+                            color={
+                              selectedRequest.status === 'pending'
+                                ? 'warning'
+                                : selectedRequest.status === 'rejected' || selectedRequest.status === 'no show'
+                                ? 'danger'
+                                : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
+                                ? 'primary'
+                                : selectedRequest.status === 'completed'
+                                ? 'success'
+                                : 'medium'
+                            }
+                          >
                             {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
-                          </IonText>
-                        </IonLabel>
-                      </IonItem>
-                      {selectedRequest.status === 'accepted' && (
-                        <IonItem>
-                          <IonLabel>
-                            Approved by: &nbsp;
-                            <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.auditTrail?.[0]?.userEmail || 'N/A'}</IonText>
-                          </IonLabel>
+                          </IonChip>
                         </IonItem>
-                      )}
-                      {selectedRequest.status === 'rejected' && (
-                        <>
-                          <IonItem>
-                            <IonLabel>
-                              Rejected by: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>  {selectedRequest.auditTrail?.[0]?.userEmail || 'N/A'}</IonText>
-                            </IonLabel>
-                          </IonItem>
-                          <IonItem>
-                            <IonLabel>
-                              Rejection Reason: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.rejectionReason || 'N/A'}</IonText>
-                            </IonLabel>
-                          </IonItem>
-                        </>
-                      )}
-                      {selectedRequest.status === 'processed' && (
-                        <>
-                          <IonItem>
-                            <IonLabel>
-                              Processed by: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.auditTrail?.[0]?.userEmail || 'N/A'}</IonText>
-                            </IonLabel>
-                          </IonItem>
-                          <IonItem>
-                            <IonLabel>
-                              Dispensed Medicines: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
-                                const med = medicines.find(m => m.id === id);
-                                return `${med?.medicine_name || id}: ${qty}`;
-                              }).join(', ')}</IonText>
-                            </IonLabel>
-                          </IonItem>
-                          <IonItem>
-                            <IonLabel>
-                              Process Note: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote || 'N/A'}</IonText>
-                            </IonLabel>
-                          </IonItem>
-                        </>
-                      )}
-                      
-                      {selectedRequest.status === 'scheduled' && (
-                        <>
-                          {selectedRequest.scheduleDate && (
-                            <IonItem>
-                              <IonLabel>
-                                Scheduled Date: &nbsp;
-                                <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.scheduleDate.toLocaleDateString()}</IonText>
-                              </IonLabel>
-                            </IonItem>
-                          )}
-                          {selectedRequest.scheduleTime && (
-                            <IonItem>
-                              <IonLabel>
-                                Scheduled Time: &nbsp;
-                                <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.scheduleTime}</IonText>
-                              </IonLabel>
-                            </IonItem>
-                          )}
-                          {selectedRequest.schedulePlace && (
-                            <IonItem>
-                              <IonLabel>
-                                Scheduled Place: &nbsp;
-                                <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.schedulePlace}</IonText>
-                              </IonLabel>
-                            </IonItem>
-                          )}
-                        </>
-                      )}
-                      <IonItem>
-                        <IonLabel>
-                          Reason: &nbsp;
-                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
-                        </IonLabel>
-                      </IonItem>
-                      <IonItem>
-                        <IonLabel>
-                          Has Prescription: &nbsp;
-                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
-                        </IonLabel>
-                      </IonItem>
-                      {selectedRequest.prescriptionUrl && (
                         <IonItem>
-                          <IonLabel>
-                            Prescription: &nbsp;
-                            <IonButton className='ion-padding-vertical' expand='block' fill="outline" size="small" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View Prescription</IonButton>
-                            </IonLabel>
+                          <IonLabel>Reason:</IonLabel>
+                          <IonText slot="end" className="ion-text-wrap">{selectedRequest.reason}</IonText>
                         </IonItem>
-                      )}
-                      <IonItem>
-                        <IonLabel>
-                          Created At: &nbsp;
-                          <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
-                        </IonLabel>
-                      </IonItem>
-                      {(selectedRequest.status === 'pending completion' || selectedRequest.status === 'completed') && (
-                        <>
+                        <IonItem>
+                          <IonLabel>Has Prescription:</IonLabel>
+                          <IonText slot="end">{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
+                        </IonItem>
+                        {selectedRequest.prescriptionUrl && (
                           <IonItem>
-                            <IonLabel>
-                              Dispensed Medicines: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
-                                const med = medicines.find(m => m.id === id);
-                                return `${med?.medicine_name || id}: ${qty}`;
-                              }).join(', ')}</IonText>
-                            </IonLabel>
+                            <IonLabel>Prescription:</IonLabel>
+                            <IonButton slot="end" fill="outline" size="small" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View</IonButton>
                           </IonItem>
-                          <IonItem>
-                            <IonLabel>
-                              Process Note: &nbsp;
-                              <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.processNote}</IonText>
-                            </IonLabel>
-                          </IonItem>
-                        </>
-                      )}
-                      {selectedRequest.auditTrail && selectedRequest.auditTrail.length > 0 && (
-                        <>
-                          <IonItemDivider>Audit Trail</IonItemDivider>
-                          {selectedRequest.auditTrail.map((entry, index) => (
-                            <IonItem key={index}>
-                              <IonLabel>
-                                <IonText style={{ fontWeight: 'bold' }}>{entry.action}</IonText>
-                                <br />
-                                <small>By: {entry.userName} ({entry.userEmail}) at {entry.timestamp.toLocaleString()}</small>
-                              </IonLabel>
+                        )}
+                        <IonItem>
+                          <IonLabel>Requested At:</IonLabel>
+                          <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                        </IonItem>
+
+                        {/* Rejection Information */}
+                        {isRejected && rejectionEntry && (
+                          <>
+                            <IonItemDivider>Rejection Details</IonItemDivider>
+                            <IonItem>
+                              <IonLabel>Rejected By:</IonLabel>
+                              <IonText slot="end">{rejectionEntry.userName} ({rejectionEntry.userEmail})</IonText>
                             </IonItem>
-                          ))}
-                        </>
-                      )}
-                    </>
-                  )}
+                            <IonItem>
+                              <IonLabel>Rejected At:</IonLabel>
+                              <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Reason:</IonLabel>
+                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
+                            </IonItem>
+                          </>
+                        )}
+
+                        {/* No Show Information */}
+                        {isNoShow && noShowEntry && (
+                          <>
+                            <IonItemDivider>No Show Details</IonItemDivider>
+                            <IonItem>
+                              <IonLabel>Marked By:</IonLabel>
+                              <IonText slot="end">{noShowEntry.userName} ({noShowEntry.userEmail})</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Marked At:</IonLabel>
+                              <IonText slot="end">{noShowEntry.timestamp.toLocaleString()}</IonText>
+                            </IonItem>
+                          </>
+                        )}
+
+                        {/* Acceptance Information */}
+                        {isAccepted && acceptanceEntry && (
+                          <>
+                            <IonItemDivider>Acceptance Details</IonItemDivider>
+                            <IonItem>
+                              <IonLabel>Accepted By:</IonLabel>
+                              <IonText slot="end">{acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Accepted At:</IonLabel>
+                              <IonText slot="end">{acceptanceEntry.timestamp.toLocaleString()}</IonText>
+                            </IonItem>
+                          </>
+                        )}
+
+                        {/* Processing Information */}
+                        {isProcessed && (
+                          <>
+                            <IonItemDivider>Processing Details</IonItemDivider>
+                            {processingEntry && (
+                              <>
+                                <IonItem>
+                                  <IonLabel>Processed By:</IonLabel>
+                                  <IonText slot="end">{processingEntry.userName} ({processingEntry.userEmail})</IonText>
+                                </IonItem>
+                                <IonItem>
+                                  <IonLabel>Processed At:</IonLabel>
+                                  <IonText slot="end">{processingEntry.timestamp.toLocaleString()}</IonText>
+                                </IonItem>
+                              </>
+                            )}
+                            <IonItem>
+                              <IonLabel>Dispensed Medicines:</IonLabel>
+                              <IonText slot="end" className="ion-text-wrap">{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
+                                const med = medicines.find(m => m.id === id);
+                                return `${med?.medicine_name || id} (x${qty})`;
+                              }).join(', ') || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Process Note:</IonLabel>
+                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.processNote || 'N/A'}</IonText>
+                            </IonItem>
+                          </>
+                        )}
+
+                        {/* Scheduling Information */}
+                        {isScheduled && (
+                          <>
+                            <IonItemDivider>Scheduling Details</IonItemDivider>
+                            {schedulingEntry && (
+                              <>
+                                <IonItem>
+                                  <IonLabel>Scheduled By:</IonLabel>
+                                  <IonText slot="end">{schedulingEntry.userName} ({schedulingEntry.userEmail})</IonText>
+                                </IonItem>
+                                <IonItem>
+                                  <IonLabel>Scheduled At:</IonLabel>
+                                  <IonText slot="end">{schedulingEntry.timestamp.toLocaleString()}</IonText>
+                                </IonItem>
+                              </>
+                            )}
+                            <IonItem>
+                              <IonLabel>Pickup Date:</IonLabel>
+                              <IonText slot="end">{selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Pickup Time:</IonLabel>
+                              <IonText slot="end">{selectedRequest.scheduleTime || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Pickup Location:</IonLabel>
+                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.schedulePlace || 'N/A'}</IonText>
+                            </IonItem>
+                          </>
+                        )}
+
+                        {/* Completion Information */}
+                        {isCompleted && completionEntry && (
+                          <>
+                            <IonItemDivider>Completion Details</IonItemDivider>
+                            <IonItem>
+                              <IonLabel>Completed By:</IonLabel>
+                              <IonText slot="end">{completionEntry.userName} ({completionEntry.userEmail})</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Completed At:</IonLabel>
+                              <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
+                            </IonItem>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
                   {detailSegment === 'resident' && (
                     <>
                       <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
@@ -1188,6 +1251,26 @@ const SuperAdminMedRequestList: React.FC = () => {
             {
               text: 'Yes',
               handler: handleMarkAsComplete
+            }
+          ]}
+        />
+
+        <IonAlert
+          isOpen={showNoShowAlert}
+          onDidDismiss={() => setShowNoShowAlert(false)}
+          header={'Confirm No Show'}
+          message={'Are you sure you want to mark this request as a no-show? This action cannot be undone.'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => {
+                setRequestToMarkAsNoShow(null);
+              }
+            },
+            {
+              text: 'Confirm',
+              handler: handleMarkAsNoShow
             }
           ]}
         />

@@ -9,7 +9,7 @@ export interface MedicineRequest {
   reason: string;
   hasPrescription: boolean;
   prescriptionUrl?: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'processed' | 'scheduled' | 'completed' | 'cancelled' | 'no show' | 'pending completion';
+  status: 'pending' | 'accepted' | 'rejected' | 'processed' | 'scheduled' | 'completed' | 'cancelled' | 'no show';
   createdAt: Date;
   updatedAt?: Date;
   notes?: string;
