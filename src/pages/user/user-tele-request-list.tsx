@@ -1,38 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonList,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonText,
-  IonLoading,
-  IonButtons,
-  IonBackButton,
-  IonModal,
-  IonButton,
-  IonAlert,
-  IonItem,
-  IonItemDivider,
-  IonRefresher,
-  IonRefresherContent,
-  IonChip,
-} from '@ionic/react';
-import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
+import { IonLabel, IonList, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText, IonLoading, IonButtons, IonBackButton, IonIonModal, IonButton, IonAlert, IonItem, IonItemDivider, IonRefresher, IonRefresherContent, IonChip, IonFooter, IonGrid, IonRow, IonCol, IonToast, IonIcon, } from '@ionic/react';
+import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
+import { open } from 'ionicons/icons';
 
 const db = getFirestore();
 
 const UserTeleRequestList: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, verificationStatus } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('all');
@@ -44,12 +20,26 @@ const UserTeleRequestList: React.FC = () => {
   const [requestToCancel, setRequestToCancel] = useState<string | null>(null);
   const userId = currentUser?.uid;
 
+  const [toastMessage, setToastMessage] = useState<string>('');
+  const [showCancelToast, setShowCancelToast] = useState(false);
+  const [showCompleteToast, setShowCompleteToast] = useState(false);
+
+  // State for detail modal segment
+  const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
+
   useEffect(() => {
     if (!userId) {
       setError('User not authenticated');
       setLoading(false);
       return;
     }
+
+    if (verificationStatus !== 'verified') {
+      setError('You must be a verified resident to view teleconsultation requests.');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -87,6 +77,13 @@ const UserTeleRequestList: React.FC = () => {
                     notes: data.notes,
                     doctorId: data.doctorId,
                     meetingLink: data.meetingLink,
+                    auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
+                      action: entry.action,
+                      userId: entry.userId,
+                      userEmail: entry.userEmail,
+                      userName: entry.userName,
+                      timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
+                    })) : [],
                 };
                 reqs.push(req);
             });
@@ -104,7 +101,7 @@ const UserTeleRequestList: React.FC = () => {
         clearTimeout(timeoutId);
         unsubscribe();
     };
-  }, [userId]);
+  }, [userId, verificationStatus]);
 
   useEffect(() => {
     let filtered: TeleconsultationRequest[] = [];
@@ -117,7 +114,7 @@ const UserTeleRequestList: React.FC = () => {
         break;  
       case 'active':
         filtered = requests.filter((r) =>
-          ['accepted', 'scheduled', 'pending completion'].includes(r.status)
+          ['accepted', 'scheduled'].includes(r.status)
         );
         break;
       case 'completed':
@@ -138,13 +135,23 @@ const UserTeleRequestList: React.FC = () => {
   };
 
   const handleCancelRequest = async () => {
-    if (!requestToCancel) return;
+    if (!requestToCancel || !currentUser) return;
     try {
       const requestRef = doc(db, 'teleconsultationRequests', requestToCancel);
       await updateDoc(requestRef, {
         status: 'cancelled',
         updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: 'Cancelled teleconsultation request by user',
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          userName: currentUser.displayName || currentUser.email || 'User',
+          timestamp: new Date(),
+        }),
       });
+      setToastMessage('Teleconsultation request cancelled.');
+      setShowCancelToast(true);
+      setShowModal(false);
     } catch (error) {
       console.error("Error cancelling request: ", error);
       setError("Failed to cancel the request.");
@@ -165,12 +172,23 @@ const UserTeleRequestList: React.FC = () => {
   const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
 
   const handleMarkAsComplete = async (requestId: string) => {
+    if (!currentUser) return;
     try {
       const requestRef = doc(db, 'teleconsultationRequests', requestId);
       await updateDoc(requestRef, {
         status: 'completed',
         updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: 'Marked teleconsultation as completed by user',
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          userName: currentUser.displayName || currentUser.email || 'User',
+          timestamp: new Date(),
+        }),
       });
+      setToastMessage('Teleconsultation request marked as complete.');
+      setShowCompleteToast(true);
+      setShowModal(false);
     } catch (error) {
       console.error("Error marking request as complete: ", error);
       setError("Failed to mark the request as complete.");
@@ -183,7 +201,7 @@ const UserTeleRequestList: React.FC = () => {
   };
 
   return (
-    <>
+    <IonPage>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
@@ -231,8 +249,8 @@ const UserTeleRequestList: React.FC = () => {
 
         <IonList style={{ backgroundColor: 'transparent' }}>
           {filteredRequests.map((request) => (
-            <IonCard 
-            key={request.id} 
+            <IonCard
+            key={request.id}
             style={{
                 borderLeft: `8px solid ${
                   request.status === 'pending'
@@ -256,7 +274,9 @@ const UserTeleRequestList: React.FC = () => {
                             ? 'primary'
                             : request.status === 'completed'
                               ? 'success'
-                              : 'danger'
+                              : request.status === 'rejected' || request.status === 'cancelled' || request.status === 'no show'
+                                ? 'danger'
+                                : 'primary'
                       }
                       style={{ margin: '0' }}
                     >
@@ -268,8 +288,17 @@ const UserTeleRequestList: React.FC = () => {
               <IonCardContent>
                 <p><strong>Reason:</strong> {request.reason}</p>
                 <p><strong>Created At:</strong> {request.createdAt ? request.createdAt.toLocaleString() : 'N/A'}</p>
+                {request.status === 'scheduled' && request.startTime && (
+                  <p><strong>Scheduled Time:</strong> {request.startTime.toLocaleString()}</p>
+                )}
+                {request.status === 'completed' && request.startTime && (
+                  <p><strong>Completed Time:</strong> {request.startTime.toLocaleString()}</p>
+                )}
+                {request.status === 'rejected' && (
+                  <p><strong>Rejection Reason:</strong> {request.rejectionReason || 'N/A'}</p>
+                )}
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                  <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                  <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                   {['pending', 'accepted'].includes(request.status) && (
                     <IonButton color="danger" onClick={() => {
                       setRequestToCancel(request.id!);
@@ -281,7 +310,7 @@ const UserTeleRequestList: React.FC = () => {
                       Join Consultation
                     </IonButton>
                   )}
-                  {request.status === 'pending completion' && (
+                  {request.status === 'scheduled' && (
                     <IonButton color="success" onClick={() => confirmMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
                   )}
                 </div>
@@ -295,176 +324,328 @@ const UserTeleRequestList: React.FC = () => {
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
               <IonButtons slot="end">
-                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+                <IonButton onClick={() => setShowModal(false)}>
+                  Close
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent>
-            {selectedRequest && (
-              <IonCard>
-                <IonItemDivider style={{ marginTop: '10px' }}>Request Information ({selectedRequest.id})</IonItemDivider>
-                <IonItem>
-                  <IonLabel>
-                    Status: &nbsp;
-                    <IonText color={
-                      selectedRequest.status === 'pending'
-                        ? 'warning'
-                        : selectedRequest.status === 'accepted' || selectedRequest.status === 'scheduled'
-                          ? 'primary'
-                          : selectedRequest.status === 'completed'
-                            ? 'success'
-                            : 'danger'
-                    } style={{ fontWeight: 'bold' }}>
-                      {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
-                    </IonText>
-                  </IonLabel>
-                </IonItem>
-                 {selectedRequest.meetingLink && (
-                  <>
-                 
-                  <IonButton className='ion-padding' expand='full' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
-                      Join Consultation (opens Google Meet)
-                    </IonButton>
-                  </>
-                )}
-                <IonItem>
-                  <IonLabel>
-                    Reason: &nbsp;
-                    <IonText style={{ fontWeight: 'bold' }}>{selectedRequest.reason}</IonText>
-                  </IonLabel>
-                </IonItem>
-                <IonItem>
-                  <IonLabel>
-                    Created At: &nbsp;
-                    <IonText style={{ fontWeight: 'bold' }}>
-                      {selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}
-                    </IonText>
-                  </IonLabel>
-                </IonItem>
-                {selectedRequest.startTime && (
-                  <>
-                    <IonItem>
-                      <IonLabel>
-                        Scheduled Date: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>
-                          {selectedRequest.startTime.toLocaleDateString()}
-                        </IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Start Time: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>
-                          {selectedRequest.startTime.toLocaleTimeString()}
-                        </IonText>
-                      </IonLabel>
-                    </IonItem>
-                  </>
-                )}
-                {selectedRequest.endTime && (
-                  <IonItem>
-                    <IonLabel>
-                      End Time: &nbsp;
-                      <IonText style={{ fontWeight: 'bold' }}>
-                        {selectedRequest.endTime.toLocaleTimeString()}
-                      </IonText>
-                    </IonLabel>
-                  </IonItem>
-                )}
-                {selectedRequest.notes && (
-                  <p><strong>Notes:</strong> {selectedRequest.notes}</p>
-                )}
-               
-
-                <IonItemDivider style={{ marginTop: '20px' }}>Resident Information</IonItemDivider>    
-                {selectedRequest.userData && (
-                  <>
-                    <IonItem>
-                      <IonLabel>
-                        Name: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>
-                          {selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}
-                        </IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Contact Number: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>
-                          {selectedRequest.userData.contactNumber || 'N/A'}
-                        </IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Email: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>
-                          {selectedRequest.userData.email || 'N/A'}
-                        </IonText>
-                      </IonLabel>
-                    </IonItem>
-                    <IonItem>
-                      <IonLabel>
-                        Address: &nbsp;
-                        <IonText style={{ fontWeight: 'bold' }}>
-                          {selectedRequest.userData.address || 'N/A'}
-                        </IonText>
-                      </IonLabel>
-                    </IonItem>
-                  </>
-                )}
-                
-              </IonCard>
-            )}
-          </IonContent>
-        </IonModal>
-
-        <IonAlert
-          isOpen={showCancelAlert}
-          onDidDismiss={() => setShowCancelAlert(false)}
-          header={'Confirm Cancellation'}
-          message={'Are you sure you want to cancel this teleconsultation request?'}
-          buttons={[
-            {
-              text: 'No',
-              role: 'cancel',
-              handler: () => {
-                setRequestToCancel(null);
-              }
-            },
-            {
-              text: 'Yes',
-              handler: handleCancelRequest
-            }
-          ]}
-        />
-        <IonAlert
-          isOpen={showMarkCompleteAlert}
-          onDidDismiss={() => setShowMarkCompleteAlert(false)}
-          header={'Confirm Mark as Complete'}
-          message={'Are you sure you want to mark this teleconsultation request as completed?'}
-          buttons={[
-            {
-              text: 'No',
-              role: 'cancel',
-              handler: () => {
-                setRequestToMarkComplete(null);
-              }
-            },
-            {
-              text: 'Yes',
-              handler: () => {
-                if (requestToMarkComplete) {
-                  handleMarkAsComplete(requestToMarkComplete);
-                  setRequestToMarkComplete(null);
-                }
-              }
-            }
-          ]}
-        />
-      </IonContent>
-    </>
+                    <IonContent>
+                      {selectedRequest && (
+                        <>
+                          <IonSegment value={detailSegment} onIonChange={e => setDetailSegment(e.detail.value as 'request' | 'resident')}>
+                            <IonSegmentButton value="request">
+                              <IonLabel>Request Info</IonLabel>
+                            </IonSegmentButton>
+                            <IonSegmentButton value="resident">
+                              <IonLabel>Resident Info</IonLabel>
+                            </IonSegmentButton>
+                          </IonSegment>
+                          <IonCard>
+                            {detailSegment === 'request' && (() => {
+                              const acceptanceEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request');
+                              const rejectionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request');
+                              const schedulingEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Scheduled teleconsultation request');
+                              const completionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as completed');
+                              const noShowEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show');
+                              const cancellationEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Cancelled teleconsultation request by user');
+          
+                              return (
+                                <>
+                                  {/* Request Information */}
+                                  <IonItemDivider style={{ marginTop: '10px' }}>Your Request Details</IonItemDivider>
+                                  <IonItem>
+                                    <IonLabel>Status:</IonLabel>
+                                    <IonChip
+                                      slot="end"
+                                      color={
+                                        selectedRequest.status === 'pending'
+                                          ? 'warning'
+                                          : selectedRequest.status === 'rejected' || selectedRequest.status === 'cancelled' || selectedRequest.status === 'no show'
+                                          ? 'danger'
+                                          : ['accepted', 'scheduled'].includes(selectedRequest.status)
+                                          ? 'primary'
+                                          : selectedRequest.status === 'completed'
+                                          ? 'success'
+                                          : 'medium'
+                                      }
+                                    >
+                                      {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+                                    </IonChip>
+                                  </IonItem>
+                                  <IonItem>
+                                    <IonLabel>Reason:</IonLabel>
+                                    <IonText slot="end" className="ion-text-wrap">{selectedRequest.reason}</IonText>
+                                  </IonItem>
+                                  <IonItem>
+                                    <IonLabel>Requested At:</IonLabel>
+                                    <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                                  </IonItem>
+          
+                                  {/* Cancellation Details */}
+                                  {cancellationEntry && (
+                                    <>
+                                      <IonItemDivider>Cancellation Details</IonItemDivider>
+                                      <IonItem>
+                                        <IonLabel>Cancelled By:</IonLabel>
+                                        <IonText slot="end">{cancellationEntry.userName}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Cancelled At:</IonLabel>
+                                        <IonText slot="end">{cancellationEntry.timestamp.toLocaleString()}</IonText>
+                                      </IonItem>
+                                    </>
+                                  )}
+          
+                                  {/* Rejection Details */}
+                                  {rejectionEntry && (
+                                    <>
+                                      <IonItemDivider>Rejection Details</IonItemDivider>
+                                      <IonItem>
+                                        <IonLabel>Reason for Rejection:</IonLabel>
+                                        <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Rejected By:</IonLabel>
+                                        <IonText slot="end">{rejectionEntry.userName}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Rejected At:</IonLabel>
+                                        <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+                                      </IonItem>
+                                    </>
+                                  )}
+          
+                                  {/* No Show Details */}
+                                  {noShowEntry && (
+                                    <>
+                                      <IonItemDivider>No Show Details</IonItemDivider>
+                                      <IonItem>
+                                        <IonLabel>Marked By:</IonLabel>
+                                        <IonText slot="end">{noShowEntry.userName}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Marked At:</IonLabel>
+                                        <IonText slot="end">{noShowEntry.timestamp.toLocaleString()}</IonText>
+                                      </IonItem>
+                                    </>
+                                  )}
+          
+                                  {/* Acceptance Details */}
+                                  {acceptanceEntry && (
+                                    <>
+                                      <IonItemDivider>Acceptance Details</IonItemDivider>
+                                      <IonItem>
+                                        <IonLabel>Accepted By:</IonLabel>
+                                        <IonText slot="end">{acceptanceEntry.userName}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Accepted At:</IonLabel>
+                                        <IonText slot="end">{acceptanceEntry.timestamp.toLocaleString()}</IonText>
+                                      </IonItem>
+                                    </>
+                                  )}
+          
+                                  {/* Scheduling Details */}
+                                  {schedulingEntry && (
+                                    <>
+                                      <IonItemDivider>Scheduling Details</IonItemDivider>
+                                      <IonItem>
+                                        <IonLabel>Scheduled By:</IonLabel>
+                                        <IonText slot="end">{schedulingEntry.userName}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Scheduled At:</IonLabel>
+                                        <IonText slot="end">{schedulingEntry.timestamp.toLocaleString()}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Doctor:</IonLabel>
+                                        <IonText slot="end">{selectedRequest.doctorName || 'N/A'}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Specialty:</IonLabel>
+                                        <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Meeting Link:</IonLabel>
+                                        <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Start Time:</IonLabel>
+                                        <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>End Time:</IonLabel>
+                                        <IonText slot="end">{selectedRequest.endTime ? selectedRequest.endTime.toLocaleString() : 'N/A'}</IonText>
+                                      </IonItem>
+                                    </>
+                                  )}
+          
+                                  {/* Completion Details */}
+                                  {completionEntry && (
+                                    <>
+                                      <IonItemDivider>Completion Details</IonItemDivider>
+                                      <IonItem>
+                                        <IonLabel>Completed By:</IonLabel>
+                                        <IonText slot="end">{completionEntry.userName}</IonText>
+                                      </IonItem>
+                                      <IonItem>
+                                        <IonLabel>Completed At:</IonLabel>
+                                        <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
+                                      </IonItem>
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })()}
+                            {detailSegment === 'resident' && (
+                              <>
+                                <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
+                                {selectedRequest.userData && (
+                                  <>
+                                    <IonItem>
+                                      <IonLabel>
+                                        Name: &nbsp;
+                                        <IonText>{selectedRequest.userData.firstName} {selectedRequest.userData.middleName || ''} {selectedRequest.userData.lastName} {selectedRequest.userData.suffix || ''}</IonText>
+                                      </IonLabel>
+                                    </IonItem>
+                                    <IonItem>
+                                      <IonLabel>
+                                        Address: &nbsp;
+                                        <IonText>{selectedRequest.userData?.address || 'N/A'}</IonText>
+                                      </IonLabel>
+                                    </IonItem>
+                                    <IonItem>
+                                      <IonLabel>
+                                        Contact Number: &nbsp;
+                                        <IonText>{selectedRequest.userData.contactNumber || 'N/A'}</IonText>
+                                      </IonLabel>
+                                    </IonItem>
+                                    <IonItem>
+                                      <IonLabel>
+                                        Email: &nbsp;
+                                        <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
+                                      </IonLabel>
+                                    </IonItem>
+                                  </>
+                                )}
+                                {selectedRequest.medicalRecord && (
+                                  <>
+                                    <IonItemDivider>Medical Record</IonItemDivider>
+                                    {selectedRequest.medicalRecord.symptoms.length > 0 && (
+                                      <IonItem>
+                                        <IonLabel>Symptoms:</IonLabel>
+                                        <IonText slot="end" className="ion-text-wrap">{selectedRequest.medicalRecord.symptoms.join(', ')}</IonText>
+                                      </IonItem>
+                                    )}
+                                    {selectedRequest.medicalRecord.conditions.length > 0 && (
+                                      <IonItem>
+                                        <IonLabel>Conditions:</IonLabel>
+                                        <IonText slot="end" className="ion-text-wrap">{selectedRequest.medicalRecord.conditions.join(', ')}</IonText>
+                                      </IonItem>
+                                    )}
+                                    {selectedRequest.medicalRecord.allergies.length > 0 && (
+                                      <IonItem>
+                                        <IonLabel>Allergies:</IonLabel>
+                                        <IonText slot="end" className="ion-text-wrap">{selectedRequest.medicalRecord.allergies.join(', ')}</IonText>
+                                      </IonItem>
+                                    )}
+                                    {selectedRequest.medicalRecord.historyFiles.length > 0 && (
+                                      <>
+                                        <IonItemDivider>Medical History Files</IonItemDivider>
+                                        {selectedRequest.medicalRecord.historyFiles.map((file, index) => (
+                                          <IonItem key={index}>
+                                            <IonLabel>
+                                              <IonText>{file.fileName}</IonText>
+                                              <br />
+                                              <small>Uploaded: {file.uploadedAt.toLocaleString()}</small>
+                                            </IonLabel>
+                                            <IonButton slot="end" fill="outline" onClick={() => window.open(file.fileURL, '_blank')}>View</IonButton>
+                                          </IonItem>
+                                        ))}
+                                      </>
+                                    )}
+                                  </>
+                                )}
+                                {selectedRequest.notes && (
+                                  <IonItem>
+                                    <IonLabel>
+                                      Notes: &nbsp;
+                                      <IonText>{selectedRequest.notes}</IonText>
+                                    </IonLabel>
+                                  </IonItem>
+                                )}
+                              </>
+                            )}
+                          </IonCard>
+                        </>
+                      )}
+          
+          
+                  <IonAlert
+                    isOpen={showCancelAlert}
+                    onDidDismiss={() => setShowCancelAlert(false)}
+                    header={'Confirm Cancellation'}
+                    message={'Are you sure you want to cancel this teleconsultation request?'}
+                    buttons={[
+                      {
+                        text: 'No',
+                        role: 'cancel',
+                        handler: () => {
+                          setRequestToCancel(null);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        handler: handleCancelRequest
+                      }
+                    ]}
+                  />
+                  <IonAlert
+                    isOpen={showMarkCompleteAlert}
+                    onDidDismiss={() => setShowMarkCompleteAlert(false)}
+                    header={'Confirm Mark as Complete'}
+                    message={'Are you sure you want to mark this teleconsultation request as completed?'}
+                    buttons={[
+                      {
+                        text: 'No',
+                        role: 'cancel',
+                        handler: () => {
+                          setRequestToMarkComplete(null);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        handler: () => {
+                          if (requestToMarkComplete) {
+                            handleMarkAsComplete(requestToMarkComplete);
+                            setRequestToMarkComplete(null);
+                          }
+                        }
+                      }
+                    ]}
+                  />
+          
+                  <IonToast
+                    isOpen={showCancelToast}
+                    onDidDismiss={() => setShowCancelToast(false)}
+                    message={toastMessage}
+                    duration={2000}
+                    color="danger"
+                  />
+          
+                  <IonToast
+                    isOpen={showCompleteToast}
+                    onDidDismiss={() => setShowCompleteToast(false)}
+                    message={toastMessage}
+                    duration={2000}
+                    color="success"
+                  />
+          
+                    </IonContent>    </IonPage>
   );
 };
+
+export default UserTeleRequestList;
 
 export default UserTeleRequestList;

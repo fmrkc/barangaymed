@@ -24,8 +24,10 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonChip,
+  IonPage,
+  IonToast,
 } from '@ionic/react';
-import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
@@ -44,6 +46,8 @@ const UserMedRequestList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string>('');
+  const [showCancelToast, setShowCancelToast] = useState<boolean>(false);
   const userId = currentUser?.uid;
 
   useEffect(() => {
@@ -193,13 +197,23 @@ const UserMedRequestList: React.FC = () => {
   };
 
   const handleCancelRequest = async () => {
-    if (!requestToCancel) return;
+    if (!requestToCancel || !currentUser) return;
     try {
       const requestRef = doc(db, 'medicineRequests', requestToCancel);
       await updateDoc(requestRef, {
         status: 'cancelled',
         updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: 'Cancelled medicine request by user',
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          userName: currentUser.displayName || currentUser.email || 'User',
+          timestamp: new Date(),
+        }),
       });
+      setToastMessage('Medicine request cancelled.');
+      setShowCancelToast(true);
+      setShowModal(false);
     } catch (error) {
       console.error("Error cancelling request: ", error);
       setError("Failed to cancel the request.");
@@ -573,6 +587,13 @@ const UserMedRequestList: React.FC = () => {
               }
             }
           ]}
+        />
+
+        <IonToast
+          isOpen={showCancelToast}
+          onDidDismiss={() => setShowCancelToast(false)}
+          message={toastMessage}
+          duration={2000}
         />
       </IonContent>
     </>

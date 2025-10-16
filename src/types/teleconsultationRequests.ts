@@ -19,7 +19,7 @@ export interface TeleconsultationRequest {
   barangayId: string;
   userData?: UserData;
   reason: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'scheduled' | 'completed' | 'cancelled' | 'no show' | 'pending completion';
+  status: 'pending' | 'accepted' | 'rejected' | 'scheduled' | 'completed' | 'cancelled' | 'no show';
   createdAt: Date;
   updatedAt?: Date;
   startTime?: Date;
@@ -30,5 +30,7 @@ export interface TeleconsultationRequest {
   doctorSpecialty?: string;
   meetingLink?: string;
   superadminMarkedComplete?: boolean;
+  rejectionReason?: string;
   medicalRecord?: MedicalRecord;
+  auditTrail?: { action: string; userId: string; userEmail: string; userName?: string; timestamp: Date }[];
 }
