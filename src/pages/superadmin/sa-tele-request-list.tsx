@@ -48,7 +48,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const { currentUser } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'accepted' | 'scheduled' | 'completed' | 'not completed' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -74,7 +74,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [doctorName, setDoctorName] = useState('');
-  const [doctorSpecialty, setDoctorSpecialty] = useState('');
+
   const [meetingLink, setMeetingLink] = useState('');
 
   const [toastMessage, setToastMessage] = useState('');
@@ -174,15 +174,16 @@ const SuperAdminTeleRequestList: React.FC = () => {
       case 'pending':
         filtered = requests.filter((r) => r.status === 'pending');
         break;
-      case 'active':
-        filtered = requests.filter((r) =>
-          ['accepted', 'scheduled'].includes(r.status)
-        );
+      case 'accepted':
+        filtered = requests.filter((r) => r.status === 'accepted');
+        break;
+      case 'scheduled':
+        filtered = requests.filter((r) => r.status === 'scheduled');
         break;
       case 'completed':
         filtered = requests.filter((r) => r.status === 'completed');
         break;
-      case 'unsuccessful':
+      case 'not completed':
         filtered = requests.filter((r) =>
           ['rejected', 'no show'].includes(r.status)
         );
@@ -278,8 +279,8 @@ const SuperAdminTeleRequestList: React.FC = () => {
       setShowMarkCompleteAlert(false);
       setShowModal(false);
     } catch (error) {
-      console.error('Error marking request as complete:', error);
-      setError('Failed to mark the request as complete.');
+      console.error('Error marking request as completed:', error);
+      setError('Failed to mark the request as completed.');
     } finally {
       setIsMarkingComplete(false);
     }
@@ -319,7 +320,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
         startTime: startDateTime,
         endTime: endDateTime,
         doctorName: doctorName,
-        doctorSpecialty: doctorSpecialty,
         meetingLink: meetingLink,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
@@ -331,7 +331,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
         }),
       });
       // Update local state
-      setRequests(prev => prev.map(r => r.id === selectedRequest.id ? { ...r, status: 'scheduled', startTime: startDateTime, endTime: endDateTime, doctorName, doctorSpecialty, meetingLink, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled teleconsultation request', userId: currentUser.uid, userEmail: currentUser.email!, userName: currentUser.displayName || currentUser.email || 'Super Admin', timestamp: new Date() }] } : r));
+      setRequests(prev => prev.map(r => r.id === selectedRequest.id ? { ...r, status: 'scheduled', startTime: startDateTime, endTime: endDateTime, doctorName, meetingLink, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled teleconsultation request', userId: currentUser.uid, userEmail: currentUser.email!, userName: currentUser.displayName || currentUser.email || 'Super Admin', timestamp: new Date() }] } : r));
 
       setToastMessage(`Teleconsultation scheduled successfully for ${selectedRequest?.userData?.firstName} ${selectedRequest?.userData?.lastName}.`);
       setShowScheduleToast(true);
@@ -341,7 +341,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
       setStartTime('');
       setEndTime('');
       setDoctorName('');
-      setDoctorSpecialty('');
       setMeetingLink('');
     } catch (error) {
       console.error('Error updating request to scheduled:', error);
@@ -370,17 +369,20 @@ const SuperAdminTeleRequestList: React.FC = () => {
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
-        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'accepted' | 'scheduled' | 'completed' | 'not completed' | 'all')}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="active">
-            <IonLabel>Active</IonLabel>
+          <IonSegmentButton value="accepted">
+            <IonLabel>Accepted</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="scheduled">
+            <IonLabel>Scheduled</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="completed">
             <IonLabel>Completed</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="unsuccessful">
+          <IonSegmentButton value="not completed">
             <IonLabel>Not Completed</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="all">
@@ -461,14 +463,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 )}
                 {request.status === 'rejected' && (
                   <>
-                    <p>Rejected by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request')?.userName || 'N/A'}</strong> </p>
+                    <p>Rejected by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request')?.userName || 'N/A'}</strong> ({request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request')?.userEmail || 'N/A'}) </p>
                     <p>Reason: <strong>{request.rejectionReason || 'N/A'}</strong></p>
-                    <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                   </>
                 )}
                 {request.status === 'accepted' && (
                   <>
-                    <p>Approved by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request')?.userName || 'N/A'}</strong> </p>
+                    <p>Approved by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request')?.userName || 'N/A'} ({request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request')?.userEmail || 'N/A'}) </strong> </p>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
                       <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleScheduleClick(request)}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
@@ -503,7 +505,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 )}
                 {request.status === 'no show' && (
                   <>
-                    <p>Marked as no-show by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show')?.userName || 'N/A'}</strong> </p>
+                    <p>Marked as no-show by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show')?.userName || 'N/A'}</strong> ({request.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show')?.userEmail || 'N/A'}) </p>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                   </>
                 )}
@@ -580,15 +582,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     placeholder="Enter doctor's name"
                   />
                 </IonItem>
-                <IonItemDivider>Doctor's Specialty</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonInput
-                    fill='outline'
-                    value={doctorSpecialty}
-                    onIonChange={e => setDoctorSpecialty(e.detail.value!)}
-                    placeholder="Enter specialty"
-                  />
-                </IonItem>
+
                 <IonItemDivider>Meeting Link</IonItemDivider>
                 <IonItem lines='none' className='ion-margin-vertical'>
                   <IonInput
@@ -597,6 +591,11 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     onIonChange={e => setMeetingLink(e.detail.value!)}
                     placeholder="Enter meeting link"
                   />
+                </IonItem>
+                <IonItem>
+                  <IonNote>
+                    Make sure that the meeting link looks like this: <strong>https://meet.google.com/xxx-xxxx-xxx</strong> to make sure that the resident can join the meeting.
+                  </IonNote>
                 </IonItem>
               </IonCardContent>
             </IonCard>
@@ -756,12 +755,8 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonText slot="end">{selectedRequest.doctorName || 'N/A'}</IonText>
                             </IonItem>
                             <IonItem>
-                              <IonLabel>Specialty:</IonLabel>
-                              <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
-                            </IonItem>
-                            <IonItem>
                               <IonLabel>Meeting Link:</IonLabel>
-                              <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
+                              <IonButton expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
                             </IonItem>
                             <IonItem>
                               <IonLabel>Start Time:</IonLabel>
@@ -886,7 +881,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         fill='outline'
                         expand="block"
                         color="danger"
-                        onClick={() => { setRequestToReject(selectedRequest.id!); setShowRejectAlert(true); setShowModal(false); }}
+                        onClick={() => { setRequestToReject(selectedRequest.id!); setShowRejectAlert(true); }}
                       >
                         Reject<IonIcon slot='end' icon={close} />
                       </IonButton>
@@ -897,7 +892,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         shape='round'
                         expand="block"
                         color="success"
-                        onClick={() => { setRequestToAccept(selectedRequest.id!); setShowAcceptAlert(true); setShowModal(false); }}
+                        onClick={() => { setRequestToAccept(selectedRequest.id!); setShowAcceptAlert(true); }}
                       >
                         Accept<IonIcon slot='end' icon={checkmark} />
                       </IonButton>

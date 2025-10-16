@@ -60,7 +60,10 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     setStep(1);
     setReason('');
     setAttachMedicalRecord(false);
-    onDidDismiss();
+    if (!toastMessage.includes('successfully')) {
+        setToastMessage('');
+        setShowToast(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -191,165 +194,171 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   }
 
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
-      <IonHeader className='ion-no-border'>
-        <IonToolbar>
-          <IonTitle>Teleconsultation Request</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={handleDismiss}>Close</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
-        {step === 1 && (
-          <IonCard className="ion-padding">
-            <IonItem lines='none'>
-              <h2>What is a Teleconsultation Request?</h2>
-            </IonItem>
-            <IonItem lines='none'>
-              <p>
-                BarangayMed+'s teleconsultation service allows you to consult with healthcare professionals in your barangay remotely via Google Meet. 
-              <br /> <br />
-                This form will ask for your current symptoms and/or conditions. You may also choose to attach your medical record if you have created one.
-              <br /> <br />
-                After submitting this form, your request will be reviewed by the Rural Health Unit (RHU). If your request is accepted, you will be scheduled a date & time for your consultation.
-              <br /><br />
-                Your Consultations will be done via Google Meet. Ensure that you have a stable internet connection and a device with a camera and microphone.
-              </p>
-            </IonItem>
-          </IonCard>
-        )}
-
-        {step === 2 && (
-          <>
+    <>
+      <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
+        <IonHeader className='ion-no-border'>
+          <IonToolbar>
+            <IonTitle>Teleconsultation Request</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={handleDismiss}>Close</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          {step === 1 && (
             <IonCard className="ion-padding">
               <IonItem lines='none'>
-                Consultation Reason:
+                <h2>What is a Teleconsultation Request?</h2>
               </IonItem>
               <IonItem lines='none'>
-                <IonTextarea
-                  fill='outline'
-                  value={reason}
-                  onIonChange={e => setReason(e.detail.value!)}
-                  rows={6}
-                  maxlength={500}
-                  placeholder="Describe your reason for scheduling a consultation. Include any symptoms or concerns you have."
-                />
-              </IonItem>
-              <IonItem>
-                <small>Please provide accurate information to help us assist you better.</small>
+                <p>
+                  BarangayMed+'s teleconsultation service allows you to consult with healthcare professionals in your barangay remotely via Google Meet. 
+                <br /> <br />
+                  This form will ask for your current symptoms and/or conditions. You may also choose to attach your medical record if you have created one.
+                <br /> <br />
+                  After submitting this form, your request will be reviewed by the Rural Health Unit (RHU). If your request is accepted, you will be scheduled a date & time for your consultation.
+                <br /><br />
+                  Your Consultations will be done via Google Meet. Ensure that you have a stable internet connection and a device with a camera and microphone.
+                </p>
               </IonItem>
             </IonCard>
+          )}
 
-            {hasMedicalRecord && (
-              <IonCard className='ion-padding'>
-                <IonItem>
-                  Attach Medical Record (Optional)
-                  <IonCheckbox
-                    slot="end"
-                    checked={attachMedicalRecord}
-                    onIonChange={e => setAttachMedicalRecord(e.detail.checked)}
-                  />
+          {step === 2 && (
+            <>
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>What are your current symptoms or conditions?</h2>
                 </IonItem>
                 <IonItem lines='none'>
-                  <small>
-                    This medical record will be sent to the RHU along with your request. Ensure that it does not contain sensitive information you do not wish to share.
-                  </small>
+                  <IonTextarea
+                    fill='outline'
+                    value={reason}
+                    onIonChange={e => setReason(e.detail.value!)}
+                    rows={6}
+                    maxlength={500}
+                    counter={true}
+                    placeholder="Describe your reason for scheduling a consultation. Include any symptoms or concerns you have."
+                  />
+                </IonItem>
+                <IonItem>
+                  <small>Please provide accurate information to help us assist you better.</small>
                 </IonItem>
               </IonCard>
-            )}
-          </>
-        )}
 
-        {step === 3 && (
-          <IonCard className="ion-padding">
-            <IonItem lines='none'>
-              <h2>Request Summary</h2>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Consultation Reason:</IonLabel>
-              <IonText>{reason || 'Not provided'}</IonText>
-            </IonItem>
-            {hasMedicalRecord && (
+              {hasMedicalRecord && (
+                <IonCard className='ion-padding'>
+                  <IonItem>
+                    Attach Medical Record (Optional)
+                    <IonCheckbox
+                      slot="end"
+                      checked={attachMedicalRecord}
+                      onIonChange={e => setAttachMedicalRecord(e.detail.checked)}
+                    />
+                  </IonItem>
+                  <IonItem lines='none'>
+                    <small>
+                      This medical record will be sent to the RHU along with your request. Ensure that it does not contain sensitive information you do not wish to share.
+                    </small>
+                  </IonItem>
+                </IonCard>
+              )}
+            </>
+          )}
+
+          {step === 3 && (
+            <IonCard className="ion-padding">
+              <IonItem lines='none'>
+                <h2>These are the information you have provided:</h2>
+              </IonItem>
               <IonItem>
-                <IonLabel>Attach Medical Record:</IonLabel>
-                <IonText>{attachMedicalRecord ? 'Yes' : 'No'}</IonText>
+                <IonLabel>Consultation Reason:</IonLabel>
+                <IonText>{reason || 'Not provided'}</IonText>
+              </IonItem>
+              {hasMedicalRecord && (
+                <IonItem>
+                  <IonLabel>Attach Medical Record:</IonLabel>
+                  <IonText>{attachMedicalRecord ? 'Yes' : 'No'}</IonText>
+                </IonItem>
+              )}
+            </IonCard>
+          )}
+
+          <IonLoading isOpen={loading} message={'Submitting request...'} />
+        </IonContent>
+        <IonFooter>
+          <IonToolbar>
+            {step === 3 && (
+              <IonItem lines='none'>
+                <p><small> You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
               </IonItem>
             )}
-          </IonCard>
-        )}
+            {step === 1 && (
+              <IonButton
+                expand="block"
+                shape="round"
+                onClick={nextStep}
+                className="ion-margin"
+              >
+                <IonIcon slot="end" icon={arrowForward} />
+                <IonText className='ion-padding-vertical'>Next</IonText>
+              </IonButton>
+            )}
 
-        <IonLoading isOpen={loading} message={'Submitting request...'} />
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={toastMessage}
-          duration={3000}
-          color={toastMessage.includes('successfully') ? 'success' : 'danger'}
-        />
-      </IonContent>
-      <IonFooter>
-        <IonToolbar>
-          {step === 3 && (
-            <IonItem lines='none'>
-              <p><small>Note that submission of this form does not guarantee an appointment. You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
-            </IonItem>
-          )}
-          {step === 1 && (
-            <IonButton
-              expand="block"
-              shape="round"
-              onClick={nextStep}
-              className="ion-margin"
-            >
-              <IonIcon slot="end" icon={arrowForward} />
-              <IonText className='ion-padding-vertical'>Next</IonText>
-            </IonButton>
-          )}
-
-          {(step === 2 || step === 3) && (
-            <IonGrid>
-              <IonRow>
-                <IonCol size="3">
-                  <IonButton
-                    expand="block"
-                    shape="round"
-                    fill="outline"
-                    onClick={prevStep}
-                  >
-                    <IonIcon slot="start" icon={arrowBack} />
-                    <IonText className='ion-padding-vertical'>Back</IonText>
-                  </IonButton>
-                </IonCol>
-                <IonCol size="9">
-                  {step === 2 ? (
+            {(step === 2 || step === 3) && (
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="3">
                     <IonButton
                       expand="block"
                       shape="round"
-                      onClick={nextStep}
+                      fill="outline"
+                      onClick={prevStep}
                     >
-                      <IonIcon slot="end" icon={arrowForward} />
-                      <IonText className='ion-padding-vertical'>Next</IonText>
+                      <IonIcon slot="start" icon={arrowBack} />
+                      <IonText className='ion-padding-vertical'>Back</IonText>
                     </IonButton>
-                  ) : (
-                    <IonButton
-                      color={'success'}
-                      expand="block"
-                      shape="round"
-                      onClick={handleSubmit}
-                      disabled={loading}
-                    >
-                      <IonText className='ion-padding-vertical'>Submit Request</IonText>
-                      <IonIcon slot="end" icon={paperPlane} />
-                    </IonButton>
-                  )}
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-          )}
-        </IonToolbar>
-      </IonFooter>
-    </IonModal>
+                  </IonCol>
+                  <IonCol size="9">
+                    {step === 2 ? (
+                      <IonButton
+                        expand="block"
+                        shape="round"
+                        onClick={nextStep}
+                      >
+                        <IonIcon slot="end" icon={arrowForward} />
+                        <IonText className='ion-padding-vertical'>Next</IonText>
+                      </IonButton>
+                    ) : (
+                      <IonButton
+                        color={'success'}
+                        expand="block"
+                        shape="round"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                      >
+                        <IonText className='ion-padding-vertical'>Submit Request</IonText>
+                        <IonIcon slot="end" icon={paperPlane} />
+                      </IonButton>
+                    )}
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            )}
+          </IonToolbar>
+        </IonFooter>
+      </IonModal>
+      <IonToast
+        isOpen={showToast}
+        onDidDismiss={() => {
+          setShowToast(false);
+          setToastMessage('');
+        }}
+        message={toastMessage}
+        duration={3000}
+        color={toastMessage.includes('successfully') ? 'success' : 'danger'}
+      />
+    </>
   );
 };
 

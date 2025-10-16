@@ -316,7 +316,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
           <IonToolbar>
             {step === 4 && (
               <IonItem lines='none'>
-                <p><small>Note that submission of this form does not guarantee approval. You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
+                <p><small>You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
               </IonItem>
             )}
             {step === 1 && (

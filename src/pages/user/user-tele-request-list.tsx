@@ -76,7 +76,12 @@ const UserTeleRequestList: React.FC = () => {
                     endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
                     notes: data.notes,
                     doctorId: data.doctorId,
+                    doctorName: data.doctorName,
+                    doctorSpecialty: data.doctorSpecialty,
                     meetingLink: data.meetingLink,
+                    superadminMarkedComplete: data.superadminMarkedComplete,
+                    rejectionReason: data.rejectionReason,
+                    medicalRecord: data.medicalRecord,
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
                       action: entry.action,
                       userId: entry.userId,
@@ -201,7 +206,7 @@ const UserTeleRequestList: React.FC = () => {
   };
 
   return (
-    <IonPage>
+    <>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
@@ -706,7 +711,7 @@ const UserTeleRequestList: React.FC = () => {
                   />
 
                     </IonContent>
-    </IonPage>
+    </>
   );
 };
 export default UserTeleRequestList;
