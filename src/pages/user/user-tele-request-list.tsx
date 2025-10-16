@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonLabel, IonList, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText, IonLoading, IonButtons, IonBackButton, IonIonModal, IonButton, IonAlert, IonItem, IonItemDivider, IonRefresher, IonRefresherContent, IonChip, IonFooter, IonGrid, IonRow, IonCol, IonToast, IonIcon, } from '@ionic/react';
+import { IonLabel, IonList, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText, IonLoading, IonButtons, IonBackButton, IonModal, IonButton, IonAlert, IonItem, IonItemDivider, IonRefresher, IonRefresherContent, IonChip, IonFooter, IonGrid, IonRow, IonCol, IonToast, IonIcon, IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonContent } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
@@ -642,10 +642,71 @@ const UserTeleRequestList: React.FC = () => {
                     color="success"
                   />
           
-                    </IonContent>    </IonPage>
+                    </IonContent>
+                  </IonModal>
+
+                  <IonAlert
+                    isOpen={showCancelAlert}
+                    onDidDismiss={() => setShowCancelAlert(false)}
+                    header={'Confirm Cancellation'}
+                    message={'Are you sure you want to cancel this teleconsultation request?'}
+                    buttons={[
+                      {
+                        text: 'No',
+                        role: 'cancel',
+                        handler: () => {
+                          setRequestToCancel(null);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        handler: handleCancelRequest
+                      }
+                    ]}
+                  />
+                  <IonAlert
+                    isOpen={showMarkCompleteAlert}
+                    onDidDismiss={() => setShowMarkCompleteAlert(false)}
+                    header={'Confirm Mark as Complete'}
+                    message={'Are you sure you want to mark this teleconsultation request as completed?'}
+                    buttons={[
+                      {
+                        text: 'No',
+                        role: 'cancel',
+                        handler: () => {
+                          setRequestToMarkComplete(null);
+                        }
+                      },
+                      {
+                        text: 'Yes',
+                        handler: () => {
+                          if (requestToMarkComplete) {
+                            handleMarkAsComplete(requestToMarkComplete);
+                            setRequestToMarkComplete(null);
+                          }
+                        }
+                      }
+                    ]}
+                  />
+
+                  <IonToast
+                    isOpen={showCancelToast}
+                    onDidDismiss={() => setShowCancelToast(false)}
+                    message={toastMessage}
+                    duration={2000}
+                    color="danger"
+                  />
+
+                  <IonToast
+                    isOpen={showCompleteToast}
+                    onDidDismiss={() => setShowCompleteToast(false)}
+                    message={toastMessage}
+                    duration={2000}
+                    color="success"
+                  />
+
+                    </IonContent>
+    </IonPage>
   );
 };
-
-export default UserTeleRequestList;
-
 export default UserTeleRequestList;
