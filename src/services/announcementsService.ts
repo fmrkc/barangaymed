@@ -500,25 +500,6 @@ export class AnnouncementsService {
         }
       });
 
-      // Call the Cloud Function to send notifications
-      const sendNotification = httpsCallable(functions, 'sendAnnouncementNotification');
-      await sendNotification({
-        announcementId,
-        announcementTitle,
-        barangayId: barangayId
-      });
-
-      logEvent('info', 'Announcement reactivation notification sent', {
-        userId,
-        userEmail,
-        userRole: 'admin',
-        metadata: {
-          action: 'send_announcement_notification',
-          announcementId,
-          barangayId
-        }
-      });
-
     } catch (error) {
       logEvent('error', 'Failed to reactivate announcement', {
         userId,

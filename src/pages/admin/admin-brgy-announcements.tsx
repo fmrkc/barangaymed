@@ -923,7 +923,7 @@ const BarangayAnnouncements: React.FC = () => {
           isOpen={showUnprivateAlert}
           onDidDismiss={() => setShowUnprivateAlert(false)}
           header="Unprivate Announcement"
-          message="Are you sure you want to unprivate this announcement? This action will make the announcement public and notify all users in your barangay."
+          message="Are you sure you want to unprivate this announcement? This action will make the announcement public."
           buttons={[
             {
               text: 'Cancel',
@@ -942,7 +942,7 @@ const BarangayAnnouncements: React.FC = () => {
                     currentUser.uid,
                     currentUser.email || ''
                   );
-                  setToastMessage('Announcement unprivated and users will be notified.');
+                  setToastMessage('Announcement has been made public.');
                   loadAnnouncements();
                 } catch (error) {
                   setToastMessage('Error unprivating announcement');
