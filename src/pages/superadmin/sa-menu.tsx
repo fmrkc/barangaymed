@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router';
 
 import Dashboard from './sa-dashboard';
-import Admin_Management from './sa-admin-manage';
-import Admin_Register from './sa-admin-register';
-import Super_Admin_Register from './sa-superadmin-register';
+import Admin_Management from './sa-admins';
+import Admin_Register from './sa-register-admin';
+import Super_Admin_Register from './sa-register-superadmin';
 import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-request-list';
