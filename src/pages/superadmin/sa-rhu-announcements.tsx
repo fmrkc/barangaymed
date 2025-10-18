@@ -89,7 +89,8 @@ const SARHUAnnouncements: React.FC = () => {
           editingAnnouncement.id!,
           formData,
           currentUser.uid,
-          currentUser.email || ''
+          currentUser.email || '',
+          currentUser.displayName || ''
         );
         setToastMessage('RHU announcement updated successfully');
       } else {
@@ -97,7 +98,8 @@ const SARHUAnnouncements: React.FC = () => {
           formData,
           'ARHU',
           currentUser.uid,
-          currentUser.email || ''
+          currentUser.email || '',
+          currentUser.displayName || ''
         );
         setToastMessage('RHU announcement created successfully');
       }
