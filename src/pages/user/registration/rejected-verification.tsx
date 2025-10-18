@@ -4,9 +4,9 @@ import {
 } from '@ionic/react';
 import { logOutOutline, createOutline, logOut, checkmarkCircle, closeCircle } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import { db } from '../../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 
 const RejectedVerification: React.FC = () => {

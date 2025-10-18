@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonRefresher, IonRefresherContent, useIonRouter, IonAlert, IonLoading, IonButtons, IonText } from '@ionic/react';
 import { checkmarkCircle, documentAttach, logOut, logOutOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const PendingVerification: React.FC = () => {
   const { logout, refreshUserClaims, verificationStatus, loading } = useAuth();

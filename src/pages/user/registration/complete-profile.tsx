@@ -30,14 +30,14 @@ import {
 } from '@ionic/react';
 
 import { close, arrowBack, arrowForward, cloudUpload, checkmarkCircle, paperPlane, call, home, logOutOutline, logOut } from 'ionicons/icons';
-import { useAuth } from '../../contexts/AuthContext';
-import { db } from '../../firebaseConfig';
+import { useAuth } from '../../../contexts/AuthContext';
+import { db } from '../../../firebaseConfig';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useIonRouter } from '@ionic/react';
 
-import { logEvent } from '../../utils/logger';
-import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../services/addressService';
+import { logEvent } from '../../../utils/logger';
+import { getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay, Region, Province, CityMunicipality, Barangay } from '../../../services/addressService';
 
 interface CompleteProfileProps {}
 

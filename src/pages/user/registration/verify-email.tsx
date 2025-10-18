@@ -14,9 +14,9 @@ import {
   IonAlert,
   IonButtons,
 } from '@ionic/react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { sendEmailVerification } from 'firebase/auth';
-import { auth, db } from '../../firebaseConfig';
+import { auth, db } from '../../../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { checkmarkDone, refresh, logOut } from 'ionicons/icons';

@@ -45,14 +45,14 @@ import SuperRegister from './pages/superadmin/sa-register-admin';
 
 import AMenu from './pages/admin/admin-menu';
 
-import UserRegister from './pages/user/UserRegister';
+import UserRegister from './pages/user/user-register';
 import UserDashboard from './pages/user/user-menu';
-import UserVerifyEmail from './pages/user/UserVerifyEmail';
+import UserVerifyEmail from './pages/user/registration/verify-email';
 import SAMenu from './pages/superadmin/sa-menu';
 import RegisterInvited from './pages/auth/RegisterInvited';
-import PendingVerification from './pages/user/PendingVerification';
-import RejectedVerification from './pages/user/RejectedVerification';
-import CompleteProfile from './pages/user/CompleteProfile';
+import PendingVerification from './pages/user/registration/pending-verification';
+import RejectedVerification from './pages/user/registration/rejected-verification';
+import CompleteProfile from './pages/user/registration/complete-profile';
 
 
 
