@@ -12,8 +12,12 @@ export interface Announcement {
   barangayId: string;
   createdBy: string;
   createdByEmail: string;
+  createdByName: string;
   createdAt: Date;
   updatedAt?: Date;
+  updatedBy?: string;
+  updatedByEmail?: string;
+  updatedByName?: string;
   isActive: boolean;
   priority: 'low' | 'medium' | 'high';
   images?: AnnouncementImage[];

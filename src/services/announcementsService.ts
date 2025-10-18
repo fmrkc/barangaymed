@@ -105,7 +105,8 @@ export class AnnouncementsService {
     data: AnnouncementFormData, 
     barangayId: string, 
     userId: string, 
-    userEmail: string
+    userEmail: string,
+    userName: string
   ): Promise<string> {
     try {
       const announcementData = {
@@ -114,6 +115,7 @@ export class AnnouncementsService {
         barangayId: barangayId,
         createdBy: userId,
         createdByEmail: userEmail,
+        createdByName: userName,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         isActive: true,
@@ -229,8 +231,12 @@ export class AnnouncementsService {
           barangayId: data.barangayId,
           createdBy: data.createdBy,
           createdByEmail: data.createdByEmail,
+          createdByName: data.createdByName,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt?.toDate(),
+          updatedBy: data.updatedBy,
+          updatedByEmail: data.updatedByEmail,
+          updatedByName: data.updatedByName,
           isActive: data.isActive,
           priority: data.priority,
           images: data.images || []
@@ -274,8 +280,12 @@ export class AnnouncementsService {
           barangayId: data.barangayId,
           createdBy: data.createdBy,
           createdByEmail: data.createdByEmail,
+          createdByName: data.createdByName,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt?.toDate(),
+          updatedBy: data.updatedBy,
+          updatedByEmail: data.updatedByEmail,
+          updatedByName: data.updatedByName,
           isActive: data.isActive,
           priority: data.priority,
           images: data.images || []
@@ -302,7 +312,8 @@ export class AnnouncementsService {
     announcementId: string,
     data: Partial<AnnouncementFormData> & { existingImages?: AnnouncementImage[], newImages?: File[] },
     userId: string,
-    userEmail: string
+    userEmail: string,
+    userName: string
   ): Promise<void> {
     try {
       const { existingImages, newImages, ...otherData } = data;
@@ -352,7 +363,10 @@ export class AnnouncementsService {
         content: updateData.content,
         priority: updateData.priority,
         images: updateData.images,
-        updatedAt: updateData.updatedAt
+        updatedAt: updateData.updatedAt,
+        updatedBy: userId,
+        updatedByEmail: userEmail,
+        updatedByName: userName
       });
   
       // Log the update

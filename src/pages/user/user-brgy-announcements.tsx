@@ -240,23 +240,41 @@ const UserAnnouncements: React.FC = () => {
           </div>
         )}
 
-        <IonGrid  className='ion-no-padding'>
+        <IonGrid className='ion-no-padding'>
           <IonRow>
             {announcements.map((announcement) => (
-              <IonCol className='ion-no-padding' size="12" size-md="6" size-lg="4" key={announcement.id}>
+              <IonCol size="12" size-md="6" size-lg="4" key={announcement.id}>
                 <IonCard onClick={() => handleViewDetails(announcement)} style={{ cursor: 'pointer' }}>
                   {announcement.images && announcement.images.length > 0 ? (
                     <>
-                      <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <IonCardHeader>
+                     <IonCardHeader>
                         <IonCardTitle style={{ fontSize: '1rem' }}>{announcement.title}</IonCardTitle>
                       </IonCardHeader>
+                      <IonCardContent>
+                        <p style={{ whiteSpace: 'pre-wrap', marginBottom: '15px' }}>
+                          {announcement.content.length > 150
+                            ? `${announcement.content.substring(0, 100)}...`
+                            : announcement.content
+                          }
+                        </p>
+                      </IonCardContent>
+                      <img src={announcement.images[0].url} alt={announcement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                     
                     </>
                   ) : (
                     <IonCardHeader style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      <IonCardTitle style={{ color: 'white' }}>{announcement.title}</IonCardTitle>
+                      <IonCardTitle>{announcement.title}</IonCardTitle>
+                        <p style={{ whiteSpace: 'pre-wrap', marginBottom: '15px' }}>
+                          {announcement.content.length > 150
+                            ? `${announcement.content.substring(0, 100)}...`
+                            : announcement.content
+                          }
+                        </p>
                     </IonCardHeader>
                   )}
+                  <p className='ion-margin'>
+                    {announcement.createdByName} · {getRelativeTime(announcement.createdAt)}
+                  </p>
                 </IonCard>
               </IonCol>
             ))}
@@ -277,7 +295,7 @@ const UserAnnouncements: React.FC = () => {
               <IonTitle>Announcement Details</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowModal(false)}>
-                  <IonIcon icon={close} />
+                  <IonIcon slot='icon-only' icon={close} />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -294,28 +312,18 @@ const UserAnnouncements: React.FC = () => {
 
             {selectedSegment === 'details' && selectedAnnouncement && (
               <IonCard>
-                <IonCardContent>
-                  <IonItemDivider>Title:</IonItemDivider>
+                <IonCardHeader>
                   <IonItem lines='none'>
-                    {selectedAnnouncement.title}
+                    <h4>{selectedAnnouncement.title}</h4>
                   </IonItem>
-
-                  <IonItemDivider className='ion-margin-top'>Content:</IonItemDivider>
+                </IonCardHeader>
+                <IonCardContent>
                   <IonItem lines='none'>
                     <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedAnnouncement.content}</p>
-                    
                   </IonItem>
 
-                  <IonItemDivider className='ion-margin-top'> Priority:</IonItemDivider>
-                  <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
-                    {selectedAnnouncement.priority.toUpperCase()}
-                  </IonChip>
-
-                  
-
                     {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
-                      <div style={{ marginTop: '15px' }}>
-                        <IonItemDivider className='ion-margin-top'>Images:</IonItemDivider>
+                      <div>
                         <IonGrid>
                           <IonRow>
                             {selectedAnnouncement.images.map((image, index) => (
@@ -337,27 +345,34 @@ const UserAnnouncements: React.FC = () => {
                       </div>
                     )}
 
+                     <IonItemDivider className='ion-margin-top'> Priority:</IonItemDivider>
+                  <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
+                    {selectedAnnouncement.priority.toUpperCase()}
+                  </IonChip>
+
                 </IonCardContent>
               </IonCard>
             )}
 
             {selectedSegment === 'history' && selectedAnnouncement && (
-              <>
-                {selectedAnnouncement.updatedAt && (
+              <IonCard>
+                <IonCardContent>
+                  {selectedAnnouncement.updatedAt && (
                   <IonItem>
                     <IonIcon icon={pencil} slot="start" />
-                    Last updated: {getRelativeTime(selectedAnnouncement.updatedAt)}
+                    Last updated {getRelativeTime(selectedAnnouncement.updatedAt)}
                   </IonItem>
                 )}
                 <IonItem>
                   <IonIcon icon={calendar} slot="start" />
-                  Created: {getRelativeTime(selectedAnnouncement.createdAt)}
+                  Created {getRelativeTime(selectedAnnouncement.createdAt)}
                 </IonItem>
                 <IonItem>
                   <IonIcon icon={person} slot="start" />
-                  Created by: {selectedAnnouncement.createdByEmail}
+                  Created by {selectedAnnouncement.createdByName} ({selectedAnnouncement.createdByEmail})
                 </IonItem>
-              </>
+                </IonCardContent>
+              </IonCard>
             )}
           </IonContent>
         </IonModal>
