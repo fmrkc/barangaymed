@@ -32,17 +32,16 @@ const Menu: React.FC = () => {
         { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
     ];
     const announcements = [
-        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
         { name: 'Brgy. Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
+        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
     ];
     const teleconsultation = [
         { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
         { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
     ];
     const admins = [
-        { name: 'All BHW Accounts', url: '/superadmin/dashboard/admin-management', icon: people },
-        { name: 'All RHU Accounts', url: '/superadmin/dashboard/admin-management', icon: people },
-        { name: 'Create BHW Account', url: '/superadmin/dashboard/sa-register', icon: personAdd },
+        { name: 'BHW Accounts', url: '/superadmin/dashboard/bhw-accounts', icon: people },
+        { name: 'RHU Accounts', url: '/superadmin/dashboard/rhu-accounts', icon: people },
     ];
 
     const handleLogout = async () => {
@@ -58,7 +57,7 @@ const Menu: React.FC = () => {
     };
 
     useEffect(() => {
-    document.title = 'Super Admin Dashboard - BarangayMed+';
+    document.title = 'RHU Dashboard - BarangayMed+';
   }, []);
 
     return (
@@ -164,9 +163,9 @@ const Menu: React.FC = () => {
                   <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
                   {currentUser?.email === 'barangaymed@gmail.com' && (
                     <IonMenuToggle autoHide={false}>
-                      <IonItem detail={false} routerLink="/superadmin/dashboard/sa-superadmin-register" routerDirection="none">
+                      <IonItem detail={false} routerLink="/superadmin/dashboard/register-rhu" routerDirection="none">
                         <IonIcon slot="start" icon={person} />
-                        Create Super Admin
+                        Create RHU Account
                       </IonItem>
                     </IonMenuToggle>
                   )}
@@ -184,9 +183,9 @@ const Menu: React.FC = () => {
 
                         </IonMenuToggle>
                         <IonMenuToggle autoHide={false}>
-                          <IonItem  detail={false} button color="danger" id="sa-logout">
+                          <IonItem  detail={false} button id="sa-logout">
                           <IonIcon slot="start" icon={logOut} />
-                            Logout
+                            Log Out
                           </IonItem>
                         </IonMenuToggle>
                       </div>
@@ -226,9 +225,9 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard/medicine-inventory" component={Med_Inventory} />
             <Route exact path="/superadmin/dashboard/medicine-requests" component={Med_Requests} />
             <Route exact path="/superadmin/dashboard/teleconsultation-requests" component={SuperAdminTeleRequestList} />
-            <Route exact path="/superadmin/dashboard/admin-management" component={Admin_Management} />
-            <Route exact path="/superadmin/dashboard/sa-register" component={Admin_Register} />
-            <Route exact path="/superadmin/dashboard/sa-superadmin-register" component={Super_Admin_Register} />
+            <Route exact path="/superadmin/dashboard/bhw-accounts" component={Admin_Management} />
+            <Route exact path="/superadmin/dashboard/register-bhw" component={Admin_Register} />
+            <Route exact path="/superadmin/dashboard/register-rhu" component={Super_Admin_Register} />
             <Route exact path="/superadmin/dashboard/rhu-announcements" component={Super_Announcements} />
           </IonRouterOutlet>
         </IonSplitPane>
