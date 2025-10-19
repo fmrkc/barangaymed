@@ -16,7 +16,7 @@ interface AdminUser {
     createdAt?: any;
 }
 
-const adminmanagement: React.FC = () => {
+const AdminManagement: React.FC = () => {
     const { currentUser } = useAuth();
     const [admins, setAdmins] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
@@ -432,4 +432,4 @@ const adminmanagement: React.FC = () => {
     );
 };
 
-export default adminmanagement;
+export default AdminManagement;
