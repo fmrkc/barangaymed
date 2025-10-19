@@ -522,11 +522,11 @@ const SuperAdminMedRequestList: React.FC = () => {
           <IonSegmentButton value="approved">
             <IonLabel>Approved</IonLabel>
           </IonSegmentButton>
-          <IonSegmentButton value="processed">
-            <IonLabel>Processed</IonLabel>
-          </IonSegmentButton>
           <IonSegmentButton value="scheduled">
             <IonLabel>Scheduled</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="processed">
+            <IonLabel>Processed</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="completed">
             <IonLabel>Completed</IonLabel>
@@ -621,7 +621,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                     <p>Approved by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted request')?.userName || 'N/A'}</strong> </p>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>Process<IonIcon slot='end' icon={open} /></IonButton>
+                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
                     </div>
                   </>
                 )}
@@ -634,10 +634,10 @@ const SuperAdminMedRequestList: React.FC = () => {
                     <p>Processed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Processed request')?.userName || 'N/A'}</strong> </p>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => {
-                        setRequestToSchedule(request.id!);
-                        setShowScheduleModal(true);
-                      }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
+                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
+                        setRequestToMarkComplete(request.id!);
+                        setShowMarkCompleteAlert(true);
+                      }}>Mark as Completed<IonIcon slot='end' icon={checkmark} /></IonButton>
                     </div>
                   </>
                 )}
@@ -657,12 +657,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                       No Show
                       <IonIcon slot='end' icon={personRemove} />
                     </IonButton>
-                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
-                      setRequestToMarkComplete(request.id!);
-                      setShowMarkCompleteAlert(true);
-                    }}>
-                      Mark as Completed
-                      <IonIcon slot='end' icon={checkmark} />
+                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>
+                      Process
+                      <IonIcon slot='end' icon={paperPlane} />
                     </IonButton>
                     </div>
                   </>
@@ -675,8 +672,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                 )}
                 {request.status === 'completed' && (
                   <>
-                    <p>Completed by:  </p>
-                    <p>Completed at: </p>
+                    <p>Completed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked as completed')?.userName || 'N/A'}</strong> </p>
+                    <p>Completed at: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked as completed')?.timestamp.toLocaleString() || 'N/A'}</strong></p>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                   </>
                 )}
