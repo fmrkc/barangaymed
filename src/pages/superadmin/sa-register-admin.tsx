@@ -105,7 +105,7 @@ const AdminRegister: React.FC = () => {
         event.preventDefault();
         if (!validateStep3()) return;
 
-        await present('Creating Admin Account...');
+        await present('Creating BHW Account...');
         const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
 
         try {
@@ -121,7 +121,7 @@ const AdminRegister: React.FC = () => {
             });
 
             dismiss();
-            setSuccessMessage('Admin account created successfully. Credentials have been sent.');
+            setSuccessMessage('BHW account created successfully. Details have been sent to the provided email address.');
             setShowSuccessToast(true);
             // Clear form
             setFirstName('');
@@ -351,7 +351,7 @@ const AdminRegister: React.FC = () => {
                               setContactEmail(e.detail.value!)
                             }
                             placeholder="juan@example.com"
-                            helperText=' Please make sure that this email address is correct and is a working email address. This email will be used to send a separate email containing a new email address and password. '
+                            helperText=' Please make sure that this email address is correct and is a working email address. This email will be used to send a separate email containing a custom email address and password. '
                           />
                         </IonItem>
                       </form>
@@ -496,7 +496,7 @@ const AdminRegister: React.FC = () => {
                       onClick={handleProvisionAdmin}
                     >
                       <IonText className="ion-padding-vertical">
-                        Create and Send Credentials
+                        Create and Send Account
                       </IonText>
                       <IonIcon slot="end" icon={checkmarkDoneOutline} />
                     </IonButton>

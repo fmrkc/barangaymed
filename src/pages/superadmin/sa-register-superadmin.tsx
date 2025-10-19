@@ -8,7 +8,7 @@ import {
     IonFooter
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
-import { arrowForward, person, arrowBack, checkmarkDoneOutline } from 'ionicons/icons';
+import { arrowForward, person, arrowBack, checkmarkDoneOutline, close } from 'ionicons/icons';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { httpsCallable } from 'firebase/functions';
@@ -31,6 +31,7 @@ const SuperAdminRegister: React.FC = () => {
     const [suffix, setSuffix] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [gender, setGender] = useState('');
+    const [personalAddress, setPersonalAddress] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -92,8 +93,8 @@ const SuperAdminRegister: React.FC = () => {
     };
 
     const validateStep2 = () => {
-        if (!birthdate || !gender) {
-            setError('Birthdate and gender are required.');
+        if (!birthdate || !gender || !personalAddress.trim()) {
+            setError('Birthdate, gender, and personal address are required.');
             setShowErrorToast(true);
             return false;
         }
@@ -141,7 +142,7 @@ const SuperAdminRegister: React.FC = () => {
     const handleProvisionSuperAdmin = async () => {
         if (!validateStep4()) return;
 
-        await present('Creating Super Admin...');
+        await present('Creating RHU Account...');
 
         const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
 
@@ -165,6 +166,7 @@ const SuperAdminRegister: React.FC = () => {
                 setSuffix('');
                 setBirthdate('');
                 setGender('');
+                setPersonalAddress('');
                 setContactEmail('');
                 setSelectedRegion('');
                 setSelectedProvince('');
@@ -187,10 +189,12 @@ const SuperAdminRegister: React.FC = () => {
         <IonPage>
             <IonHeader className="ion-no-border">
                 <IonToolbar>
-                    <IonButtons slot='start'>
-                        <IonBackButton defaultHref='/superadmin/dashboard' />
+                    <IonTitle>Create RHU Account</IonTitle>
+                     <IonButtons slot='end'>
+                        <IonButton onClick={() => router.goBack()}>
+                            <IonIcon icon={close} slot="icon-only" />
+                        </IonButton>
                     </IonButtons>
-                    <IonTitle>Create Super Admin</IonTitle>
                 </IonToolbar>
                 <IonProgressBar value={progress}></IonProgressBar>
             </IonHeader>
@@ -252,7 +256,7 @@ const SuperAdminRegister: React.FC = () => {
                                 <IonCard>
                                     <IonCardHeader>
                                         <IonCardTitle>Step 2: Personal Details</IonCardTitle>
-                                        <IonCardSubtitle>Please provide the user's birthdate and gender.</IonCardSubtitle>
+                                        <IonCardSubtitle>Please provide the user's birthdate, gender, and personal address.</IonCardSubtitle>
                                     </IonCardHeader>
                                     <IonCardContent>
                                         <IonItemDivider>Birthdate *</IonItemDivider>
@@ -266,6 +270,10 @@ const SuperAdminRegister: React.FC = () => {
                                                 <IonSelectOption value="Female">Female</IonSelectOption>
                                             </IonSelect>
                                         </IonItem>
+                                        <IonItemDivider>Personal Address *</IonItemDivider>
+                                        <IonItem className="ion-margin-vertical" lines="none">
+                                            <IonInput fill="outline" placeholder="e.g. 123 Main St, Barangay" value={personalAddress} onIonChange={(e) => setPersonalAddress(e.detail.value!)} required/>
+                                        </IonItem>
                                     </IonCardContent>
                                 </IonCard>
                             )}
@@ -273,8 +281,8 @@ const SuperAdminRegister: React.FC = () => {
                             {currentStep === 3 && (
                                 <IonCard>
                                     <IonCardHeader>
-                                        <IonCardTitle>Step 3: Assigned Details</IonCardTitle>
-                                        <IonCardSubtitle>Please provide the user's assigned location and contact email.</IonCardSubtitle>
+                                        <IonCardTitle>Step 3: Location and Contact Details</IonCardTitle>
+                                        <IonCardSubtitle>Please provide the user's location and contact email.</IonCardSubtitle>
                                     </IonCardHeader>
                                     <IonCardContent>
                                         <IonItemDivider>Region *</IonItemDivider>
@@ -326,7 +334,6 @@ const SuperAdminRegister: React.FC = () => {
                                                 ))}
                                             </IonSelect>
                                         </IonItem>
-
                                         <IonItemDivider>Contact Email *</IonItemDivider>
                                         <IonItem>
                                             <IonInput
@@ -335,7 +342,7 @@ const SuperAdminRegister: React.FC = () => {
                                                 value={contactEmail}
                                                 onIonChange={(e) => setContactEmail(e.detail.value!)}
                                                 placeholder="juan@example.com"
-                                                helperText=" Please make sure that this email address is correct and is a working email address. This email will be used to send a separate email containing a new email address and password. "
+                                                helperText=" Please make sure that this email address is correct and is a working email address. This email will be used to send a separate email containing a custom email address and password. "
                                             />
                                         </IonItem>
                                     </IonCardContent>
@@ -443,7 +450,7 @@ const SuperAdminRegister: React.FC = () => {
                                 </IonCol>
                                 <IonCol size="9">
                                     <IonButton color={'success'} expand="block" shape="round" onClick={handleProvisionSuperAdmin}>
-                                        <IonText className='ion-padding-vertical'>Create and Send Credentials</IonText>
+                                        <IonText className='ion-padding-vertical'>Create and Send Account</IonText>
                                         <IonIcon slot="end" icon={checkmarkDoneOutline} />
                                     </IonButton>
                                 </IonCol>
