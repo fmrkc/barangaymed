@@ -1,4 +1,4 @@
-import { IonAccordion, IonAccordionGroup, IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonAccordion, IonAccordionGroup, IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonText, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router';
 
@@ -66,9 +66,10 @@ const Menu: React.FC = () => {
           <IonMenu contentId="main">
             <IonHeader className='ion-no-border'>
               <IonToolbar>
-                <IonTitle>BarangayMed+</IonTitle>
-               
-                
+                <IonTitle>
+                  <IonText color={'primary'}>BarangayMed+</IonText>
+                  <br />
+                </IonTitle>
               </IonToolbar>
             </IonHeader>
             <IonContent>
