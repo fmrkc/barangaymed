@@ -1,4 +1,4 @@
-  ion-card {
+ion-card {
     border-radius: 10px;
     box-shadow: none;
 }
@@ -21,7 +21,6 @@ ion-item-divider {
     --background: white;
   }
 
-
 }
 
 ion-segment[scrollable="true"] ::-webkit-scrollbar {
@@ -33,3 +32,7 @@ ion-segment[scrollable="true"] ::-webkit-scrollbar {
 .with-tab-padding {
     --padding-bottom: 60px;
   }
+
+      ion-split-pane {
+      --border: none; /* or transparent */
+    }

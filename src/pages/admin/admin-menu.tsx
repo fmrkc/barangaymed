@@ -123,7 +123,13 @@ const Menu: React.FC = () => {
                 
                 <div>
                 <IonAccordionGroup>
-                   <IonItemDivider><IonLabel>Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
+                   <IonItemDivider>
+                    <IonLabel>
+                      Brgy. Health Worker
+                      ({currentUser?.email})
+                      <br />
+                    </IonLabel>
+                  </IonItemDivider>
                    <IonAccordion value="profile">
                       <IonItem slot="header">
                         <IonLabel>Account</IonLabel>

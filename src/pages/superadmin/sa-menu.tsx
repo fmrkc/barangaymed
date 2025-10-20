@@ -37,7 +37,6 @@ const Menu: React.FC = () => {
     ];
     const teleconsultation = [
         { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
-        { name: 'Consultation Schedule', url: '/superadmin/dashboard/rhu-announcements', icon: calendar },
     ];
     const admins = [
         { name: 'BHW Accounts', url: '/superadmin/dashboard/bhw-accounts', icon: people },
@@ -67,8 +66,7 @@ const Menu: React.FC = () => {
             <IonHeader className='ion-no-border'>
               <IonToolbar>
                 <IonTitle>
-                  <IonText color={'primary'}>BarangayMed+</IonText>
-                  <br />
+                  BarangayMed+
                 </IonTitle>
               </IonToolbar>
             </IonHeader>
@@ -161,7 +159,13 @@ const Menu: React.FC = () => {
                 </div>
                 
                 <div>
-                  <IonItemDivider><IonLabel>Super Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
+                  <IonItemDivider>
+                    <IonLabel>
+                      Rural Health Unit
+                      <br />
+                      ({currentUser?.email})
+                    </IonLabel>
+                  </IonItemDivider>
                   {currentUser?.email === 'barangaymed@gmail.com' && (
                     <IonMenuToggle autoHide={false}>
                       <IonItem detail={false} routerLink="/superadmin/dashboard/register-rhu" routerDirection="none">
