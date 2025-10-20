@@ -10,6 +10,8 @@ import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-request-list';
 import SuperAdminTeleRequestList from './sa-tele-request-list';
+import Profile from './sa-profile';
+
 
 import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar, shield, bagAdd, clipboard, videocam } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -181,11 +183,10 @@ const Menu: React.FC = () => {
                       </IonItem>
                       <div slot="content">
                         <IonMenuToggle autoHide={false}>
-                          <IonItem button detail={false}>
+                          <IonItem button detail={false} routerLink="/superadmin/dashboard/profile" routerDirection="none">
                             Profile
                             <IonIcon  slot="start" icon={person} />
                           </IonItem>
-
                         </IonMenuToggle>
                         <IonMenuToggle autoHide={false}>
                           <IonItem  detail={false} button id="sa-logout">
@@ -227,6 +228,7 @@ const Menu: React.FC = () => {
           </IonMenu>
           <IonRouterOutlet id="main">
             <Route exact path="/superadmin/dashboard" component={Dashboard} />
+            <Route exact path="/superadmin/dashboard/profile" component={Profile} />
             <Route exact path="/superadmin/dashboard/medicine-inventory" component={Med_Inventory} />
             <Route exact path="/superadmin/dashboard/medicine-requests" component={Med_Requests} />
             <Route exact path="/superadmin/dashboard/teleconsultation-requests" component={SuperAdminTeleRequestList} />
