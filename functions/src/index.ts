@@ -290,37 +290,7 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
   }
 });
 
-// Admin Only Operation route
-app.get('/adminOnlyOperationV2', async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
 
-    const role = req.query.role as string;
-    if (!role || (role !== 'admin' && role !== 'superadmin')) {
-      logger.error("Unauthorized access attempt to adminOnlyOperation");
-      res.status(403).json({ error: 'You do not have permission to perform this action.' });
-      return;
-    }
-
-    logger.log(`Admin operation performed by:`, { role: role });
-
-    res.json({
-      success: true,
-      message: "Welcome, admin! Here is the secret data.",
-      data: {
-        superSecretValue: 12345,
-        requestingbarangayId: req.query.barangayId || 'N/A'
-      }
-    });
-  } catch (error) {
-    logger.error('Error in adminOnlyOperation:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 // Get Philippine Addresses route
 app.get('/getPhilippineAddresses', async (req, res) => {
