@@ -106,7 +106,7 @@ export const provisionUserV2 = async (request: any) => {
     const { 
         contactEmail, role, barangayId, cityMunicipalityId, 
         firstName, middleName, lastName, suffix, birthdate, gender, 
-        address, assignedLocation, specificRole, fullName, regionId, provinceId 
+        address, assignedLocation, specificRole, fullName, regionId, provinceId, creatorEmail, creatorDisplayName 
     } = request.data;
 
     logger.info("Request data destructured", request.data);
@@ -199,6 +199,8 @@ export const provisionUserV2 = async (request: any) => {
             contactEmail: contactEmail,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             createdBy: request.auth.uid,
+            creatorEmail: creatorEmail,
+            creatorDisplayName: creatorDisplayName,
             verificationStatus: 'verified',
         };
         await admin.firestore().collection('users').doc(userRecord.uid).set(userData);

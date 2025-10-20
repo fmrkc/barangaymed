@@ -162,6 +162,8 @@ const SuperAdminRegister: React.FC = () => {
                 regionId: selectedRegion,
                 provinceId: selectedProvince,
                 cityMunicipalityId: selectedCityMunicipality, // Add city/municipality for superadmin
+                creatorEmail: currentUser?.email,
+                creatorDisplayName: currentUser?.displayName,
             });
 
             const data = result.data as { success: boolean; message: string };
