@@ -225,9 +225,7 @@ const SuperAdminRegister: React.FC = () => {
                     duration={3000}
                     color="success"
                 />
-                <IonGrid fixed>
-                    <IonRow className='ion-justify-content-center'>
-                        <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
+          
                             {currentStep === 1 && (
                                 <IonCard>
                                     <IonCardHeader>
@@ -402,9 +400,7 @@ const SuperAdminRegister: React.FC = () => {
                                     </IonCardContent>
                                 </IonCard>
                             )}
-                        </IonCol>
-                    </IonRow>
-                </IonGrid>
+            
             </IonContent>
 
             <IonFooter>
