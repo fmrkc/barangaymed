@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonList, IonItem, IonLabel, IonSpinner, IonActionSheet, IonModal, IonInput, IonSelect, IonSelectOption, IonButtons, IonBackButton, IonMenuButton, IonFab, IonFabButton } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonList, IonItem, IonLabel, IonSpinner, IonActionSheet, IonModal, IonInput, IonSelect, IonSelectOption, IonButtons, IonBackButton, IonMenuButton, IonFab, IonFabButton, IonRefresher } from '@ionic/react';
 import { personCircle, create, trash, ellipsisVertical, add } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -16,7 +16,7 @@ interface AdminUser {
     createdAt?: any;
 }
 
-const adminmanagement: React.FC = () => {
+const AdminManagement: React.FC = () => {
     const { currentUser } = useAuth();
     const [admins, setAdmins] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
@@ -228,32 +228,20 @@ const adminmanagement: React.FC = () => {
                     <IonButtons slot="start">
                         <IonMenuButton />
                     </IonButtons>
-                    <IonTitle>Admin Management</IonTitle>
+                    <IonTitle>BHW Accounts</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent className="ion-padding">
+            <IonContent>
+                <IonRefresher></IonRefresher>
                 <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                          <IonFabButton routerLink='/superadmin/dashboard/sa-register'>
+                          <IonFabButton routerLink='/superadmin/dashboard/register-bhw'>
                             <IonIcon icon={add} />
                           </IonFabButton>
                         </IonFab>
-                
                 <IonGrid>
-                    {/* <IonRow>
-                        <IonCol size="12">
-                            <IonButton routerLink='/superadmin/dashboard/sa-register' type='button' color='primary'>
-                                Create Admin/Super Admin Account
-                                <IonIcon icon={personCircle} slot="end" />
-                            </IonButton>
-                        </IonCol>
-                    </IonRow> */}
-                    
-                    <IonRow className="ion-margin-top">
+                    <IonRow>
                         <IonCol size="12">
                             <IonCard>
-                                <IonCardHeader>
-                                    <IonCardTitle>Current Admins</IonCardTitle>
-                                </IonCardHeader>
                                 <IonCardContent>
                                     {loading ? (
                                         <IonSpinner />
@@ -444,4 +432,4 @@ const adminmanagement: React.FC = () => {
     );
 };
 
-export default adminmanagement;
+export default AdminManagement;

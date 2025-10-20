@@ -1,19 +1,15 @@
 import { onRequest, onCall, HttpsError } from "firebase-functions/v2/https";
 import admin from "firebase-admin";
+import { logger } from "firebase-functions/v2";
+import express from 'express';
+import cors from 'cors';
+import { defineSecret } from 'firebase-functions/params';
+import { provisionUserV2 } from "./v2/registration.js";
 
 // Explicitly set the Auth emulator host if running in the emulator
 if (process.env.FUNCTIONS_EMULATOR) {
   process.env.FIREBASE_AUTH_EMULATOR_HOST = "localhost:9099";
 }
-
-import { logger } from "firebase-functions/v2";
-import express from 'express';
-import cors from 'cors';
-import { defineSecret } from 'firebase-functions/params';
-import * as nodemailer from 'nodemailer';
-import { randomBytes } from "crypto";
-
-
 
 const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
@@ -23,23 +19,8 @@ interface BarangayData {
   name: string;
 }
 
-interface CityMunData {
-  name: string;
-  barangay_list: BarangayData[];
-}
-
-interface ProvinceData {
-  name: string;
-  municipality_list: { [key: string]: CityMunData };
-}
-
-interface RegionData {
-  region_name: string;
-  province_list: { [key: string]: ProvinceData };
-}
-
 interface AddressesDataType {
-  [key: string]: RegionData;
+  [key: string]: any;
 }
 
 if (admin.apps.length === 0) {
@@ -67,37 +48,6 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-
-// Helper to generate a random password
-const generatePassword = (length = 12) => {
-  return randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
-};
-
-// Helper to generate a random role-based email
-const generateRoleBasedEmail = (role: string, domain = "barangaymed.app") => {
-  const randomString = randomBytes(4).toString('hex');
-  return `${role}.${randomString}@${domain}`;
-};
-
-async function getCityMunicipalityIdFromBarangayId(barangayId: string): Promise<string | undefined> {
-  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
-  const typedAddressesData = addressesData as AddressesDataType;
-
-  for (const regionCode in typedAddressesData) {
-    const regionData = typedAddressesData[regionCode];
-    for (const provinceCode in regionData.province_list) {
-      const provinceData = regionData.province_list[provinceCode];
-      for (const cityMunCode in provinceData.municipality_list) {
-        const cityMunData = provinceData.municipality_list[cityMunCode];
-        const barangayList = cityMunData.barangay_list;
-        if (barangayList.some(brgy => brgy.code === barangayId)) {
-          return cityMunCode;
-        }
-      }
-    }
-  }
-  return undefined;
-}
 
 // Log Activity route
 app.post('/logActivityV2', async (req, res) => {
@@ -450,167 +400,7 @@ export const standardizeAdminBarangayIds = onCall(async (request) => {
   return { success: true, message: `Standardized barangay IDs for ${updates.length} admin users.` };
 });
 
-async function getCityMunicipalityNameFromCode(cityMunicipalityCode: string): Promise<string | undefined> {
-  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
-  const typedAddressesData = addressesData as AddressesDataType;
-
-  for (const regionCode in typedAddressesData) {
-    const regionData = typedAddressesData[regionCode];
-    for (const provinceCode in regionData.province_list) {
-      const provinceData = regionData.province_list[provinceCode];
-      if (provinceData.municipality_list[cityMunicipalityCode]) {
-        return provinceData.municipality_list[cityMunicipalityCode].name;
-      }
-    }
-  }
-  return undefined;
-}
-
-async function getBarangayNameFromCode(barangayCode: string): Promise<string | undefined> {
-  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
-  const typedAddressesData = addressesData as AddressesDataType;
-
-  for (const regionCode in typedAddressesData) {
-    const regionData = typedAddressesData[regionCode];
-    for (const provinceCode in regionData.province_list) {
-      const provinceData = regionData.province_list[provinceCode];
-      for (const cityMunCode in provinceData.municipality_list) {
-        const cityMunData = provinceData.municipality_list[cityMunCode];
-        const foundBarangay = cityMunData.barangay_list.find(brgy => brgy.code === barangayCode);
-        if (foundBarangay) {
-          return foundBarangay.name;
-        }
-      }
-    }
-  }
-  return undefined;
-}
-
-export const provisionUser = onCall({ cors: ['http://localhost:8100', 'http://localhost:8101', 'https://barangaymed.web.app', 'https://api-gy7oflie2a-uc.a.run.app'], secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
-  if (request.auth?.token.role !== 'superadmin' && request.auth?.token.email !== 'barangaymed@gmail.com') {
-    logger.error("Attempt to provision user by non-authorized user:", { 
-      uid: request.auth?.uid,
-      email: request.auth?.token.email
-    });
-    throw new HttpsError(
-      'permission-denied',
-      'You are not authorized to perform this action.'
-    );
-  }
-
-  const { contactEmail, role, barangayId, fullName, cityMunicipalityId } = request.data;
-
-  if (request.auth?.token.role === 'superadmin') {
-    const superadminCityMunicipalityId = request.auth.token.cityMunicipalityId;
-    if (role === 'admin') {
-      const newAdminBarangayCityMunId = await getCityMunicipalityIdFromBarangayId(barangayId);
-      if (!superadminCityMunicipalityId || newAdminBarangayCityMunId !== superadminCityMunicipalityId) {
-        throw new HttpsError(
-          'permission-denied',
-          'You can only create admins within your assigned city/municipality.'
-        );
-      }
-    }
-  }
-
-  if (!contactEmail || !role || !fullName) {
-    throw new HttpsError('invalid-argument', 'Missing required fields: contactEmail, fullName, and role.');
-  }
-  if (!['admin', 'superadmin'].includes(role)) {
-    throw new HttpsError('invalid-argument', 'Role must be either \'admin\' or \'superadmin\'.');
-  }
-  if (role === 'admin' && !barangayId) {
-    throw new HttpsError('invalid-argument', 'Barangay ID is required for admin role.');
-  }
-  if (role === 'superadmin' && !cityMunicipalityId) {
-    throw new HttpsError('invalid-argument', 'City/Municipality ID is required for superadmin role.');
-  }
-
-  const generatedEmail = generateRoleBasedEmail(role);
-  const temporaryPassword = generatePassword();
-
-  try {
-    const userRecord = await admin.auth().createUser({
-      email: generatedEmail,
-      password: temporaryPassword,
-      displayName: fullName,
-      emailVerified: true,
-    });
-
-    // 4. Set custom claims
-    const customClaims: { role: string; barangayId?: string; cityMunicipalityId?: string; verificationStatus: string } = {
-      role,
-      verificationStatus: 'verified' // New users are verified by default
-    };
-    if (role === 'admin') {
-      customClaims.barangayId = barangayId;
-    } else if (role === 'superadmin') {
-      customClaims.cityMunicipalityId = cityMunicipalityId;
-    }
-    await admin.auth().setCustomUserClaims(userRecord.uid, customClaims);
-
-    await admin.firestore().collection('users').doc(userRecord.uid).set({
-      uid: userRecord.uid,
-      email: generatedEmail,
-      name: fullName,
-      role: role,
-      barangayId: role === 'admin' ? barangayId : null,
-      cityMunicipalityId: role === 'superadmin' ? cityMunicipalityId : null,
-      contactEmail: contactEmail,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      createdBy: request.auth.uid,
-    });
-
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: GMAIL_EMAIL.value(),
-        pass: GMAIL_APP_PASSWORD.value(),
-      },
-    });
-
-    let assignedLocation = '';
-    if (role === 'admin') {
-        const barangayName = await getBarangayNameFromCode(barangayId);
-        assignedLocation = `<p><b>Assigned Barangay:</b> ${barangayName}</p>`;
-    } else if (role === 'superadmin') {
-        const cityName = await getCityMunicipalityNameFromCode(cityMunicipalityId);
-        assignedLocation = `<p><b>Assigned City/Municipality:</b> ${cityName}</p>`;
-    }
-
-    const mailOptions = {
-      from: `"BarangayMed+" <${GMAIL_EMAIL.value()}>`,
-      to: contactEmail,
-      subject: 'Your BarangayMed+ Account Credentials',
-      html: `
-        <p>Hello ${fullName},</p>
-        <p>An account has been created for you on BarangayMed+.</p>
-        <p><b>Role:</b> ${role}</p>
-        ${assignedLocation}
-        <hr>
-        <p>You can log in using these credentials:</p>
-        <p><b>Email:</b> ${generatedEmail}</p>
-        <p><b>Temporary Password:</b> ${temporaryPassword}</p>
-        <hr>
-        <p>Please change your password after your first login.</p>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    logger.log(`Successfully provisioned user ${generatedEmail} and sent credentials to ${contactEmail}.`);
-
-    return { success: true, message: `User created successfully. Credentials sent to ${contactEmail}.`, newUser: { uid: userRecord.uid, email: generatedEmail } };
-
-  } catch (error) {
-    logger.error("Error provisioning user:", error);
-    const user = await admin.auth().getUserByEmail(generatedEmail).catch(() => null);
-    if (user) {
-      await admin.auth().deleteUser(user.uid);
-    }
-    throw new HttpsError('internal', 'An error occurred while creating the user.');
-  }
-});
+export const provisionUser = onCall(provisionUserV2);
 
 export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
   if (!request.auth || (request.auth.token.role !== 'admin' && request.auth.token.role !== 'superadmin')) {
@@ -707,9 +497,7 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
     }
     throw new HttpsError('internal', 'An unexpected error occurred while reviewing the user.');
   }
-});
-
-// Export the Express app as a Firebase Function
+});// Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 export { sendVerificationEmail } from './sendVerificationEmail.js';
 export { onUserDocUpdate } from './user-claims-triggers.js';

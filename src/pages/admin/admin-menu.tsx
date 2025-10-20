@@ -1,4 +1,4 @@
-import { IonAccordion, IonAccordionGroup, IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
+import { IonAccordion, IonAccordionGroup, IonAlert, IonContent, IonHeader, IonIcon, IonItem, IonItemDivider, IonLabel, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonText, IonTitle, IonToolbar } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
@@ -57,7 +57,10 @@ const Menu: React.FC = () => {
           <IonMenu contentId="main">
             <IonHeader className='ion-no-border'>
               <IonToolbar>
-                <IonTitle>BarangayMed+</IonTitle>
+                <IonTitle>
+                  <IonText color={'primary'}>BarangayMed+</IonText>
+                  <br />
+                </IonTitle>
               </IonToolbar>
             </IonHeader>
             <IonContent>
@@ -120,7 +123,13 @@ const Menu: React.FC = () => {
                 
                 <div>
                 <IonAccordionGroup>
-                   <IonItemDivider><IonLabel>Admin Account Settings ({currentUser?.email})</IonLabel></IonItemDivider>
+                   <IonItemDivider>
+                    <IonLabel>
+                      Brgy. Health Worker
+                      ({currentUser?.email})
+                      <br />
+                    </IonLabel>
+                  </IonItemDivider>
                    <IonAccordion value="profile">
                       <IonItem slot="header">
                         <IonLabel>Account</IonLabel>
