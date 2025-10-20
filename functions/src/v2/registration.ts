@@ -4,6 +4,7 @@ import { logger } from "firebase-functions/v2";
 import * as nodemailer from 'nodemailer';
 import { randomBytes } from "crypto";
 import { defineSecret } from 'firebase-functions/params';
+import addressesDataRaw from '../data/philippine-addresses.json';
 
 const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
@@ -51,8 +52,7 @@ let codeToNameMap: Map<string, string> | null = null;
 const loadAddressesData = async () => {
     if (addressesData) return;
     try {
-        const data = (await import('../../philippine-addresses.json', { with: { type: 'json' } })).default;
-        addressesData = data as AddressesDataType;
+        addressesData = addressesDataRaw as AddressesDataType;
 
         // Pre-process data for efficient lookups
         barangayToCityMunMap = new Map<string, string>();
@@ -100,6 +100,7 @@ interface ProvisionUserV2Data {
     contactEmail: string;
     role: string;
     barangayId: string;
+    barangayName?: string;
     cityMunicipalityId: string;
     firstName: string;
     middleName: string;
@@ -138,10 +139,15 @@ export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Da
         contactEmail, role, barangayId, cityMunicipalityId, 
         firstName, middleName, lastName, suffix, birthdate, gender, 
         address, assignedLocation, specificRole, fullName, regionId, provinceId, creatorEmail, creatorDisplayName,
-        regionName, provinceName, cityMunicipalityName
+        regionName, provinceName, cityMunicipalityName, barangayName
     } = request.data;
 
     logger.info("Request data destructured", request.data);
+
+    let finalBarangayName = barangayName;
+    if (role === 'admin' && barangayId && !finalBarangayName) {
+        finalBarangayName = await getNameFromCode(barangayId);
+    }
 
     // --- Validation ---
     if (!contactEmail || !role || !fullName || !birthdate || !gender) {
@@ -223,6 +229,7 @@ export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Da
             address,
             role: role,
             barangayId: role === 'admin' ? barangayId : null,
+            barangayName: finalBarangayName || null,
             cityMunicipalityId: role === 'superadmin' ? cityMunicipalityId : (customClaims.cityMunicipalityId || null),
             regionId: regionId,
             provinceId: provinceId,

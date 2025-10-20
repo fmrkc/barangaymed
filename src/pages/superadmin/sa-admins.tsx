@@ -1,11 +1,13 @@
-import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonList, IonItem, IonLabel, IonSpinner, IonActionSheet, IonModal, IonInput, IonSelect, IonSelectOption, IonButtons, IonBackButton, IonMenuButton, IonFab, IonFabButton, IonRefresher } from '@ionic/react';
-import { personCircle, create, trash, ellipsisVertical, add } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonList, IonItem, IonLabel, IonSpinner, IonModal, IonSelect, IonSelectOption, IonButtons, IonMenuButton, IonFab, IonFabButton, IonRefresher, IonText, IonFooter, IonSearchbar } from '@ionic/react';
+import { add, close } from 'ionicons/icons';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getAuth, deleteUser } from 'firebase/auth';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
+import { useLocation } from 'react-router-dom';
+import { useIonRouter } from '@ionic/react';
 
 interface AdminUser {
     id: string;
@@ -13,21 +15,35 @@ interface AdminUser {
     name: string;
     role: string;
     barangayId?: string;
+    barangayName?: string;
     createdAt?: any;
+    regionId?: string;
+    provinceId?: string;
+    cityMunicipalityId?: string;
+    regionName?: string;
+    provinceName?: string;
+    cityMunicipalityName?: string;
+    creatorEmail?: string;
+    creatorDisplayName?: string;
+    assignedLocation?: string;
+    specificRole?: string;
 }
 
 const AdminManagement: React.FC = () => {
     const { currentUser } = useAuth();
     const [admins, setAdmins] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
-    const [actionSheetOpen, setActionSheetOpen] = useState(false);
     const [selectedAdmin, setSelectedAdmin] = useState<AdminUser | null>(null);
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [editName, setEditName] = useState('');
-    const [editEmail, setEditEmail] = useState('');
-    const [editRole, setEditRole] = useState('');
-    const [editBarangay, setEditBarangay] = useState('');
-    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+
+    const [searchText, setSearchText] = useState('');
+    const [selectedRole, setSelectedRole] = useState('');
+    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedBrgy, setSelectedBrgy] = useState('');
+    const [filteredAdmins, setFilteredAdmins] = useState<AdminUser[]>([]);
 
     const [regions, setRegions] = useState<Region[]>([]);
     const [provinces, setProvinces] = useState<Province[]>([]);
@@ -52,12 +68,10 @@ const AdminManagement: React.FC = () => {
                 setProvinces(await getProvincesByRegion(selectedRegion));
                 setSelectedProvince('');
                 setSelectedCityMunicipality('');
-                setEditBarangay('');
             } else {
                 setProvinces([]);
                 setSelectedProvince('');
                 setSelectedCityMunicipality('');
-                setEditBarangay('');
             }
         };
         loadProvinces();
@@ -68,11 +82,9 @@ const AdminManagement: React.FC = () => {
             if (selectedProvince) {
                 setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(selectedProvince));
                 setSelectedCityMunicipality('');
-                setEditBarangay('');
             } else {
                 setCitiesMunicipalities([]);
                 setSelectedCityMunicipality('');
-                setEditBarangay('');
             }
         };
         loadCitiesMunicipalities();
@@ -82,19 +94,65 @@ const AdminManagement: React.FC = () => {
         const loadBarangays = async () => {
             if (selectedCityMunicipality) {
                 setBarangays(await getBarangaysByCityMunicipality(selectedCityMunicipality));
-                setEditBarangay('');
             } else {
                 setBarangays([]);
-                setEditBarangay('');
             }
         };
         loadBarangays();
     }, [selectedCityMunicipality]);
 
+    const uniqueCities = useMemo(() => {
+        const cityMap = new Map<string, string>();
+        admins.forEach(admin => {
+            if (admin.cityMunicipalityId && admin.cityMunicipalityName) {
+                cityMap.set(admin.cityMunicipalityId, admin.cityMunicipalityName);
+            }
+        });
+        return Array.from(cityMap.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    }, [admins]);
+
+    const uniqueBarangays = useMemo(() => {
+        const barangayMap = new Map<string, string>();
+        admins.forEach(admin => {
+            if (admin.barangayId && admin.barangayName && (!selectedCity || admin.cityMunicipalityId === selectedCity)) {
+                barangayMap.set(admin.barangayId, admin.barangayName);
+            }
+        });
+        return Array.from(barangayMap.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    }, [admins, selectedCity]);
+
+    useEffect(() => {
+        let filtered = admins;
+
+        if (searchText) {
+            filtered = filtered.filter(admin =>
+                admin.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                admin.email.toLowerCase().includes(searchText.toLowerCase())
+            );
+        }
+
+        if (selectedRole) {
+            filtered = filtered.filter(admin => admin.role === selectedRole);
+        }
+
+        if (selectedCity) {
+            filtered = filtered.filter(admin => admin.cityMunicipalityId === selectedCity);
+        }
+
+        if (selectedBrgy) {
+            filtered = filtered.filter(admin => admin.barangayId === selectedBrgy);
+        }
+
+        setFilteredAdmins(filtered);
+    }, [searchText, selectedRole, selectedCity, selectedBrgy, admins]);
+
     const fetchAdmins = async () => {
         try {
-            const querySnapshot = await getDocs(collection(db, 'users'));
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where("role", "in", ["admin", "superadmin"]));
+            const querySnapshot = await getDocs(q);
             const adminList: AdminUser[] = [];
+
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 if (data.role === 'admin' || data.role === 'superadmin') {
@@ -104,7 +162,18 @@ const AdminManagement: React.FC = () => {
                         name: data.name,
                         role: data.role,
                         barangayId: data.barangayId,
-                        createdAt: data.createdAt
+                        barangayName: data.barangayName,
+                        createdAt: data.createdAt,
+                        regionId: data.regionId,
+                        provinceId: data.provinceId,
+                        cityMunicipalityId: data.cityMunicipalityId,
+                        regionName: data.regionName,
+                        provinceName: data.provinceName,
+                        cityMunicipalityName: data.cityMunicipalityName,
+                        creatorEmail: data.creatorEmail,
+                        creatorDisplayName: data.creatorDisplayName,
+                        assignedLocation: data.assignedLocation,
+                        specificRole: data.specificRole,
                     });
                 }
             });
@@ -123,102 +192,14 @@ const AdminManagement: React.FC = () => {
         return 'N/A';
     };
 
-    const openActionSheet = (admin: AdminUser) => {
+    const openDetailsModal = (admin: AdminUser) => {
         setSelectedAdmin(admin);
-        setActionSheetOpen(true);
+        setDetailsModalOpen(true);
     };
-
-    const openEditModal = async (admin: AdminUser | null) => {
-        if (admin) {
-            setEditName(admin.name);
-            setEditEmail(admin.email);
-            setEditRole(admin.role);
-            setEditBarangay(admin.barangayId || '');
-
-            // Initialize address selectors based on admin's barangayId
-            if (admin.barangayId) {
-                const allRegions = await getRegions();
-                for (const region of allRegions) {
-                    const provinces = await getProvincesByRegion(region.code);
-                    for (const province of provinces) {
-                        const cities = await getCitiesMunicipalitiesByProvince(province.code);
-                        for (const city of cities) {
-                            const barangays = await getBarangaysByCityMunicipality(city.code);
-                            if (barangays.some(brgy => brgy.code === admin.barangayId)) {
-                                setSelectedRegion(region.code);
-                                setSelectedProvince(province.code);
-                                setSelectedCityMunicipality(city.code);
-                                break;
-                            }
-                        }
-                        if (selectedCityMunicipality) break; // Found city, break outer loop
-                    }
-                    if (selectedProvince) break; // Found province, break outer loop
-                }
-            }
-
-            setEditModalOpen(true);
-        }
-    };
-
-    const confirmDelete = (admin: AdminUser | null) => {
-        if (admin) {
-            setSelectedAdmin(admin);
-            setDeleteConfirmOpen(true);
-        }
-    };
-
-    const handleEditSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedAdmin) return;
-
-        try {
-            const userRef = doc(db, 'users', selectedAdmin.id);
-            await updateDoc(userRef, {
-                name: editName,
-                email: editEmail,
-                role: editRole,
-                barangayId: editBarangay,
-                updatedAt: new Date()
-            });
-
-            // Update local state
-            setAdmins(admins.map(admin => 
-                admin.id === selectedAdmin.id 
-                    ? { ...admin, name: editName, email: editEmail, role: editRole, barangayId: editBarangay }
-                    : admin
-            ));
-
-            setEditModalOpen(false);
-            setSelectedAdmin(null);
-        } catch (error) {
-            console.error("Error updating admin:", error);
-            alert("Failed to update admin. Please try again.");
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!selectedAdmin) return;
-
-        try {
-            // Delete from Firestore
-            await deleteDoc(doc(db, 'users', selectedAdmin.id));
-
-            // Delete from Firebase Auth
-            const auth = getAuth();
-            // Note: In a real app, you'd need to use Firebase Admin SDK to delete other users
-            // This is a simplified version for demonstration
-            console.log("Admin deleted from Firestore:", selectedAdmin.email);
-
-            // Update local state
-            setAdmins(admins.filter(admin => admin.id !== selectedAdmin.id));
-
-            setDeleteConfirmOpen(false);
-            setSelectedAdmin(null);
-        } catch (error) {
-            console.error("Error deleting admin:", error);
-            alert("Failed to delete admin. Please try again.");
-        }
+  
+    const handleRefresh = async (event: any) => {
+        await fetchAdmins();
+        event.detail.complete();
     };
 
     return (
@@ -230,14 +211,62 @@ const AdminManagement: React.FC = () => {
                     </IonButtons>
                     <IonTitle>BHW Accounts</IonTitle>
                 </IonToolbar>
+                <IonToolbar>
+                    <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} placeholder="Search by Name or Email"></IonSearchbar>
+                </IonToolbar>
+                <IonToolbar>
+                    <IonGrid>
+                        <IonRow className="ion-margin-horizontal">
+                            <IonCol size="3">
+                                <IonSelect
+                                    value={selectedRole}
+                                    placeholder="Filter by Role"
+                                    onIonChange={e => setSelectedRole(e.detail.value)}
+                                    interface="popover"
+                                >
+                                    <IonSelectOption value="">All Roles</IonSelectOption>
+                                    <IonSelectOption value="admin">Admin</IonSelectOption>
+                                    <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
+                                </IonSelect>
+                            </IonCol>
+                            <IonCol size="3">
+                                <IonSelect
+                                    value={selectedCity}
+                                    placeholder="Filter by City"
+                                    onIonChange={e => { setSelectedCity(e.detail.value); setSelectedBrgy(''); }}
+                                    interface="popover"
+                                >
+                                    <IonSelectOption value="">All Cities</IonSelectOption>
+                                    {uniqueCities.map(city => (
+                                        <IonSelectOption key={city.id} value={city.id}>{city.name}</IonSelectOption>
+                                    ))}
+                                </IonSelect>
+                            </IonCol>
+                            <IonCol size="3">
+                                <IonSelect
+                                    value={selectedBrgy}
+                                    placeholder="Filter by Barangay"
+                                    onIonChange={e => setSelectedBrgy(e.detail.value)}
+                                    interface="popover"
+                                    disabled={!selectedCity}
+                                >
+                                    <IonSelectOption value="">All Barangays</IonSelectOption>
+                                    {uniqueBarangays.map(brgy => (
+                                        <IonSelectOption key={brgy.id} value={brgy.id}>{brgy.name}</IonSelectOption>
+                                    ))}
+                                </IonSelect>
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                </IonToolbar>
             </IonHeader>
             <IonContent>
-                <IonRefresher></IonRefresher>
+                  <IonRefresher slot="fixed" onIonRefresh={handleRefresh}></IonRefresher>
                 <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                          <IonFabButton routerLink='/superadmin/dashboard/register-bhw'>
-                            <IonIcon icon={add} />
-                          </IonFabButton>
-                        </IonFab>
+                    <IonFabButton routerLink='/superadmin/dashboard/register-bhw'>
+                        <IonIcon icon={add} />
+                    </IonFabButton>
+                </IonFab>
                 <IonGrid>
                     <IonRow>
                         <IonCol size="12">
@@ -245,20 +274,17 @@ const AdminManagement: React.FC = () => {
                                 <IonCardContent>
                                     {loading ? (
                                         <IonSpinner />
-                                    ) : admins.length === 0 ? (
-                                        <p>No admins found.</p>
+                                    ) : filteredAdmins.length === 0 ? (
+                                        <p>No matching admins found.</p>
                                     ) : (
                                         <IonList>
-                                            {admins.map((admin) => (
-                                                <IonItem key={admin.id} button={true} detail={false} lines="full" onClick={() => openActionSheet(admin)}>
+                                            {filteredAdmins.map((admin) => (
+                                                <IonItem key={admin.id} button={true} detail={true} lines="full" onClick={() => openDetailsModal(admin)}>
                                                     <IonLabel>
                                                         <h2>{admin.name}</h2>
                                                         <p>{admin.email}</p>
                                                         <p>Role: {admin.role}</p>
-                                                        {admin.barangayId && <p>Barangay: {admin.barangayId}</p>}
-                                                        <p>Created: {formatDate(admin.createdAt)}</p>
                                                     </IonLabel>
-                                                    <IonIcon icon={ellipsisVertical} slot="end" />
                                                 </IonItem>
                                             ))}
                                         </IonList>
@@ -269,164 +295,72 @@ const AdminManagement: React.FC = () => {
                     </IonRow>
                 </IonGrid>
             </IonContent>
-            <IonActionSheet
-                isOpen={actionSheetOpen}
-                onDidDismiss={() => setActionSheetOpen(false)}
-                buttons={[
-                    {
-                        text: 'Edit',
-                        icon: create,
-                        handler: () => {
-                            setActionSheetOpen(false);
-                            openEditModal(selectedAdmin);
-                        }
-                    },
-                    {
-                        text: 'Delete',
-                        role: 'destructive',
-                        icon: trash,
-                        handler: () => {
-                            setActionSheetOpen(false);
-                            confirmDelete(selectedAdmin);
-                        }
-                    },
-                    {
-                        text: 'Cancel',
-                        role: 'cancel',
-                        handler: () => {
-                            setActionSheetOpen(false);
-                        }
-                    }
-                ]}
-            />
-            <IonModal isOpen={editModalOpen} onDidDismiss={() => setEditModalOpen(false)}>
-                <IonHeader>
+            <IonModal isOpen={detailsModalOpen} onDidDismiss={() => setDetailsModalOpen(false)}>
+                <IonHeader className='ion-no-border'>
                     <IonToolbar>
-                        <IonButtons slot="start">
-                            <IonButton onClick={() => setEditModalOpen(false)}>
-                                <IonIcon icon={create} />
+                        <IonTitle>Admin Details</IonTitle>
+                        <IonButtons slot="end">
+                            <IonButton onClick={() => setDetailsModalOpen(false)}>
+                                <IonIcon icon={close} slot="icon-only" />
                             </IonButton>
                         </IonButtons>
-                        <IonTitle>Edit Admin</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent className="ion-padding">
-                    <form onSubmit={handleEditSubmit}>
-                        <IonInput
-                            label="Full Name"
-                            labelPlacement="floating"
-                            value={editName}
-                            onIonChange={e => setEditName(e.detail.value!)}
-                            required
-                        />
-                        <IonInput
-                            label="Email"
-                            labelPlacement="floating"
-                            type="email"
-                            value={editEmail}
-                            onIonChange={e => setEditEmail(e.detail.value!)}
-                            required
-                        />
-                        <IonSelect
-                            label="Role"
-                            value={editRole}
-                            onIonChange={e => setEditRole(e.detail.value!)}
-                            required
-                        >
-                            <IonSelectOption value="admin">Admin</IonSelectOption>
-                            <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
-                        </IonSelect>
-
-                        {/* Dynamic Address Selectors */}
-                        <IonItem>
-                            <IonLabel>Region</IonLabel>
-                            <IonSelect
-                                value={selectedRegion}
-                                placeholder="Select Region"
-                                onIonChange={e => setSelectedRegion(e.detail.value)}
-                            >
-                                {regions.map((region) => (
-                                    <IonSelectOption key={region.code} value={region.code}>
-                                        {region.name}
-                                    </IonSelectOption>
-                                ))}
-                            </IonSelect>
-                        </IonItem>
-
-                        <IonItem>
-                            <IonLabel>Province</IonLabel>
-                            <IonSelect
-                                value={selectedProvince}
-                                placeholder="Select Province"
-                                onIonChange={e => setSelectedProvince(e.detail.value)}
-                                disabled={!selectedRegion}
-                            >
-                                {provinces.map((province) => (
-                                    <IonSelectOption key={province.code} value={province.code}>
-                                        {province.name}
-                                    </IonSelectOption>
-                                ))}
-                            </IonSelect>
-                        </IonItem>
-
-                        <IonItem>
-                            <IonLabel>City/Municipality</IonLabel>
-                            <IonSelect
-                                value={selectedCityMunicipality}
-                                placeholder="Select City/Municipality"
-                                onIonChange={e => setSelectedCityMunicipality(e.detail.value)}
-                                disabled={!selectedProvince}
-                            >
-                                {citiesMunicipalities.map((cityMun) => (
-                                    <IonSelectOption key={cityMun.code} value={cityMun.code}>
-                                        {cityMun.name}
-                                    </IonSelectOption>
-                                ))}
-                            </IonSelect>
-                        </IonItem>
-
-                        <IonItem>
-                            <IonLabel>Barangay</IonLabel>
-                            <IonSelect
-                                value={editBarangay}
-                                placeholder="Select Barangay"
-                                onIonChange={e => setEditBarangay(e.detail.value)}
-                                disabled={!selectedCityMunicipality}
-                            >
-                                {barangays.map((brgy: Barangay) => (
-                                    <IonSelectOption key={brgy.code} value={brgy.code}>
-                                        {brgy.name}
-                                    </IonSelectOption>
-                                ))}
-                            </IonSelect>
-                        </IonItem>
-
-                        <IonButton expand="block" type="submit" className="ion-margin-top">
-                            Save Changes
-                        </IonButton>
-                    </form>
+                    {selectedAdmin && (
+                        <IonList>
+                            <IonItem>
+                                <IonLabel>Name</IonLabel>
+                                <IonText slot="end">{selectedAdmin.name}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Email</IonLabel>
+                                <IonText slot="end">{selectedAdmin.email}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Role</IonLabel>
+                                <IonText slot="end">{selectedAdmin.role}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Created At</IonLabel>
+                                <IonText slot="end">{formatDate(selectedAdmin.createdAt)}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Created By</IonLabel>
+                                <IonText slot="end">{selectedAdmin.creatorDisplayName || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Region</IonLabel>
+                                <IonText slot="end">{selectedAdmin.regionName || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Province</IonLabel>
+                                <IonText slot="end">{selectedAdmin.provinceName || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>City/Municipality</IonLabel>
+                                <IonText slot="end">{selectedAdmin.cityMunicipalityName || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Barangay</IonLabel>
+                                <IonText slot="end">{selectedAdmin.barangayName || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Assigned Location</IonLabel>
+                                <IonText slot="end">{selectedAdmin.assignedLocation || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Specific Role</IonLabel>
+                                <IonText slot="end">{selectedAdmin.specificRole || 'N/A'}</IonText>
+                            </IonItem>
+                        </IonList>
+                    )}
                 </IonContent>
-            </IonModal>
-            <IonModal isOpen={deleteConfirmOpen} onDidDismiss={() => setDeleteConfirmOpen(false)}>
-                <IonHeader>
+                <IonFooter>
                     <IonToolbar>
-                        <IonButtons slot="start">
-                            <IonButton onClick={() => setDeleteConfirmOpen(false)}>
-                                <IonIcon icon={trash} />
-                            </IonButton>
-                        </IonButtons>
-                        <IonTitle>Confirm Delete</IonTitle>
+                        <IonButton expand="block" onClick={() => { /* Placeholder for edit */ }}>Edit</IonButton>
                     </IonToolbar>
-                </IonHeader>
-                <IonContent className="ion-padding">
-                    <p>Are you sure you want to delete this admin?</p>
-                    <IonButton color="danger" expand="block" onClick={handleDelete}>
-                        Delete
-                    </IonButton>
-                    <IonButton expand="block" onClick={() => setDeleteConfirmOpen(false)}>
-                        Cancel
-                    </IonButton>
-                </IonContent>
+                </IonFooter>
             </IonModal>
         </IonPage>
     );

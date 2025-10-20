@@ -163,9 +163,7 @@ const Menu: React.FC = () => {
                 <div>
                   <IonItemDivider>
                     <IonLabel>
-                      Rural Health Unit
-                      <br />
-                      ({currentUser?.email})
+                      RHU Dashboard
                     </IonLabel>
                   </IonItemDivider>
                   {currentUser?.email === 'barangaymed@gmail.com' && (

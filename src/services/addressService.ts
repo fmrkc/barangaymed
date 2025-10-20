@@ -190,3 +190,9 @@ export const getCityMunNameByCode = async (code: string): Promise<string | undef
   const cityMun = cityMunMap.get(code);
   return cityMun?.name;
 };
+
+export const getCityMunByCode = async (code: string): Promise<CityMunicipality | undefined> => {
+  await initializeCaches();
+  return cityMunMap.get(code);
+};
+

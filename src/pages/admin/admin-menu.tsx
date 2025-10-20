@@ -125,9 +125,7 @@ const Menu: React.FC = () => {
                 <IonAccordionGroup>
                    <IonItemDivider>
                     <IonLabel>
-                      Brgy. Health Worker
-                      ({currentUser?.email})
-                      <br />
+                      BHW Dashboard
                     </IonLabel>
                   </IonItemDivider>
                    <IonAccordion value="profile">

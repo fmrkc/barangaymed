@@ -11,13 +11,13 @@ import { checkmarkDoneOutline, arrowForward, person, arrowBack, close } from 'io
 import React, { useState, useEffect } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
-import { getBarangaysByCityMunicipality, Barangay } from '../../services/addressService';
+import { getBarangaysByCityMunicipality, Barangay, getCityMunByCode, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from '../../services/addressService';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminRegister: React.FC = () => {
     const router = useIonRouter();
     const [present, dismiss] = useIonLoading();
-    const { cityMunicipalityId } = useAuth();
+    const { cityMunicipalityId, currentUser } = useAuth();
 
     const [currentStep, setCurrentStep] = useState(1);
     const progress = currentStep / 4;
@@ -74,7 +74,7 @@ const AdminRegister: React.FC = () => {
     };
 
     const validateStep3 = () => {
-        if (!contactEmail.trim() || !barangayId || !assignedLocation.trim()) {
+        if (!contactEmail.trim() || !barangayId) {
             setError('Email, barangay, and assigned location are required.');
             setShowErrorToast(true);
             return false;
@@ -118,6 +118,13 @@ const AdminRegister: React.FC = () => {
         const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
 
         try {
+            const cityMun = cityMunicipalityId ? await getCityMunByCode(cityMunicipalityId) : undefined;
+            const regionId = cityMun?.regionCode;
+            const provinceId = cityMun?.provinceCode;
+            const regionName = regionId ? await getRegionNameByCode(regionId) : undefined;
+            const provinceName = provinceId ? await getProvinceNameByCode(provinceId) : undefined;
+            const cityMunicipalityName = cityMunicipalityId ? await getCityMunNameByCode(cityMunicipalityId) : undefined;
+
             const provisionUserFunction = httpsCallable(functions, 'provisionUser');
             await provisionUserFunction({
                 firstName,
@@ -134,6 +141,13 @@ const AdminRegister: React.FC = () => {
                 cityMunicipalityId, // Explicitly pass cityMunicipalityId
                 assignedLocation,
                 specificRole,
+                regionId,
+                provinceId,
+                regionName,
+                provinceName,
+                cityMunicipalityName,
+                creatorEmail: currentUser?.email,
+                creatorDisplayName: currentUser?.displayName,
             });
 
             dismiss();
@@ -189,9 +203,7 @@ const AdminRegister: React.FC = () => {
             duration={3000}
             color="success"
           />
-          <IonGrid fixed>
-            <IonRow className="ion-justify-content-center">
-              <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
+         
                 {currentStep === 1 && (
                   <IonCard>
                     <IonCardHeader>
@@ -332,7 +344,7 @@ const AdminRegister: React.FC = () => {
                             ))}
                           </IonSelect>
                         </IonItem>
-                        <IonItemDivider>Assigned Location *</IonItemDivider>
+                        <IonItemDivider>Assigned Location (Optional)</IonItemDivider>
                         <IonItem className='ion-margin-vertical' lines='none'>
                           <IonInput
                             fill="outline"
@@ -417,9 +429,6 @@ const AdminRegister: React.FC = () => {
                     </IonCardContent>
                   </IonCard>
                 )}
-              </IonCol>
-            </IonRow>
-          </IonGrid>
         </IonContent>
         <IonFooter>
           <IonToolbar>
