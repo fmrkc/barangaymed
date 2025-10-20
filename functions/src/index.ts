@@ -19,8 +19,28 @@ interface BarangayData {
   name: string;
 }
 
+interface BarangayData {
+  code: string;
+  name: string;
+}
+
+interface CityMunData {
+  name: string;
+  barangay_list: BarangayData[];
+}
+
+interface ProvinceData {
+  name: string;
+  municipality_list: { [key: string]: CityMunData };
+}
+
+interface RegionData {
+  region_name: string;
+  province_list: { [key: string]: ProvinceData };
+}
+
 interface AddressesDataType {
-  [key: string]: any;
+  [key: string]: RegionData;
 }
 
 if (admin.apps.length === 0) {
@@ -499,7 +519,7 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
   }
 });// Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
-export { sendVerificationEmail } from './sendVerificationEmail.js';
+
 export { onUserDocUpdate } from './user-claims-triggers.js';
 export * from "./user-verification.js";
 export { sendAnnouncementNotification } from './sendAnnouncementNotification.js';

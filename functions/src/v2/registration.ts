@@ -3,7 +3,10 @@ import { HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import * as nodemailer from 'nodemailer';
 import { randomBytes } from "crypto";
-import { gmailAppPassword, gmailEmail } from "../params.js";
+import { defineSecret } from 'firebase-functions/params';
+
+const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
+const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
 // Helper to generate a random password
 const generatePassword = (length = 12) => {
@@ -89,7 +92,35 @@ const getNameFromCode = async (code: string): Promise<string | undefined> => {
 };
 
 
-export const provisionUserV2 = async (request: any) => {
+import { CallableRequest } from "firebase-functions/v2/https";
+
+// ... (existing imports)
+
+interface ProvisionUserV2Data {
+    contactEmail: string;
+    role: string;
+    barangayId: string;
+    cityMunicipalityId: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    suffix: string;
+    birthdate: string;
+    gender: string;
+    address: string;
+    assignedLocation: string;
+    specificRole: string;
+    fullName: string;
+    regionId: string;
+    provinceId: string;
+    creatorEmail: string;
+    creatorDisplayName: string;
+    regionName: string;
+    provinceName: string;
+    cityMunicipalityName: string;
+}
+
+export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Data>) => {
     logger.info("provisionUserV2 started");
     logger.info("Incoming request data:", request.data);
     if (request.auth?.token.role !== 'superadmin' && request.auth?.token.email !== 'barangaymed@gmail.com') {
@@ -212,52 +243,56 @@ export const provisionUserV2 = async (request: any) => {
 
 
         // --- Send Email ---
-        if (!contactEmail) {
-            throw new HttpsError('internal', 'Contact email is missing before sending email.');
+        if (!process.env.FUNCTIONS_EMULATOR) {
+            if (!contactEmail) {
+                throw new HttpsError('internal', 'Contact email is missing before sending email.');
+            }
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: GMAIL_EMAIL.value(),
+                    pass: GMAIL_APP_PASSWORD.value(),
+                },
+            });
+            logger.info("Nodemailer transporter created");
+
+            let assignedLocationText = '';
+            if (role === 'admin') {
+                const barangayName = await getNameFromCode(barangayId);
+                assignedLocationText = `<p><b>Assigned Barangay:</b> ${barangayName || 'N/A'}</p>`;
+            } else if (role === 'superadmin') {
+                const cityName = await getNameFromCode(cityMunicipalityId);
+                assignedLocationText = `<p><b>Assigned City/Municipality:</b> ${cityName || 'N/A'}</p>`;
+            }
+
+            const mailOptions = {
+                from: `"BarangayMed+" <${GMAIL_EMAIL.value()}>`,
+                to: contactEmail,
+                subject: 'Your BarangayMed+ Account Credentials',
+                html: `
+                  <p>Hello ${fullName},</p>
+                  <p>An account has been created for you on BarangayMed+.</p>
+                  <p><b>Role:</b> ${role}</p>
+                  ${assignedLocationText}
+                  <hr>
+                  <p>You can log in using these credentials:</p>
+                  <p><b>Email:</b> ${generatedEmail}</p>
+                  <p><b>Temporary Password:</b> ${temporaryPassword}</p>
+                  <hr>
+                  <p>Please change your password after your first login.</p>
+                `,
+            };
+
+            await transporter.sendMail(mailOptions);
+            logger.info("Email sent successfully");
+        } else {
+            logger.info("Skipping email sending in emulator environment.");
         }
-
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: gmailEmail.value(),
-                pass: gmailAppPassword.value(),
-            },
-        });
-        logger.info("Nodemailer transporter created");
-
-        let assignedLocationText = '';
-        if (role === 'admin') {
-            const barangayName = await getNameFromCode(barangayId);
-            assignedLocationText = `<p><b>Assigned Barangay:</b> ${barangayName || 'N/A'}</p>`;
-        } else if (role === 'superadmin') {
-            const cityName = await getNameFromCode(cityMunicipalityId);
-            assignedLocationText = `<p><b>Assigned City/Municipality:</b> ${cityName || 'N/A'}</p>`;
-        }
-
-        const mailOptions = {
-            from: `"BarangayMed+" <${gmailEmail.value()}>`,
-            to: contactEmail,
-            subject: 'Your BarangayMed+ Account Credentials',
-            html: `
-              <p>Hello ${fullName},</p>
-              <p>An account has been created for you on BarangayMed+.</p>
-              <p><b>Role:</b> ${role}</p>
-              ${assignedLocationText}
-              <hr>
-              <p>You can log in using these credentials:</p>
-              <p><b>Email:</b> ${generatedEmail}</p>
-              <p><b>Temporary Password:</b> ${temporaryPassword}</p>
-              <hr>
-              <p>Please change your password after your first login.</p>
-            `,
-        };
-
-        await transporter.sendMail(mailOptions);
-        logger.info("Email sent successfully");
 
         return { success: true, message: `User created successfully. Credentials sent to ${contactEmail}.`, newUser: { uid: userRecord.uid, email: generatedEmail } };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error("Error provisioning user:", error);
 
         // Cleanup created user if process fails

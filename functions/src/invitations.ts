@@ -3,7 +3,10 @@ import admin from "firebase-admin";
 import { logger } from "firebase-functions";
 import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
-import { gmailEmail, gmailAppPassword } from './params.js';
+import { defineSecret } from 'firebase-functions/params';
+
+const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
+const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
 /**
  * Callable function to send an invitation for admin/superadmin registration.
@@ -68,26 +71,30 @@ export const sendInvitation = onCall(async (request) => {
     const invitationLink = `https://barangaymed.web.app/register-invited?token=${invitationToken}`;
 
     // 6. Send the invitation email using Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: gmailEmail.value(),
-        pass: gmailAppPassword.value(),
-      },
-    });
+    if (!process.env.FUNCTIONS_EMULATOR) {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: GMAIL_EMAIL.value(),
+          pass: GMAIL_APP_PASSWORD.value(),
+        },
+      });
 
-    const mailOptions = {
-      from: `"BarangayMed+" <${gmailEmail.value()}>`,
-      to: email,
-      subject: 'Invitation to join BarangayMed+',
-      html: `<p>You have been invited to join BarangayMed+ as a ${role}.</p>
-             <p>Click <a href="${invitationLink}">here</a> to register.</p>
-             <p>This link is valid for 24 hours.</p>`,
-    };
+      const mailOptions = {
+        from: `"BarangayMed+" <${GMAIL_EMAIL.value()}>`,
+        to: email,
+        subject: 'Invitation to join BarangayMed+',
+        html: `<p>You have been invited to join BarangayMed+ as a ${role}.</p>
+               <p>Click <a href="${invitationLink}">here</a> to register.</p>
+               <p>This link is valid for 24 hours.</p>`,
+      };
 
-    await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
 
-    logger.info(`Invitation email sent to ${email} for role ${role}. Link: ${invitationLink}`);
+      logger.info(`Invitation email sent to ${email} for role ${role}. Link: ${invitationLink}`);
+    } else {
+      logger.info(`Skipping invitation email to ${email} in emulator environment. Link: ${invitationLink}`);
+    }
 
     return { success: true, message: `Invitation sent to ${email}.` };
   } catch (error) {
