@@ -106,7 +106,8 @@ export const provisionUserV2 = async (request: any) => {
     const { 
         contactEmail, role, barangayId, cityMunicipalityId, 
         firstName, middleName, lastName, suffix, birthdate, gender, 
-        address, assignedLocation, specificRole, fullName, regionId, provinceId, creatorEmail, creatorDisplayName 
+        address, assignedLocation, specificRole, fullName, regionId, provinceId, creatorEmail, creatorDisplayName,
+        regionName, provinceName, cityMunicipalityName
     } = request.data;
 
     logger.info("Request data destructured", request.data);
@@ -194,6 +195,9 @@ export const provisionUserV2 = async (request: any) => {
             cityMunicipalityId: role === 'superadmin' ? cityMunicipalityId : (customClaims.cityMunicipalityId || null),
             regionId: regionId,
             provinceId: provinceId,
+            regionName: regionName,
+            provinceName: provinceName,
+            cityMunicipalityName: cityMunicipalityName,
             assignedLocation: role === 'admin' ? assignedLocation : null,
             specificRole: role === 'admin' ? specificRole : null,
             contactEmail: contactEmail,

@@ -146,6 +146,10 @@ const SuperAdminRegister: React.FC = () => {
 
         const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
 
+        const regionName = regions.find(r => r.code === selectedRegion)?.name;
+        const provinceName = provinces.find(p => p.code === selectedProvince)?.name;
+        const cityMunicipalityName = citiesMunicipalities.find(c => c.code === selectedCityMunicipality)?.name;
+
         try {
             const provisionUserFunction = httpsCallable(functions, 'provisionUser');
             const result = await provisionUserFunction({
@@ -161,7 +165,10 @@ const SuperAdminRegister: React.FC = () => {
                 role: 'superadmin', // Hardcode role to superadmin
                 regionId: selectedRegion,
                 provinceId: selectedProvince,
-                cityMunicipalityId: selectedCityMunicipality, // Add city/municipality for superadmin
+                cityMunicipalityId: selectedCityMunicipality,
+                regionName,
+                provinceName,
+                cityMunicipalityName,
                 creatorEmail: currentUser?.email,
                 creatorDisplayName: currentUser?.displayName,
             });
