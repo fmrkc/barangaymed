@@ -14,34 +14,6 @@ if (process.env.FUNCTIONS_EMULATOR) {
 const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
-interface BarangayData {
-  code: string;
-  name: string;
-}
-
-interface BarangayData {
-  code: string;
-  name: string;
-}
-
-interface CityMunData {
-  name: string;
-  barangay_list: BarangayData[];
-}
-
-interface ProvinceData {
-  name: string;
-  municipality_list: { [key: string]: CityMunData };
-}
-
-interface RegionData {
-  region_name: string;
-  province_list: { [key: string]: ProvinceData };
-}
-
-interface AddressesDataType {
-  [key: string]: RegionData;
-}
 
 if (admin.apps.length === 0) {
   admin.initializeApp();
@@ -361,64 +333,9 @@ app.get('/getPhilippineAddresses', async (req, res) => {
   }
 });
 
-async function getBarangayCodeFromName(barangayName: string): Promise<string | undefined> {
-  const addressesData = (await import('../philippine-addresses.json', { with: { type: 'json' } })).default;
-  const typedAddressesData = addressesData as AddressesDataType;
 
-  for (const regionCode in typedAddressesData) {
-    const regionData = typedAddressesData[regionCode];
-    for (const provinceCode in regionData.province_list) {
-      const provinceData = regionData.province_list[provinceCode];
-      for (const cityMunCode in provinceData.municipality_list) {
-        const cityMunData = provinceData.municipality_list[cityMunCode];
-        const barangayList = cityMunData.barangay_list;
-        const foundBarangay = barangayList.find((brgy: BarangayData) => brgy.name === barangayName);
-        if (foundBarangay) {
-          return foundBarangay.code;
-        }
-      }
-    }
-  }
-  return undefined;
-}
 
-export const standardizeAdminBarangayIds = onCall(async (request) => {
-  if (request.auth?.token.role !== 'superadmin') {
-    throw new HttpsError(
-      'permission-denied',
-      'Only superadmins can standardize admin barangay IDs.'
-    );
-  }
 
-  const db = admin.firestore();
-  const usersRef = db.collection('users');
-  const adminUsersSnapshot = await usersRef.where('role', '==', 'admin').get();
-
-  const updates: Promise<FirebaseFirestore.WriteResult>[] = [];
-
-  for (const doc of adminUsersSnapshot.docs) {
-    const userData = doc.data();
-    const currentBarangayId = userData.barangayId;
-
-    if (currentBarangayId && typeof currentBarangayId === 'string' && currentBarangayId.length > 0 && !/^[0-9]+$/.test(currentBarangayId)) {
-      const newBarangayCode = await getBarangayCodeFromName(currentBarangayId);
-
-      if (newBarangayCode) {
-        updates.push(doc.ref.update({ barangayId: newBarangayCode }));
-
-        const userRecord = await admin.auth().getUser(doc.id);
-        await admin.auth().setCustomUserClaims(doc.id, { ...userRecord.customClaims, barangayId: newBarangayCode });
-        logger.log(`Updated barangayId for user ${doc.id} from '${currentBarangayId}' to '${newBarangayCode}'`);
-      } else {
-        logger.warn(`Could not find code for barangay name: ${currentBarangayId} for user ${doc.id}`);
-      }
-    }
-  }
-
-  await Promise.all(updates);
-
-  return { success: true, message: `Standardized barangay IDs for ${updates.length} admin users.` };
-});
 
 export const provisionUser = onCall(provisionUserV2);
 
@@ -522,5 +439,4 @@ export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app
 
 export { onUserDocUpdate } from './user-claims-triggers.js';
 export * from "./user-verification.js";
-export { sendAnnouncementNotification } from './sendAnnouncementNotification.js';
 
