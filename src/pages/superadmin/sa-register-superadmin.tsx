@@ -1,5 +1,5 @@
 import {
-    IonBackButton, IonButton, IonButtons, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonItem, IonLabel, IonText, IonSelect, IonSelectOption,
+    IonButton, IonButtons, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonItem, IonText, IonSelect, IonSelectOption,
     IonProgressBar,
     IonToast,
     IonCardSubtitle,
@@ -31,7 +31,7 @@ const SuperAdminRegister: React.FC = () => {
     const [suffix, setSuffix] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [gender, setGender] = useState('');
-    const [personalAddress, setPersonalAddress] = useState('');
+    const [address, setAddress] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -93,8 +93,8 @@ const SuperAdminRegister: React.FC = () => {
     };
 
     const validateStep2 = () => {
-        if (!birthdate || !gender || !personalAddress.trim()) {
-            setError('Birthdate, gender, and personal address are required.');
+        if (!birthdate || !gender || !address.trim()) {
+            setError('Birthdate, gender, and address are required.');
             setShowErrorToast(true);
             return false;
         }
@@ -103,18 +103,14 @@ const SuperAdminRegister: React.FC = () => {
     };
 
     const validateStep3 = () => {
-        if (!selectedRegion || !selectedProvince || !selectedCityMunicipality) {
-            setError('Region, province, and city/municipality are required.');
+        if (!selectedRegion || !selectedProvince || !selectedCityMunicipality || !contactEmail.trim()) {
+            setError('Region, province, city/municipality and contact email are required.');
             setShowErrorToast(true);
             return false;
         }
-        setError(null);
-        return true;
-    };
-
-    const validateStep4 = () => {
-        if (!contactEmail.trim()) {
-            setError('Contact email is required.');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactEmail)) {
+            setError('Please enter a valid email address.');
             setShowErrorToast(true);
             return false;
         }
@@ -140,7 +136,11 @@ const SuperAdminRegister: React.FC = () => {
     };
 
     const handleProvisionSuperAdmin = async () => {
-        if (!validateStep4()) return;
+        if (!validateStep1() || !validateStep2() || !validateStep3()) {
+            setError('Please fill all required fields before submitting.');
+            setShowErrorToast(true);
+            return;
+        }
 
         await present('Creating RHU Account...');
 
@@ -149,9 +149,18 @@ const SuperAdminRegister: React.FC = () => {
         try {
             const provisionUserFunction = httpsCallable(functions, 'provisionUser');
             const result = await provisionUserFunction({
+                firstName,
+                middleName,
+                lastName,
+                suffix,
                 fullName,
+                birthdate,
+                gender,
+                address,
                 contactEmail,
                 role: 'superadmin', // Hardcode role to superadmin
+                regionId: selectedRegion,
+                provinceId: selectedProvince,
                 cityMunicipalityId: selectedCityMunicipality, // Add city/municipality for superadmin
             });
 
@@ -166,7 +175,7 @@ const SuperAdminRegister: React.FC = () => {
                 setSuffix('');
                 setBirthdate('');
                 setGender('');
-                setPersonalAddress('');
+                setAddress('');
                 setContactEmail('');
                 setSelectedRegion('');
                 setSelectedProvince('');
@@ -256,7 +265,7 @@ const SuperAdminRegister: React.FC = () => {
                                 <IonCard>
                                     <IonCardHeader>
                                         <IonCardTitle>Step 2: Personal Details</IonCardTitle>
-                                        <IonCardSubtitle>Please provide the user's birthdate, gender, and personal address.</IonCardSubtitle>
+                                        <IonCardSubtitle>Please provide the user's birthdate, gender, and address.</IonCardSubtitle>
                                     </IonCardHeader>
                                     <IonCardContent>
                                         <IonItemDivider>Birthdate *</IonItemDivider>
@@ -270,9 +279,9 @@ const SuperAdminRegister: React.FC = () => {
                                                 <IonSelectOption value="Female">Female</IonSelectOption>
                                             </IonSelect>
                                         </IonItem>
-                                        <IonItemDivider>Personal Address *</IonItemDivider>
+                                        <IonItemDivider>Address *</IonItemDivider>
                                         <IonItem className="ion-margin-vertical" lines="none">
-                                            <IonInput fill="outline" placeholder="e.g. 123 Main St, Barangay" value={personalAddress} onIonChange={(e) => setPersonalAddress(e.detail.value!)} required/>
+                                            <IonInput fill="outline" placeholder="e.g. 123 Main St, Barangay" value={address} onIonChange={(e) => setAddress(e.detail.value!)} required/>
                                         </IonItem>
                                     </IonCardContent>
                                 </IonCard>
@@ -367,6 +376,10 @@ const SuperAdminRegister: React.FC = () => {
                                         <IonItemDivider>Gender</IonItemDivider>
                                         <IonItem className="ion-margin-vertical" lines="none">
                                             <IonText>{gender}</IonText>
+                                        </IonItem>
+                                        <IonItemDivider>Address</IonItemDivider>
+                                        <IonItem className="ion-margin-vertical" lines="none">
+                                            <IonText>{address}</IonText>
                                         </IonItem>
                                         <IonItemDivider>Region</IonItemDivider>
                                         <IonItem className="ion-margin-vertical" lines="none">

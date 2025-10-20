@@ -1,12 +1,11 @@
 import {
-    IonBackButton, IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast, IonItem, IonLabel, IonText,
+    IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar, useIonRouter, useIonLoading, IonToast, IonItem, IonText,
     IonProgressBar,
     IonCardSubtitle,
     IonItemDivider,
     IonFooter,
     IonCardHeader,
-    IonCardTitle,
-    IonNote
+    IonCardTitle
 } from '@ionic/react';
 import { checkmarkDoneOutline, arrowForward, person, arrowBack, close } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -80,6 +79,12 @@ const AdminRegister: React.FC = () => {
             setShowErrorToast(true);
             return false;
         }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactEmail)) {
+            setError('Please enter a valid email address.');
+            setShowErrorToast(true);
+            return false;
+        }
         setError(null);
         return true;
     };
@@ -103,7 +108,11 @@ const AdminRegister: React.FC = () => {
 
     const handleProvisionAdmin = async (event: any) => {
         event.preventDefault();
-        if (!validateStep3()) return;
+        if (!validateStep1() || !validateStep2() || !validateStep3()) {
+            setError('Please fill all required fields before submitting.');
+            setShowErrorToast(true);
+            return;
+        }
 
         await present('Creating BHW Account...');
         const fullName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
@@ -111,11 +120,18 @@ const AdminRegister: React.FC = () => {
         try {
             const provisionUserFunction = httpsCallable(functions, 'provisionUser');
             await provisionUserFunction({
+                firstName,
+                middleName,
+                lastName,
+                suffix,
                 fullName,
+                birthdate,
+                gender,
+                address,
                 contactEmail,
                 role: 'admin',
-                barangayId: barangayId,
-                cityMunicipalityId: cityMunicipalityId, // Explicitly pass cityMunicipalityId
+                barangayId,
+                cityMunicipalityId, // Explicitly pass cityMunicipalityId
                 assignedLocation,
                 specificRole,
             });
@@ -297,7 +313,6 @@ const AdminRegister: React.FC = () => {
                       </IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
-                      <form onSubmit={handleProvisionAdmin}>
                         <IonItemDivider>Assigned Barangay *</IonItemDivider>
                         <IonItem className='ion-margin-vertical' lines='none'>
                           <IonSelect
@@ -354,7 +369,6 @@ const AdminRegister: React.FC = () => {
                             helperText=' Please make sure that this email address is correct and is a working email address. This email will be used to send a separate email containing a custom email address and password. '
                           />
                         </IonItem>
-                      </form>
                     </IonCardContent>
                   </IonCard>
                 )}
