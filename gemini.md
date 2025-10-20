@@ -95,5 +95,5 @@ The `package.json` file contains several useful scripts:
 3. The user does not know what is the proper and standard way of implementing features on the system. Propose what is the standard and proper way on how to implement such features.
 4. On monumental tasks, create a to-do list to divide the task in phases.
 5. Check if there's a free API that can help solve a problem.
-7. When troubleshooting, I should first try to understand the user's context and actions to identify the root cause of the problem, which may include asking clarifying questions about their process.
-8. Do not use 'any' to prevent the lint from saying this all the time '@typescript-eslint/no-explicit-any'
+6. When troubleshooting, I should first try to understand the user's context and actions to identify the root cause of the problem, which may include asking clarifying questions about their process.
+7. Do not use 'any' to prevent the lint from saying this all the time '@typescript-eslint/no-explicit-any'
