@@ -24,7 +24,7 @@
     "cors": "^2.8.5",
     "firebase-admin": "latest",
     "firebase-functions": "^6.4.0",
-    "nodemailer": "latest",
+    "nodemailer": "^7.0.9",
     "resend": "latest",
     "uuid": "latest"
   },

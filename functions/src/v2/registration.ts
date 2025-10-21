@@ -2,9 +2,20 @@ import admin from "firebase-admin";
 import { HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import * as nodemailer from 'nodemailer';
+import { PubSub } from "@google-cloud/pubsub";
+
+let pubsub: PubSub;
+
+const getPubSub = () => {
+  if (!pubsub) {
+    pubsub = new PubSub();
+  }
+  return pubsub;
+};
 import { randomBytes } from "crypto";
 import { defineSecret } from 'firebase-functions/params';
-import addressesDataRaw from '../data/philippine-addresses.json';
+import addressesDataRaw from '../data/philippine-addresses.json' with { type: 'json' };
+
 
 const GMAIL_EMAIL = defineSecret('GMAIL_EMAIL');
 const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
@@ -247,6 +258,20 @@ export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Da
         };
         await admin.firestore().collection('users').doc(userRecord.uid).set(userData);
         logger.info("Firestore document created", { uid: userRecord.uid, data: userData });
+
+        // Publish a Pub/Sub event
+        try {
+          const topic = getPubSub().topic("barangaymed-events");
+          await topic.publishMessage({
+            attributes: { eventType: "user.registration.approved" },
+            json: { userId: userRecord.uid },
+          });
+          logger.info(`Published 'user.registration.approved' event for user ${userRecord.uid}`);
+        } catch (error) {
+          logger.error(`Error publishing Pub/Sub event for user ${userRecord.uid}:`, error);
+          // We don't re-throw here as the user creation was successful.
+          // The notification is a secondary concern.
+        }
 
 
         // --- Send Email ---

@@ -88,7 +88,7 @@ The `package.json` file contains several useful scripts:
 *   `npm run cypress:open`: Opens the Cypress test runner for end-to-end testing.
 *   `npm run lint`: Lints the codebase using ESLint.
 
-## Rules
+## User Rules
 
 1. Propose a plan on how to implement the features being asked.
 2. Security is top priority as this system will be going official.
@@ -96,4 +96,8 @@ The `package.json` file contains several useful scripts:
 4. On monumental tasks, create a to-do list to divide the task in phases.
 5. Check if there's a free API that can help solve a problem.
 6. When troubleshooting, I should first try to understand the user's context and actions to identify the root cause of the problem, which may include asking clarifying questions about their process.
-7. Do not use 'any' to prevent the lint from saying this all the time '@typescript-eslint/no-explicit-any'
+
+## VS CODE/Firebase Rules
+1. Do not use 'any'. "Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any"
+2. Import assertions have been replaced by import attributes. Use 'with' instead of 'assert'.ts(2880)
+3. Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'.
