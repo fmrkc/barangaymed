@@ -125,7 +125,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     }, 1000);
   };
 
-  const handleSearchChange = async (e: CustomEvent) => {
+  const handleSearchChange = (e: CustomEvent) => {
     const query = e.detail.value?.toLowerCase() || '';
     setSearchQuery(query);
 
@@ -136,47 +136,14 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       return;
     }
 
-    try {
-      // Fetch users with role 'user' from Firestore
-      const usersQuery = query(collection(db, 'users'), where('role', '==', 'user'));
-      const usersSnapshot = await getDocs(usersQuery);
-      const users: { uid: string; firstName: string; lastName: string; barangayId: string }[] = [];
+    // Filter requests based on resident's full name
+    const filtered = requests.filter(request => {
+      const fullName = `${request.userData?.firstName || ''} ${request.userData?.middleName || ''} ${request.userData?.lastName || ''}`.toLowerCase().trim();
+      return fullName.includes(query);
+    });
 
-      usersSnapshot.forEach((doc) => {
-        const data = doc.data() as any;
-        users.push({
-          uid: doc.id,
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          barangayId: data.barangayId || '',
-        });
-      });
-
-      // Filter users based on search query
-      const filteredUsers = users.filter(user => {
-        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-        return fullName.includes(query);
-      });
-
-      // Get unique users (in case there are duplicates)
-      const uniqueUsers = filteredUsers.filter((user, index, self) =>
-        index === self.findIndex(u => u.uid === user.uid)
-      );
-
-      // Create filtered requests based on unique users
-      const filtered = uniqueUsers.map(user => {
-        // Find the most recent completed request for this user
-        const userRequests = requests.filter(req => req.userId === user.uid);
-        return userRequests[0]; // Take the first (most recent) request
-      }).filter(Boolean);
-
-      setFilteredRequests(filtered);
-      setShowSearchResults(true);
-    } catch (error) {
-      console.error('Error searching users:', error);
-      setFilteredRequests([]);
-      setShowSearchResults(false);
-    }
+    setFilteredRequests(filtered);
+    setShowSearchResults(true);
   };
 
   const handleUserSelect = (userId: string) => {
