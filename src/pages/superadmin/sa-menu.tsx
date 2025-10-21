@@ -10,6 +10,7 @@ import Super_Announcements from './sa-rhu-announcements';
 import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-request-list';
 import SuperAdminTeleRequestList from './sa-tele-request-list';
+import SuperAdminCreateMedRequest from './sa-create-med-request';
 import Profile from './sa-profile';
 
 
@@ -24,7 +25,7 @@ const Menu: React.FC = () => {
     const dashboard = { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium };
     const bmedfeatures = [
         { name: 'Register New Resident', url: '/superadmin/dashboard', icon: personAdd },
-        { name: 'Create Medicine Request', url: '/superadmin/dashboard', icon: medkit },
+        { name: 'Create Medicine Request', url: '/superadmin/dashboard/create-med-request', icon: medkit },
         { name: 'Create Consultation Request', url: '/superadmin/dashboard', icon: videocam },
 
     ];
@@ -230,6 +231,7 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard/medicine-inventory" component={Med_Inventory} />
             <Route exact path="/superadmin/dashboard/medicine-requests" component={Med_Requests} />
             <Route exact path="/superadmin/dashboard/teleconsultation-requests" component={SuperAdminTeleRequestList} />
+            <Route exact path="/superadmin/dashboard/create-med-request" component={SuperAdminCreateMedRequest} />
             <Route exact path="/superadmin/dashboard/bhw-accounts" component={Admin_Management} />
             <Route exact path="/superadmin/dashboard/register-bhw" component={Admin_Register} />
             <Route exact path="/superadmin/dashboard/register-rhu" component={Super_Admin_Register} />

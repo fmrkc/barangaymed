@@ -18,6 +18,7 @@
   "dependencies": {
     "@firebase/auth": "latest",
     "@firebase/functions": "latest",
+    "@google-cloud/pubsub": "^5.2.0",
     "@types/cors": "latest",
     "@types/nodemailer": "latest",
     "@types/uuid": "latest",
