@@ -1,6 +1,5 @@
 import zipCodeData from '../data/philippine-zip-codes.json';
-import { functions } from '../firebaseConfig';
-import { httpsCallable } from 'firebase/functions';
+import addressesDataRaw from '../../functions/src/data/philippine-addresses.json'; // Import the raw addresses data
 
 // Interfaces (no changes)
 export interface Region { code: string; name: string; }
@@ -37,14 +36,11 @@ async function initializeCaches() {
 
   initializationPromise = (async () => {
     try {
-      const response = await fetch('https://us-central1-barangaymed.cloudfunctions.net/api/getPhilippineAddresses');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const addressesData = await response.json() as AddressesDataType;
+      // Directly use the imported JSON data instead of fetching from API
+      const addressesData = addressesDataRaw as AddressesDataType;
 
       if (!addressesData) {
-        console.error("Failed to load addresses data from API.");
+        console.error("Failed to load addresses data from local JSON.");
         return;
       }
 

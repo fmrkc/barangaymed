@@ -1,13 +1,13 @@
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonDatetime, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonFooter, IonLoading, IonItemDivider, IonActionSheet, IonAlert } from '@ionic/react';
-import { add, albums, colorFill } from 'ionicons/icons';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonFooter, IonLoading, IonItemDivider, IonActionSheet, IonAlert, IonSearchbar, IonRefresher, IonRefresherContent, RefresherCustomEvent, IonText, IonSegment, IonSegmentButton, IonCardSubtitle, IonChip, IonPopover } from '@ionic/react';
+import { add, addCircle, albums, close, create, filter, pencil } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
-import { Medicine } from '../../types/medicine';
+import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 
 const Med_Inventory: React.FC = () => {
-  useAuth();
+   const { currentUser } = useAuth();
 
   const [medicineName, setMedicineName] = useState('');
   const [dosageForm, setDosageForm] = useState('');
@@ -29,6 +29,13 @@ const Med_Inventory: React.FC = () => {
   const [customQuantity, setCustomQuantity] = useState('');
   const [quantityError, setQuantityError] = useState('');
   const [conversionFactorError, setConversionFactorError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedSegment, setSelectedSegment] = useState('details');
+  const [showPopover, setShowPopover] = useState(false);
+  const [popoverEvent, setPopoverEvent] = useState<Event | undefined>(undefined);
 
   const resetForm = () => {
     setMedicineName('');
@@ -70,6 +77,8 @@ const Med_Inventory: React.FC = () => {
       return;
     }
 
+    
+
     setIsLoading(true);
 
     try {
@@ -85,6 +94,13 @@ const Med_Inventory: React.FC = () => {
         unit_name: unitName,
         conversion_factor: conversionFactor,
         quantity: quantity,
+        auditTrail: [{
+          action: 'Medicine added',
+          userId: currentUser?.uid,
+          userEmail: currentUser?.email || 'unknown',
+          userName: currentUser?.displayName || currentUser?.email || 'Super Admin',
+          timestamp: new Date(),
+        }],
       });
       setToastMessage('Medicine added successfully.');
       setShowToast(true);
@@ -107,15 +123,28 @@ const Med_Inventory: React.FC = () => {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         meds.push({
+          id: doc.id,
           ...data,
           created_at: data.created_at.toDate(),
           expiration_date: data.expiration_date.toDate(),
+          auditTrail: data.auditTrail ? (data.auditTrail as FirestoreAuditTrailEntry[]).map((entry) => ({
+            action: entry.action,
+            userId: entry.userId,
+            userEmail: entry.userEmail,
+            userName: entry.userName,
+            timestamp: entry.timestamp.toDate(),
+          })) : [],
         } as Medicine);
       });
       setMedicines(meds);
     } catch (error) {
       console.error('Error fetching medicines:', error);
     }
+  };
+
+  const handleRefresh = async (event: RefresherCustomEvent) => {
+    await fetchMedicines();
+    event.detail.complete();
   };
 
   useEffect(() => {
@@ -128,6 +157,11 @@ const Med_Inventory: React.FC = () => {
       return `${pieces} pieces`;
     }
     return `${med.quantity} ${med.unit_name}`;
+  };
+
+  const handleViewDetails = (med: Medicine) => {
+    setSelectedMedicine(med);
+    setShowDetailsModal(true);
   };
 
   const dosageFormOptions = ['Tablet', 'Syrup', 'Injection', 'Capsule', 'Cream', 'Ointment'];
@@ -144,17 +178,94 @@ const Med_Inventory: React.FC = () => {
           </IonButtons>
           <IonTitle>Medicine Inventory</IonTitle>
         </IonToolbar>
+        <IonToolbar>                                                                                                                         
+          <IonSearchbar value={searchQuery} onIonChange={e => setSearchQuery(e.detail.value!)} placeholder="Search by medicine name..." />
+          <IonButton size='large' slot="end" onClick={() => setShowFilterModal(true)}>
+            <IonIcon icon={filter} slot='icon-only' />
+          </IonButton>
+        </IonToolbar>    
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
+      
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={() => setShowModal(true)}>
             <IonIcon icon={add} />
           </IonFabButton>
         </IonFab>
 
-        <IonList>
-          {medicines.map((med, index) => (
-            <IonCard key={index}>
+        <IonModal isOpen={showFilterModal} onDidDismiss={() => setShowFilterModal(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Filter Medicines</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowFilterModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard>
+              <IonCardContent className='ion-margin-vertical'>
+                <IonItem lines='none' className='ion-margin-top'>
+                  <IonSelect fill='outline' label='Placeholder Filter 1' placeholder="Select Category">
+                    <IonSelectOption value="placeholder1">Placeholder Category 1</IonSelectOption>
+                    <IonSelectOption value="placeholder2">Placeholder Category 2</IonSelectOption>
+                  </IonSelect>
+                </IonItem>
+                <IonItem lines='none' className='ion-margin-top'>
+                  <IonSelect fill='outline' label='Placeholder Filter 2' placeholder="Select Category">
+                    <IonSelectOption value="placeholder1">Placeholder Category 3</IonSelectOption>
+                    <IonSelectOption value="placeholder2">Placeholder Category 4</IonSelectOption>
+                  </IonSelect>
+                </IonItem>
+                  <IonItem lines='none' className='ion-margin-top'>
+                  <IonSelect fill='outline' label='Placeholder Filter 3' placeholder="Select Category">
+                    <IonSelectOption value="placeholder1">Placeholder Category 5</IonSelectOption>
+                    <IonSelectOption value="placeholder2">Placeholder Category 6</IonSelectOption>
+                  </IonSelect>
+                </IonItem>
+              </IonCardContent>
+            </IonCard>
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+               <IonButton className='ion-padding-vertical' shape='round' expand="block" onClick={() => setShowFilterModal(false)}>Apply Filters</IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
+     
+
+       
+        {medicines.length === 0 && !isLoading && (
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+            <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
+              <IonCardHeader>
+                <IonCardTitle>
+                  <IonText color={'primary'}>
+                    <strong>No Medicines Found</strong>
+                  </IonText>
+                </IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p>There is currently no medicines stored in the system.</p>
+                <p>To add a medicine record, click the <IonIcon icon={addCircle} color='primary' /> button below.</p>
+              </IonCardContent>
+            </IonCard>
+          </div>
+        )}
+        
+        <IonList style={{ backgroundColor: 'transparent' }} className='ion-margin-horizontal'>
+          {medicines.filter(med => med.medicine_name.toLowerCase().includes(searchQuery.toLowerCase())).map((med) => (
+            <IonCard button key={med.id} onClick={(e) => {
+              setSelectedMedicine(med);
+              setPopoverEvent(e.nativeEvent as Event);
+              setShowPopover(true);
+            }}>
               <IonCardHeader>
                 <IonCardTitle>{med.medicine_name}</IonCardTitle>
               </IonCardHeader>
@@ -166,6 +277,181 @@ const Med_Inventory: React.FC = () => {
             </IonCard>
           ))}
         </IonList>
+
+           {/* Medicine Details Modal */}
+        <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Medicine Details</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowDetailsModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {selectedMedicine && (
+              <>
+                <IonSegment value={selectedSegment} onIonChange={e => setSelectedSegment(e.detail.value!.toString())}>
+                  <IonSegmentButton value="details">
+                    <IonLabel>Details</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="history">
+                    <IonLabel>History</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="transactions">
+                    <IonLabel>Transactions</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
+
+                {selectedSegment === 'details' && (
+                  <IonCard>
+                    <IonCardHeader>
+                      <IonCardTitle>{selectedMedicine.medicine_name}</IonCardTitle>
+                    </IonCardHeader>
+                    <IonCardContent>
+                      <IonItem>
+                        <IonLabel>ID:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.id}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Dosage Form:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.dosage_form}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Strength:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.strength}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Category:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.category}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Requires Prescription:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.requires_prescription ? 'Yes' : 'No'}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Description:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.description || 'N/A'}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Expiration Date:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.expiration_date.toLocaleDateString()}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Unit Name:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.unit_name}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Conversion Factor:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.conversion_factor}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Quantity:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.quantity}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Display Quantity:</IonLabel>
+                        <IonText slot="end">{getDisplayQuantity(selectedMedicine)}</IonText>
+                      </IonItem>
+                      <IonItem>
+                        <IonLabel>Created At:</IonLabel>
+                        <IonText slot="end">{selectedMedicine.created_at.toLocaleString()}</IonText>
+                      </IonItem>
+                    </IonCardContent>
+                  </IonCard>
+                )}
+
+                {selectedSegment === 'history' && (
+                  <IonCard>
+                    <IonCardHeader>
+                      <IonCardTitle>Audit Trail</IonCardTitle>
+                    </IonCardHeader>
+                    <IonCardContent>
+                      {selectedMedicine.auditTrail && selectedMedicine.auditTrail.length > 0 ? (
+                        selectedMedicine.auditTrail.map((entry, index) => (
+                          <IonItem key={index}>
+                            <IonLabel>
+                              <h3>{entry.action}</h3>
+                              <p>By: {entry.userName} ({entry.userEmail})</p>
+                              <p>At: {entry.timestamp.toLocaleString()}</p>
+                            </IonLabel>
+                          </IonItem>
+                        ))
+                      ) : (
+                        <IonItem>
+                          <IonLabel>No audit trail available.</IonLabel>
+                        </IonItem>
+                      )}
+                    </IonCardContent>
+                  </IonCard>
+                )}
+
+                 {selectedSegment === 'transactions' && (
+                  <>
+                  <IonCard>
+                    <IonCardHeader>
+                      <IonCardSubtitle>This is where the transactions will be displayed. Currently a placeholder.</IonCardSubtitle>
+                    </IonCardHeader>
+                  </IonCard>
+                  <IonCard>
+                    <IonCardHeader>
+                      <IonCardTitle>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            Juan Dela Cruz
+                            <IonChip>
+                              Quantity: 100
+                            </IonChip>
+                          </div>
+                      </IonCardTitle>
+                      <IonCardSubtitle>
+                        juan@example.com • 2 days ago
+                      </IonCardSubtitle>
+                    </IonCardHeader>
+                  </IonCard>
+                  </>
+                )}
+              </>
+            )}
+          </IonContent>
+        </IonModal>
+       
+        
+
+        {/* Medicine Popover */}
+        <IonPopover
+          isOpen={showPopover}
+          event={popoverEvent}
+          onDidDismiss={() => setShowPopover(false)}
+          side="bottom"
+          alignment="end"
+        >
+          <IonList>
+            <IonItem button onClick={() => {
+              setShowPopover(false);
+              if (selectedMedicine) handleViewDetails(selectedMedicine);
+            }}>
+              <IonLabel>View Details</IonLabel>
+            </IonItem>
+            <IonItem button onClick={() => {
+              setShowPopover(false);
+              // Placeholder for edit functionality
+              console.log('Edit clicked for:', selectedMedicine?.medicine_name);
+            }}>
+              <IonLabel>
+                Edit (Placeholder)
+              </IonLabel>
+            </IonItem>
+            <IonItem button onClick={() => {
+              setShowPopover(false);
+              // Placeholder for delete functionality
+              console.log('Delete clicked for:', selectedMedicine?.medicine_name);
+            }}>
+              <IonLabel>Delete (Placeholder)</IonLabel>
+            </IonItem>
+          </IonList>
+        </IonPopover>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader className='ion-no-border'>
