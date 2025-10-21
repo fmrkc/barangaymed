@@ -32,7 +32,7 @@ const Menu: React.FC = () => {
     const medicine = [
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
         { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
-        { name: 'Medicine Transferz', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+        { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
     ];
     const announcements = [
         { name: 'Brgy. Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },

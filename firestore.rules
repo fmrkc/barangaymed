@@ -177,7 +177,6 @@ service cloud.firestore {
                        (isSuperAdmin()
                         && request.resource.data.reason is string
                         && request.resource.data.hasPrescription is bool
-                        && request.resource.data.userData is map
                         && request.resource.data.status == 'approved'
                         && request.resource.data.createdAt == request.time);
 
