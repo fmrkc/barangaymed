@@ -1,3 +1,20 @@
+import { Timestamp } from 'firebase/firestore';
+
+export interface AuditTrailEntry {
+  action: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  timestamp: Date;
+}
+
+export interface FirestoreAuditTrailEntry {
+  action: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  timestamp: Timestamp;
+}
 export interface Medicine {
   id?: string;
   medicine_name: string;
@@ -11,4 +28,5 @@ export interface Medicine {
   unit_name: string;
   conversion_factor: number;
   quantity: number;
+  auditTrail?: AuditTrailEntry[];
 }
