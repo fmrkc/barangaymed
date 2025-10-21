@@ -31,6 +31,7 @@ import {
   IonCol,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { UserService } from '../../services/userService';
@@ -48,6 +49,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
   const [hasPrescription, setHasPrescription] = useState(false);
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -121,6 +123,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     setSelectedRequest(request);
     setReason(request.reason);
     setHasPrescription(false);
+    setPrescriptionFile(null);
     setShowModal(true);
   };
 
@@ -130,12 +133,25 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       setShowToast(true);
       return;
     }
+    if (hasPrescription && !prescriptionFile) {
+      setToastMessage('Please upload a prescription photo.');
+      setShowToast(true);
+      return;
+    }
     setIsSubmitting(true);
     try {
       const userService = UserService.getInstance();
       const userData = await userService.getUserData(selectedRequest.userId);
 
       const barangayName = await getBarangayNameByCode(selectedRequest.barangayId);
+
+      let prescriptionUrl = '';
+      if (hasPrescription && prescriptionFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `prescriptions/${selectedRequest.userId}/${Date.now()}_${prescriptionFile.name}`);
+        await uploadBytes(storageRef, prescriptionFile);
+        prescriptionUrl = await getDownloadURL(storageRef);
+      }
 
       await addDoc(collection(db, 'medicineRequests'), {
         userId: selectedRequest.userId,
@@ -153,7 +169,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         },
         reason: reason.trim(),
         hasPrescription,
-        prescriptionUrl: '',
+        prescriptionUrl,
         status: 'approved',
         createdAt: serverTimestamp(),
       });
@@ -163,6 +179,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       setSelectedRequest(null);
       setReason('');
       setHasPrescription(false);
+      setPrescriptionFile(null);
     } catch (error) {
       console.error('Error creating medicine request:', error);
       setToastMessage('Failed to create medicine request. Please try again.');
@@ -252,8 +269,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                   <IonTextarea
                     fill='outline'
                     value={reason}
-                    onIonChange={e => setReason(e.detail.value!)}
-                    placeholder="Describe the reason for the medicine request..."
+                    readonly
                     rows={4}
                   />
                 </IonItem>
@@ -262,9 +278,28 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                   <IonCheckbox
                     slot="end"
                     checked={hasPrescription}
-                    onIonChange={e => setHasPrescription(e.detail.checked)}
+                    onIonChange={e => {
+                      setHasPrescription(e.detail.checked);
+                      if (!e.detail.checked) {
+                        setPrescriptionFile(null);
+                      }
+                    }}
                   />
                 </IonItem>
+                {hasPrescription && (
+                  <IonItem>
+                    <IonLabel>Upload Prescription Photo:</IonLabel>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setPrescriptionFile(file);
+                      }}
+                      style={{ marginTop: '8px' }}
+                    />
+                  </IonItem>
+                )}
               </IonCard>
             )}
           </IonContent>
