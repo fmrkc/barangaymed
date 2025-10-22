@@ -43,7 +43,7 @@ import {
   IonCardSubtitle,
   IonToast,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
@@ -508,9 +508,9 @@ const SuperAdminMedRequestList: React.FC = () => {
   };
 
   // Handle custom quantity input
-  const handleCustomQuantity = () => {
-    const qty = parseInt(quantityInput) || 1;
+  const handleCustomQuantity = (qty: number) => {
     changeMedicineQuantity(currentMedId, qty);
+    setQuantityInput(qty.toString());
     setShowQuantityAlert(false);
   };
 
@@ -545,6 +545,16 @@ const SuperAdminMedRequestList: React.FC = () => {
           timestamp: new Date(),
         }),
       });
+
+      // Update medicine quantities in inventory
+      const updatePromises = Object.entries(dispensedMedicines).map(async ([medId, qty]) => {
+        const medRef = doc(db, 'medicine', medId);
+        await updateDoc(medRef, {
+          quantity: increment(-qty),
+        });
+      });
+      await Promise.all(updatePromises);
+
       // Update local state
       setRequests(prev =>
         prev.map(r =>
@@ -1569,8 +1579,8 @@ const SuperAdminMedRequestList: React.FC = () => {
             {
               text: 'OK',
               handler: (data) => {
-                setQuantityInput(data.quantity);
-                handleCustomQuantity();
+                const qty = parseInt(data.quantity) || 1;
+                handleCustomQuantity(qty);
               },
             },
           ]}
