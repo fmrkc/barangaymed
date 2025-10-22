@@ -47,7 +47,6 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
-  const [selectedUser, setSelectedUser] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
   const [hasPrescription, setHasPrescription] = useState(false);
@@ -56,7 +55,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
+  const [searchedUsers, setSearchedUsers] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string; name: string }[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedUserRequests, setSelectedUserRequests] = useState<TeleconsultationRequest[]>([]);
 
@@ -125,25 +124,26 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     }, 1000);
   };
 
-  const handleSearchChange = (e: CustomEvent) => {
+  const handleSearchChange = async (e: CustomEvent) => {
     const query = e.detail.value?.toLowerCase() || '';
     setSearchQuery(query);
+    setError(null);
 
     if (query.trim() === '') {
-      setFilteredRequests([]);
+      setSearchedUsers([]);
       setShowSearchResults(false);
       setSelectedUserRequests([]);
       return;
     }
 
-    // Filter requests based on resident's full name
-    const filtered = requests.filter(request => {
-      const fullName = `${request.userData?.firstName || ''} ${request.userData?.middleName || ''} ${request.userData?.lastName || ''}`.toLowerCase().trim();
-      return fullName.includes(query);
-    });
-
-    setFilteredRequests(filtered);
-    setShowSearchResults(true);
+    try {
+        const userService = UserService.getInstance();
+        const users = await userService.searchUsers(query);
+        setSearchedUsers(users);
+        setShowSearchResults(true);
+    } catch (error: any) {
+        setError(error.message || 'Failed to search for users.');
+    }
   };
 
   const handleUserSelect = (userId: string) => {
@@ -153,6 +153,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
 
     setSelectedUserRequests(userRequests);
     setShowSearchResults(false);
+    setSearchQuery('');
   };
 
   const handleCreateMedRequest = (request: TeleconsultationRequest) => {
@@ -246,7 +247,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
           </IonText>
         )}
 
-        {!loading && !error && (
+        {!loading && (
           <>
             <IonItem>
               <IonLabel>THIS MEDICINE REQUEST IS FOR:</IonLabel>
@@ -260,23 +261,23 @@ const SuperAdminCreateMedRequest: React.FC = () => {
               />
             </IonItem>
 
-            {showSearchResults && filteredRequests.length > 0 && (
+            {showSearchResults && searchedUsers.length > 0 && (
               <IonList style={{ backgroundColor: 'transparent' }}>
-                {filteredRequests.map((request) => (
-                  <IonCard key={request.id}>
+                {searchedUsers.map((user) => (
+                  <IonCard key={user.uid}>
                     <IonCardHeader>
                       <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                        {request.userData?.firstName} {request.userData?.lastName}
+                        {user.firstName} {user.lastName}
                       </IonCardTitle>
                       <IonCardSubtitle>
-                        Barangay: {request.barangayId}
+                        Barangay: {user.barangayId}
                       </IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
                       <IonButton
                         expand='block'
                         className='ion-padding-vertical'
-                        onClick={() => handleUserSelect(request.userId)}
+                        onClick={() => handleUserSelect(user.uid)}
                       >
                         View Teleconsultation History
                         <IonIcon slot='end' icon={open} />
@@ -285,6 +286,14 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                   </IonCard>
                 ))}
               </IonList>
+            )}
+
+            {showSearchResults && searchedUsers.length === 0 && (
+                <IonCard>
+                    <IonCardContent>
+                        <IonText className="ion-padding">No users found.</IonText>
+                    </IonCardContent>
+                </IonCard>
             )}
 
             {selectedUserRequests.length > 0 && (

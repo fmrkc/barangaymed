@@ -105,4 +105,44 @@ export class UserService {
       return [];
     }
   }
+
+  /**
+   * Searches for users by name.
+   * @param nameQuery The name to search for.
+   * @returns Promise resolving to an array of users.
+   */
+  public async searchUsers(nameQuery: string): Promise<{ uid: string; firstName: string; lastName: string; barangayId: string; name: string }[]> {
+    if (!nameQuery.trim()) {
+      return [];
+    }
+
+    try {
+      const q = query(
+        collection(db, 'users'),
+        where('role', '==', 'user'),
+        where('searchableName', '>=', nameQuery.toLowerCase()),
+        where('searchableName', '<=', nameQuery.toLowerCase() + '\uf8ff')
+      );
+
+      const querySnapshot = await getDocs(q);
+      const users: { uid: string; firstName: string; lastName: string; barangayId: string; name: string }[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        users.push({
+          uid: doc.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          barangayId: data.barangayId,
+          name: data.searchableName
+        });
+      });
+      return users;
+    } catch (error: any) {
+      console.error('Error searching users:', error);
+      if (error.code === 'failed-precondition') {
+        throw new Error('Query requires a composite index. Please create a composite index on the "users" collection for "role" (asc) and "searchableName" (asc). You can do this in the Firebase console.');
+      }
+      return [];
+    }
+  }
 }

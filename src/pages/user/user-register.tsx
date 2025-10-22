@@ -119,11 +119,17 @@ const UserRegister: React.FC = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      const searchableName = [firstName, middleName, lastName]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
       await setDoc(doc(db, 'users', user.uid), {
         firstName,
         middleName,
         lastName,
         suffix,
+        searchableName,
         birthdate,
         gender,
         email,
