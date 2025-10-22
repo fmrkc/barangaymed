@@ -25,7 +25,7 @@ import {
   IonFooter,
   IonSearchbar,
 } from '@ionic/react';
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
@@ -48,6 +48,8 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchedUsers, setSearchedUsers] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string; name: string }[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [selectedUserRequests, setSelectedUserRequests] = useState<any[]>([]);
+  const [showUserRequests, setShowUserRequests] = useState(false);
 
   const handleSearchChange = async (e: CustomEvent) => {
     const queryStr = e.detail.value?.toLowerCase() || '';
@@ -84,14 +86,26 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     }
   };
 
-  const handleUserSelect = (user: { uid: string; firstName: string; lastName: string; barangayId: string; }) => {
+  const handleUserSelect = async (user: { uid: string; firstName: string; lastName: string; barangayId: string; }) => {
     setSelectedUser(user);
     setShowSearchResults(false);
     setSearchQuery('');
     setReason('');
     setHasPrescription(false);
     setPrescriptionFile(null);
-    setShowModal(true);
+
+    try {
+      const q = query(collection(db, 'teleconsultationRequests'), where('userId', '==', user.uid), where('status', '==', 'completed'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const requests: any[] = [];
+      querySnapshot.forEach((doc) => {
+        requests.push({ id: doc.id, ...doc.data() });
+      });
+      setSelectedUserRequests(requests);
+      setShowUserRequests(true);
+    } catch (error: any) {
+      setError(error.message || 'Failed to fetch user requests.');
+    }
   };
 
   const handleSubmitMedRequest = async () => {
@@ -203,7 +217,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                     className='ion-padding-vertical'
                     onClick={() => handleUserSelect(user)}
                   >
-                    Create Medicine Request
+                    View Teleconsultation Requests
                     <IonIcon slot='end' icon={checkmark} />
                   </IonButton>
                 </IonCardContent>
@@ -219,6 +233,50 @@ const SuperAdminCreateMedRequest: React.FC = () => {
             </IonCardContent>
           </IonCard>
         )}
+
+        {/* User Requests Modal */}
+        <IonModal isOpen={showUserRequests} onDidDismiss={() => setShowUserRequests(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Teleconsultation Requests</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowUserRequests(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {selectedUser && (
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>Resident: {selectedUser.firstName} {selectedUser.lastName}</h2>
+                </IonItem>
+              </IonCard>
+            )}
+            {selectedUserRequests.length > 0 ? (
+              <IonList>
+                {selectedUserRequests.map((request) => (
+                  <IonCard key={request.id}>
+                    <IonCardHeader>
+                      <IonCardTitle>Request ID: {request.id}</IonCardTitle>
+                      <IonCardSubtitle>Status: {request.status}</IonCardSubtitle>
+                    </IonCardHeader>
+                    <IonCardContent>
+                      <IonText>Reason: {request.reason}</IonText>
+                      <br />
+                      <IonText>Created At: {request.createdAt?.toDate().toLocaleString()}</IonText>
+                    </IonCardContent>
+                  </IonCard>
+                ))}
+              </IonList>
+            ) : (
+              <IonCard>
+                <IonCardContent>
+                  <IonText>No completed teleconsultation requests found.</IonText>
+                </IonCardContent>
+              </IonCard>
+            )}
+          </IonContent>
+        </IonModal>
 
         {/* Create Medicine Request Modal */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
