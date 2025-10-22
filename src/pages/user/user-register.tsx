@@ -119,7 +119,7 @@ const UserRegister: React.FC = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const searchableName = [firstName, middleName, lastName]
+      const name = [firstName, middleName, lastName]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -129,7 +129,7 @@ const UserRegister: React.FC = () => {
         middleName,
         lastName,
         suffix,
-        searchableName,
+        name,
         birthdate,
         gender,
         email,

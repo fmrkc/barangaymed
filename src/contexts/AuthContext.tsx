@@ -156,6 +156,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             await setDoc(doc(db, "users", user.uid), {
               email: user.email,
               role: claimsRole,
+              name: user.displayName?.toLowerCase() || '',
               barangayId: claimsBarangayId || null,
               cityMunicipalityId: claimsCityMunicipalityId || null,
               createdAt: new Date(),

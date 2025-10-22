@@ -97,7 +97,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "searchableName",
+          "fieldPath": "name",
           "order": "ASCENDING"
         }
       ]
