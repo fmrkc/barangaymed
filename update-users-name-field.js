@@ -1,7 +1,6 @@
-const admin = require('firebase-admin');
-
-// IMPORTANT: Make sure the path to your Firebase service account key JSON file is correct.
-const serviceAccount = require('./functions/barangaymed-firebase-adminsdk-fbsvc-d54b1b0fa0.json');
+import admin from 'firebase-admin';
+// The 'with { type: "json" }' syntax is the modern way to import JSON in ES modules.
+import serviceAccount from './functions/barangaymed-firebase-adminsdk-fbsvc-d54b1b0fa0.json' with { type: 'json' };
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -52,8 +51,7 @@ async function updateUsers() {
 
   await Promise.all(promises);
 
-  console.log(`
-Update complete. ${updatedCount} user(s) were successfully updated.`);
+  console.log(`\nUpdate complete. ${updatedCount} user(s) were successfully updated.`);
 }
 
 updateUsers().catch(error => {
