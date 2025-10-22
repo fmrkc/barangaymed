@@ -120,8 +120,8 @@ export class UserService {
       const q = query(
         collection(db, 'users'),
         where('role', '==', 'user'),
-        where('searchableName', '>=', nameQuery.toLowerCase()),
-        where('searchableName', '<=', nameQuery.toLowerCase() + '\uf8ff')
+        where('name', '>=', nameQuery.toLowerCase()),
+        where('name', '<=', nameQuery.toLowerCase() + '\uf8ff')
       );
 
       const querySnapshot = await getDocs(q);
@@ -133,14 +133,14 @@ export class UserService {
           firstName: data.firstName,
           lastName: data.lastName,
           barangayId: data.barangayId,
-          name: data.searchableName
+          name: data.name
         });
       });
       return users;
     } catch (error: any) {
       console.error('Error searching users:', error);
       if (error.code === 'failed-precondition') {
-        throw new Error('Query requires a composite index. Please create a composite index on the "users" collection for "role" (asc) and "searchableName" (asc). You can do this in the Firebase console.');
+        throw new Error('Query requires a composite index. Please create a composite index on the "users" collection for "role" (asc) and "name" (asc). You can do this in the Firebase console.');
       }
       return [];
     }
