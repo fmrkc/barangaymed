@@ -50,6 +50,8 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedUserRequests, setSelectedUserRequests] = useState<any[]>([]);
   const [showUserRequests, setShowUserRequests] = useState(false);
+  const [selectedTeleconsultRequest, setSelectedTeleconsultRequest] = useState<any>(null);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   const handleSearchChange = async (e: CustomEvent) => {
     const queryStr = e.detail.value?.toLowerCase() || '';
@@ -108,6 +110,52 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     }
   };
 
+  const handleCreateMedRequestFromTeleconsult = async (teleconsultRequest: any) => {
+    if (!selectedUser || !currentUser) {
+      setToastMessage('User not selected.');
+      setShowToast(true);
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const userService = UserService.getInstance();
+      const userData = await userService.getUserData(selectedUser.uid);
+
+      const barangayName = await getBarangayNameByCode(selectedUser.barangayId);
+
+      await addDoc(collection(db, 'medicineRequests'), {
+        userId: selectedUser.uid,
+        barangayId: selectedUser.barangayId,
+        barangayName: barangayName,
+        userData: {
+          firstName: userData.firstName,
+          middleName: userData.middleName,
+          lastName: userData.lastName,
+          suffix: userData.suffix,
+          address: userData.address,
+          gender: userData.gender,
+          contactNumber: userData.contactNumber,
+          email: userData.email,
+        },
+        reason: teleconsultRequest.reason,
+        hasPrescription: false,
+        prescriptionUrl: '',
+        status: 'accepted',
+        createdAt: serverTimestamp(),
+      });
+      setToastMessage('Medicine request created successfully.');
+      setShowToast(true);
+      setShowUserRequests(false);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error('Error creating medicine request:', error);
+      setToastMessage('Failed to create medicine request. Please try again.');
+      setShowToast(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmitMedRequest = async () => {
     if (!selectedUser || !currentUser || !reason.trim()) {
       setToastMessage('Please provide a reason for the medicine request.');
@@ -151,7 +199,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         reason: reason.trim(),
         hasPrescription,
         prescriptionUrl,
-        status: 'approved',
+        status: 'accepted',
         createdAt: serverTimestamp(),
       });
       setToastMessage('Medicine request created successfully.');
@@ -254,7 +302,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
             )}
             {selectedUserRequests.length > 0 ? (
               <IonList>
-                {selectedUserRequests.map((request) => (
+                {selectedUserRequests.map((request, index) => (
                   <IonCard key={request.id}>
                     <IonCardHeader>
                       <IonCardTitle>Request ID: {request.id}</IonCardTitle>
@@ -264,6 +312,21 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                       <IonText>Reason: {request.reason}</IonText>
                       <br />
                       <IonText>Created At: {request.createdAt?.toDate().toLocaleString()}</IonText>
+                      {index === 0 && (
+                        <IonButton
+                          expand="block"
+                          color="primary"
+                          onClick={() => {
+                            setSelectedTeleconsultRequest(request);
+                            setShowSummaryModal(true);
+                          }}
+                          disabled={isSubmitting}
+                          className="ion-margin-top"
+                        >
+                          Create Medicine Request
+                          <IonIcon slot="end" icon={checkmark} />
+                        </IonButton>
+                      )}
                     </IonCardContent>
                   </IonCard>
                 ))}
@@ -347,6 +410,60 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                 className="ion-margin"
               >
                 Create Request
+                <IonIcon slot="end" icon={checkmark} />
+              </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
+        {/* Summary Modal */}
+        <IonModal isOpen={showSummaryModal} onDidDismiss={() => setShowSummaryModal(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Confirm Medicine Request</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowSummaryModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {selectedUser && selectedTeleconsultRequest && (
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>Resident: {selectedUser.firstName} {selectedUser.lastName}</h2>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Reason for Medicine Request:</IonLabel>
+                </IonItem>
+                <IonItem lines='none'>
+                  <IonTextarea
+                    fill='outline'
+                    value={selectedTeleconsultRequest.reason}
+                    readonly
+                    rows={4}
+                  />
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Status:</IonLabel>
+                  <IonText>Accepted</IonText>
+                </IonItem>
+              </IonCard>
+            )}
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonButton
+                expand="block"
+                shape="round"
+                color="success"
+                onClick={() => {
+                  handleCreateMedRequestFromTeleconsult(selectedTeleconsultRequest);
+                  setShowSummaryModal(false);
+                }}
+                disabled={isSubmitting}
+                className="ion-margin"
+              >
+                Confirm and Create Request
                 <IonIcon slot="end" icon={checkmark} />
               </IonButton>
             </IonToolbar>
