@@ -177,7 +177,7 @@ service cloud.firestore {
                        (isSuperAdmin()
                         && request.resource.data.reason is string
                         && request.resource.data.hasPrescription is bool
-                        && request.resource.data.status == 'approved'
+                        && request.resource.data.status == 'accepted'
                         && request.resource.data.createdAt == request.time);
 
       allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||

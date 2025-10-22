@@ -100,7 +100,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const categoryOptions = ['antibiotic', 'analgesic', 'supplement', 'antihistamine', 'antacid', 'diuretic'];
   const [selectedMedicines, setSelectedMedicines] = useState<{ [key: string]: { quantity: number } }>({});
   const [processNote, setProcessNote] = useState<string>('');
-  const [processStep, setProcessStep] = useState<1 | 2 | 3>(1);
+  const [processStep, setProcessStep] = useState<number>(1);
   const [medicineSearch, setMedicineSearch] = useState<string>('');
   const [medicineFilter, setMedicineFilter] = useState<string>('all');
 
@@ -1220,6 +1220,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                               <div>
                                 <small>{med.dosage_form} - {med.strength} ({med.unit_name})</small>
                               </div>
+                              <div>
+                                <small>Quantity: {med.quantity} | Expires: {med.expiration_date.toLocaleDateString()}</small>
+                              </div>
                             </div>
                           </IonLabel>
                           <IonCheckbox slot='end'
@@ -1229,7 +1232,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                         </IonItem>
                         {selectedMedicines[med.id || ''] && (
                           <IonItem key={`${med.id}-quantity`}>
-                            <IonLabel slot='start'>{med.medicine_name} Quantity: {selectedMedicines[med.id || '']?.quantity || 1}</IonLabel>
+                            <IonLabel slot='start'>Quantity: {selectedMedicines[med.id || '']?.quantity || 1} / {med.quantity} available</IonLabel>
                             <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id || '')}>
                               Change
                             </IonButton>

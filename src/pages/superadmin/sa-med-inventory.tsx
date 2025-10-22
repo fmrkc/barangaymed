@@ -18,7 +18,6 @@ const Med_Inventory: React.FC = () => {
   const [expirationDate, setExpirationDate] = useState('');
   const [unitName, setUnitName] = useState('');
   const [quantity, setQuantity] = useState<number | undefined>(undefined);
-  const [conversionFactor, setConversionFactor] = useState<number | undefined>(undefined);
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -28,7 +27,6 @@ const Med_Inventory: React.FC = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [customQuantity, setCustomQuantity] = useState('');
   const [quantityError, setQuantityError] = useState('');
-  const [conversionFactorError, setConversionFactorError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
@@ -47,17 +45,14 @@ const Med_Inventory: React.FC = () => {
     setExpirationDate('');
     setUnitName('');
     setQuantity(undefined);
-    setConversionFactor(undefined);
     setQuantityError('');
-    setConversionFactorError('');
   };
 
   const handleAddMedicine = async () => {
     let hasError = false;
     setQuantityError('');
-    setConversionFactorError('');
 
-    if (!medicineName || !dosageForm || !strength || !category || !unitName || conversionFactor === undefined || quantity === undefined || !expirationDate) {
+    if (!medicineName || !dosageForm || !strength || !category || !unitName || quantity === undefined || !expirationDate) {
       setToastMessage('Please fill in all required fields.');
       setShowToast(true);
       return;
@@ -68,16 +63,11 @@ const Med_Inventory: React.FC = () => {
       hasError = true;
     }
 
-    if (conversionFactor === undefined || conversionFactor < 0 || conversionFactor > 15) {
-      setConversionFactorError('Conversion factor must be between 0 and 15.');
-      hasError = true;
-    }
-
     if (hasError) {
       return;
     }
 
-    
+
 
     setIsLoading(true);
 
@@ -92,7 +82,6 @@ const Med_Inventory: React.FC = () => {
         created_at: serverTimestamp(),
         expiration_date: new Date(expirationDate + "-01"),
         unit_name: unitName,
-        conversion_factor: conversionFactor,
         quantity: quantity,
         auditTrail: [{
           action: 'Medicine added',
@@ -152,10 +141,6 @@ const Med_Inventory: React.FC = () => {
   }, []);
 
   const getDisplayQuantity = (med: Medicine) => {
-    if (med.unit_name.toUpperCase() === 'BANIG' && (med.dosage_form === 'capsule' || med.dosage_form === 'tablet')) {
-      const pieces = med.quantity * med.conversion_factor;
-      return `${pieces} pieces`;
-    }
     return `${med.quantity} ${med.unit_name}`;
   };
 
@@ -582,35 +567,7 @@ const Med_Inventory: React.FC = () => {
                <IonIcon slot="end" icon={albums} />
              </IonButton>
            </IonItem>
-           <IonItemDivider className='ion-margin-top'>Conversion Factor*</IonItemDivider>
-           <IonItem>
-             <IonInput
-              placeholder="(0-15)"
-              fill="outline"
-              type="number"
-              min="0"
-              max="15"
-              value={conversionFactor !== undefined ? conversionFactor : ''}
-              onIonChange={e => {
-                const val = e.detail.value!;
-                setConversionFactor(val ? parseFloat(val) : undefined);
-                if (!val.trim()) {
-                  setConversionFactorError('Conversion factor is required.');
-                } else {
-                  const num = parseFloat(val);
-                  if (isNaN(num) || num < 0 || num > 15) {
-                    setConversionFactorError('Conversion factor must be between 0 and 15.');
-                  } else {
-                    setConversionFactorError('');
-                  }
-                }
-              }}
-              required
-              className="ion-margin-bottom"
-              color={conversionFactorError ? "danger" : undefined}
-              errorText={conversionFactorError}
-            />
-           </IonItem>
+
               </IonCardContent>
             </IonCard>
           </IonContent>
