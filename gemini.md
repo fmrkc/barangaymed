@@ -98,6 +98,6 @@ The `package.json` file contains several useful scripts:
 6. When troubleshooting, I should first try to understand the user's context and actions to identify the root cause of the problem, which may include asking clarifying questions about their process.
 
 ## VS CODE/Firebase Rules
-1. Do not use 'any'. "Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any"
-2. Import assertions have been replaced by import attributes. Use 'with' instead of 'assert'.ts(2880)
-3. Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'.
+1. Do not use 'any' because of this rule: "Unexpected any. Specify a different type  <!-- @typescript-eslint/no-explicit-any" --> . 
+2. Sometimes when importing json files, do not use assert because of this rule: "Import assertions have been replaced by import attributes. Use 'with' instead of 'assert'.ts(2880)" .
+3. Another rule when importing files: " Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. "
