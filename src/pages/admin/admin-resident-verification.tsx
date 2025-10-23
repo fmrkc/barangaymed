@@ -13,6 +13,7 @@ interface UserForVerification {
   firstName: string;
   lastName: string;
   barangayId: string;
+  barangayName?: string; // Add this
   verificationStatus: string;
   lotBlkHouseNo?: string;
   streetName?: string;
@@ -52,6 +53,8 @@ function getTimeAgo(timestamp: string | { toDate: () => Date; } | Date | null | 
   }
 }
 
+import { dispatchEvent } from '../../services/eventService';
+
 const AdminUserVerification: React.FC = () => {
   const { barangayId: adminBarangayId } = useAuth();
   const [pendingUsers, setPendingUsers] = useState<UserForVerification[]>([]);
@@ -62,7 +65,7 @@ const AdminUserVerification: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState('success');
-  const [barangayName, setBarangayName] = useState('');
+
   const [isReviewing, setIsReviewing] = useState(false);
 
   const fetchPendingUsers = useCallback(async () => {
@@ -92,6 +95,7 @@ const AdminUserVerification: React.FC = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           barangayId: data.barangayId,
+          barangayName: data.barangayName, // Add this
           verificationStatus: data.verificationStatus,
           lotBlkHouseNo: data.lotBlkHouseNo || '',
           streetName: data.streetName || '',
@@ -120,18 +124,7 @@ const AdminUserVerification: React.FC = () => {
     fetchPendingUsers();
   }, [adminBarangayId, fetchPendingUsers]);
 
-  useEffect(() => {
-    if (selectedUser?.barangayId) {
-      setBarangayName('Loading...');
-      getBarangayNameByCode(selectedUser.barangayId).then(name => {
-        if (name) {
-          setBarangayName(name);
-        } else {
-          setBarangayName('Not found');
-        }
-      });
-    }
-  }, [selectedUser]);
+
 
 const functions = getFunctions();
 const setCustomClaimsOnVerification = httpsCallable(functions, 'setCustomClaimsOnVerification');
@@ -153,9 +146,13 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
       verifiedBy: action === 'verified' ? auth.currentUser?.uid : deleteField(),
     });
 
-    setToastMessage(`User has been ${action}.`);
-    setToastColor('success');
-    setShowToast(true);
+    // Dispatch event instead of showing toast
+    const eventType = action === 'verified' ? 'user.registration.approved' : 'user.registration.rejected';
+    await dispatchEvent(eventType, { 
+      userId: user.uid, 
+      reason: reason 
+    });
+
     fetchPendingUsers(); // Refresh list
     setShowModal(false); // Close modal
     setShowAlert(false); // Close alert
@@ -263,7 +260,7 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                 </IonItem>
                 <IonItem>
                   <IonIcon slot="start" icon={home} />
-                  {barangayName}
+                  {selectedUser.barangayName}
                 </IonItem>
                 <IonItemDivider className="ion-margin-top">Address Details</IonItemDivider>
                 <IonItem>

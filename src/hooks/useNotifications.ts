@@ -4,7 +4,7 @@ import { NotificationsService } from '../services/notificationsService';
 import { Notification } from '../types/notifications';
 
 export const useNotifications = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userRole } = useAuth(); // Add userRole
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,6 +20,8 @@ export const useNotifications = () => {
 
     const unsubscribe = notificationsService.getUserNotifications(
       currentUser.uid,
+      currentUser.email || undefined, // Pass email
+      userRole || undefined, // Pass role
       (newNotifications) => {
         setNotifications(newNotifications);
         if (loading) {
@@ -29,7 +31,7 @@ export const useNotifications = () => {
     );
 
     return () => unsubscribe();
-  }, [currentUser, loading]);
+  }, [currentUser, userRole]); // Add userRole to dependency array
 
   const markAsRead = useCallback(async (notificationId: string) => {
     if (!currentUser) return;

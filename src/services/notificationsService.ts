@@ -22,7 +22,7 @@ export class NotificationsService {
    * @param callback Callback function to handle notifications
    * @returns Unsubscribe function
    */
-  public getUserNotifications(userId: string, callback: (notifications: Notification[]) => void): () => void {
+  public getUserNotifications(userId: string, userEmail: string | undefined, userRole: string | undefined, callback: (notifications: Notification[]) => void): () => void {
     // Clean up existing listener
     this.cleanup();
 
@@ -34,7 +34,7 @@ export class NotificationsService {
     );
 
     // Log the listener start
-    logFirestoreListener(userId, undefined, undefined, 'notifications', 'started', {
+    logFirestoreListener(userId, userEmail, userRole, 'notifications', 'started', {
       operation: 'getUserNotifications'
     });
 
@@ -60,7 +60,7 @@ export class NotificationsService {
         callback(notifications);
 
         // Log successful data retrieval
-        logFirestoreEvent(userId, undefined, undefined, 'listen', 'notifications', undefined, {
+        logFirestoreEvent(userId, userEmail, userRole, 'listen', 'notifications', undefined, {
           notificationCount: notifications.length,
           operation: 'getUserNotifications'
         });
@@ -83,16 +83,16 @@ export class NotificationsService {
     this.unsubscribe = onSnapshot(q, handleSnapshot, handleError);
 
     return () => {
-      this.cleanup();
+      this.cleanup(userEmail, userRole);
     };
   }
 
   /**
    * Clean up the current listener
    */
-  private cleanup(): void {
+  private cleanup(userEmail?: string, userRole?: string): void {
     if (this.unsubscribe && this.userId) {
-      logFirestoreListener(this.userId, undefined, undefined, 'notifications', 'stopped', {
+      logFirestoreListener(this.userId, userEmail, userRole, 'notifications', 'stopped', {
         operation: 'cleanup'
       });
       this.unsubscribe();
@@ -251,7 +251,7 @@ export class NotificationsService {
         { userId, operation: 'markAllAsRead' }
       );
 
-      logFirestoreEvent(userId, undefined, undefined, 'write_batch', 'notifications', undefined, {
+      logFirestoreEvent(userId, undefined, undefined, 'write', 'notifications', undefined, {
         operation: 'markAllAsRead',
         success: true
       });

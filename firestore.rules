@@ -63,7 +63,7 @@ service cloud.firestore {
                        // Ensure only allowed fields are being updated by the user
                        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                          'firstName', 'lastName', 'contactNumber',
-                         'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId',
+                         'selectedRegion', 'selectedProvince', 'selectedCityMunicipality', 'barangayId', 'barangayName',
                          'zipCode', 'lotBlkHouseNo', 'streetName', 'subdivisionVillageZonePurok',
                          'address', 'idVerificationUrl', 'idVerificationType', 'verificationStatus', 'rejectionReason'
                        ])
