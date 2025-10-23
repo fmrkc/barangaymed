@@ -12,7 +12,15 @@ interface UserTeleRequestProps {
 
 const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss }) => {
   const { currentUser, userRole, verificationStatus, barangayId } = useAuth();
-  const [reason, setReason] = useState('');
+    const [reasons, setReasons] = useState({
+    'Follow-up check-up': false,
+    'New health concern': false,
+    'Prescription renewal': false,
+    'Mental health support': false,
+    'General health advice': false,
+    'Others': false,
+  });
+  const [otherReason, setOtherReason] = useState('');
   const [attachMedicalRecord, setAttachMedicalRecord] = useState(false);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -57,13 +65,38 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   };
 
   const handleDismiss = () => {
-    setStep(1);
-    setReason('');
+    setReasons({
+      'Follow-up check-up': false,
+      'New health concern': false,
+      'Prescription renewal': false,
+      'Mental health support': false,
+      'General health advice': false,
+      'Others': false,
+    });
+    setOtherReason('');
     setAttachMedicalRecord(false);
     if (!toastMessage.includes('successfully')) {
         setToastMessage('');
         setShowToast(false);
     }
+  };
+
+    const getReasonString = () => {
+    const selectedReasons = Object.entries(reasons)
+      .filter(([, isChecked]) => isChecked)
+      .map(([reason]) => reason)
+      .filter(reason => reason !== 'Others');
+
+    let finalReason = selectedReasons.join(', ');
+
+    if (reasons.Others && otherReason.trim()) {
+      if (finalReason) {
+        finalReason += `, ${otherReason.trim()}`;
+      } else {
+        finalReason = otherReason.trim();
+      }
+    }
+    return finalReason;
   };
 
   const handleSubmit = async () => {
@@ -73,8 +106,14 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       setShowToast(true);
       return;
     }
-    if (!reason.trim()) {
+    const reasonString = getReasonString();
+    if (!reasonString) {
       setToastMessage('Please provide a reason for the teleconsultation request.');
+      setShowToast(true);
+      return;
+    }
+    if (reasons.Others && !otherReason.trim()) {
+      setToastMessage('Please specify the other reason.');
       setShowToast(true);
       return;
     }
@@ -139,14 +178,22 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           contactNumber: userData.contactNumber,
           email: userData.email,
         },
-        reason: reason.trim(),
+        reason: reasonString,
         status: 'pending',
         createdAt: serverTimestamp(),
         ...(medicalRecord && { medicalRecord }),
       });
       setToastMessage('Teleconsultation request submitted successfully.');
       setShowToast(true);
-      setReason('');
+      setReasons({
+        'Follow-up check-up': false,
+        'New health concern': false,
+        'Prescription renewal': false,
+        'Mental health support': false,
+        'General health advice': false,
+        'Others': false,
+      });
+      setOtherReason('');
       setAttachMedicalRecord(false);
       setHasActiveRequest(true);
       onDidDismiss();
@@ -230,17 +277,29 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <IonItem lines='none'>
                   <h2>What are your current symptoms or conditions?</h2>
                 </IonItem>
-                <IonItem lines='none'>
-                  <IonTextarea
-                    fill='outline'
-                    value={reason}
-                    onIonChange={e => setReason(e.detail.value!)}
-                    rows={6}
-                    maxlength={500}
-                    counter={true}
-                    placeholder="Describe your reason for scheduling a consultation. Include any symptoms or concerns you have."
-                  />
-                </IonItem>
+                {Object.keys(reasons).map((reasonKey) => (
+                  <IonItem key={reasonKey}>
+                    <IonLabel>{reasonKey}</IonLabel>
+                    <IonCheckbox
+                      slot="end"
+                      checked={reasons[reasonKey as keyof typeof reasons]}
+                      onIonChange={e => {
+                        setReasons(prev => ({ ...prev, [reasonKey]: e.detail.checked }));
+                      }}
+                    />
+                  </IonItem>
+                ))}
+                {reasons.Others && (
+                  <IonItem className="ion-margin-top">
+                    <IonTextarea
+                      fill="outline"
+                      value={otherReason}
+                      onIonChange={e => setOtherReason(e.detail.value!)}
+                      placeholder="Please specify other reason"
+                      rows={3}
+                    />
+                  </IonItem>
+                )}
                 <IonItem>
                   <small>Please provide accurate information to help us assist you better.</small>
                 </IonItem>
@@ -273,7 +332,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
               </IonItem>
               <IonItem>
                 <IonLabel>Consultation Reason:</IonLabel>
-                <IonText>{reason || 'Not provided'}</IonText>
+                <IonText>{getReasonString() || 'Not provided'}</IonText>
               </IonItem>
               {hasMedicalRecord && (
                 <IonItem>
