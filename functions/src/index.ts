@@ -404,7 +404,30 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
     }
     throw new HttpsError('internal', 'An unexpected error occurred while reviewing the user.');
   }
-});// Export the Express app as a Firebase Function
+});import { PubSub } from '@google-cloud/pubsub';
+
+const pubSubClient = new PubSub();
+const topicName = 'barangaymed-events';
+
+export const publishEvent = onCall(async (request) => {
+  const { eventType, data } = request.data;
+
+  if (!eventType || !data) {
+    throw new HttpsError('invalid-argument', 'Missing required fields: eventType, data');
+  }
+
+  try {
+    const dataBuffer = Buffer.from(JSON.stringify(data));
+    await pubSubClient.topic(topicName).publishMessage({ data: dataBuffer, attributes: { eventType } });
+    logger.log(`Event '${eventType}' published successfully.`);
+    return { success: true };
+  } catch (error) {
+    logger.error(`Error publishing event '${eventType}':`, error);
+    throw new HttpsError('internal', 'An unexpected error occurred while publishing the event.');
+  }
+});
+
+// Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 
 export { onUserDocUpdate } from './user-claims-triggers.js';

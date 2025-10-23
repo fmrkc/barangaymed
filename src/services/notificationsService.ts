@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig';
-import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Notification } from '../types/notifications';
 import { executeWithRetry, logFirestoreError } from '../utils/firestoreErrorHandler';
 import { logFirestoreEvent, logFirestoreListener } from '../utils/logger';
@@ -217,6 +217,52 @@ export class NotificationsService {
         operation: 'markAsRead'
       });
       console.error(`Error marking notification ${notificationId} as read:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark all unread notifications as read for a user.
+   * @param userId The user's ID
+   */
+  public async markAllAsRead(userId: string): Promise<void> {
+    const operation = async () => {
+      const notificationsRef = collection(db, 'users', userId, 'notifications');
+      const q = query(notificationsRef, where('read', '==', false));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return;
+      }
+
+      const batch = writeBatch(db);
+      querySnapshot.forEach((doc) => {
+        batch.update(doc.ref, { read: true });
+      });
+
+      await batch.commit();
+    };
+
+    try {
+      await executeWithRetry(
+        operation,
+        `markAllAsRead-${userId}`,
+        { maxRetries: 3 },
+        { userId, operation: 'markAllAsRead' }
+      );
+
+      logFirestoreEvent(userId, undefined, undefined, 'write_batch', 'notifications', undefined, {
+        operation: 'markAllAsRead',
+        success: true
+      });
+
+      console.log(`All unread notifications marked as read for user ${userId}`);
+    } catch (error) {
+      logFirestoreError('markAllAsRead', error, {
+        userId,
+        operation: 'markAllAsRead'
+      });
+      console.error(`Error marking all notifications as read for user ${userId}:`, error);
       throw error;
     }
   }
