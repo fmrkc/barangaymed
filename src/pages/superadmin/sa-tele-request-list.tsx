@@ -40,6 +40,7 @@ import {
   IonSearchbar,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
@@ -198,6 +199,8 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     doctorSpecialty: data.doctorSpecialty,
                     meetingLink: data.meetingLink,
                     superadminMarkedComplete: data.superadminMarkedComplete,
+                    rejectionReason: data.rejectionReason,
+                    prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
                       action: entry.action,
