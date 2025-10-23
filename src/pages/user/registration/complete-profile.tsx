@@ -308,6 +308,7 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
         selectedProvince,
         selectedCityMunicipality,
         barangayId,
+        barangayName,
         zipCode,
         lotBlkHouseNo,
         streetName,

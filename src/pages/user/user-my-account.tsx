@@ -73,7 +73,9 @@ const Account: React.FC = () => {
           let cityMunName = "Not specified";
           let zipCode = userData.zipCode || "Not specified";
 
-          if (userData.barangayId) {
+          if (userData.barangayName) {
+            barangayNameTemp = userData.barangayName;
+          } else if (userData.barangayId) {
             const name = await getBarangayNameByCode(userData.barangayId);
             barangayNameTemp = name || "Not specified";
           }
