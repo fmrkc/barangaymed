@@ -406,4 +406,3 @@ export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app
 export { onUserDocUpdate } from './user-claims-triggers.js';
 export * from "./user-verification.js";
 export * from "./notifications.js";
-
