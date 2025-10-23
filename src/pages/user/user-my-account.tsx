@@ -20,6 +20,7 @@ import {
   IonChip,
   IonModal,
   IonInput,
+  IonText,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -46,6 +47,8 @@ const Account: React.FC = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
   const [hasMedicalRecord, setHasMedicalRecord] = useState(false);
+  const [verifiedBy, setVerifiedBy] = useState("");
+  const [verifiedAt, setVerifiedAt] = useState("");
 
   const fetchMedicalRecordStatus = async () => {
     if (!currentUser) return;
@@ -99,6 +102,8 @@ const Account: React.FC = () => {
           setBarangayName(barangayNameTemp);
           setFullLocation([regionName, provinceName, cityMunName, barangayNameTemp, zipCode].filter(Boolean).join(', '));
           setAddress([userData.lotBlkHouseNo, userData.streetName, userData.subdivisionVillageZonePurok].filter(Boolean).join(', ') || userData.address || "Not specified");
+          setVerifiedBy(userData.verifiedBy || "N/A");
+          setVerifiedAt(userData.verifiedAt ? new Date(userData.verifiedAt.toDate()).toLocaleString() : "N/A");
         }
 
         // Check for medical record
@@ -332,7 +337,20 @@ const Account: React.FC = () => {
                  <IonItemDivider className="ion-margin-top">Password:</IonItemDivider>
                 
                 <IonButton className="ion-padding-vertical" expand="block">Change Password</IonButton>
-              
+
+                {verificationStatus === 'verified' && (
+                  <>
+                    <IonItemDivider className="ion-margin-top">Verification Details:</IonItemDivider>
+                    <IonItem>
+                      <IonLabel>Verified By:</IonLabel>
+                      <IonText slot="end" style={{ fontWeight: 'bold' }}>{verifiedBy}</IonText>
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel>Verified At:</IonLabel>
+                      <IonText slot="end" style={{ fontWeight: 'bold' }}>{verifiedAt}</IonText>
+                    </IonItem>
+                  </>
+                )}
               </IonCardContent>
             </IonCard>
             

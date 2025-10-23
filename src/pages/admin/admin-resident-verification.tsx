@@ -62,6 +62,7 @@ const AdminUserVerification: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserForVerification | null>(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState('success');
@@ -220,9 +221,9 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                   </IonCardSubtitle>
                     
                 </IonCardHeader>
-                <IonButton expand="block" fill="outline" onClick={() => openModal(user)}>
+                <IonButton className='ion-padding-vertical' expand="block" fill="outline" onClick={() => openModal(user)}>
                       <IonIcon slot="end" icon={open} />
-                      Process Request
+                      Review Request
                     </IonButton>
               </IonCard>
             ))}
@@ -303,7 +304,7 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                 </IonCol>
 
                 <IonCol size="6">
-                    <IonButton expand='block' color="success" shape='round' onClick={() => selectedUser && handleReview(selectedUser, 'verified')}>
+                    <IonButton expand='block' color="success" shape='round' onClick={() => setShowAcceptAlert(true)}>
                 <IonText className='ion-padding-vertical'>Approve User</IonText>
                 <IonIcon slot="end" icon={checkmarkCircleOutline} />
               </IonButton>
@@ -339,6 +340,28 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                 if (selectedUser) {
                   handleReview(selectedUser, 'rejected', reason);
                 }
+              }
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showAcceptAlert}
+          onDidDismiss={() => setShowAcceptAlert(false)}
+          header="Approve User"
+          message="Are you sure you want to approve this user?"
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => setShowAcceptAlert(false)
+            },
+            {
+              text: 'Approve',
+              handler: () => {
+                if (selectedUser) {
+                  handleReview(selectedUser, 'verified');
+                }
+                setShowAcceptAlert(false);
               }
             }
           ]}
