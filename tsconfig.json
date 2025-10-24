@@ -15,7 +15,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "useUnknownInCatchVariables": true,
     "types": ["vitest/globals"]
   },
   "include": ["src"],

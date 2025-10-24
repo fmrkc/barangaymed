@@ -18,8 +18,4 @@ export interface UserData {
   idVerificationType?: string;
   address?: string;
   email?: string;
-  role?: string;
-  cityMunicipalityId?: string;
-  verificationStatus?: string;
-  rejectionReason?: string;
 }
