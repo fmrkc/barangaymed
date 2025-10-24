@@ -81,6 +81,7 @@ const UserTeleRequestList: React.FC = () => {
                     meetingLink: data.meetingLink,
                     superadminMarkedComplete: data.superadminMarkedComplete,
                     rejectionReason: data.rejectionReason,
+                    prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
                       action: entry.action,
@@ -315,6 +316,11 @@ const UserTeleRequestList: React.FC = () => {
                       Join Consultation
                     </IonButton>
                   )}
+                  {request.status === 'completed' && request.prescriptionUrl && (
+                    <IonButton color="primary" href={request.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                      View Prescription
+                    </IonButton>
+                  )}
                   {request.status === 'scheduled' && (
                     <IonButton color="success" onClick={() => confirmMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
                   )}
@@ -471,10 +477,12 @@ const UserTeleRequestList: React.FC = () => {
                                         <IonLabel>Specialty:</IonLabel>
                                         <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
                                       </IonItem>
+                                      {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
                                       <IonItem>
                                         <IonLabel>Meeting Link:</IonLabel>
                                         <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
                                       </IonItem>
+                                      )}
                                       <IonItem>
                                         <IonLabel>Start Time:</IonLabel>
                                         <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'}</IonText>
@@ -498,6 +506,14 @@ const UserTeleRequestList: React.FC = () => {
                                         <IonLabel>Completed At:</IonLabel>
                                         <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
                                       </IonItem>
+                                      {selectedRequest.prescriptionUrl && (
+                                      <IonItem>
+                                        <IonLabel>Prescription:</IonLabel>
+                                        <IonButton slot="end" fill="outline" size="small" href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                                          View Prescription
+                                        </IonButton>
+                                      </IonItem>
+                                      )}
                                     </>
                                   )}
                                 </>
