@@ -43,7 +43,7 @@ import {
   IonCardSubtitle,
   IonToast,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { Medicine } from '../../types/medicine';
@@ -100,7 +100,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const categoryOptions = ['antibiotic', 'analgesic', 'supplement', 'antihistamine', 'antacid', 'diuretic'];
   const [selectedMedicines, setSelectedMedicines] = useState<{ [key: string]: { quantity: number } }>({});
   const [processNote, setProcessNote] = useState<string>('');
-  const [processStep, setProcessStep] = useState<1 | 2 | 3>(1);
+  const [processStep, setProcessStep] = useState<number>(1);
   const [medicineSearch, setMedicineSearch] = useState<string>('');
   const [medicineFilter, setMedicineFilter] = useState<string>('all');
 
@@ -108,6 +108,9 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [currentMedId, setCurrentMedId] = useState<string>('');
   const [showQuantityAlert, setShowQuantityAlert] = useState(false);
   const [quantityInput, setQuantityInput] = useState<string>('1');
+  const [actionSheetButtons, setActionSheetButtons] = useState<any[]>([]);
+  const [maxQty, setMaxQty] = useState(0);
+
 
   const [processError, setProcessError] = useState<string | null>(null);
   const [isSavingProcess, setIsSavingProcess] = useState(false);
@@ -492,7 +495,32 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   // Open action sheet for quantity selection
   const openQuantityActionSheet = (medId: string) => {
+    const med = medicines.find(m => m.id === medId);
+    if (!med) return;
     setCurrentMedId(medId);
+    setMaxQty(med.quantity);
+    const buttons = [];
+    for (let i = 1; i <= Math.min(10, med.quantity); i++) {
+      buttons.push({
+        text: i.toString(),
+        handler: () => handleActionSheetClick(i),
+      });
+    }
+    if (med.quantity > 10) {
+      buttons.push({
+        text: 'Custom',
+        handler: () => handleActionSheetClick('custom'),
+      });
+    }
+    buttons.push({
+      text: 'Remove',
+      handler: () => handleActionSheetClick(0),
+    });
+    buttons.push({
+      text: 'Cancel',
+      role: 'cancel',
+    });
+    setActionSheetButtons(buttons);
     setShowQuantityActionSheet(true);
   };
 
@@ -508,9 +536,9 @@ const SuperAdminMedRequestList: React.FC = () => {
   };
 
   // Handle custom quantity input
-  const handleCustomQuantity = () => {
-    const qty = parseInt(quantityInput) || 1;
+  const handleCustomQuantity = (qty: number) => {
     changeMedicineQuantity(currentMedId, qty);
+    setQuantityInput(qty.toString());
     setShowQuantityAlert(false);
   };
 
@@ -545,6 +573,16 @@ const SuperAdminMedRequestList: React.FC = () => {
           timestamp: new Date(),
         }),
       });
+
+      // Update medicine quantities in inventory
+      const updatePromises = Object.entries(dispensedMedicines).map(async ([medId, qty]) => {
+        const medRef = doc(db, 'medicine', medId);
+        await updateDoc(medRef, {
+          quantity: increment(-qty),
+        });
+      });
+      await Promise.all(updatePromises);
+
       // Update local state
       setRequests(prev =>
         prev.map(r =>
@@ -1220,6 +1258,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                               <div>
                                 <small>{med.dosage_form} - {med.strength} ({med.unit_name})</small>
                               </div>
+                              <div>
+                                <small>Quantity: {med.quantity} | Expires: {med.expiration_date.toLocaleDateString()}</small>
+                              </div>
                             </div>
                           </IonLabel>
                           <IonCheckbox slot='end'
@@ -1229,7 +1270,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                         </IonItem>
                         {selectedMedicines[med.id || ''] && (
                           <IonItem key={`${med.id}-quantity`}>
-                            <IonLabel slot='start'>{med.medicine_name} Quantity: {selectedMedicines[med.id || '']?.quantity || 1}</IonLabel>
+                            <IonLabel slot='start'>Quantity: {selectedMedicines[med.id || '']?.quantity || 1} / {med.quantity} available</IonLabel>
                             <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id || '')}>
                               Change
                             </IonButton>
@@ -1508,40 +1549,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           isOpen={showQuantityActionSheet}
           onDidDismiss={() => setShowQuantityActionSheet(false)}
           header="Select Quantity"
-          buttons={[
-            {
-              text: '1',
-              handler: () => handleActionSheetClick(1),
-            },
-            {
-              text: '2',
-              handler: () => handleActionSheetClick(2),
-            },
-            {
-              text: '3',
-              handler: () => handleActionSheetClick(3),
-            },
-            {
-              text: '5',
-              handler: () => handleActionSheetClick(5),
-            },
-            {
-              text: '10',
-              handler: () => handleActionSheetClick(10),
-            },
-            {
-              text: 'Remove',
-              handler: () => handleActionSheetClick(0),
-            },
-            {
-              text: 'Custom',
-              handler: () => handleActionSheetClick('custom'),
-            },
-            {
-              text: 'Cancel',
-              role: 'cancel',
-            },
-          ]}
+          buttons={actionSheetButtons}
         />
 
         {/* Custom Quantity Alert */}
@@ -1549,6 +1557,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           isOpen={showQuantityAlert}
           onDidDismiss={() => setShowQuantityAlert(false)}
           header="Enter Custom Quantity"
+          message={`Maximum available quantity: ${maxQty}`}
           inputs={[
             {
               name: 'quantity',
@@ -1556,6 +1565,7 @@ const SuperAdminMedRequestList: React.FC = () => {
               placeholder: 'Quantity',
               value: quantityInput,
               min: 1,
+              max: maxQty,
             },
           ]}
           buttons={[
@@ -1566,8 +1576,8 @@ const SuperAdminMedRequestList: React.FC = () => {
             {
               text: 'OK',
               handler: (data) => {
-                setQuantityInput(data.quantity);
-                handleCustomQuantity();
+                const qty = Math.min(parseInt(data.quantity) || 1, maxQty);
+                handleCustomQuantity(qty);
               },
             },
           ]}

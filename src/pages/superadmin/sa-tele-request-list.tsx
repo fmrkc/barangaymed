@@ -38,8 +38,10 @@ import {
   IonSelectOption,
   IonSelect,
   IonSearchbar,
+  IonToggle,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
@@ -97,6 +99,11 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [showScheduleToast, setShowScheduleToast] = useState(false);
   const [showCompleteToast, setShowCompleteToast] = useState(false);
   const [showNoShowToast, setShowNoShowToast] = useState(false);
+
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [hasPrescription, setHasPrescription] = useState(false);
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadRegions = async () => {
@@ -198,6 +205,8 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     doctorSpecialty: data.doctorSpecialty,
                     meetingLink: data.meetingLink,
                     superadminMarkedComplete: data.superadminMarkedComplete,
+                    rejectionReason: data.rejectionReason,
+                    prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
                       action: entry.action,
@@ -336,17 +345,62 @@ const SuperAdminTeleRequestList: React.FC = () => {
     }
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB
+        setToastMessage('File size must be less than 5MB.');
+        setShowRejectToast(true); // Using reject toast for error color
+        return;
+      }
+      setPrescriptionFile(file);
+    }
+  };
+
   const handleMarkAsComplete = async () => {
     if (!requestToMarkComplete) return;
     setIsMarkingComplete(true);
+    setShowMarkCompleteAlert(false);
+
     try {
-      await handleUpdateRequestStatus(requestToMarkComplete, 'completed', 'Marked teleconsultation as completed');
+      let prescriptionUrl = '';
+      if (hasPrescription && prescriptionFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `prescriptions/teleconsultation/${requestToMarkComplete}/${prescriptionFile.name}`);
+        await uploadBytes(storageRef, prescriptionFile);
+        prescriptionUrl = await getDownloadURL(storageRef);
+      }
+
+      const requestRef = doc(db, 'teleconsultationRequests', requestToMarkComplete);
+      const updateData: any = {
+        status: 'completed',
+        updatedAt: new Date(),
+        auditTrail: arrayUnion({
+          action: 'Marked teleconsultation as completed',
+          userId: currentUser!.uid,
+          userEmail: currentUser!.email!,
+          userName: currentUser!.displayName || currentUser!.email || 'Super Admin',
+          timestamp: new Date(),
+        }),
+      };
+
+      if (prescriptionUrl) {
+        updateData.prescriptionUrl = prescriptionUrl;
+      }
+
+      await updateDoc(requestRef, updateData);
+
       const request = requests.find(r => r.id === requestToMarkComplete);
       setToastMessage(`You have successfully marked ${request?.userData?.firstName} ${request?.userData?.lastName}'s teleconsultation request as completed.`);
       setShowCompleteToast(true);
+
+      // Reset states
+      setShowCompleteModal(false);
       setRequestToMarkComplete(null);
-      setShowMarkCompleteAlert(false);
-      setShowModal(false);
+      setHasPrescription(false);
+      setPrescriptionFile(null);
+      setShowModal(false); // also close details modal if open
+
     } catch (error) {
       console.error('Error marking request as completed:', error);
       setError('Failed to mark the request as completed.');
@@ -575,7 +629,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                       </IonButton>
                       <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
                         setRequestToMarkComplete(request.id!);
-                        setShowMarkCompleteAlert(true);
+                        setShowCompleteModal(true);
                       }}>
                         Mark as Completed
                         <IonIcon slot='end' icon={checkmark} />
@@ -1115,6 +1169,57 @@ const SuperAdminTeleRequestList: React.FC = () => {
             }
           ]}
         />
+        <IonModal isOpen={showCompleteModal} onDidDismiss={() => {
+          setShowCompleteModal(false);
+          setHasPrescription(false);
+          setPrescriptionFile(null);
+        }}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Complete Teleconsultation</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowCompleteModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard>
+              <IonCardContent>
+                <IonItem>
+                  <IonLabel>Doctor's Prescription</IonLabel>
+                  <IonToggle checked={hasPrescription} onIonChange={e => setHasPrescription(e.detail.checked)} />
+                </IonItem>
+                {hasPrescription && (
+                  <>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf,.doc,.docx"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={handleFileChange}
+                    />
+                    <IonButton className='ion-margin-top' expand="block" onClick={() => fileInputRef.current?.click()}>
+                      Upload Image or File
+                    </IonButton>
+                    {prescriptionFile && (
+                      <IonItem lines="none">
+                        <IonLabel>{prescriptionFile.name}</IonLabel>
+                      </IonItem>
+                    )}
+                  </>
+                )}
+              </IonCardContent>
+            </IonCard>
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonButton expand="full" color="success" onClick={() => setShowMarkCompleteAlert(true)} disabled={isMarkingComplete}>
+                Mark as Completed
+              </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
         <IonAlert
           isOpen={showMarkCompleteAlert}
           onDidDismiss={() => setShowMarkCompleteAlert(false)}
@@ -1124,18 +1229,10 @@ const SuperAdminTeleRequestList: React.FC = () => {
             {
               text: 'No',
               role: 'cancel',
-              handler: () => {
-                setRequestToMarkComplete(null);
-              }
             },
             {
               text: 'Yes',
-              handler: () => {
-                if (requestToMarkComplete) {
-                  handleMarkAsComplete();
-                  setRequestToMarkComplete(null);
-                }
-              }
+              handler: handleMarkAsComplete
             }
           ]}
         />

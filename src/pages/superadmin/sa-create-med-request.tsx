@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   IonHeader,
   IonToolbar,
@@ -11,7 +11,6 @@ import {
   IonCardContent,
   IonCardSubtitle,
   IonText,
-  IonLoading,
   IonButtons,
   IonButton,
   IonModal,
@@ -21,32 +20,24 @@ import {
   IonCheckbox,
   IonToast,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonMenuButton,
   IonIcon,
   IonFooter,
-  IonGrid,
-  IonRow,
-  IonCol,
   IonSearchbar,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, addDoc, serverTimestamp, Timestamp, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
-import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { UserService } from '../../services/userService';
 import { getBarangayNameByCode } from '../../services/addressService';
-import { paperPlane, open, checkmark } from 'ionicons/icons';
+import { checkmark } from 'ionicons/icons';
 
 const db = getFirestore();
 
 const SuperAdminCreateMedRequest: React.FC = () => {
   const { currentUser } = useAuth();
-  const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string; } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
   const [hasPrescription, setHasPrescription] = useState(false);
@@ -57,115 +48,116 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchedUsers, setSearchedUsers] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string; name: string }[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedUserRequests, setSelectedUserRequests] = useState<TeleconsultationRequest[]>([]);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    const q = query(
-      collection(db, 'teleconsultationRequests'),
-      orderBy('updatedAt', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        const reqs: TeleconsultationRequest[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.status === 'completed') {
-            const req: TeleconsultationRequest = {
-              id: doc.id,
-              userId: data.userId,
-              barangayId: data.barangayId,
-              userData: data.userData,
-              reason: data.reason,
-              status: data.status,
-              createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
-              updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
-              startTime: data.startTime ? (data.startTime instanceof Timestamp ? data.startTime.toDate() : new Date(data.startTime)) : undefined,
-              endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
-              notes: data.notes,
-              doctorId: data.doctorId,
-              doctorName: data.doctorName,
-              doctorSpecialty: data.doctorSpecialty,
-              meetingLink: data.meetingLink,
-              superadminMarkedComplete: data.superadminMarkedComplete,
-              medicalRecord: data.medicalRecord,
-              auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
-                action: entry.action,
-                userId: entry.userId,
-                userEmail: entry.userEmail,
-                userName: entry.userName,
-                timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
-              })) : [],
-            };
-            reqs.push(req);
-          }
-        });
-        setRequests(reqs);
-        setLoading(false);
-      },
-      (err) => {
-        setError('Failed to fetch completed teleconsultation requests');
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  const handleRefresh = (event: CustomEvent) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      event.detail.complete();
-    }, 1000);
-  };
+  const [selectedUserRequests, setSelectedUserRequests] = useState<any[]>([]);
+  const [showUserRequests, setShowUserRequests] = useState(false);
+  const [selectedTeleconsultRequest, setSelectedTeleconsultRequest] = useState<any>(null);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   const handleSearchChange = async (e: CustomEvent) => {
-    const query = e.detail.value?.toLowerCase() || '';
-    setSearchQuery(query);
+    const queryStr = e.detail.value?.toLowerCase() || '';
+    setSearchQuery(queryStr);
     setError(null);
 
-    if (query.trim() === '') {
+    if (queryStr.trim() === '') {
       setSearchedUsers([]);
       setShowSearchResults(false);
-      setSelectedUserRequests([]);
       return;
     }
 
     try {
-        const userService = UserService.getInstance();
-        const users = await userService.searchUsers(query);
-        setSearchedUsers(users);
-        setShowSearchResults(true);
+      const q = query(collection(db, 'users'), where('role', '==', 'user'));
+      const querySnapshot = await getDocs(q);
+      const users: { uid: string; firstName: string; lastName: string; barangayId: string; name: string }[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const fullName = `${data.firstName || ''} ${data.lastName || ''}`.toLowerCase().trim();
+        if (fullName.includes(queryStr)) {
+          users.push({
+            uid: doc.id,
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            barangayId: data.barangayId || '',
+            name: fullName,
+          });
+        }
+      });
+      setSearchedUsers(users);
+      setShowSearchResults(true);
     } catch (error: any) {
-        setError(error.message || 'Failed to search for users.');
+      setError(error.message || 'Failed to search for users.');
     }
   };
 
-  const handleUserSelect = (userId: string) => {
-    const userRequests = requests
-      .filter(request => request.userId === userId)
-      .sort((a, b) => (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0));
-
-    setSelectedUserRequests(userRequests);
+  const handleUserSelect = async (user: { uid: string; firstName: string; lastName: string; barangayId: string; }) => {
+    setSelectedUser(user);
     setShowSearchResults(false);
     setSearchQuery('');
-  };
-
-  const handleCreateMedRequest = (request: TeleconsultationRequest) => {
-    setSelectedRequest(request);
-    setReason(request.reason);
+    setReason('');
     setHasPrescription(false);
     setPrescriptionFile(null);
-    setShowModal(true);
+
+    try {
+      const q = query(collection(db, 'teleconsultationRequests'), where('userId', '==', user.uid), where('status', '==', 'completed'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const requests: any[] = [];
+      querySnapshot.forEach((doc) => {
+        requests.push({ id: doc.id, ...doc.data() });
+      });
+      setSelectedUserRequests(requests);
+      setShowUserRequests(true);
+    } catch (error: any) {
+      setError(error.message || 'Failed to fetch user requests.');
+    }
+  };
+
+  const handleCreateMedRequestFromTeleconsult = async (teleconsultRequest: any) => {
+    if (!selectedUser || !currentUser) {
+      setToastMessage('User not selected.');
+      setShowToast(true);
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const userService = UserService.getInstance();
+      const userData = await userService.getUserData(selectedUser.uid);
+
+      const barangayName = await getBarangayNameByCode(selectedUser.barangayId);
+
+      await addDoc(collection(db, 'medicineRequests'), {
+        userId: selectedUser.uid,
+        barangayId: selectedUser.barangayId,
+        barangayName: barangayName,
+        userData: {
+          firstName: userData.firstName,
+          middleName: userData.middleName,
+          lastName: userData.lastName,
+          suffix: userData.suffix,
+          address: userData.address,
+          gender: userData.gender,
+          contactNumber: userData.contactNumber,
+          email: userData.email,
+        },
+        reason: teleconsultRequest.reason,
+        hasPrescription: false,
+        prescriptionUrl: '',
+        status: 'accepted',
+        createdAt: serverTimestamp(),
+      });
+      setToastMessage('Medicine request created successfully.');
+      setShowToast(true);
+      setShowUserRequests(false);
+      setSelectedUser(null);
+    } catch (error) {
+      console.error('Error creating medicine request:', error);
+      setToastMessage('Failed to create medicine request. Please try again.');
+      setShowToast(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSubmitMedRequest = async () => {
-    if (!selectedRequest || !currentUser || !reason.trim()) {
+    if (!selectedUser || !currentUser || !reason.trim()) {
       setToastMessage('Please provide a reason for the medicine request.');
       setShowToast(true);
       return;
@@ -178,21 +170,21 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     setIsSubmitting(true);
     try {
       const userService = UserService.getInstance();
-      const userData = await userService.getUserData(selectedRequest.userId);
+      const userData = await userService.getUserData(selectedUser.uid);
 
-      const barangayName = await getBarangayNameByCode(selectedRequest.barangayId);
+      const barangayName = await getBarangayNameByCode(selectedUser.barangayId);
 
       let prescriptionUrl = '';
       if (hasPrescription && prescriptionFile) {
         const storage = getStorage();
-        const storageRef = ref(storage, `prescriptions/${selectedRequest.userId}/${Date.now()}_${prescriptionFile.name}`);
+        const storageRef = ref(storage, `prescriptions/${selectedUser.uid}/${Date.now()}_${prescriptionFile.name}`);
         await uploadBytes(storageRef, prescriptionFile);
         prescriptionUrl = await getDownloadURL(storageRef);
       }
 
       await addDoc(collection(db, 'medicineRequests'), {
-        userId: selectedRequest.userId,
-        barangayId: selectedRequest.barangayId,
+        userId: selectedUser.uid,
+        barangayId: selectedUser.barangayId,
         barangayName: barangayName,
         userData: {
           firstName: userData.firstName,
@@ -207,13 +199,13 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         reason: reason.trim(),
         hasPrescription,
         prescriptionUrl,
-        status: 'approved',
+        status: 'accepted',
         createdAt: serverTimestamp(),
       });
       setToastMessage('Medicine request created successfully.');
       setShowToast(true);
       setShowModal(false);
-      setSelectedRequest(null);
+      setSelectedUser(null);
       setReason('');
       setHasPrescription(false);
       setPrescriptionFile(null);
@@ -237,142 +229,117 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonLoading isOpen={loading} message="Loading completed teleconsultations..." />
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent></IonRefresherContent>
-        </IonRefresher>
         {error && (
           <IonText color="danger" className="ion-padding">
             {error}
           </IonText>
         )}
 
-        {!loading && (
-          <>
-            <IonItem>
-              <IonLabel>THIS MEDICINE REQUEST IS FOR:</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonSearchbar
-                placeholder="Search by full name"
-                value={searchQuery}
-                onIonInput={handleSearchChange}
-                debounce={300}
-              />
-            </IonItem>
+        <IonItem>
+          <IonLabel>THIS MEDICINE REQUEST IS FOR:</IonLabel>
+        </IonItem>
+        <IonItem>
+          <IonSearchbar
+            placeholder="Search by full name"
+            value={searchQuery}
+            onIonInput={handleSearchChange}
+            debounce={300}
+          />
+        </IonItem>
 
-            {showSearchResults && searchedUsers.length > 0 && (
-              <IonList style={{ backgroundColor: 'transparent' }}>
-                {searchedUsers.map((user) => (
-                  <IonCard key={user.uid}>
+        {showSearchResults && searchedUsers.length > 0 && (
+          <IonList style={{ backgroundColor: 'transparent' }}>
+            {searchedUsers.map((user) => (
+              <IonCard key={user.uid}>
+                <IonCardHeader>
+                  <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+                    {user.firstName} {user.lastName}
+                  </IonCardTitle>
+                  <IonCardSubtitle>
+                    Barangay: {user.barangayId}
+                  </IonCardSubtitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <IonButton
+                    expand='block'
+                    className='ion-padding-vertical'
+                    onClick={() => handleUserSelect(user)}
+                  >
+                    View Teleconsultation Requests
+                    <IonIcon slot='end' icon={checkmark} />
+                  </IonButton>
+                </IonCardContent>
+              </IonCard>
+            ))}
+          </IonList>
+        )}
+
+        {showSearchResults && searchedUsers.length === 0 && (
+          <IonCard>
+            <IonCardContent>
+              <IonText className="ion-padding">No users found.</IonText>
+            </IonCardContent>
+          </IonCard>
+        )}
+
+        {/* User Requests Modal */}
+        <IonModal isOpen={showUserRequests} onDidDismiss={() => setShowUserRequests(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Teleconsultation Requests</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowUserRequests(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {selectedUser && (
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>Resident: {selectedUser.firstName} {selectedUser.lastName}</h2>
+                </IonItem>
+              </IonCard>
+            )}
+            {selectedUserRequests.length > 0 ? (
+              <IonList>
+                {selectedUserRequests.map((request, index) => (
+                  <IonCard key={request.id}>
                     <IonCardHeader>
-                      <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                        {user.firstName} {user.lastName}
-                      </IonCardTitle>
-                      <IonCardSubtitle>
-                        Barangay: {user.barangayId}
-                      </IonCardSubtitle>
+                      <IonCardTitle>Request ID: {request.id}</IonCardTitle>
+                      <IonCardSubtitle>Status: {request.status}</IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
-                      <IonButton
-                        expand='block'
-                        className='ion-padding-vertical'
-                        onClick={() => handleUserSelect(user.uid)}
-                      >
-                        View Teleconsultation History
-                        <IonIcon slot='end' icon={open} />
-                      </IonButton>
+                      <IonText>Reason: {request.reason}</IonText>
+                      <br />
+                      <IonText>Created At: {request.createdAt?.toDate().toLocaleString()}</IonText>
+                      {index === 0 && (
+                        <IonButton
+                          expand="block"
+                          color="primary"
+                          onClick={() => {
+                            setSelectedTeleconsultRequest(request);
+                            setShowSummaryModal(true);
+                          }}
+                          disabled={isSubmitting}
+                          className="ion-margin-top"
+                        >
+                          Create Medicine Request
+                          <IonIcon slot="end" icon={checkmark} />
+                        </IonButton>
+                      )}
                     </IonCardContent>
                   </IonCard>
                 ))}
               </IonList>
-            )}
-
-            {showSearchResults && searchedUsers.length === 0 && (
-                <IonCard>
-                    <IonCardContent>
-                        <IonText className="ion-padding">No users found.</IonText>
-                    </IonCardContent>
-                </IonCard>
-            )}
-
-            {selectedUserRequests.length > 0 && (
-              <>
-                <IonItem>
-                  <IonLabel>RECENTLY COMPLETED TELECONSULTATIONS:</IonLabel>
-                </IonItem>
-                <IonList style={{ backgroundColor: 'transparent' }}>
-                  {selectedUserRequests.map((request) => (
-                    <IonCard key={request.id}>
-                      <IonCardHeader>
-                        <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                          {request.userData?.firstName} {request.userData?.lastName}
-                        </IonCardTitle>
-                        <IonCardSubtitle>
-                          Barangay: {request.barangayId}
-                        </IonCardSubtitle>
-                      </IonCardHeader>
-                      <IonCardContent>
-                        <p>Reason: {request.reason}</p>
-                        <p>Completed: {request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</p>
-                        <IonButton
-                          expand='block'
-                          className='ion-padding-vertical'
-                          onClick={() => handleCreateMedRequest(request)}
-                        >
-                          Create Medicine Request
-                          <IonIcon slot='end' icon={paperPlane} />
-                        </IonButton>
-                      </IonCardContent>
-                    </IonCard>
-                  ))}
-                </IonList>
-              </>
-            )}
-
-            {!showSearchResults && selectedUserRequests.length === 0 && requests.length > 0 && (
-              <>
-                <IonItem>
-                  <IonLabel>RECENTLY COMPLETED TELECONSULTATIONS:</IonLabel>
-                </IonItem>
-                <IonList style={{ backgroundColor: 'transparent' }}>
-                  {requests.map((request) => (
-                    <IonCard key={request.id}>
-                      <IonCardHeader>
-                        <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                          {request.userData?.firstName} {request.userData?.lastName}
-                        </IonCardTitle>
-                        <IonCardSubtitle>
-                          Barangay: {request.barangayId}
-                        </IonCardSubtitle>
-                      </IonCardHeader>
-                      <IonCardContent>
-                        <p>Reason: {request.reason}</p>
-                        <p>Completed: {request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</p>
-                        <IonButton
-                          expand='block'
-                          className='ion-padding-vertical'
-                          onClick={() => handleCreateMedRequest(request)}
-                        >
-                          Create Medicine Request
-                          <IonIcon slot='end' icon={paperPlane} />
-                        </IonButton>
-                      </IonCardContent>
-                    </IonCard>
-                  ))}
-                </IonList>
-              </>
-            )}
-
-            {!showSearchResults && selectedUserRequests.length === 0 && requests.length === 0 && (
+            ) : (
               <IonCard>
                 <IonCardContent>
-                  <IonText className="ion-padding">No completed teleconsultations found.</IonText>
+                  <IonText>No completed teleconsultation requests found.</IonText>
                 </IonCardContent>
               </IonCard>
             )}
-          </>
-        )}
+          </IonContent>
+        </IonModal>
 
         {/* Create Medicine Request Modal */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
@@ -385,11 +352,10 @@ const SuperAdminCreateMedRequest: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonLoading isOpen={isSubmitting} message="Creating medicine request..." />
-            {selectedRequest && (
+            {selectedUser && (
               <IonCard className="ion-padding">
                 <IonItem lines='none'>
-                  <h2>Resident: {selectedRequest.userData?.firstName} {selectedRequest.userData?.lastName}</h2>
+                  <h2>Resident: {selectedUser.firstName} {selectedUser.lastName}</h2>
                 </IonItem>
                 <IonItem>
                   <IonLabel>Reason for Medicine Request:</IonLabel>
@@ -398,7 +364,8 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                   <IonTextarea
                     fill='outline'
                     value={reason}
-                    readonly
+                    onIonInput={(e) => setReason(e.detail.value!)}
+                    placeholder="Enter reason for medicine request"
                     rows={4}
                   />
                 </IonItem>
@@ -443,6 +410,60 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                 className="ion-margin"
               >
                 Create Request
+                <IonIcon slot="end" icon={checkmark} />
+              </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
+        {/* Summary Modal */}
+        <IonModal isOpen={showSummaryModal} onDidDismiss={() => setShowSummaryModal(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Confirm Medicine Request</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowSummaryModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {selectedUser && selectedTeleconsultRequest && (
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>Resident: {selectedUser.firstName} {selectedUser.lastName}</h2>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Reason for Medicine Request:</IonLabel>
+                </IonItem>
+                <IonItem lines='none'>
+                  <IonTextarea
+                    fill='outline'
+                    value={selectedTeleconsultRequest.reason}
+                    readonly
+                    rows={4}
+                  />
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Status:</IonLabel>
+                  <IonText>Accepted</IonText>
+                </IonItem>
+              </IonCard>
+            )}
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonButton
+                expand="block"
+                shape="round"
+                color="success"
+                onClick={() => {
+                  handleCreateMedRequestFromTeleconsult(selectedTeleconsultRequest);
+                  setShowSummaryModal(false);
+                }}
+                disabled={isSubmitting}
+                className="ion-margin"
+              >
+                Confirm and Create Request
                 <IonIcon slot="end" icon={checkmark} />
               </IonButton>
             </IonToolbar>

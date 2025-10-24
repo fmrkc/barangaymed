@@ -44,10 +44,10 @@ service cloud.firestore {
 // Stores public user profile information.
 // =================================================================
     match /users/{userId} {
-      // READ: Users can read their own profile. Admins can read profiles of users in their barangay. Super admins can read other admins/super admins.
+      // READ: Users can read their own profile. Admins can read profiles of users in their barangay. Super admins can read all users.
       allow read: if isOwner(userId) ||
                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                    (isSuperAdmin() && (resource.data.role == 'admin' || resource.data.role == 'superadmin'));
+                    isSuperAdmin();
 
       // CREATE: Allow user creation during registration.
       allow create: if request.auth != null && request.auth.uid == userId
@@ -177,7 +177,7 @@ service cloud.firestore {
                        (isSuperAdmin()
                         && request.resource.data.reason is string
                         && request.resource.data.hasPrescription is bool
-                        && request.resource.data.status == 'approved'
+                        && request.resource.data.status == 'accepted'
                         && request.resource.data.createdAt == request.time);
 
       allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||
