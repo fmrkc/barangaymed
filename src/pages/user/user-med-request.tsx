@@ -14,7 +14,16 @@ interface UserMedRequestProps {
 
 const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss }) => {
   const { currentUser, userRole, barangayId } = useAuth();
-  const [reason, setReason] = useState('');
+    const [reasons, setReasons] = useState({
+    'Fever': false,
+    'Cough and Colds': false,
+    'Headache': false,
+    'Body Pain': false,
+    'Allergies': false,
+    'Diarrhea': false,
+    'Others': false,
+  });
+  const [otherReason, setOtherReason] = useState('');
   const [hasPrescription, setHasPrescription] = useState(false);
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [step, setStep] = useState(1);
@@ -55,7 +64,16 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
 
   const handleDismiss = () => {
     setStep(1);
-    setReason('');
+        setReasons({
+      'Fever': false,
+      'Cough and Colds': false,
+      'Headache': false,
+      'Body Pain': false,
+      'Allergies': false,
+      'Diarrhea': false,
+      'Others': false,
+    });
+    setOtherReason('');
     setHasPrescription(false);
     setPrescriptionFile(null);
     if (!toastMessage.includes('successfully')) {
@@ -71,14 +89,38 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
     }
   };
 
+    const getReasonString = () => {
+    const selectedReasons = Object.entries(reasons)
+      .filter(([, isChecked]) => isChecked)
+      .map(([reason]) => reason)
+      .filter(reason => reason !== 'Others');
+
+    let finalReason = selectedReasons.join(', ');
+
+    if (reasons.Others && otherReason.trim()) {
+      if (finalReason) {
+        finalReason += `, ${otherReason.trim()}`;
+      } else {
+        finalReason = otherReason.trim();
+      }
+    }
+    return finalReason;
+  };
+
   const handleSubmit = async () => {
     if (!isUser) {
       setToastMessage('You must be a registered user to submit a medicine request.');
       setShowToast(true);
       return;
     }
-    if (!reason.trim()) {
+    const reasonString = getReasonString();
+    if (!reasonString) {
       setToastMessage('Please provide a reason for the medicine request.');
+      setShowToast(true);
+      return;
+    }
+    if (reasons.Others && !otherReason.trim()) {
+      setToastMessage('Please specify the other reason.');
       setShowToast(true);
       return;
     }
@@ -121,7 +163,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
           contactNumber: userData.contactNumber,
           email: userData.email,
         },
-        reason: reason.trim(),
+        reason: reasonString,
         hasPrescription,
         prescriptionUrl,
         status: 'pending',
@@ -207,20 +249,32 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
           {step === 2 && (
             <IonCard className="ion-padding">
               <IonItem lines='none'>
-              <h2>What are your current symptoms or conditions?</h2>
+                <h2>What are your current symptoms or conditions?</h2>
               </IonItem>
-              <IonItem lines='none'>
-                <IonTextarea
-                  fill='outline'
-                  value={reason}
-                  onIonChange={e => setReason(e.detail.value!)}
-                  rows={10}
-                  counter={true}
-                  maxlength={500}
-                  placeholder="Describe your reason for requesting medicine. Include any symptoms or conditions you have."
-                />
-              </IonItem>
-              <IonItem lines='none'>
+              {Object.keys(reasons).map((reasonKey) => (
+                <IonItem key={reasonKey}>
+                  <IonLabel>{reasonKey}</IonLabel>
+                  <IonCheckbox
+                    slot="end"
+                    checked={reasons[reasonKey as keyof typeof reasons]}
+                    onIonChange={e => {
+                      setReasons(prev => ({ ...prev, [reasonKey]: e.detail.checked }));
+                    }}
+                  />
+                </IonItem>
+              ))}
+              {reasons.Others && (
+                <IonItem className="ion-margin-top">
+                  <IonTextarea
+                    fill="outline"
+                    value={otherReason}
+                    onIonChange={e => setOtherReason(e.detail.value!)}
+                    placeholder="Please specify other reason"
+                    rows={3}
+                  />
+                </IonItem>
+              )}
+              <IonItem lines='none' className='ion-margin-top'>
                 <small>Please provide accurate information to help us assist you better.</small>
               </IonItem>
             </IonCard>
@@ -287,7 +341,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
               </IonItem>
 
               <IonItem>
-                <IonTextarea color={'primary'} fill='outline' value={reason || 'Not provided'} rows={10} readonly></IonTextarea>
+                <IonTextarea color={'primary'} fill='outline' value={getReasonString() || 'Not provided'} rows={10} readonly></IonTextarea>
               </IonItem>
               <IonItem>
                 <IonLabel>Has Prescription:</IonLabel>
