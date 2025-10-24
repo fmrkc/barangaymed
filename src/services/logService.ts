@@ -1,4 +1,5 @@
 import { auth } from '../firebaseConfig';
+import { logErrorToConsole } from '../utils/consoleErrorHandler';
 
 export interface LogEntry {
   action: string;
@@ -6,7 +7,7 @@ export interface LogEntry {
   userEmail: string;
   userName?: string;
   role?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export class LogService {
@@ -29,7 +30,7 @@ export class LogService {
     try {
       const user = auth.currentUser;
       if (!user) {
-        console.error('[LogService] User not authenticated. Cannot log activity.');
+        logErrorToConsole('[LogService] User not authenticated. Cannot log activity.', 'logActivity');
         return;
       }
 
@@ -54,7 +55,7 @@ export class LogService {
       }
 
     } catch (error) {
-      console.error('[LogService] Failed to log activity:', error);
+      logErrorToConsole(error, '[LogService] Failed to log activity');
       throw error;
     }
   }

@@ -1,8 +1,9 @@
 import { db } from '../firebaseConfig';
-import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc, writeBatch, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { Notification } from '../types/notifications';
 import { executeWithRetry, logFirestoreError } from '../utils/firestoreErrorHandler';
-import { logFirestoreEvent, logFirestoreListener } from '../utils/logger';
+import { logEvent, logFirestoreEvent, logFirestoreListener } from '../utils/logger';
+import { logErrorToConsole } from '../utils/consoleErrorHandler';
 
 export class NotificationsService {
   private static instance: NotificationsService;
@@ -38,11 +39,11 @@ export class NotificationsService {
       operation: 'getUserNotifications'
     });
 
-    const handleSnapshot = (querySnapshot: any) => {
+    const handleSnapshot = (querySnapshot: QuerySnapshot<DocumentData>) => {
       try {
         const notifications: Notification[] = [];
 
-        querySnapshot.forEach((doc: any) => {
+        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
           const data = doc.data();
           notifications.push({
             id: doc.id,
@@ -209,14 +210,14 @@ export class NotificationsService {
         success: true
       });
 
-      console.log(`Notification ${notificationId} marked as read for user ${userId}`);
+      logEvent('info', `Notification ${notificationId} marked as read for user ${userId}`);
     } catch (error) {
       logFirestoreError('markAsRead', error, {
         userId,
         notificationId,
         operation: 'markAsRead'
       });
-      console.error(`Error marking notification ${notificationId} as read:`, error);
+      logErrorToConsole(error, `Error marking notification ${notificationId} as read`);
       throw error;
     }
   }
@@ -256,13 +257,13 @@ export class NotificationsService {
         success: true
       });
 
-      console.log(`All unread notifications marked as read for user ${userId}`);
+      logEvent('info', `All unread notifications marked as read for user ${userId}`);
     } catch (error) {
       logFirestoreError('markAllAsRead', error, {
         userId,
         operation: 'markAllAsRead'
       });
-      console.error(`Error marking all notifications as read for user ${userId}:`, error);
+      logErrorToConsole(error, `Error marking all notifications as read for user ${userId}`);
       throw error;
     }
   }

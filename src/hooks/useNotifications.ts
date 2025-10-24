@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { NotificationsService } from '../services/notificationsService';
 import { Notification } from '../types/notifications';
 
-export const useNotifications = () => {
+export const useNotifications = (isActive: boolean) => {
   const { currentUser, userRole } = useAuth(); // Add userRole
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +11,7 @@ export const useNotifications = () => {
   const notificationsService = NotificationsService.getInstance();
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!isActive || !currentUser) {
       setLoading(false);
       return;
     }
@@ -31,7 +31,7 @@ export const useNotifications = () => {
     );
 
     return () => unsubscribe();
-  }, [currentUser, userRole]); // Add userRole to dependency array
+  }, [currentUser, userRole, isActive]); // Add userRole and isActive to dependency array
 
   const markAsRead = useCallback(async (notificationId: string) => {
     if (!currentUser) return;

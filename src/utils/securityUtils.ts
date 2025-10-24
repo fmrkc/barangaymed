@@ -2,8 +2,9 @@
  * Security utility functions for enhanced authentication and authorization
  */
 
-import { auth } from '../firebaseConfig';
-import { logSecurityEvent, logUnauthorizedAccess } from './logger';
+import { User as FirebaseUser } from 'firebase/auth';
+import { logEvent, logSecurityEvent, logUnauthorizedAccess } from './logger';
+import { logErrorToConsole } from './consoleErrorHandler';
 
 /**
  * Validates if a user has the required role
@@ -41,7 +42,7 @@ export const validateAdminBarangayAccess = (
   
   // Log detailed access check for debugging
   if (!hasAccess) {
-    console.debug('Access denied for admin barangay access check:', {
+    logEvent('debug', 'Access denied for admin barangay access check:', {
       userRole,
       barangayId,
       targetBarangayId,
@@ -66,11 +67,11 @@ export const validateSuperAdminAccess = (userRole: string | null): boolean => {
  * @param user The Firebase user object
  * @returns Promise that resolves when token is refreshed
  */
-export const forceTokenRefresh = async (user: any): Promise<void> => {
+export const forceTokenRefresh = async (user: FirebaseUser): Promise<void> => {
   try {
     await user.getIdToken(true); // Force refresh
   } catch (error) {
-    console.error('Error refreshing token:', error);
+    logErrorToConsole(error, 'Error refreshing token');
     throw error;
   }
 };

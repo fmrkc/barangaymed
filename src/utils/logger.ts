@@ -6,9 +6,9 @@
 export interface LogMetadata {
   userId?: string;
   userEmail?: string;
-  userRole?: string;
-  metadata?: Record<string, any>;
-  [key: string]: any;
+  userRole?: string | null;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export interface SecurityLogData extends LogMetadata {
@@ -226,6 +226,13 @@ export const logDataAccess = (
   });
 };
 
+const getMetadataObject = (metadata: unknown) => {
+  if (metadata && typeof metadata === 'object') {
+    return metadata;
+  }
+  return {};
+};
+
 /**
  * Logs Firestore-specific events
  * @param userId - User ID performing the operation
@@ -243,9 +250,9 @@ export const logFirestoreEvent = (
   operation: 'read' | 'write' | 'listen' | 'query',
   collection: string,
   documentId?: string,
-  metadata?: any
+  metadata?: unknown
 ): void => {
-  logEvent('info', `[FIRESTORE] ${operation.toUpperCase()} ${collection}${documentId ? `/${documentId}` : ''}`, {
+  logEvent('info', `[FIRESTORE] ${operation.toUpperCase()} ${collection}${documentId ? `/${documentId}` : ''}` , {
     userId,
     userEmail,
     userRole,
@@ -253,7 +260,7 @@ export const logFirestoreEvent = (
     collection,
     documentId,
     firestoreEvent: true,
-    ...metadata
+    ...getMetadataObject(metadata)
   });
 };
 
@@ -272,16 +279,16 @@ export const logFirestoreListener = (
   userRole: string | undefined,
   collection: string,
   eventType: 'started' | 'stopped' | 'error' | 'data_received',
-  metadata?: any
+  metadata?: unknown
 ): void => {
-  logEvent('info', `[FIRESTORE_LISTENER] ${eventType.toUpperCase()} listener for ${collection}`, {
+  logEvent('info', `[FIRESTORE_LISTENER] ${eventType.toUpperCase()} listener for ${collection}` , {
     userId,
     userEmail,
     userRole,
     collection,
     eventType,
     listenerEvent: true,
-    ...metadata
+    ...getMetadataObject(metadata)
   });
 };
 
@@ -294,12 +301,12 @@ export const logFirestoreListener = (
 export const logFirestorePerformance = (
   operation: string,
   duration: number,
-  metadata?: any
+  metadata?: unknown
 ): void => {
   logEvent('info', `[FIRESTORE_PERFORMANCE] ${operation} completed in ${duration}ms`, {
     operation,
     duration,
     performanceEvent: true,
-    ...metadata
+    ...getMetadataObject(metadata)
   });
 };

@@ -4,6 +4,8 @@ import { auth, db } from '../firebaseConfig';
 import { logLogin, logLogout } from '../utils/logger';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { executeWithRetry, logFirestoreError } from '../utils/firestoreErrorHandler';
+import { logErrorToConsole } from '../utils/consoleErrorHandler';
+import { UserData } from '../types/users';
 
 // Define the shape of our auth context
 interface AuthContextType {
@@ -77,14 +79,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const idTokenResult = await user.getIdTokenResult(true);
 
       if (userDoc.exists()) {
-        const data = userDoc.data();
-        const role = data?.role as string | undefined;
-        const barangayId = data?.barangayId as string | undefined;
-        const cityMunicipalityId = data?.cityMunicipalityId as string | undefined;
-        const verificationStatus = data?.verificationStatus as string | undefined;
-        const rejectionReason = data?.rejectionReason as string | undefined;
+        const data = userDoc.data() as UserData;
+        const role = data?.role;
+        const barangayId = data?.barangayId;
+        const cityMunicipalityId = data?.cityMunicipalityId;
+        const verificationStatus = data?.verificationStatus;
+        const rejectionReason = data?.rejectionReason;
 
-        const claimsVerificationStatus = idTokenResult.claims?.verificationStatus as string | undefined;
+        const claimsVerificationStatus = idTokenResult.claims.verificationStatus as string | undefined;
 
         // Set role with fallback logic
         if (role && ['user', 'admin', 'superadmin'].includes(role)) {
@@ -119,7 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 userId: user.uid,
                 operation: 'updateUserRole'
               });
-              console.warn("AuthContext: Failed to update Firestore with role:", updateError);
+              logErrorToConsole(updateError, "AuthContext: Failed to update Firestore with role");
             }
           } else {
             console.warn("AuthContext: No valid role found in Firestore or claims for UID:", user.uid);
@@ -178,7 +180,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               userId: user.uid,
               operation: 'createUserDoc'
             });
-            console.warn("AuthContext: Failed to create Firestore document:", createError);
+            logErrorToConsole(createError, "AuthContext: Failed to create Firestore document");
           }
         } else {
           console.warn("AuthContext: No valid role found in claims for UID:", user.uid);
@@ -194,7 +196,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userId: user.uid,
         operation: 'extractUserData'
       });
-      console.error("Error extracting user data:", error);
+      logErrorToConsole(error, "Error extracting user data");
       setUserRole(null);
       setBarangayId(null);
       setCityMunicipalityId(null);
@@ -215,7 +217,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           userId: currentUser.uid,
           operation: 'refreshUserClaims'
         });
-        console.error("Error refreshing user claims:", error);
+        logErrorToConsole(error, "Error refreshing user claims");
       }
     }
   }, [currentUser]);
@@ -227,7 +229,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const data = await response.json();
       return data.ip || "unknown";
     } catch (error) {
-      console.error("Failed to fetch IP address:", error);
+      logErrorToConsole(error, "Failed to fetch IP address");
       return "unknown";
     }
   };
@@ -244,7 +246,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userId: user.uid,
         operation: 'login'
       });
-      console.error("Error during login:", error);
+      logErrorToConsole(error, "Error during login");
     }
   };
 
@@ -267,7 +269,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userId: currentUser?.uid,
         operation: 'logout'
       });
-      console.error("Logout error:", error);
+      logErrorToConsole(error, "Logout error");
     }
   };
 
@@ -291,7 +293,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         logFirestoreError('onAuthStateChanged', error, {
           operation: 'onAuthStateChanged'
         });
-        console.error("Error in auth state change:", error);
+        logErrorToConsole(error, "Error in auth state change");
       } finally {
         setLoading(false);
       }
