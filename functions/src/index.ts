@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { defineSecret } from 'firebase-functions/params';
 import { provisionUserV2 } from "./v2/registration.js";
+import { PubSub } from '@google-cloud/pubsub';
 
 // Explicitly set the Auth emulator host if running in the emulator
 if (process.env.FUNCTIONS_EMULATOR) {
@@ -269,14 +270,13 @@ app.post('/submitFullRegistrationV2', async (req, res) => {
         html: htmlContent,
       }, GMAIL_EMAIL.value(), GMAIL_APP_PASSWORD.value());
 
-      await admin.firestore().collection("notifications").add({
-        userId: userId,
-        title: "Full Registration Request Received",
-        message: "Your full registration request has been received and is pending review.",
-        type: "full_registration_status",
-        read: false,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        details: registrationDetails,
+      // Publish event for in-app notification
+      const pubSubClient = new PubSub();
+      const topicName = 'barangaymed-events';
+      const dataBuffer = Buffer.from(JSON.stringify({ userId }));
+      await pubSubClient.topic(topicName).publishMessage({
+        data: dataBuffer,
+        attributes: { eventType: 'user.registration.submitted' }
       });
 
       res.json({ success: true, message: "Full registration confirmation sent." });
@@ -337,8 +337,6 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
     }
 
     let emailMessage: string;
-    let notificationMessage: string;
-    let notificationType: string;
 
     if (action === 'verified') {
       // 1. Update registration sub-collection status
@@ -353,8 +351,6 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
       await admin.auth().setCustomUserClaims(userId, { role: 'user', verificationStatus: 'verified', barangayId: userData.barangayId });
       await admin.auth().revokeRefreshTokens(userId);
 
-      notificationMessage = 'Congratulations! Your registration has been verified. You can now access all features.';
-      notificationType = 'registration_verified';
       emailMessage = 'Your registration has been approved!';
 
     } else if (action === 'rejected') {
@@ -369,22 +365,20 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
       // 2. Update main user document
       await userRef.update({ verificationStatus: 'rejected', rejectionReason: reason });
 
-      notificationMessage = `Your registration has been rejected. Reason: ${reason}`;
-      notificationType = 'registration_rejected';
       emailMessage = `Your registration has been rejected for the following reason: ${reason}`;
 
     } else {
       throw new HttpsError('invalid-argument', 'Action must be either "verified" or "rejected".');
     }
 
-    // 3. Add a notification for the user
-    await db.collection('notifications').add({
-      userId: userId,
-      title: `Registration ${action.charAt(0).toUpperCase() + action.slice(1)}`,
-      message: notificationMessage,
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      read: false,
-      type: notificationType,
+    // 3. Publish event for in-app notification
+    const pubSubClient = new PubSub();
+    const topicName = 'barangaymed-events';
+    const eventType = action === 'verified' ? 'user.registration.approved' : 'user.registration.rejected';
+    const dataBuffer = Buffer.from(JSON.stringify({ userId, reason: reason || null }));
+    await pubSubClient.topic(topicName).publishMessage({
+      data: dataBuffer,
+      attributes: { eventType }
     });
 
     // 4. Send email notification
@@ -404,10 +398,11 @@ export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL
     }
     throw new HttpsError('internal', 'An unexpected error occurred while reviewing the user.');
   }
-});// Export the Express app as a Firebase Function
+});
+
+// Export the Express app as a Firebase Function
 export const api = onRequest({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, app);
 
 export { onUserDocUpdate } from './user-claims-triggers.js';
 export * from "./user-verification.js";
 export * from "./notifications.js";
-

@@ -1,5 +1,5 @@
 import { db } from '../firebaseConfig';
-import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, Timestamp, getDocs, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Notification } from '../types/notifications';
 import { executeWithRetry, logFirestoreError } from '../utils/firestoreErrorHandler';
 import { logFirestoreEvent, logFirestoreListener } from '../utils/logger';
@@ -22,7 +22,7 @@ export class NotificationsService {
    * @param callback Callback function to handle notifications
    * @returns Unsubscribe function
    */
-  public getUserNotifications(userId: string, callback: (notifications: Notification[]) => void): () => void {
+  public getUserNotifications(userId: string, userEmail: string | undefined, userRole: string | undefined, callback: (notifications: Notification[]) => void): () => void {
     // Clean up existing listener
     this.cleanup();
 
@@ -34,7 +34,7 @@ export class NotificationsService {
     );
 
     // Log the listener start
-    logFirestoreListener(userId, undefined, undefined, 'notifications', 'started', {
+    logFirestoreListener(userId, userEmail, userRole, 'notifications', 'started', {
       operation: 'getUserNotifications'
     });
 
@@ -60,7 +60,7 @@ export class NotificationsService {
         callback(notifications);
 
         // Log successful data retrieval
-        logFirestoreEvent(userId, undefined, undefined, 'listen', 'notifications', undefined, {
+        logFirestoreEvent(userId, userEmail, userRole, 'listen', 'notifications', undefined, {
           notificationCount: notifications.length,
           operation: 'getUserNotifications'
         });
@@ -83,16 +83,16 @@ export class NotificationsService {
     this.unsubscribe = onSnapshot(q, handleSnapshot, handleError);
 
     return () => {
-      this.cleanup();
+      this.cleanup(userEmail, userRole);
     };
   }
 
   /**
    * Clean up the current listener
    */
-  private cleanup(): void {
+  private cleanup(userEmail?: string, userRole?: string): void {
     if (this.unsubscribe && this.userId) {
-      logFirestoreListener(this.userId, undefined, undefined, 'notifications', 'stopped', {
+      logFirestoreListener(this.userId, userEmail, userRole, 'notifications', 'stopped', {
         operation: 'cleanup'
       });
       this.unsubscribe();
@@ -217,6 +217,52 @@ export class NotificationsService {
         operation: 'markAsRead'
       });
       console.error(`Error marking notification ${notificationId} as read:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark all unread notifications as read for a user.
+   * @param userId The user's ID
+   */
+  public async markAllAsRead(userId: string): Promise<void> {
+    const operation = async () => {
+      const notificationsRef = collection(db, 'users', userId, 'notifications');
+      const q = query(notificationsRef, where('read', '==', false));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return;
+      }
+
+      const batch = writeBatch(db);
+      querySnapshot.forEach((doc) => {
+        batch.update(doc.ref, { read: true });
+      });
+
+      await batch.commit();
+    };
+
+    try {
+      await executeWithRetry(
+        operation,
+        `markAllAsRead-${userId}`,
+        { maxRetries: 3 },
+        { userId, operation: 'markAllAsRead' }
+      );
+
+      logFirestoreEvent(userId, undefined, undefined, 'write', 'notifications', undefined, {
+        operation: 'markAllAsRead',
+        success: true
+      });
+
+      console.log(`All unread notifications marked as read for user ${userId}`);
+    } catch (error) {
+      logFirestoreError('markAllAsRead', error, {
+        userId,
+        operation: 'markAllAsRead'
+      });
+      console.error(`Error marking all notifications as read for user ${userId}:`, error);
       throw error;
     }
   }

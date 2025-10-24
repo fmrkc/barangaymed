@@ -12,77 +12,25 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonLoading,
-  IonToast,
   IonButton,
+  IonButtons,
 } from '@ionic/react';
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { NotificationsService } from '../../services/notificationsService';
-import { Notification } from '../../types/notifications';
-import { checkmarkCircle, alertCircle, mailOutline } from 'ionicons/icons';
-import { format } from 'date-fns';
+import React from 'react';
+import { useNotifications } from '../../hooks/useNotifications';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline } from 'ionicons/icons';
+import { formatDistanceToNow } from 'date-fns';
 
 const Notifications: React.FC = () => {
-  const { currentUser } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { notifications, loading, markAsRead, markAllAsRead } = useNotifications();
 
-  const notificationsService = NotificationsService.getInstance();
+  const unreadCount = notifications.filter(n => !n.read).length;
 
-  useEffect(() => {
-    if (currentUser) {
-      loadNotifications();
-      const unsubscribe = setupRealtimeListener();
-      return () => unsubscribe && unsubscribe();
-    }
-  }, [currentUser]);
-
-  const loadNotifications = async () => {
-    if (!currentUser) return;
-
-    setLoading(true);
-    try {
-      const userNotifications = await notificationsService.getUserNotificationsOnce(currentUser.uid);
-      setNotifications(userNotifications);
-      setUnreadCount(userNotifications.filter(n => !n.read).length);
-    } catch (error) {
-      console.error('Error loading notifications:', error);
-      setToastMessage('Error loading notifications');
-      setShowToast(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setupRealtimeListener = () => {
-    if (!currentUser) return;
-    return notificationsService.getUserNotifications(
-      currentUser.uid,
-      (newNotifications) => {
-        setNotifications(newNotifications);
-        setUnreadCount(newNotifications.filter(n => !n.read).length);
-      }
-    );
-  };
-
-  const handleRefresh = async (event: CustomEvent) => {
-    if (!currentUser) {
+  const handleRefresh = (event: CustomEvent) => {
+    // The hook handles refreshing, but we can provide a way for the user to manually trigger.
+    // In this case, the listener is already active. We just need to complete the animation.
+    setTimeout(() => {
       event.detail.complete();
-      return;
-    }
-
-    try {
-      const userNotifications = await notificationsService.getUserNotificationsOnce(currentUser.uid);
-      setNotifications(userNotifications);
-      setUnreadCount(userNotifications.filter(n => !n.read).length);
-    } catch (error) {
-      console.error('Error refreshing notifications:', error);
-    } finally {
-      event.detail.complete();
-    }
+    }, 500);
   };
 
   const getNotificationIcon = (type: string) => {
@@ -91,7 +39,7 @@ const Notifications: React.FC = () => {
       case 'registration_approved':
         return checkmarkCircle;
       case 'admin_note':
-      case 'new_announcement': // Handle new announcement type
+      case 'new_announcement':
         return mailOutline;
       case 'welcome':
       case 'registration':
@@ -108,7 +56,7 @@ const Notifications: React.FC = () => {
       case 'registration_approved':
         return 'success';
       case 'admin_note':
-      case 'new_announcement': // Handle new announcement type
+      case 'new_announcement':
         return 'primary';
       case 'welcome':
       case 'registration':
@@ -120,34 +68,27 @@ const Notifications: React.FC = () => {
     }
   };
 
-  const formatDateTime = (date: Date) => {
-    return format(date, 'MMM dd, yyyy • h:mm a');
-  };
-
-  const markAsRead = async (notificationId: string, userId: string) => {
-    try {
-      await notificationsService.markAsRead(notificationId, currentUser!.uid);
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === notificationId ? { ...n, read: true } : n
-        )
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
+  const formatTimestamp = (date: Date) => {
+    return formatDistanceToNow(date, { addSuffix: true });
   };
 
   return (
     <>
-      <IonHeader className='ion-no-border'>
+      <IonHeader className="ion-no-border">
         <IonToolbar>
           <IonTitle>Notifications</IonTitle>
-          {unreadCount > 0 && (
-            <IonBadge slot="end" color="danger">
-              {unreadCount}
-            </IonBadge>
-          )}
+          <IonButtons slot="end">
+            {unreadCount > 0 && (
+              <IonButton onClick={() => markAllAsRead()} fill="clear">
+                <IonIcon slot="icon-only" icon={mailOpenOutline} />
+              </IonButton>
+            )}
+            {unreadCount > 0 && (
+              <IonBadge color="danger" style={{ marginRight: '10px' }}>
+                {unreadCount}
+              </IonBadge>
+            )}
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 
@@ -158,23 +99,11 @@ const Notifications: React.FC = () => {
 
         <IonLoading isOpen={loading} message="Loading notifications..." />
 
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={toastMessage}
-          duration={3000}
-          position="top"
-        />
-
         {notifications.length === 0 && !loading && (
           <div className="ion-padding ion-text-center">
-            
             <IonIcon icon={mailOutline} size="large" color="medium" />
             <h2>No Notifications</h2>
             <p>You don't have any notifications yet.</p>
-            <IonButton onClick={loadNotifications} fill="clear">
-              Refresh
-            </IonButton>
           </div>
         )}
 
@@ -184,7 +113,7 @@ const Notifications: React.FC = () => {
               key={notification.id}
               button
               detail={false}
-              onClick={() => markAsRead(notification.id, currentUser!.uid)}
+              onClick={() => !notification.read && markAsRead(notification.id)}
               className={!notification.read ? 'unread-notification' : ''}
             >
               <IonIcon
@@ -198,7 +127,7 @@ const Notifications: React.FC = () => {
                 <h3>{notification.title}</h3>
                 <p>{notification.message}</p>
                 <IonText color="medium">
-                  <small>{notificationsService.formatNotificationTime(notification.timestamp)}</small>
+                  <small>{formatTimestamp(notification.timestamp)}</small>
                 </IonText>
 
                 {!notification.read && (
@@ -225,7 +154,7 @@ const Notifications: React.FC = () => {
       <style>
         {`
           .unread-notification {
-            background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+            background-color: rgba(var(--ion-color-primary-rgb), 0.08);
             border-left: 4px solid var(--ion-color-primary);
           }
         `}

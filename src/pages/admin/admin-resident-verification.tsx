@@ -13,6 +13,7 @@ interface UserForVerification {
   firstName: string;
   lastName: string;
   barangayId: string;
+  barangayName?: string; // Add this
   verificationStatus: string;
   lotBlkHouseNo?: string;
   streetName?: string;
@@ -52,6 +53,8 @@ function getTimeAgo(timestamp: string | { toDate: () => Date; } | Date | null | 
   }
 }
 
+import { dispatchEvent } from '../../services/eventService';
+
 const AdminUserVerification: React.FC = () => {
   const { barangayId: adminBarangayId } = useAuth();
   const [pendingUsers, setPendingUsers] = useState<UserForVerification[]>([]);
@@ -59,10 +62,11 @@ const AdminUserVerification: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserForVerification | null>(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [showAcceptAlert, setShowAcceptAlert] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState('success');
-  const [barangayName, setBarangayName] = useState('');
+
   const [isReviewing, setIsReviewing] = useState(false);
 
   const fetchPendingUsers = useCallback(async () => {
@@ -92,6 +96,7 @@ const AdminUserVerification: React.FC = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           barangayId: data.barangayId,
+          barangayName: data.barangayName, // Add this
           verificationStatus: data.verificationStatus,
           lotBlkHouseNo: data.lotBlkHouseNo || '',
           streetName: data.streetName || '',
@@ -120,18 +125,7 @@ const AdminUserVerification: React.FC = () => {
     fetchPendingUsers();
   }, [adminBarangayId, fetchPendingUsers]);
 
-  useEffect(() => {
-    if (selectedUser?.barangayId) {
-      setBarangayName('Loading...');
-      getBarangayNameByCode(selectedUser.barangayId).then(name => {
-        if (name) {
-          setBarangayName(name);
-        } else {
-          setBarangayName('Not found');
-        }
-      });
-    }
-  }, [selectedUser]);
+
 
 const functions = getFunctions();
 const setCustomClaimsOnVerification = httpsCallable(functions, 'setCustomClaimsOnVerification');
@@ -153,9 +147,13 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
       verifiedBy: action === 'verified' ? auth.currentUser?.uid : deleteField(),
     });
 
-    setToastMessage(`User has been ${action}.`);
-    setToastColor('success');
-    setShowToast(true);
+    // Dispatch event instead of showing toast
+    const eventType = action === 'verified' ? 'user.registration.approved' : 'user.registration.rejected';
+    await dispatchEvent(eventType, { 
+      userId: user.uid, 
+      reason: reason 
+    });
+
     fetchPendingUsers(); // Refresh list
     setShowModal(false); // Close modal
     setShowAlert(false); // Close alert
@@ -176,7 +174,7 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
 
   return (
     <IonPage>
-      <IonHeader>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
@@ -223,9 +221,9 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                   </IonCardSubtitle>
                     
                 </IonCardHeader>
-                <IonButton expand="block" fill="outline" onClick={() => openModal(user)}>
+                <IonButton className='ion-padding-vertical' expand="block" fill="outline" onClick={() => openModal(user)}>
                       <IonIcon slot="end" icon={open} />
-                      Process Request
+                      Review Request
                     </IonButton>
               </IonCard>
             ))}
@@ -263,7 +261,7 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                 </IonItem>
                 <IonItem>
                   <IonIcon slot="start" icon={home} />
-                  {barangayName}
+                  {selectedUser.barangayName}
                 </IonItem>
                 <IonItemDivider className="ion-margin-top">Address Details</IonItemDivider>
                 <IonItem>
@@ -306,7 +304,7 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                 </IonCol>
 
                 <IonCol size="6">
-                    <IonButton expand='block' color="success" shape='round' onClick={() => selectedUser && handleReview(selectedUser, 'verified')}>
+                    <IonButton expand='block' color="success" shape='round' onClick={() => setShowAcceptAlert(true)}>
                 <IonText className='ion-padding-vertical'>Approve User</IonText>
                 <IonIcon slot="end" icon={checkmarkCircleOutline} />
               </IonButton>
@@ -342,6 +340,28 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
                 if (selectedUser) {
                   handleReview(selectedUser, 'rejected', reason);
                 }
+              }
+            }
+          ]}
+        />
+        <IonAlert
+          isOpen={showAcceptAlert}
+          onDidDismiss={() => setShowAcceptAlert(false)}
+          header="Approve User"
+          message="Are you sure you want to approve this user?"
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => setShowAcceptAlert(false)
+            },
+            {
+              text: 'Approve',
+              handler: () => {
+                if (selectedUser) {
+                  handleReview(selectedUser, 'verified');
+                }
+                setShowAcceptAlert(false);
               }
             }
           ]}

@@ -96,7 +96,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     };
 
     validateAccessWithSecurity();
-  }, [currentUser, loading, requiredRole, requiredBarangayId, refreshUserClaims, additionalValidation, enableTokenRefresh, location.pathname, userRole, barangayId]);
+  }, [currentUser, loading, requiredRole, requiredBarangayId, refreshUserClaims, additionalValidation, enableTokenRefresh, location.pathname]);
 
   // Show loading state while validating
   if (loading || isValidating) {

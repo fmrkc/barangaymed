@@ -68,6 +68,7 @@ const Med_Inventory: React.FC = () => {
     }
 
 
+    
 
     setIsLoading(true);
 
