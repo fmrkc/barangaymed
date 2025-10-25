@@ -40,13 +40,14 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonCardSubtitle,
-  IonSearchbar
+  IonSearchbar,
+  IonText
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { announcementsService } from '../../services/announcementsService';
 import { Announcement, AnnouncementFormData, AnnouncementImage } from '../../types/announcements';
-import { add, create, trash, pencil, eye, eyeOff, close, image, calendar, person, closeCircle, closeCircleSharp } from 'ionicons/icons';
+import { add, create, trash, pencil, eye, eyeOff, close, image, calendar, person, closeCircle, closeCircleSharp, addCircle } from 'ionicons/icons';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { validateAccess, validateAdminBarangayAccess } from '../../utils/securityUtils';
@@ -71,8 +72,6 @@ const BarangayAnnouncements: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
-  const [showUnprivateAlert, setShowUnprivateAlert] = useState(false);
-  const [announcementToUnprivate, setAnnouncementToUnprivate] = useState<Announcement | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
@@ -81,6 +80,7 @@ const BarangayAnnouncements: React.FC = () => {
   const [existingImages, setExistingImages] = useState<AnnouncementImage[]>([]);
   const [selectedSegment, setSelectedSegment] = useState('details');
   const [selectedEditSegment, setSelectedEditSegment] = useState('details');
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     if (currentUser) {
@@ -254,7 +254,7 @@ const BarangayAnnouncements: React.FC = () => {
         const formDataWithImages = {
           ...formData,
           images: selectedImages,
-          isActive: false // New announcements are private by default
+          isActive: true // New announcements are public by default
         };
         const announcementId = await announcementsService.createAnnouncement(
           formDataWithImages,
@@ -293,19 +293,19 @@ const BarangayAnnouncements: React.FC = () => {
 
     setLoading(true);
     try {
-      // Archive the announcement (soft delete)
+      // Delete the announcement
       await announcementsService.deleteAnnouncement(
         announcementToDelete,
         currentUser.uid,
         currentUser.email || ''
       );
-      setToastMessage('Announcement archived successfully');
+      setToastMessage('Announcement deleted successfully');
       
       await loadAnnouncements();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      setToastMessage(`Error archiving announcement: ${errorMessage}`);
-      console.error('Error archiving announcement:', error);
+      setToastMessage(`Error deleting announcement: ${errorMessage}`);
+      console.error('Error deleting announcement:', error);
     } finally {
       setLoading(false);
       setShowToast(true);
@@ -489,104 +489,137 @@ const BarangayAnnouncements: React.FC = () => {
           </IonButtons>
           <IonTitle>Barangay Announcements</IonTitle>
         </IonToolbar>
+        <IonToolbar>
+          <IonSearchbar
+          value={searchText}
+          onIonInput={(e) => setSearchText(e.detail.value || '')}
+          debounce={300}
+          placeholder="Search by title or content"
+        />
+        </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
 
-        <IonLoading isOpen={loading} message="Please wait..." />
-
-        <div className="ion-margin-bottom">
-          <IonNote>Showing all announcements for Barangay {barangayName || barangayId}.</IonNote>
-        </div>
+        <IonLoading isOpen={loading} message="Please wait..." />        
 
         
-          {announcements.map((announcement) => (
-            <IonCard
-              key={announcement.id}
-              style={{
-                cursor: 'pointer'
-              }}
-              onClick={() => handleViewDetails(announcement)}
-            >
-              <IonCardHeader>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <IonCardTitle>{announcement.title.length > 30
-                    ? `${announcement.title.substring(0, 25)}...`
-                    : announcement.title
-                  }</IonCardTitle>
-                  {announcement.isActive ? (
+          {(() => {
+            const filteredAnnouncements = announcements.filter(announcement => {
+                if (!searchText) return true;
+                const searchTextLower = searchText.toLowerCase();
+                return (
+                    announcement.title.toLowerCase().includes(searchTextLower) ||
+                    announcement.content.toLowerCase().includes(searchTextLower)
+                );
+            });
+
+            if (announcements.length === 0 && !loading) {
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+                        <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
+                            <IonCardHeader>
+                                <IonCardTitle>
+                                    <IonText color={'primary'}>
+                                        <strong>No Announcements Found</strong>
+                                    </IonText>
+                                </IonCardTitle>
+                            </IonCardHeader>
+                            <IonCardContent>
+                                <p>There are currently no announcements for this barangay.</p>
+                                <p>To create an announcement, click the <IonIcon icon={addCircle} color='primary' /> button below.</p>
+                            </IonCardContent>
+                        </IonCard>
+                    </div>
+                );
+            }
+
+            if (filteredAnnouncements.length === 0 && searchText) {
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+                        <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
+                            <IonCardHeader>
+                                <IonCardTitle>
+                                    <IonText color={'primary'}>
+                                        <strong>No Matching Announcements</strong>
+                                    </IonText>
+                                </IonCardTitle>
+                            </IonCardHeader>
+                            <IonCardContent>
+                                <p>No announcements found for "{searchText}".</p>
+                            </IonCardContent>
+                        </IonCard>
+                    </div>
+                );
+            }
+
+          return filteredAnnouncements.map((announcement) => (
+            <>
+              <div className="ion-margin-bottom">
+                <IonNote>Showing all announcements for Barangay {barangayName || barangayId}.</IonNote>
+              </div>
+              <IonCard
+                key={announcement.id}
+                style={{
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleViewDetails(announcement)}
+              >
+                <IonCardHeader>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <IonCardTitle>{announcement.title}</IonCardTitle>
+                  </div>
+                  <IonCardSubtitle> <IonIcon icon={person}  /> {announcement.createdByName || announcement.createdByEmail} • {formatDate(announcement.createdAt)}</IonCardSubtitle>
+                </IonCardHeader>
+                <IonCardContent>
+
+
+                  <p style={{ whiteSpace: 'pre-wrap', marginBottom: '15px' }}>
+                    {announcement.content.length > 150
+                      ? `${announcement.content.substring(0, 100)}...`
+                      : announcement.content
+                    }
+                  </p>
+
+                  {announcement.images && announcement.images.length > 0 && (
+                    <div>
+                      <IonLabel><IonIcon icon={image} slot="start" /> {announcement.images.length} image{announcement.images.length > 1 ? 's' : ''} attached.</IonLabel>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                     <IonButton
-                      slot='end'
                       fill="outline"
                       size="small"
-                      color="success"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(announcement);
+                      }}
+                    >
+                      <IonIcon icon={pencil} slot="start" />
+                      Edit
+                    </IonButton>
+                    <IonButton
+                      fill="outline"
+                      size="small"
+                      color="danger"
                       onClick={(e) => {
                         e.stopPropagation();
                         setAnnouncementToDelete(announcement.id!);
                         setShowDeleteAlert(true);
                       }}
                     >
-                      <IonIcon icon={eye} slot="start" />
-                      Public
+                      <IonIcon icon={trash} slot="start" />
+                      Delete
                     </IonButton>
-                  ) : (
-                    <IonButton
-                      fill="outline"
-                      size="small"
-                      color="medium"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!currentUser) return;
-                        if (!validateAdminBarangayAccess(userRole, barangayId, barangayId)) {
-                          setToastMessage('Access denied: You do not have permission to perform this action.');
-                          setShowToast(true);
-                          return;
-                        }
-                        setAnnouncementToUnprivate(announcement);
-                        setShowUnprivateAlert(true);
-                      }}
-                    >
-                      <IonIcon icon={eyeOff} slot="start" />
-                      Privated
-                    </IonButton>
-                  )}
-                </div>
-                <IonCardSubtitle> Made by: {announcement.createdByName || announcement.createdByEmail} • {formatDate(announcement.createdAt)}</IonCardSubtitle>
-              </IonCardHeader>
-              <IonCardContent>
-                
-
-                <p style={{ whiteSpace: 'pre-wrap', marginBottom: '15px' }}>
-                  {announcement.content.length > 150
-                    ? `${announcement.content.substring(0, 100)}...`
-                    : announcement.content
-                  }
-                </p>
-
-                {announcement.images && announcement.images.length > 0 && (
-                  <div>
-                    <IonLabel><IonIcon icon={image} slot="start" /> {announcement.images.length} image{announcement.images.length > 1 ? 's' : ''} attached.</IonLabel>
                   </div>
-                )}
-
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                  <IonButton
-                    fill="outline"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(announcement);
-                    }}
-                  >
-                    <IonIcon icon={pencil} slot="start" />
-                    Edit
-                  </IonButton>
-                </div>
-              </IonCardContent>
-            </IonCard>  
-          ))}
+                </IonCardContent>
+              </IonCard>
+            </>
+          ));
+        })()}
           
       
 
@@ -911,15 +944,15 @@ const BarangayAnnouncements: React.FC = () => {
         <IonAlert
           isOpen={showDeleteAlert}
           onDidDismiss={() => setShowDeleteAlert(false)}
-          header="Archive Announcement"
-          message="Are you sure you want to archive this announcement? Archived announcements can be reactivated later if needed."
+          header="Delete Announcement"
+          message="Are you sure you want to delete this announcement? This action cannot be undone."
           buttons={[
             {
               text: 'Cancel',
               role: 'cancel'
             },
             {
-              text: 'Archive',
+              text: 'Delete',
               role: 'confirm',
               handler: handleDelete
             }
@@ -931,44 +964,6 @@ const BarangayAnnouncements: React.FC = () => {
           onDidDismiss={() => setShowToast(false)}
           message={toastMessage}
           duration={3000}
-        />
-
-        <IonAlert
-          isOpen={showUnprivateAlert}
-          onDidDismiss={() => setShowUnprivateAlert(false)}
-          header="Unprivate Announcement"
-          message="Are you sure you want to unprivate this announcement? This action will make the announcement public."
-          buttons={[
-            {
-              text: 'Cancel',
-              role: 'cancel'
-            },
-            {
-              text: 'Unprivate',
-              role: 'confirm',
-              handler: async () => {
-                if (!announcementToUnprivate || !currentUser) return;
-
-                setLoading(true);
-                try {
-                  await announcementsService.reactivateAnnouncement(
-                    announcementToUnprivate.id!,
-                    currentUser.uid,
-                    currentUser.email || ''
-                  );
-                  setToastMessage('Announcement has been made public.');
-                  loadAnnouncements();
-                } catch (error) {
-                  setToastMessage('Error unprivating announcement');
-                  console.error('Error unprivating announcement:', error);
-                } finally {
-                  setLoading(false);
-                  setShowToast(true);
-                  setAnnouncementToUnprivate(null);
-                }
-              }
-            }
-          ]}
         />
       </IonContent>
     </IonPage>
