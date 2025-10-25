@@ -127,7 +127,7 @@ service cloud.firestore {
     match /announcements/{announcementId} {
       // READ: Users can read announcements from their barangayId. Admins can read announcements from their barangay. Super admins can read all announcements.
       allow read: if (isVerifiedResident() && resource.data.barangayId == request.auth.token.barangayId) ||
-                     (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
+                     (isAdmin() && (resource.data.barangayId == request.auth.token.barangayId || resource.data.barangayId == 'ARHU')) ||
                      isSuperAdmin();
 
       // CREATE: Admins can create announcements for their barangay. Super admins can create announcements for any barangay.

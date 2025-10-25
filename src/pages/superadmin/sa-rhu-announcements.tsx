@@ -27,16 +27,33 @@ import {
   IonFabButton,
   IonLoading,
   IonAlert,
-  IonNote
+  IonDatetime,
+  IonNote,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonThumbnail,
+  IonItemDivider,
+  IonFooter,
+  IonSegment,
+  IonSegmentButton,
+  IonRefresher,
+  IonRefresherContent,
+  IonCardSubtitle,
+  IonSearchbar,
+  IonText
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { announcementsService } from '../../services/announcementsService';
-import { Announcement, AnnouncementFormData } from '../../types/announcements';
-import { add, trash, pencil, eye, eyeOff } from 'ionicons/icons';
+import { Announcement, AnnouncementFormData, AnnouncementImage } from '../../types/announcements';
+import { add, create, trash, pencil, eye, eyeOff, close, image, calendar, person, closeCircle, closeCircleSharp, addCircle } from 'ionicons/icons';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import { logSecurityEvent, logEvent } from '../../utils/logger';
 
 const SARHUAnnouncements: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userRole } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
@@ -45,39 +62,109 @@ const SARHUAnnouncements: React.FC = () => {
     content: '',
     priority: 'medium'
   });
+  const barangayId = 'ARHU';
+  const barangayName = 'RHU';
+  const [adminName, setAdminName] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<AnnouncementImage[]>([]);
+  const [selectedSegment, setSelectedSegment] = useState('details');
+  const [selectedEditSegment, setSelectedEditSegment] = useState('details');
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    loadAnnouncements();
-  }, []);
+    if (currentUser) {
+      const fetchAdminName = async () => {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            setAdminName(data.name || currentUser.email || '');
+        }
+      }
+      fetchAdminName();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (userRole) {
+      if (userRole !== 'superadmin') {
+        setAccessDenied(true);
+        setToastMessage('Access denied: You do not have permission to view this page.');
+        setShowToast(true);
+        return;
+      }
+      loadAnnouncements();
+    }
+  }, [userRole]);
 
   const loadAnnouncements = async () => {
     setLoading(true);
     try {
-      const data = await announcementsService.getAnnouncementsByBarangay('ARHU');
+      const data = await announcementsService.getAllAnnouncementsForBarangay(barangayId);
       setAnnouncements(data);
+      
+      if (currentUser) {
+        logEvent('info', `Loaded announcements for ${barangayName}`, {
+          userId: currentUser.uid,
+          userEmail: currentUser.email || '',
+          userRole: userRole || '',
+          metadata: {
+            action: 'load_rhu_announcements',
+            barangayId: barangayId,
+            count: data.length,
+          }
+        });
+      }
     } catch (error) {
-      console.error('Error loading RHU announcements:', error);
-      setToastMessage('Error loading RHU announcements');
+      console.error('Error loading announcements:', error);
+      setToastMessage('Error loading announcements');
       setShowToast(true);
+      
+      if (currentUser) {
+        logEvent('error', 'Failed to load RHU announcements', {
+          userId: currentUser.uid,
+          userEmail: currentUser.email || '',
+          userRole: userRole || '',
+          metadata: {
+            action: 'load_rhu_announcements_failed',
+            barangayId: barangayId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          }
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFormChange = (e: CustomEvent) => {
+    const name = (e.target as HTMLElement).getAttribute('name');
+    const value = e.detail.value;
+    if (name) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.title.trim() || !formData.content.trim()) {
-      setToastMessage('Please fill in all required fields');
+      setToastMessage('Please fill in all required fields (title and content)');
       setShowToast(true);
       return;
     }
 
-    if (!currentUser) {
-      setToastMessage('User information not available');
+    if (!currentUser || userRole !== 'superadmin') {
+      setToastMessage('Access denied: You do not have permission to perform this action.');
       setShowToast(true);
       return;
     }
@@ -85,31 +172,42 @@ const SARHUAnnouncements: React.FC = () => {
     setLoading(true);
     try {
       if (editingAnnouncement) {
+        const updatedData = {
+          ...formData,
+          existingImages: existingImages,
+          newImages: selectedImages
+        };
         await announcementsService.updateAnnouncement(
           editingAnnouncement.id!,
-          formData,
+          updatedData,
           currentUser.uid,
           currentUser.email || '',
-          currentUser.displayName || ''
+          adminName
         );
-        setToastMessage('RHU announcement updated successfully');
+        setToastMessage('Announcement updated successfully');
       } else {
+        const formDataWithImages = {
+          ...formData,
+          images: selectedImages,
+          isActive: true // New announcements are public by default
+        };
         await announcementsService.createAnnouncement(
-          formData,
-          'ARHU',
+          formDataWithImages,
+          barangayId,
           currentUser.uid,
           currentUser.email || '',
-          currentUser.displayName || ''
+          adminName
         );
-        setToastMessage('RHU announcement created successfully');
+        setToastMessage('Announcement created successfully.');
       }
       
       setShowModal(false);
       resetForm();
-      loadAnnouncements();
+      await loadAnnouncements();
     } catch (error) {
-      setToastMessage('Error saving RHU announcement');
-      console.error('Error saving RHU announcement:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setToastMessage(`Error saving announcement: ${errorMessage}`);
+      console.error('Error saving announcement:', error);
     } finally {
       setLoading(false);
       setShowToast(true);
@@ -117,7 +215,11 @@ const SARHUAnnouncements: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (!announcementToDelete || !currentUser) return;
+    if (!announcementToDelete || !currentUser || userRole !== 'superadmin') {
+        setToastMessage('Access denied: You do not have permission to perform this action.');
+        setShowToast(true);
+        return;
+    }
 
     setLoading(true);
     try {
@@ -126,11 +228,13 @@ const SARHUAnnouncements: React.FC = () => {
         currentUser.uid,
         currentUser.email || ''
       );
-      setToastMessage('RHU announcement deleted successfully');
-      loadAnnouncements();
+      setToastMessage('Announcement deleted successfully');
+      
+      await loadAnnouncements();
     } catch (error) {
-      setToastMessage('Error deleting RHU announcement');
-      console.error('Error deleting RHU announcement:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setToastMessage(`Error deleting announcement: ${errorMessage}`);
+      console.error('Error deleting announcement:', error);
     } finally {
       setLoading(false);
       setShowToast(true);
@@ -140,12 +244,25 @@ const SARHUAnnouncements: React.FC = () => {
   };
 
   const handleEdit = (announcement: Announcement) => {
+    if (userRole !== 'superadmin') {
+        setToastMessage('Access denied: You do not have permission to perform this action.');
+        setShowToast(true);
+        return;
+    }
+    
     setEditingAnnouncement(announcement);
     setFormData({
       title: announcement.title,
       content: announcement.content,
       priority: announcement.priority
     });
+
+    if (announcement.images) {
+      setExistingImages(announcement.images);
+    } else {
+      setExistingImages([]);
+    }
+
     setShowModal(true);
   };
 
@@ -156,9 +273,17 @@ const SARHUAnnouncements: React.FC = () => {
       priority: 'medium'
     });
     setEditingAnnouncement(null);
+    resetImageSelection();
+    setExistingImages([]);
   };
 
   const openCreateModal = () => {
+    if (userRole !== 'superadmin') {
+        setToastMessage('Access denied: You do not have permission to perform this action.');
+        setShowToast(true);
+        return;
+    }
+    
     resetForm();
     setShowModal(true);
   };
@@ -182,111 +307,250 @@ const SARHUAnnouncements: React.FC = () => {
     }).format(date);
   };
 
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const totalImages = existingImages.length + selectedImages.length + files.length;
+    if (totalImages > 5) {
+      setToastMessage('You can upload a maximum of 5 images per announcement.');
+      setShowToast(true);
+      return;
+    }
+
+    let totalSize = selectedImages.reduce((acc, file) => acc + file.size, 0);
+
+    const newImages: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!file.type.startsWith('image/')) {
+        setToastMessage('Please select only image files (JPEG, PNG, GIF, etc.)');
+        setShowToast(true);
+        continue;
+      }
+
+      if (totalSize + file.size > 5 * 1024 * 1024) {
+        setToastMessage(`Adding "${file.name}" would exceed the 5MB total size limit.`);
+        setShowToast(true);
+        continue;
+      }
+
+      totalSize += file.size;
+      newImages.push(file);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target && e.target.result) {
+          newPreviews.push(e.target.result as string);
+          setImagePreviews(prev => [...prev, e.target!.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    setSelectedImages(prev => [...prev, ...newImages]);
+  };
+
+  const removeNewImage = (index: number) => {
+    const newSelectedImages = [...selectedImages];
+    const newImagePreviews = [...imagePreviews];
+    
+    newSelectedImages.splice(index, 1);
+    newImagePreviews.splice(index, 1);
+    
+    setSelectedImages(newSelectedImages);
+    setImagePreviews(newImagePreviews);
+  };
+
+  const removeExistingImage = (imageUrl: string) => {
+    setExistingImages((prev) => prev.filter((img) => img.url !== imageUrl));
+  };
+
+  const resetImageSelection = () => {
+    setSelectedImages([]);
+    setImagePreviews([]);
+  };
+
+  const handleRefresh = async (event: CustomEvent) => {
+    await loadAnnouncements();
+    event.detail.complete();
+  };
+
+  const handleViewDetails = (announcement: Announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowDetailsModal(true);
+  };
+
+  if (accessDenied) {
+    return (
+      <IonPage>
+        <IonHeader  className='ion-no-border'>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonMenuButton />
+            </IonButtons>
+            <IonTitle>RHU Announcements</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view this page.</p>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
+      <IonHeader  className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>RHU Announcements Management</IonTitle>
+          <IonTitle>RHU Announcements</IonTitle>
+        </IonToolbar>
+        <IonToolbar>
+          <IonSearchbar
+            value={searchText}
+            onIonInput={(e) => setSearchText(e.detail.value || '')}
+            debounce={300}
+            placeholder="Search by title or content"
+          />
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonLoading isOpen={loading} message="Please wait..." />
-        
-        <div className="ion-margin-bottom">
-          <h2>Manage RHU Announcements</h2>
-          <IonNote>All announcements are for RHU (Rural Health Unit) distribution</IonNote>
-        </div>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
 
-        <IonList>
-          {announcements.map((announcement) => (
-            <IonCard key={announcement.id}>
+        <IonLoading isOpen={loading} message="Please wait..." />
+
+       
+        
+          {(() => {
+            const filteredAnnouncements = announcements.filter(announcement => {
+                if (!searchText) return true;
+                const searchTextLower = searchText.toLowerCase();
+                return (
+                    announcement.title.toLowerCase().includes(searchTextLower) ||
+                    announcement.content.toLowerCase().includes(searchTextLower)
+                );
+            });
+
+            if (announcements.length === 0 && !loading) {
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+                        <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
+                            <IonCardHeader>
+                                <IonCardTitle>
+                                    <IonText color={'primary'}>
+                                        <strong>No Announcements Found</strong>
+                                    </IonText>
+                                </IonCardTitle>
+                            </IonCardHeader>
+                            <IonCardContent>
+                                <p>There are currently no announcements for RHU admins.</p>
+                                <p>To create an announcement, click the <IonIcon icon={addCircle} color='primary' /> button below.</p>
+                            </IonCardContent>
+                        </IonCard>
+                    </div>
+                );
+            }
+
+            if (filteredAnnouncements.length === 0 && searchText) {
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+                        <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
+                            <IonCardHeader>
+                                <IonCardTitle>
+                                    <IonText color={'primary'}>
+                                        <strong>No Matching Announcements</strong>
+                                    </IonText>
+                                </IonCardTitle>
+                            </IonCardHeader>
+                            <IonCardContent>
+                                <p>No announcements found for "{searchText}".</p>
+                            </IonCardContent>
+                        </IonCard>
+                    </div>
+                );
+            }
+
+            return filteredAnnouncements.map((announcement) => (
+           <>
+               <div className="ion-margin-bottom">
+          <IonNote>Showing all announcements for RHU.</IonNote>
+        </div>
+            <IonCard
+              key={announcement.id}
+              style={{
+                cursor: 'pointer'
+              }}
+              onClick={() => handleViewDetails(announcement)}
+            >
               <IonCardHeader>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <IonCardTitle>{announcement.title}</IonCardTitle>
-                  <IonChip color={getPriorityColor(announcement.priority)}>
-                    {announcement.priority.toUpperCase()}
-                  </IonChip>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <IonCardTitle>{announcement.title.length > 30
+                    ? `${announcement.title.substring(0, 25)}...`
+                    : announcement.title
+                  }</IonCardTitle>
                 </div>
-                <div style={{ fontSize: '0.8em', color: 'gray', marginTop: '5px' }}>
-                  By {announcement.createdByEmail} • {formatDate(announcement.createdAt)}
-                  {!announcement.isActive && (
-                    <IonBadge color="medium" style={{ marginLeft: '10px' }}>
-                      <IonIcon icon={eyeOff} style={{ marginRight: '5px' }} />
-                      Inactive
-                    </IonBadge>
-                  )}
-                </div>
+                <IonCardSubtitle> Made by: {announcement.createdByName || announcement.createdByEmail} • {formatDate(announcement.createdAt)}</IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{announcement.content}</p>
                 
-                <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
-                  <IonButton 
-                    fill="outline" 
+
+                <p style={{ whiteSpace: 'pre-wrap', marginBottom: '15px' }}>
+                  {announcement.content.length > 150
+                    ? `${announcement.content.substring(0, 100)}...`
+                    : announcement.content
+                  }
+                </p>
+
+                {announcement.images && announcement.images.length > 0 && (
+                  <div>
+                    <IonLabel><IonIcon icon={image} slot="start" /> {announcement.images.length} image{announcement.images.length > 1 ? 's' : ''} attached.</IonLabel>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                  <IonButton
+                    fill="outline"
                     size="small"
-                    onClick={() => handleEdit(announcement)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(announcement);
+                    }}
                   >
                     <IonIcon icon={pencil} slot="start" />
                     Edit
                   </IonButton>
-                  
-                  {announcement.isActive ? (
-                    <IonButton 
-                      fill="outline" 
-                      size="small" 
-                      color="danger"
-                      onClick={() => {
-                        setAnnouncementToDelete(announcement.id!);
-                        setShowDeleteAlert(true);
-                      }}
-                    >
-                      <IonIcon icon={trash} slot="start" />
-                      Delete
-                    </IonButton>
-                  ) : (
-                    <IonButton 
-                      fill="outline" 
-                      size="small" 
-                      color="success"
-                      onClick={async () => {
-                        if (!currentUser) return;
-                        try {
-                          await announcementsService.reactivateAnnouncement(
-                            announcement.id!,
-                            currentUser.uid,
-                            currentUser.email || ''
-                          );
-                          setToastMessage('RHU announcement reactivated');
-                          loadAnnouncements();
-                        } catch (error) {
-                          setToastMessage('Error reactivating RHU announcement');
-                        } finally {
-                          setShowToast(true);
-                        }
-                      }}
-                    >
-                      <IonIcon icon={eye} slot="start" />
-                      Reactivate
-                    </IonButton>
-                  )}
+                  <IonButton
+                    fill="outline"
+                    size="small"
+                    color="danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAnnouncementToDelete(announcement.id!);
+                      setShowDeleteAlert(true);
+                    }}
+                  >
+                    <IonIcon icon={trash} slot="start" />
+                    Delete
+                  </IonButton>
                 </div>
               </IonCardContent>
-            </IonCard>
-          ))}
-        </IonList>
-
-        {announcements.length === 0 && !loading && (
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <p>No RHU announcements found</p>
-            <IonButton onClick={openCreateModal}>
-              <IonIcon icon={add} slot="start" />
-              Create First Announcement
-            </IonButton>
-          </div>
-        )}
+            </IonCard>  
+           </>
+          ));
+        })()}
+          
+      
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={openCreateModal}>
@@ -294,62 +558,323 @@ const SARHUAnnouncements: React.FC = () => {
           </IonFabButton>
         </IonFab>
 
-        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonHeader>
+        <IonModal isOpen={showModal} inert={!showModal} onDidDismiss={() => setShowModal(false)}>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>
-                {editingAnnouncement ? 'Edit RHU Announcement' : 'Create RHU Announcement'}
+                {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
               </IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="ion-padding">
-            <IonItem>
-              <IonLabel position="stacked">Title *</IonLabel>
-              <IonInput
-                value={formData.title}
-                onIonChange={(e) => setFormData({ ...formData, title: e.detail.value! })}
-                placeholder="Enter announcement title"
-              />
-            </IonItem>
+          <IonContent>
+            <IonSegment value={selectedEditSegment} onIonChange={(e) => setSelectedEditSegment(e.detail.value as string)}>
+              <IonSegmentButton value="details">
+                <IonLabel>Details</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="images">
+                <IonLabel>Images</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
 
-            <IonItem>
-              <IonLabel position="stacked">Content *</IonLabel>
-              <IonTextarea
-                value={formData.content}
-                onIonChange={(e) => setFormData({ ...formData, content: e.detail.value! })}
-                placeholder="Enter announcement content"
-                rows={6}
-              />
-            </IonItem>
+            {selectedEditSegment === 'details' && (
+              <div className='ion-padding'>
+                <IonItem>
+                  <IonLabel position="stacked">Title *</IonLabel>
+                  <IonInput
+                    name="title"
+                    value={formData.title}
+                    onIonInput={handleFormChange}
+                    placeholder="Enter announcement title"
+                  />
+                </IonItem>
+                 <IonItem>
+                  <IonLabel position="stacked">Priority</IonLabel>
+                  <IonSelect
+                    name="priority"
+                    value={formData.priority}
+                    onIonChange={handleFormChange}
+                  >
+                    <IonSelectOption value="low">Low</IonSelectOption>
+                    <IonSelectOption value="medium">Medium</IonSelectOption>
+                    <IonSelectOption value="high">High</IonSelectOption>
+                  </IonSelect>
+                </IonItem>
+                <IonItem>
+                  <IonLabel position="stacked">Content *</IonLabel>
+                  <IonTextarea
+                    
+                    name="content"
+                    value={formData.content}
+                    onIonInput={handleFormChange}
+                    placeholder="Enter announcement content"
+                    rows={15}
+                  />
+                </IonItem>
 
-            <IonItem>
-              <IonLabel position="stacked">Priority</IonLabel>
-              <IonSelect
-                value={formData.priority}
-                onIonChange={(e) => setFormData({ ...formData, priority: e.detail.value })}
-              >
-                <IonSelectOption value="low">Low</IonSelectOption>
-                <IonSelectOption value="medium">Medium</IonSelectOption>
-                <IonSelectOption value="high">High</IonSelectOption>
-              </IonSelect>
-            </IonItem>
+               
+              </div>
+            )}
 
-            <div style={{ marginTop: '20px' }}>
-              <IonButton expand="block" onClick={handleSubmit}>
-                {editingAnnouncement ? 'Update' : 'Create'} RHU Announcement
-              </IonButton>
-            </div>
+            {selectedEditSegment === 'images' && (
+              <>
+                {editingAnnouncement && existingImages.length > 0 && (
+                  <div className='ion-padding'>
+                    <IonLabel>Existing Images:</IonLabel>
+                    <IonGrid>
+                      <IonRow>
+                        {existingImages.map((image, index) => (
+                          <IonCol size="6" key={index}>
+                            <div style={{ position: 'relative', marginBottom: '10px' }}>
+                              <img
+                                src={image.url}
+                                alt={`Existing image ${index + 1}`}
+                                style={{
+                                  width: '100%',
+                                  height: '100px',
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <IonButton
+                                fill="clear"
+                                color="danger"
+                                size="small"
+                                style={{
+                                  position: 'absolute',
+                                  top: '5px',
+                                  right: '5px',
+                                  '--padding-start': '4px',
+                                  '--padding-end': '4px'
+                                }}
+                                onClick={() => removeExistingImage(image.url)}
+                              >
+                                <IonIcon icon={closeCircleSharp} />
+                              </IonButton>
+                            </div>
+                          </IonCol>
+                        ))}
+                      </IonRow>
+                    </IonGrid>
+                  </div>
+                )}
+
+                <IonItem>
+                  <IonLabel position="stacked">{editingAnnouncement ? 'Add New Images: Select up to 5 images (max 5MB each)' : 'Images (Optional)'}</IonLabel>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    style={{ marginTop: '10px' }}
+                  />
+                  <IonNote slot="helper">
+                    
+                  </IonNote>
+                </IonItem>
+
+                {imagePreviews.length > 0 && (
+                  <div style={{ marginTop: '15px' }}>
+                    <IonLabel>New Images:</IonLabel>
+                    <IonGrid>
+                      <IonRow>
+                        {imagePreviews.map((preview, index) => (
+                          <IonCol size="6" key={index}>
+                            <div style={{ position: 'relative', marginBottom: '10px' }}>
+                              <img
+                                src={preview}
+                                alt={`Preview ${index + 1}`}
+                                style={{
+                                  width: '100%',
+                                  height: '100px',
+                                  objectFit: 'cover',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <IonButton
+                                fill="clear"
+                                color="danger"
+                                size="small"
+                                style={{
+                                  position: 'absolute',
+                                  top: '5px',
+                                  right: '5px',
+                                  '--padding-start': '4px',
+                                  '--padding-end': '4px'
+                                }}
+                                onClick={() => removeNewImage(index)}
+                              >
+                                <IonIcon icon={close} />
+                              </IonButton>
+                            </div>
+                          </IonCol>
+                        ))}
+                      </IonRow>
+                    </IonGrid>
+                  </div>
+                )}
+              </>
+            )}
+
           </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonButton className='ion-padding' shape='round' expand="block" onClick={handleSubmit}>
+                <IonIcon icon={editingAnnouncement ? pencil : create} slot="start" />
+                {editingAnnouncement ? 'Update' : 'Create'} Announcement
+              </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
+        <IonModal
+          isOpen={showDetailsModal}
+          onDidDismiss={() => {
+            setShowDetailsModal(false);
+            setSelectedAnnouncement(null);
+          }}
+        >
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Announcement Details</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowDetailsModal(false)}>
+                  <IonIcon slot='icon-only' icon={close} />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+           
+            {selectedAnnouncement && (
+              <>
+                <IonSegment value={selectedSegment} onIonChange={(e) => setSelectedSegment(e.detail.value as string)}>
+                  <IonSegmentButton value="details">
+                    <IonLabel>Details</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="history">
+                    <IonLabel>History</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
+               
+                  {selectedSegment === 'details' && (
+                    <>
+                    <IonCard>
+                      <IonCardContent>
+                        <IonItemDivider>Title:</IonItemDivider>
+                        <IonItem lines='none'>
+                          {selectedAnnouncement.title}
+                        </IonItem>
+
+                        <IonItemDivider className='ion-margin-top'>Content:</IonItemDivider>
+                        <IonItem lines='none'>
+                          <p style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{selectedAnnouncement.content}</p>
+
+                        </IonItem>
+
+                        <IonItemDivider className='ion-margin-top'> Priority:</IonItemDivider>
+                        <IonChip color={getPriorityColor(selectedAnnouncement.priority)}>
+                          {selectedAnnouncement.priority.toUpperCase()}
+                        </IonChip>
+
+
+                        {selectedAnnouncement.images && selectedAnnouncement.images.length > 0 && (
+                          <>
+                            <IonItemDivider className='ion-margin-top'>
+
+                              Images: ({selectedAnnouncement.images.length})
+
+                            </IonItemDivider>
+                            <IonGrid style={{ marginTop: '10px' }}>
+                              <IonRow>
+                                {selectedAnnouncement.images.map((image, index) => (
+                                  <IonCol size="12" sizeMd="6" key={index}>
+                                    <div style={{ marginBottom: '15px' }}>
+                                      <img
+                                        src={image.url}
+                                        alt={`Announcement image ${index + 1}`}
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          objectFit: 'cover',
+                                          borderRadius: '8px'
+                                        }}
+                                      />
+                                      <div style={{ marginTop: '5px', fontSize: '0.8em', color: 'gray' }}>
+                                        {image.name} ({(image.size / 1024 / 1024).toFixed(2)} MB)
+                                      </div>
+                                    </div>
+                                  </IonCol>
+                                ))}
+                              </IonRow>
+                            </IonGrid>
+                          </>
+                        )}
+                      </IonCardContent>
+                    </IonCard>
+                  </>
+                )}
+          
+                
+
+                {selectedSegment === 'history' && (
+                  <IonCard>
+                    <IonCardContent>
+                      {selectedAnnouncement.updatedAt && selectedAnnouncement.updatedBy && (
+                        <>
+                          <IonItemDivider>Last update:</IonItemDivider>
+                          <IonItem>
+                            <IonIcon icon={person} slot="start" />
+                            Updated by: {selectedAnnouncement.updatedByName || selectedAnnouncement.updatedByEmail}
+                          </IonItem>
+                          <IonItem>
+                            <IonIcon icon={pencil} slot="start" />
+                            Updated on: {formatDate(selectedAnnouncement.updatedAt)}
+                          </IonItem>
+                        </>
+                      )}
+                      <IonItemDivider>Created by:</IonItemDivider>
+                      <IonItem>
+                        <IonIcon icon={person} slot="start" />
+                        {selectedAnnouncement.createdByName || selectedAnnouncement.createdByEmail}
+                      </IonItem>
+                      <IonItem>
+                        <IonIcon icon={calendar} slot="start" />
+                        {formatDate(selectedAnnouncement.createdAt)}
+                      </IonItem>
+                    </IonCardContent>
+                  </IonCard>
+                )}
+              </>
+            )}
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+                  <IonButton
+                    expand="block"
+                    shape='round'
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      if (selectedAnnouncement) {
+                        handleEdit(selectedAnnouncement);
+                      }
+                    }}
+                  >
+                    <IonIcon icon={pencil} slot="start" />
+                    Edit Announcement
+                  </IonButton>
+               
+            </IonToolbar>
+          </IonFooter>
         </IonModal>
 
         <IonAlert
           isOpen={showDeleteAlert}
           onDidDismiss={() => setShowDeleteAlert(false)}
-          header="Confirm Delete"
-          message="Are you sure you want to delete this RHU announcement? This action can be undone by reactivating it."
+          header="Delete Announcement"
+          message="Are you sure you want to delete this announcement? This action cannot be undone."
           buttons={[
             {
               text: 'Cancel',

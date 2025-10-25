@@ -435,36 +435,52 @@ export class AnnouncementsService {
   }
 
   /**
-   * Delete (soft delete) an announcement by setting isActive to false
+   * Permanently delete an announcement and its associated images from storage.
    */
   async deleteAnnouncement(
-    announcementId: string, 
-    userId: string, 
+    announcementId: string,
+    userId: string,
     userEmail: string
   ): Promise<void> {
     try {
-      await updateDoc(doc(db, this.collectionName, announcementId), {
-        isActive: false,
-        updatedAt: serverTimestamp()
-      });
+      const announcementDocRef = doc(db, this.collectionName, announcementId);
+      const announcementDoc = await getDoc(announcementDocRef);
 
-      // Log the deletion
-      logEvent('info', 'Announcement deleted', {
+      if (!announcementDoc.exists()) {
+        throw new Error('Announcement not found');
+      }
+
+      const announcementData = announcementDoc.data();
+      const images = announcementData.images || [];
+
+      // Delete all associated images from Firebase Storage
+      if (images.length > 0) {
+        const deletePromises = images.map((image: any) => // Use any to avoid type issues with Firestore data
+          this.deleteImageFromStorage(image.url, userId, userEmail, announcementId)
+        );
+        await Promise.all(deletePromises);
+      }
+
+      // Permanently delete the announcement document from Firestore
+      await deleteDoc(announcementDocRef);
+
+      // Log the permanent deletion
+      logEvent('info', 'Announcement permanently deleted', {
         userId,
         userEmail,
-        userRole: 'admin', // Assuming announcements are deleted by admins
+        userRole: 'admin',
         metadata: {
-          action: 'delete_announcement',
+          action: 'permanent_delete_announcement',
           announcementId
         }
       });
     } catch (error) {
-      logEvent('error', 'Failed to delete announcement', {
+      logEvent('error', 'Failed to permanently delete announcement', {
         userId,
         userEmail,
-        userRole: 'admin', // Assuming announcements are deleted by admins
+        userRole: 'admin',
         metadata: {
-          action: 'delete_announcement_failed',
+          action: 'permanent_delete_announcement_failed',
           error: error instanceof Error ? error.message : 'Unknown error',
           announcementId
         }
