@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol, IonCardHeader } from '@ionic/react';
+import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, getDocs, where } from 'firebase/firestore';
+import { getBarangayNameByCode } from '../../services/addressService';
 import { UserService } from '../../services/userService';
-import { paperPlane, send, arrowBack, arrowForward, open } from 'ionicons/icons';
+import { paperPlane, send, arrowBack, arrowForward, open, checkmarkCircle } from 'ionicons/icons';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -57,7 +58,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   }, [currentUser]);
 
   const nextStep = () => {
-    if (step < 3) setStep(step + 1);
+    if (step < 4) setStep(step + 1);
   };
 
   const prevStep = () => {
@@ -65,6 +66,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   };
 
   const handleDismiss = () => {
+    setStep(1);
     setReasons({
       'Follow-up check-up': false,
       'Prescription renewal': false,
@@ -75,10 +77,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     });
     setOtherReason('');
     setAttachMedicalRecord(false);
-    if (!toastMessage.includes('successfully')) {
-        setToastMessage('');
-        setShowToast(false);
-    }
+    setToastMessage('');
+    setShowToast(false);
   };
 
     const getReasonString = () => {
@@ -138,6 +138,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       const userService = UserService.getInstance();
       const userData = await userService.getUserData(currentUser?.uid!);
 
+      const barangayName = await getBarangayNameByCode(barangayId);
+
       let medicalRecord = undefined;
       if (attachMedicalRecord) {
         const medicalRecordRef = doc(db, 'medicalRecords', currentUser?.uid!);
@@ -168,6 +170,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
+        barangayName: barangayName,
         userData: {
           firstName: userData.firstName,
           middleName: userData.middleName,
@@ -183,20 +186,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         createdAt: serverTimestamp(),
         ...(medicalRecord && { medicalRecord }),
       });
-      setToastMessage('Teleconsultation request submitted successfully.');
-      setShowToast(true);
-      setReasons({
-        'Follow-up check-up': false,
-        'New health concern': false,
-        'Prescription renewal': false,
-        'Mental health support': false,
-        'General health advice': false,
-        'Others': false,
-      });
-      setOtherReason('');
-      setAttachMedicalRecord(false);
       setHasActiveRequest(true);
-      onDidDismiss();
+      nextStep();
     } catch (error) {
       console.error('Error submitting teleconsultation request:', error);
       setToastMessage('Failed to submit request. Please try again.');
@@ -218,23 +209,25 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-          <IonCard className="ion-padding">
-            <IonCardHeader>
-              <IonText color={'primary'}>
-                <h1>You already have an active request.</h1>
-              </IonText>
-            </IonCardHeader>
-          <IonItem lines='none'>
-              <IonText>
-            You already have an active teleconsultation request. Please check your existing request for updates on the <strong>My Requests</strong> page.
-          </IonText>
-          </IonItem>
-          <IonButton expand="block" routerLink="/user/dashboard/requests/teleconsultation-requests" className="ion-padding-vertical" onClick={handleDismiss}>
-            Go to My Requests
-            <IonIcon slot="end" icon={open} />
-          </IonButton>
-          </IonCard>
-          
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '90%' }}>
+            <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
+              <IonCardHeader>
+                <IonText class='ion-text-center'>
+                  <IonIcon icon={checkmarkCircle} style={{ fontSize: '48px', color: 'var(--ion-color-primary)' }} />
+                </IonText>
+                <IonCardTitle>Request sent successfully!</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p className="ion-margin-top">
+                  Your request has been successfully sent. Please check your newly created request for updates on the <strong>My Requests</strong> page.
+                </p>
+                <IonButton expand="block" routerLink="/user/dashboard/requests/teleconsultation-requests" className="ion-padding-vertical" onClick={handleDismiss}>
+                  Go to My Requests
+                  <IonIcon slot="end" icon={open} />
+                </IonButton>
+              </IonCardContent>
+            </IonCard>
+          </div>
         </IonContent>
       </IonModal>
     );
@@ -346,6 +339,25 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
             </IonCard>
           )}
 
+          {step === 4 && (
+            <IonCard className="ion-padding">
+            <IonCardHeader>
+              <IonText color={'success'}>
+                <h1>Request Submitted Successfully!</h1>
+              </IonText>
+            </IonCardHeader>
+            <IonItem lines='none'>
+              <IonText>
+                Your teleconsultation request has been submitted. You can check for updates on the <strong>My Requests</strong> page.
+              </IonText>
+            </IonItem>
+            <IonButton expand="block" routerLink="/user/dashboard/requests/teleconsultation-requests" className="ion-padding-vertical" onClick={onDidDismiss}>
+              Go to My Requests
+              <IonIcon slot="end" icon={open} />
+            </IonButton>
+          </IonCard>
+          )}
+
           <IonLoading isOpen={loading} message={'Submitting request...'} />
         </IonContent>
         <IonFooter>
@@ -355,7 +367,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <p><small> You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
               </IonItem>
             )}
-            {step === 1 && (
+            {step === 1 ? (
               <IonButton
                 expand="block"
                 shape="round"
@@ -365,9 +377,16 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <IonIcon slot="end" icon={arrowForward} />
                 <IonText className='ion-padding-vertical'>Next</IonText>
               </IonButton>
-            )}
-
-            {(step === 2 || step === 3) && (
+            ) : step === 4 ? (
+              <IonButton
+                expand="block"
+                shape="round"
+                onClick={onDidDismiss}
+                className="ion-margin"
+              >
+                Close
+              </IonButton>
+            ) : (
               <IonGrid>
                 <IonRow>
                   <IonCol size="3">
@@ -418,7 +437,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         }}
         message={toastMessage}
         duration={3000}
-        color={toastMessage.includes('successfully') ? 'success' : 'danger'}
+        color={'danger'}
       />
     </>
   );

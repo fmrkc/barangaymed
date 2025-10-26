@@ -192,6 +192,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     id: doc.id,
                     userId: data.userId,
                     barangayId: data.barangayId,
+                    barangayName: data.barangayName,
                     userData: data.userData,
                     reason: data.reason,
                     status: data.status,
@@ -585,7 +586,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   </div>
                 </IonCardTitle>
                 <IonCardSubtitle>
-                  Barangay: <strong>{request.barangayId}</strong>
+                  Barangay: <strong>{request.barangayName || request.barangayId}</strong>
                 </IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>

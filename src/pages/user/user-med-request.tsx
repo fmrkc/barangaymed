@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol, IonCardHeader } from '@ionic/react';
+import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonInput, IonItem, IonLabel, IonTextarea, IonText, IonLoading, IonToast, IonButtons, IonCard, IonItemDivider, IonNote, IonCheckbox, IonFooter, IonIcon, IonGrid, IonRow, IonCol, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp, query, getDocs, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { UserService } from '../../services/userService';
 import { getBarangayNameByCode } from '../../services/addressService';
-import { paperPlane, send, arrowBack, arrowForward, open, cloudUpload } from 'ionicons/icons';
+import { paperPlane, send, arrowBack, arrowForward, open, cloudUpload, checkmarkCircle } from 'ionicons/icons';
 
 interface UserMedRequestProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
   }, [currentUser]);
 
   const nextStep = () => {
-    if (step < 4) setStep(step + 1);
+    if (step < 5) setStep(step + 1);
   };
 
   const prevStep = () => {
@@ -76,10 +76,8 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
     setOtherReason('');
     setHasPrescription(false);
     setPrescriptionFile(null);
-    if (!toastMessage.includes('successfully')) {
-        setToastMessage('');
-        setShowToast(false);
-    }
+    setToastMessage('');
+    setShowToast(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,9 +167,8 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
         status: 'pending',
         createdAt: serverTimestamp(),
       });
-      setToastMessage('Medicine request submitted successfully.');
-      setShowToast(true);
-      onDidDismiss();
+      setHasActiveRequest(true);
+      nextStep();
     } catch (error) {
       console.error('Error submitting medicine request:', error);
       setToastMessage('Failed to submit request. Please try again.');
@@ -186,30 +183,32 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
       <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
-            <IonTitle>Active Medicine Request</IonTitle>
+            <IonTitle>Medicine Request</IonTitle>
             <IonButtons slot="end">
               <IonButton onClick={onDidDismiss}>Close</IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-          <IonCard className="ion-padding">
-            <IonCardHeader>
-              <IonText color={'primary'}>
-                <h1>You already have an active request.</h1>
-              </IonText>
-            </IonCardHeader>
-          <IonItem lines='none'>
-              <IonText>
-            You already have an active medicine request. Please check your existing request for updates on the <strong>My Requests</strong> page.
-          </IonText>
-          </IonItem>
-          <IonButton expand="block" routerLink="/user/dashboard/requests/medicine-requests" className="ion-padding-vertical" onClick={onDidDismiss}>
-            Go to My Requests
-            <IonIcon slot="end" icon={open} />
-          </IonButton>
-          </IonCard>
-          
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '90%' }}>
+            <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
+              <IonCardHeader>
+                <IonText className='ion-text-center'>
+                  <IonIcon icon={checkmarkCircle} style={{ fontSize: '48px', color: 'var(--ion-color-primary)' }} />
+                </IonText>
+                <IonCardTitle>Request sent successfully!</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p className="ion-margin-top">
+                  Your request has been successfully sent. Please check your newly created request for updates on the <strong>My Requests</strong> page.
+                </p>
+                <IonButton expand="block" routerLink="/user/dashboard/requests/medicine" className="ion-padding-vertical" onClick={onDidDismiss}>
+                  Go to My Requests
+                  <IonIcon slot="end" icon={open} />
+                </IonButton>
+              </IonCardContent>
+            </IonCard>
+          </div>
         </IonContent>
       </IonModal>
     );
@@ -367,6 +366,25 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
             </>
           )}
 
+          {step === 5 && (
+            <IonCard className="ion-padding">
+            <IonCardHeader>
+              <IonText color={'success'}>
+                <h1>Request Submitted Successfully!</h1>
+              </IonText>
+            </IonCardHeader>
+            <IonItem lines='none'>
+              <IonText>
+                Your medicine request has been submitted. You can check for updates on the <strong>My Requests</strong> page.
+              </IonText>
+            </IonItem>
+            <IonButton expand="block" routerLink="/user/dashboard/requests/medicine-requests" className="ion-padding-vertical" onClick={onDidDismiss}>
+              Go to My Requests
+              <IonIcon slot="end" icon={open} />
+            </IonButton>
+          </IonCard>
+          )}
+
           <IonLoading isOpen={loading} message={'Submitting request...'} />
         </IonContent>
         <IonFooter>
@@ -376,7 +394,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                 <p><small>You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
               </IonItem>
             )}
-            {step === 1 && (
+            {step === 1 ? (
               <IonButton
                 expand="block"
                 shape="round"
@@ -386,9 +404,16 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                 <IonIcon slot="end" icon={arrowForward} />
                 <IonText className='ion-padding-vertical'>Next</IonText>
               </IonButton>
-            )}
-
-            {(step === 2 || step === 3 || step === 4) && (
+            ) : step === 5 ? (
+              <IonButton
+                expand="block"
+                shape="round"
+                onClick={onDidDismiss}
+                className="ion-margin"
+              >
+                Close
+              </IonButton>
+            ) : (
               <IonGrid>
                 <IonRow>
                   <IonCol size="3">
@@ -403,7 +428,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                     </IonButton>
                   </IonCol>
                   <IonCol size="9">
-                    {(step === 2 || step === 3) ? (
+                    {step < 4 ? (
                       <IonButton
                         expand="block"
                         shape="round"
@@ -439,7 +464,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
         }}
         message={toastMessage}
         duration={3000}
-        color={toastMessage.includes('successfully') ? 'success' : 'danger'}
+        color={'danger'}
       />
     </>
   );
