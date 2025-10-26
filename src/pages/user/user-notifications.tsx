@@ -11,13 +11,16 @@ import {
   IonBadge,
   IonRefresher,
   IonRefresherContent,
-  IonLoading,
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
 } from '@ionic/react';
 import React from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline } from 'ionicons/icons';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail } from 'ionicons/icons';
 import { formatDistanceToNow } from 'date-fns';
 
 const Notifications: React.FC = () => {
@@ -97,18 +100,27 @@ const Notifications: React.FC = () => {
           <IonRefresherContent />
         </IonRefresher>
 
-        <IonLoading isOpen={loading} message="Loading notifications..." />
-
         {notifications.length === 0 && !loading && (
-          <div className="ion-padding ion-text-center">
-            <IonIcon icon={mailOutline} size="large" color="medium" />
-            <h2>No Notifications</h2>
-            <p>You don't have any notifications yet.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '90%' }}>
+            <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
+              <IonCardHeader>
+                <IonText className='ion-text-center'>
+                  <IonIcon icon={mail} style={{ fontSize: '48px', color: 'var(--ion-color-medium)' }} />
+                </IonText>
+                <IonCardTitle>No notifications found.</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p className="ion-margin-top">
+                  This is where your notifications show up. Make sure to check this page for updates!
+                </p>
+              </IonCardContent>
+            </IonCard>
           </div>
         )}
 
-        <IonList>
-          {notifications.map((notification) => (
+       
+        {notifications.map((notification) => (
+          <IonList>
             <IonItem
               key={notification.id}
               button
@@ -137,8 +149,9 @@ const Notifications: React.FC = () => {
                 )}
               </IonLabel>
             </IonItem>
-          ))}
-        </IonList>
+          </IonList>
+        ))}
+      
 
         {notifications.length > 0 && (
           <div className="ion-padding ion-text-center">
