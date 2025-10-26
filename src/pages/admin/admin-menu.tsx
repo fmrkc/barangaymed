@@ -21,7 +21,7 @@ const Menu: React.FC = () => {
 
     const dashboard = { name: 'Dashboard', url: '/admin/dashboard', icon: podium };
     const residents = [
-        { name: 'All Residents', url: '/admin/dashboard/residents', icon: people },
+        { name: 'Verified Residents', url: '/admin/dashboard/residents', icon: people },
         { name: 'Register New Resident', url: '/admin/dashboard', icon: personAdd },
         { name: 'Resident Verification', url: '/admin/dashboard/residents/verification', icon: checkbox },
     ];
@@ -58,8 +58,7 @@ const Menu: React.FC = () => {
             <IonHeader className='ion-no-border'>
               <IonToolbar>
                 <IonTitle>
-                  <IonText color={'primary'}>BarangayMed+</IonText>
-                  <br />
+                  BarangayMed+
                 </IonTitle>
               </IonToolbar>
             </IonHeader>
