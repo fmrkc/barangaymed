@@ -214,8 +214,8 @@ service cloud.firestore {
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
                       ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
                       (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
-                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion']);
+                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion', 'completed']) ||
+                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion', 'completed']);
 
       // DELETE: Deletion not allowed from client
       allow delete: if false;

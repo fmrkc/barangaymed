@@ -17,6 +17,7 @@ export interface TeleconsultationRequest {
   id?: string;
   userId: string;
   barangayId: string;
+  barangayName?: string;
   userData?: UserData;
   reason: string;
   status: 'pending' | 'accepted' | 'rejected' | 'scheduled' | 'completed' | 'cancelled' | 'no show';

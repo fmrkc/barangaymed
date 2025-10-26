@@ -11,8 +11,8 @@ const UserTeleRequestList: React.FC = () => {
   const { currentUser, verificationStatus } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('all');
-  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
+  
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,17 +30,14 @@ const UserTeleRequestList: React.FC = () => {
   useEffect(() => {
     if (!userId) {
       setError('User not authenticated');
-      setLoading(false);
       return;
     }
 
     if (verificationStatus !== 'verified') {
       setError('You must be a verified resident to view teleconsultation requests.');
-      setLoading(false);
       return;
     }
 
-    setLoading(true);
     setError(null);
 
     const q = query(
@@ -50,7 +47,6 @@ const UserTeleRequestList: React.FC = () => {
     );
 
     const timeoutId = setTimeout(() => {
-        setLoading(false);
         setError('Loading timed out. Please try again.');
     }, 10000);
 
@@ -59,7 +55,6 @@ const UserTeleRequestList: React.FC = () => {
         (querySnapshot) => {
             console.log("Data received from Firestore. Number of documents:", querySnapshot.size);
             clearTimeout(timeoutId);
-            setLoading(false); // Just stop loading, do nothing else.
             const reqs: TeleconsultationRequest[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
@@ -81,6 +76,7 @@ const UserTeleRequestList: React.FC = () => {
                     meetingLink: data.meetingLink,
                     superadminMarkedComplete: data.superadminMarkedComplete,
                     rejectionReason: data.rejectionReason,
+                    prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
                       action: entry.action,
@@ -93,12 +89,10 @@ const UserTeleRequestList: React.FC = () => {
                 reqs.push(req);
             });
             setRequests(reqs);
-            setLoading(false);
         },
         (err) => {
             clearTimeout(timeoutId);
             setError('Failed to fetch teleconsultation requests');
-            setLoading(false);
         }
     );
 
@@ -165,10 +159,8 @@ const UserTeleRequestList: React.FC = () => {
   };
 
   const handleRefresh = async (event: CustomEvent) => {
-    setLoading(true);
     // Simulate refresh delay to show loading
     setTimeout(() => {
-      setLoading(false);
       event.detail.complete();
     }, 1500);
   };
@@ -239,14 +231,14 @@ const UserTeleRequestList: React.FC = () => {
           </IonSegmentButton>
         </IonSegment>
 
-        {loading && <IonLoading isOpen={loading} message="Loading requests..." />}
+        
         {error && (
           <IonText color="danger" className="ion-padding">
             {error}
           </IonText>
         )}
 
-        {!loading && !error && filteredRequests.length === 0 && (
+        {!error && filteredRequests.length === 0 && (
           <IonCard className="ion-padding">
             <IonText className="ion-padding">No requests found for this category.</IonText>
           </IonCard>
@@ -313,6 +305,11 @@ const UserTeleRequestList: React.FC = () => {
                   {request.status === 'scheduled' && request.meetingLink && (
                     <IonButton color="primary" href={request.meetingLink} target="_blank" rel="noopener noreferrer">
                       Join Consultation
+                    </IonButton>
+                  )}
+                  {request.status === 'completed' && request.prescriptionUrl && (
+                    <IonButton color="primary" href={request.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                      View Prescription
                     </IonButton>
                   )}
                   {request.status === 'scheduled' && (
@@ -471,10 +468,12 @@ const UserTeleRequestList: React.FC = () => {
                                         <IonLabel>Specialty:</IonLabel>
                                         <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
                                       </IonItem>
+                                      {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
                                       <IonItem>
                                         <IonLabel>Meeting Link:</IonLabel>
                                         <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
                                       </IonItem>
+                                      )}
                                       <IonItem>
                                         <IonLabel>Start Time:</IonLabel>
                                         <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'}</IonText>
@@ -498,6 +497,14 @@ const UserTeleRequestList: React.FC = () => {
                                         <IonLabel>Completed At:</IonLabel>
                                         <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
                                       </IonItem>
+                                      {selectedRequest.prescriptionUrl && (
+                                      <IonItem>
+                                        <IonLabel>Prescription:</IonLabel>
+                                        <IonButton slot="end" fill="outline" size="small" href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                                          View Prescription
+                                        </IonButton>
+                                      </IonItem>
+                                      )}
                                     </>
                                   )}
                                 </>

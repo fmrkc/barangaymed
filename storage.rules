@@ -86,5 +86,19 @@ service firebase.storage {
           && request.resource.size < 5 * 1024 * 1024
           && request.resource.contentType.matches('image/(jpeg|png|webp|gif)|application/pdf');
     }
+
+    // Prescriptions from teleconsultation, uploaded by admins/superadmins
+    match /prescriptions/teleconsultation/{requestId}/{fileName} {
+      // READ: The user associated with the request, admins, and superadmins can read.
+      allow read: if isAdmin() || isSuperAdmin() || (isUser() && get(/databases/$(database)/documents/teleconsultationRequests/$(requestId)).data.userId == request.auth.uid);
+
+      // WRITE (Create, Update): Admins and Superadmins can upload prescriptions.
+      allow write: if (isAdmin() || isSuperAdmin())
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*|application/pdf');
+
+      // DELETE: Admins and Superadmins can delete prescriptions.
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
   }
 }

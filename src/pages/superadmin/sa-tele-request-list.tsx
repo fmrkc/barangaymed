@@ -192,6 +192,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     id: doc.id,
                     userId: data.userId,
                     barangayId: data.barangayId,
+                    barangayName: data.barangayName,
                     userData: data.userData,
                     reason: data.reason,
                     status: data.status,
@@ -585,7 +586,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   </div>
                 </IonCardTitle>
                 <IonCardSubtitle>
-                  Barangay: <strong>{request.barangayId}</strong>
+                  Barangay: <strong>{request.barangayName || request.barangayId}</strong>
                 </IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>
@@ -647,7 +648,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   <>
                     <p>Completed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action.includes('completed'))?.userName || 'N/A'}</strong></p>
                     <p>Completed at: <strong>{request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</strong></p>
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)} style={{ flex: 1 }}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                    {request.prescriptionUrl && (
+                        <IonButton expand='block' className='ion-padding-vertical' color="primary" href={request.prescriptionUrl} target="_blank" rel="noopener noreferrer" style={{ flex: 1 }}>
+                            View Prescription
+                        </IonButton>
+                    )}
+                    </div>
                   </>
                 )}
               </IonCardContent>
@@ -972,10 +980,12 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonLabel>Doctor:</IonLabel>
                               <IonText slot="end">{selectedRequest.doctorName || 'N/A'}</IonText>
                             </IonItem>
+                            {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
                             <IonItem>
                               <IonLabel>Meeting Link:</IonLabel>
                               <IonButton expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
                             </IonItem>
+                            )}
                             <IonItem>
                               <IonLabel>Start Time:</IonLabel>
                               <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'}</IonText>
@@ -999,6 +1009,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonLabel>Completed At:</IonLabel>
                               <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
                             </IonItem>
+                            {selectedRequest.prescriptionUrl && (
+                            <IonItem>
+                                <IonLabel>Prescription:</IonLabel>
+                                <IonButton slot="end" fill="outline" size="small" href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                                    View Prescription
+                                </IonButton>
+                            </IonItem>
+                            )}
                           </>
                         )}
                       </>
