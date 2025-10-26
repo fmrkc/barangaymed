@@ -21,7 +21,7 @@ const ADashboard: React.FC = () => {
           <IonRow>
             <IonCol size="12" className="ion-text-center">
               <h1>Welcome, {currentUser?.displayName}!</h1>
-              <p>Access BHW Dashboard features below or with the <IonIcon icon={menu} slot='icon-only' color='primary'/> button in the top-left corner.</p>
+              <p>Access BHW Dashboard features below or with the <IonIcon icon={menu} slot='icon-only'/> button in the top-left corner.</p>
             </IonCol>
           </IonRow>
 

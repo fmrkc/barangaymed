@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonMenuButton, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonIcon, IonText } from '@ionic/react';
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { personAdd, medkit, videocam, megaphone, calendar, medical, people } from 'ionicons/icons';
+import { personAdd, medkit, videocam, megaphone, calendar, medical, people, menu } from 'ionicons/icons';
 
 const SuperAdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -24,7 +24,7 @@ const SuperAdminDashboard: React.FC = () => {
           <IonRow>
             <IonCol size="12" className="ion-text-center">
               <h1>Welcome, {currentUser?.displayName}!</h1>
-              <p>Access RHU Dashboard features below:</p>
+              <p>Access RHU Dashboard features below or with the <IonIcon icon={menu} slot='icon-only'/> button in the top-left corner.</p>
             </IonCol>
           </IonRow>
 
