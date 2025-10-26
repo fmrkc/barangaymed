@@ -264,19 +264,22 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                 </IonItem>
               ))}
               {reasons.Others && (
-                <IonItem className="ion-margin-top">
-                  <IonTextarea
-                    fill="outline"
-                    value={otherReason}
-                    onIonChange={e => setOtherReason(e.detail.value!)}
-                    placeholder="Please specify other reason"
-                    rows={3}
-                  />
-                </IonItem>
+                <>
+                  <IonItem className="ion-margin-top">
+                    <IonTextarea
+                      fill="outline"
+                      value={otherReason}
+                      onIonChange={e => setOtherReason(e.detail.value!)}
+                      placeholder="Please specify your reason here..."
+                      rows={3}
+                    />
+                  </IonItem>
+                  <IonItem lines='none' className='ion-margin-top'>
+                    <small>Please provide accurate information to help us assist you better.</small>
+                  </IonItem>
+                </>
               )}
-              <IonItem lines='none' className='ion-margin-top'>
-                <small>Please provide accurate information to help us assist you better.</small>
-              </IonItem>
+             
             </IonCard>
           )}
 

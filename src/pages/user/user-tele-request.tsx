@@ -67,8 +67,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const handleDismiss = () => {
     setReasons({
       'Follow-up check-up': false,
-      'New health concern': false,
       'Prescription renewal': false,
+      'New health concern': false,
       'Mental health support': false,
       'General health advice': false,
       'Others': false,
@@ -290,19 +290,22 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   </IonItem>
                 ))}
                 {reasons.Others && (
-                  <IonItem className="ion-margin-top">
-                    <IonTextarea
-                      fill="outline"
-                      value={otherReason}
-                      onIonChange={e => setOtherReason(e.detail.value!)}
-                      placeholder="Please specify other reason"
-                      rows={3}
-                    />
-                  </IonItem>
+                  <>
+                    <IonItem className="ion-margin-top">
+                      <IonTextarea
+                        fill="outline"
+                        value={otherReason}
+                        onIonChange={e => setOtherReason(e.detail.value!)}
+                        placeholder="Please specify other reason"
+                        rows={3}
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <small>Please provide accurate information to help us assist you better.</small>
+                    </IonItem>
+                  </>
                 )}
-                <IonItem>
-                  <small>Please provide accurate information to help us assist you better.</small>
-                </IonItem>
+              
               </IonCard>
 
               {hasMedicalRecord && (
