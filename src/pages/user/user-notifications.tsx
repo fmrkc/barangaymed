@@ -17,29 +17,50 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonModal,
+  IonAlert,
+  IonLoading,
 } from '@ionic/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail } from 'ionicons/icons';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline } from 'ionicons/icons';
 import { formatDistanceToNow } from 'date-fns';
+import { Notification } from '../../types/notifications';
 
 const Notifications: React.FC = () => {
-  const { notifications, loading, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading } = useNotifications();
+
+  const [showArchiveAlert, setShowArchiveAlert] = useState(false);
+  const [notificationToArchive, setNotificationToArchive] = useState<string | null>(null);
+  const [showArchivedModal, setShowArchivedModal] = useState(false);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleRefresh = (event: CustomEvent) => {
-    // The hook handles refreshing, but we can provide a way for the user to manually trigger.
-    // In this case, the listener is already active. We just need to complete the animation.
     setTimeout(() => {
       event.detail.complete();
     }, 500);
+  };
+
+  const handleArchiveClick = (notificationId: string) => {
+    setNotificationToArchive(notificationId);
+    setShowArchiveAlert(true);
+  };
+
+  const confirmArchive = async () => {
+    if (notificationToArchive) {
+      await archiveNotification(notificationToArchive);
+      setNotificationToArchive(null);
+    }
+    setShowArchiveAlert(false);
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'status_change':
       case 'registration_approved':
+      case 'teleconsultation.request.created':
+      case 'teleconsultation.request.status.updated':
         return checkmarkCircle;
       case 'admin_note':
       case 'new_announcement':
@@ -61,6 +82,8 @@ const Notifications: React.FC = () => {
     switch (type) {
       case 'status_change':
       case 'registration_approved':
+      case 'teleconsultation.request.created':
+      case 'teleconsultation.request.status.updated':
         return 'success';
       case 'admin_note':
       case 'new_announcement':
@@ -99,6 +122,9 @@ const Notifications: React.FC = () => {
                 {unreadCount}
               </IonBadge>
             )}
+            <IonButton onClick={() => setShowArchivedModal(true)} fill="clear">
+              <IonIcon slot="icon-only" icon={folderOpenOutline} />
+            </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -128,9 +154,8 @@ const Notifications: React.FC = () => {
 
        
         {notifications.map((notification) => (
-          <IonList>
+          <IonList key={notification.id}>
             <IonItem
-              key={notification.id}
               button
               detail={false}
               onClick={() => !notification.read && markAsRead(notification.id)}
@@ -156,6 +181,14 @@ const Notifications: React.FC = () => {
                   </IonBadge>
                 )}
               </IonLabel>
+              <IonButtons slot="end">
+                <IonButton onClick={(e) => {
+                  e.stopPropagation(); // Prevent item click from firing
+                  handleArchiveClick(notification.id);
+                }}>
+                  <IonIcon slot="icon-only" icon={archiveOutline} />
+                </IonButton>
+              </IonButtons>
             </IonItem>
           </IonList>
         ))}
@@ -172,6 +205,27 @@ const Notifications: React.FC = () => {
         )}
       </IonContent>
 
+      <IonAlert
+        isOpen={showArchiveAlert}
+        onDidDismiss={() => setShowArchiveAlert(false)}
+        header={'Archive Notification'}
+        message={'Are you sure you want to archive this notification? It will no longer appear in your main list.'}
+        buttons={[
+          { text: 'Cancel', role: 'cancel' },
+          { text: 'Archive', handler: confirmArchive },
+        ]}
+      />
+
+      <ArchivedNotificationsModal
+        isOpen={showArchivedModal}
+        onDidDismiss={() => setShowArchivedModal(false)}
+        archivedNotifications={archivedNotifications}
+        archivedLoading={archivedLoading}
+        formatTimestamp={formatTimestamp}
+        getNotificationIcon={getNotificationIcon}
+        getNotificationColor={getNotificationColor}
+      />
+
       <style>
         {`
           .unread-notification {
@@ -181,6 +235,81 @@ const Notifications: React.FC = () => {
         `}
       </style>
     </>
+  );
+};
+
+interface ArchivedNotificationsModalProps {
+  isOpen: boolean;
+  onDidDismiss: () => void;
+  archivedNotifications: Notification[];
+  archivedLoading: boolean;
+  formatTimestamp: (date: Date) => string;
+  getNotificationIcon: (type: string) => string;
+  getNotificationColor: (type: string) => string;
+}
+
+const ArchivedNotificationsModal: React.FC<ArchivedNotificationsModalProps> = ({
+  isOpen,
+  onDidDismiss,
+  archivedNotifications,
+  archivedLoading,
+  formatTimestamp,
+  getNotificationIcon,
+  getNotificationColor,
+}) => {
+  return (
+    <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
+      <IonHeader className="ion-no-border">
+        <IonToolbar>
+          <IonTitle>Archived Notifications</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={onDidDismiss}>Close</IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <IonLoading isOpen={archivedLoading} message="Loading archived notifications..." />
+        {!archivedLoading && archivedNotifications.length === 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '90%' }}>
+            <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
+              <IonCardHeader>
+                <IonText className='ion-text-center'>
+                  <IonIcon icon={archiveOutline} style={{ fontSize: '48px', color: 'var(--ion-color-medium)' }} />
+                </IonText>
+                <IonCardTitle>No archived notifications.</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <p className="ion-margin-top">
+                  Archived notifications will appear here.
+                </p>
+              </IonCardContent>
+            </IonCard>
+          </div>
+        )}
+
+        {!archivedLoading && archivedNotifications.length > 0 && (
+          <IonList>
+            {archivedNotifications.map((notification) => (
+              <IonItem key={notification.id} detail={false}>
+                <IonIcon
+                  slot="start"
+                  icon={getNotificationIcon(notification.type)}
+                  color={getNotificationColor(notification.type)}
+                  size="large"
+                />
+                <IonLabel>
+                  <h3>{notification.title}</h3>
+                  <p>{notification.message}</p>
+                  <IonText color="medium">
+                    <small>{formatTimestamp(notification.timestamp)}</small>
+                  </IonText>
+                </IonLabel>
+              </IonItem>
+            ))}
+          </IonList>
+        )}
+      </IonContent>
+    </IonModal>
   );
 };
 

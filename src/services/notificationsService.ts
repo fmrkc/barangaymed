@@ -31,6 +31,7 @@ export class NotificationsService {
     const q = query(
       collection(db, 'notifications'),
       where('userId', '==', userId),
+      where('isShown', '==', true), // Only show active notifications
       orderBy('timestamp', 'desc')
     );
 
@@ -267,6 +268,103 @@ export class NotificationsService {
         operation: 'markAllAsRead'
       });
       console.error(`Error marking all notifications as read for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Archive a notification by setting its isShown field to false.
+   * @param notificationId The ID of the notification to archive.
+   * @param userId The user's ID.
+   */
+  public async archiveNotification(notificationId: string, userId: string): Promise<void> {
+    const operation = async () => {
+      const notificationRef = doc(db, 'notifications', notificationId);
+      await updateDoc(notificationRef, {
+        isShown: false,
+      });
+    };
+
+    try {
+      await executeWithRetry(
+        operation,
+        `archiveNotification-${userId}-${notificationId}`,
+        { maxRetries: 3 },
+        { userId, notificationId, operation: 'archiveNotification' }
+      );
+
+      logFirestoreEvent(userId, undefined, undefined, 'write', 'notifications', notificationId, {
+        operation: 'archiveNotification',
+        success: true
+      });
+
+      console.log(`Notification ${notificationId} archived for user ${userId}`);
+    } catch (error) {
+      logFirestoreError('archiveNotification', error, {
+        userId,
+        notificationId,
+        operation: 'archiveNotification'
+      });
+      console.error(`Error archiving notification ${notificationId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get archived notifications for a specific user.
+   * @param userId The user's ID.
+   * @returns Promise with an array of archived notifications.
+   */
+  public async getArchivedNotifications(userId: string): Promise<Notification[]> {
+    const operation = async () => {
+      const q = query(
+        collection(db, 'notifications'),
+        where('userId', '==', userId),
+        where('isShown', '==', false),
+        orderBy('timestamp', 'asc') // Order by created date, ascending
+      );
+
+      const querySnapshot = await getDocs(q);
+      const notifications: Notification[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        notifications.push({
+          id: doc.id,
+          userId: data.userId,
+          userEmail: data.userEmail,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          timestamp: data.timestamp.toDate(),
+          read: data.read,
+          isShown: data.isShown ?? true,
+          metadata: data.metadata || {}
+        });
+      });
+
+      return notifications;
+    };
+
+    try {
+      const archivedNotifications = await executeWithRetry(
+        operation,
+        `getArchivedNotifications-${userId}`,
+        { maxRetries: 3 },
+        { userId, operation: 'getArchivedNotifications' }
+      );
+
+      logFirestoreEvent(userId, undefined, undefined, 'query', 'notifications', undefined, {
+        notificationCount: archivedNotifications.length,
+        operation: 'getArchivedNotifications'
+      });
+
+      return archivedNotifications;
+    } catch (error) {
+      logFirestoreError('getArchivedNotifications', error, {
+        userId,
+        operation: 'getArchivedNotifications'
+      });
       throw error;
     }
   }
