@@ -3,7 +3,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 export interface Notification {
   id: string;
   userId: string;
-  type: 'status_change' | 'admin_note' | 'system' | 'announcement' | 'new_announcement';
+  type: 'status_change' | 'admin_note' | 'system' | 'announcement' | 'new_announcement' | 'medicine_request_created' | 'medicine_request_status_update';
   title: string;
   message: string;
   timestamp: FieldValue | Timestamp;

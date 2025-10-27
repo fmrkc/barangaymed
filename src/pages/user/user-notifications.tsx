@@ -48,6 +48,10 @@ const Notifications: React.FC = () => {
       case 'registration':
       case 'registration_rejected':
         return alertCircle;
+      case 'medicine_request_created':
+        return mailOutline;
+      case 'medicine_request_status_update':
+        return alertCircle;
       default:
         return alertCircle;
     }
@@ -66,6 +70,10 @@ const Notifications: React.FC = () => {
         return 'tertiary';
       case 'registration_rejected':
         return 'danger';
+      case 'medicine_request_created':
+        return 'primary';
+      case 'medicine_request_status_update':
+        return 'tertiary';
       default:
         return 'warning';
     }

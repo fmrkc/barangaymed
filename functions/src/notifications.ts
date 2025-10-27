@@ -15,6 +15,20 @@ interface UserRegistrationRejectedData {
   reason: string | null;
 }
 
+interface MedicineRequestCreatedData {
+  requestId: string;
+  userId: string;
+  medicineName: string;
+}
+
+interface MedicineRequestStatusUpdatedData {
+  requestId: string;
+  userId: string;
+  medicineName: string;
+  oldStatus: string;
+  newStatus: string;
+}
+
 /**
  * Handles events published to the 'barangaymed-events' Pub/Sub topic.
  * This function will be the central hub for all notifications.
@@ -57,7 +71,35 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
         break;
       }
 
-      // Add more cases for other event types here
+      case "medicine.request.created": {
+        const eventData = data as MedicineRequestCreatedData;
+        await sendInAppNotification(eventData.userId, {
+          type: "medicine_request_created",
+          title: "Medicine Request Submitted",
+          message: `Your medicine request has been submitted and is pending review.`, 
+          metadata: {
+            requestId: eventData.requestId,
+            medicineName: eventData.medicineName,
+          },
+        });
+        break;
+      }
+
+      case "medicine.request.status.updated": {
+        const eventData = data as MedicineRequestStatusUpdatedData;
+        await sendInAppNotification(eventData.userId, {
+          type: "medicine_request_status_update",
+          title: `Medicine Request Status: ${eventData.newStatus.charAt(0).toUpperCase() + eventData.newStatus.slice(1)}`,
+          message: `Your medicine request has been updated from ${eventData.oldStatus} to ${eventData.newStatus}.`,
+          metadata: {
+            requestId: eventData.requestId,
+            medicineName: eventData.medicineName,
+            oldStatus: eventData.oldStatus,
+            newStatus: eventData.newStatus,
+          },
+        });
+        break;
+      }
 
       default:
         logger.warn(`No handler for event type: ${eventType}`);
@@ -67,4 +109,3 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
     logger.error(`Error handling event ${eventType}:`, error);
   }
 });
-

@@ -2,7 +2,7 @@ export interface Notification {
   id: string;
   userId: string;
   userEmail: string;
-  type: 'status_change' | 'admin_note' | 'system' | 'announcement' | 'new_announcement';
+  type: 'status_change' | 'admin_note' | 'system' | 'announcement' | 'new_announcement' | 'medicine_request_created' | 'medicine_request_status_update';
   title: string;
   message: string;
   timestamp: Date;
