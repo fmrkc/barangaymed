@@ -7,6 +7,7 @@ export interface Notification {
   message: string;
   timestamp: Date;
   read: boolean;
+  isShown: boolean;
   metadata: {
     requestId?: string;
     oldStatus?: string;

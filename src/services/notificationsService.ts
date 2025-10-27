@@ -29,7 +29,8 @@ export class NotificationsService {
     this.userId = userId;
 
     const q = query(
-      collection(db, 'users', userId, 'notifications'),
+      collection(db, 'notifications'),
+      where('userId', '==', userId),
       orderBy('timestamp', 'desc')
     );
 
@@ -53,6 +54,7 @@ export class NotificationsService {
             message: data.message,
             timestamp: data.timestamp.toDate(),
             read: data.read,
+            isShown: data.isShown ?? true,
             metadata: data.metadata || {}
           });
         });
@@ -109,7 +111,8 @@ export class NotificationsService {
   public async getUserNotificationsOnce(userId: string): Promise<Notification[]> {
     const operation = async () => {
       const q = query(
-        collection(db, 'users', userId, 'notifications'),
+        collection(db, 'notifications'),
+        where('userId', '==', userId),
         orderBy('timestamp', 'desc')
       );
 
@@ -127,6 +130,7 @@ export class NotificationsService {
           message: data.message,
           timestamp: data.timestamp.toDate(),
           read: data.read,
+          isShown: data.isShown ?? true,
           metadata: data.metadata || {}
         });
       });
@@ -189,7 +193,7 @@ export class NotificationsService {
    */
   public async markAsRead(notificationId: string, userId: string): Promise<void> {
     const operation = async () => {
-      const notificationRef = doc(db, 'users', userId, 'notifications', notificationId);
+      const notificationRef = doc(db, 'notifications', notificationId);
       await updateDoc(notificationRef, {
         read: true,
       });
@@ -227,8 +231,8 @@ export class NotificationsService {
    */
   public async markAllAsRead(userId: string): Promise<void> {
     const operation = async () => {
-      const notificationsRef = collection(db, 'users', userId, 'notifications');
-      const q = query(notificationsRef, where('read', '==', false));
+      const notificationsRef = collection(db, 'notifications');
+      const q = query(notificationsRef, where('userId', '==', userId), where('read', '==', false));
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {

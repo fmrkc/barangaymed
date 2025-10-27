@@ -8,6 +8,7 @@ export interface Notification {
   message: string;
   timestamp: FieldValue | Timestamp;
   read: boolean;
+  isShown: boolean;
   metadata?: {
     requestId?: string;
     oldStatus?: string;

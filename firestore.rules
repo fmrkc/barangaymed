@@ -85,12 +85,7 @@ service cloud.firestore {
 
 
 
-      // Subcollection: notifications
-      match /notifications/{notificationId} {
-        allow read: if isOwner(userId);
-        allow create: if isOwner(userId) || isSuperAdmin();
-        allow update, delete: if false;
-      }
+
 
       // Subcollection: logs
       match /logs/{logId} {
@@ -240,6 +235,18 @@ service cloud.firestore {
 
       // DELETE: Only super admins can delete logs.
       allow delete: if isSuperAdmin();
+    }
+
+
+// =================================================================
+// Collection: notifications
+// Users can read and update their own notifications. Creation is backend-only.
+// =================================================================
+    match /notifications/{notificationId} {
+      // Users can read and update their own notifications (e.g., to mark as read).
+      allow read, update: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      // Creation and deletion are handled by the backend, not allowed from the client.
+      allow create, delete: if false;
     }
 
   }

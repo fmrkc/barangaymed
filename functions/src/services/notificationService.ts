@@ -14,18 +14,16 @@ export const sendInAppNotification = async (
     throw new Error("User ID is required to send an in-app notification.");
   }
 
-  const notificationRef = admin
-    .firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("notifications");
+  const notificationRef = admin.firestore().collection("notifications");
 
-  const notification: Omit<Notification, 'id' | 'userId'> = {
+  const notification: Omit<Notification, 'id'> = {
+    userId: userId, // Add userId to the notification document
     type: notificationData.type || 'system',
     title: notificationData.title || "",
     message: notificationData.message || "",
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     read: false,
+    isShown: true,
     ...notificationData,
   };
 
