@@ -407,3 +407,5 @@ export { onUserDocUpdate } from './user-claims-triggers.js';
 export * from "./user-verification.js";
 export * from "./notifications.js";
 export * from "./medicine-request-triggers.js";
+export * from "./teleconsultation-request-triggers.js";
+export * from "./teleconsultation-notifications.js";
