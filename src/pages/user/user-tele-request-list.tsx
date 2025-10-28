@@ -22,7 +22,6 @@ const UserTeleRequestList: React.FC = () => {
 
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showCancelToast, setShowCancelToast] = useState(false);
-  const [showCompleteToast, setShowCompleteToast] = useState(false);
 
   // State for detail modal segment
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
@@ -158,47 +157,14 @@ const UserTeleRequestList: React.FC = () => {
     setRequestToCancel(null);
   };
 
-  const handleRefresh = async (event: CustomEvent) => {
-    // Simulate refresh delay to show loading
-    setTimeout(() => {
-      event.detail.complete();
-    }, 1500);
-  };
-
-  const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
-  const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
-
-  const handleMarkAsComplete = async (requestId: string) => {
-    if (!currentUser) return;
-    try {
-      const requestRef = doc(db, 'teleconsultationRequests', requestId);
-      await updateDoc(requestRef, {
-        status: 'completed',
-        updatedAt: new Date(),
-        auditTrail: arrayUnion({
-          action: 'Marked teleconsultation as completed by user',
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
-          userName: currentUser.displayName || currentUser.email || 'User',
-          timestamp: new Date(),
-        }),
-      });
-      setToastMessage('Teleconsultation request marked as complete.');
-      setShowCompleteToast(true);
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error marking request as complete: ", error);
-      setError("Failed to mark the request as complete.");
-    }
-  };
-
-  const confirmMarkAsComplete = (requestId: string) => {
-    setRequestToMarkComplete(requestId);
-    setShowMarkCompleteAlert(true);
-  };
-
-  return (
-    <>
+    const handleRefresh = async (event: CustomEvent) => {
+      // Simulate refresh delay to show loading
+      setTimeout(() => {
+        event.detail.complete();
+      }, 1500);
+    };
+  
+    return (    <>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonButtons slot="start">
@@ -311,9 +277,6 @@ const UserTeleRequestList: React.FC = () => {
                     <IonButton color="primary" href={request.prescriptionUrl} target="_blank" rel="noopener noreferrer">
                       View Prescription
                     </IonButton>
-                  )}
-                  {request.status === 'scheduled' && (
-                    <IonButton color="success" onClick={() => confirmMarkAsComplete(request.id!)}>Mark as Complete</IonButton>
                   )}
                 </div>
               </IonCardContent>
@@ -613,30 +576,6 @@ const UserTeleRequestList: React.FC = () => {
                       }
                     ]}
                   />
-                  <IonAlert
-                    isOpen={showMarkCompleteAlert}
-                    onDidDismiss={() => setShowMarkCompleteAlert(false)}
-                    header={'Confirm Mark as Complete'}
-                    message={'Are you sure you want to mark this teleconsultation request as completed?'}
-                    buttons={[
-                      {
-                        text: 'No',
-                        role: 'cancel',
-                        handler: () => {
-                          setRequestToMarkComplete(null);
-                        }
-                      },
-                      {
-                        text: 'Yes',
-                        handler: () => {
-                          if (requestToMarkComplete) {
-                            handleMarkAsComplete(requestToMarkComplete);
-                            setRequestToMarkComplete(null);
-                          }
-                        }
-                      }
-                    ]}
-                  />
           
                   <IonToast
                     isOpen={showCancelToast}
@@ -644,14 +583,6 @@ const UserTeleRequestList: React.FC = () => {
                     message={toastMessage}
                     duration={2000}
                     color="danger"
-                  />
-          
-                  <IonToast
-                    isOpen={showCompleteToast}
-                    onDidDismiss={() => setShowCompleteToast(false)}
-                    message={toastMessage}
-                    duration={2000}
-                    color="success"
                   />
           
                     </IonContent>
@@ -676,30 +607,6 @@ const UserTeleRequestList: React.FC = () => {
                       }
                     ]}
                   />
-                  <IonAlert
-                    isOpen={showMarkCompleteAlert}
-                    onDidDismiss={() => setShowMarkCompleteAlert(false)}
-                    header={'Confirm Mark as Complete'}
-                    message={'Are you sure you want to mark this teleconsultation request as completed?'}
-                    buttons={[
-                      {
-                        text: 'No',
-                        role: 'cancel',
-                        handler: () => {
-                          setRequestToMarkComplete(null);
-                        }
-                      },
-                      {
-                        text: 'Yes',
-                        handler: () => {
-                          if (requestToMarkComplete) {
-                            handleMarkAsComplete(requestToMarkComplete);
-                            setRequestToMarkComplete(null);
-                          }
-                        }
-                      }
-                    ]}
-                  />
 
                   <IonToast
                     isOpen={showCancelToast}
@@ -707,14 +614,6 @@ const UserTeleRequestList: React.FC = () => {
                     message={toastMessage}
                     duration={2000}
                     color="danger"
-                  />
-
-                  <IonToast
-                    isOpen={showCompleteToast}
-                    onDidDismiss={() => setShowCompleteToast(false)}
-                    message={toastMessage}
-                    duration={2000}
-                    color="success"
                   />
 
                     </IonContent>
