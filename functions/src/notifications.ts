@@ -29,6 +29,18 @@ interface MedicineRequestStatusUpdatedData {
   newStatus: string;
 }
 
+interface TeleconsultationRequestCreatedData {
+  requestId: string;
+  userId: string;
+}
+
+interface TeleconsultationRequestStatusUpdatedData {
+  requestId: string;
+  userId: string;
+  oldStatus: string;
+  newStatus: string;
+}
+
 /**
  * Handles events published to the 'barangaymed-events' Pub/Sub topic.
  * This function will be the central hub for all notifications.
@@ -94,6 +106,34 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
           metadata: {
             requestId: eventData.requestId,
             medicineName: eventData.medicineName,
+            oldStatus: eventData.oldStatus,
+            newStatus: eventData.newStatus,
+          },
+        });
+        break;
+      }
+
+      case "teleconsultation.request.created": {
+        const eventData = data as TeleconsultationRequestCreatedData;
+        await sendInAppNotification(eventData.userId, {
+          type: "teleconsultation_request_created",
+          title: "Teleconsultation Request Submitted",
+          message: "Your teleconsultation request has been submitted and is pending review.",
+          metadata: {
+            requestId: eventData.requestId,
+          },
+        });
+        break;
+      }
+
+      case "teleconsultation.request.status.updated": {
+        const eventData = data as TeleconsultationRequestStatusUpdatedData;
+        await sendInAppNotification(eventData.userId, {
+          type: "teleconsultation_request_status_update",
+          title: `Teleconsultation Request Status: ${eventData.newStatus.charAt(0).toUpperCase() + eventData.newStatus.slice(1)}`,
+          message: `Your teleconsultation request has been updated from ${eventData.oldStatus} to ${eventData.newStatus}.`,
+          metadata: {
+            requestId: eventData.requestId,
             oldStatus: eventData.oldStatus,
             newStatus: eventData.newStatus,
           },
