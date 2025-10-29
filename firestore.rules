@@ -179,10 +179,9 @@ service cloud.firestore {
                     isSuperAdmin();
 
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                      ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
-                      (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
+                      (resource.data.status == 'pending' && request.resource.data.status == 'cancelled')) ||
                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'processed', 'completed', 'cancelled', 'no show', 'pending completion']);
+                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'processed', 'completed', 'cancelled', 'no show']);
 
       allow delete: if false; // Deletion not allowed from client
     }
@@ -204,13 +203,11 @@ service cloud.firestore {
       allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||
                     isSuperAdmin();
 
-      // UPDATE: Users can cancel pending requests or mark accepted requests as completed.
-      // Admins can update requests in their barangay. Superadmins can update any request to any valid status.
+      // UPDATE: Users can cancel pending requests.
+      // Superadmins can update any request to any valid status.
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                      ((resource.data.status == 'pending' && request.resource.data.status == 'cancelled') ||
-                      (resource.data.status == 'pending completion' && request.resource.data.status == 'completed'))) ||
-                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion', 'completed']) ||
-                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'pending completion', 'completed']);
+                      ((resource.data.status == 'pending' || resource.data.status == 'accepted') && request.resource.data.status == 'cancelled')) ||
+                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'completed']);
 
       // DELETE: Deletion not allowed from client
       allow delete: if false;

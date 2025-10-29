@@ -23,7 +23,7 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline } from 'ionicons/icons';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline } from 'ionicons/icons';
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
@@ -59,9 +59,11 @@ const Notifications: React.FC = () => {
     switch (type) {
       case 'status_change':
       case 'registration_approved':
-      case 'teleconsultation.request.created':
-      case 'teleconsultation.request.status.updated':
         return checkmarkCircle;
+      case 'teleconsultation_request_status_update':
+        return alertCircle;
+      case 'teleconsultation_request_created':
+        return callOutline;
       case 'admin_note':
       case 'new_announcement':
         return mailOutline;
@@ -82,9 +84,11 @@ const Notifications: React.FC = () => {
     switch (type) {
       case 'status_change':
       case 'registration_approved':
-      case 'teleconsultation.request.created':
-      case 'teleconsultation.request.status.updated':
         return 'success';
+      case 'teleconsultation_request_status_update':
+        return 'warning';
+      case 'teleconsultation_request_created':
+        return 'primary';
       case 'admin_note':
       case 'new_announcement':
         return 'primary';
@@ -152,15 +156,14 @@ const Notifications: React.FC = () => {
           </div>
         )}
 
-       
-        {notifications.map((notification) => (
-          <IonList key={notification.id}>
+        <IonList>
+          {notifications.map((notification) => (
             <IonItem
+              key={notification.id}
               button
               detail={false}
               onClick={() => !notification.read && markAsRead(notification.id)}
-              className={!notification.read ? 'unread-notification' : ''}
-            >
+              className={`notification-item ${!notification.read ? 'unread-notification' : ''}`}>
               <IonIcon
                 slot="start"
                 icon={getNotificationIcon(notification.type)}
@@ -181,18 +184,19 @@ const Notifications: React.FC = () => {
                   </IonBadge>
                 )}
               </IonLabel>
-              <IonButtons slot="end">
-                <IonButton onClick={(e) => {
-                  e.stopPropagation(); // Prevent item click from firing
+              <IonButton
+                fill="clear"
+                size="small"
+                className="archive-button-corner"
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleArchiveClick(notification.id);
                 }}>
-                  <IonIcon slot="icon-only" icon={archiveOutline} />
-                </IonButton>
-              </IonButtons>
+                <IonIcon slot="icon-only" icon={closeOutline} />
+              </IonButton>
             </IonItem>
-          </IonList>
-        ))}
-      
+          ))}
+        </IonList>
 
         {notifications.length > 0 && (
           <div className="ion-padding ion-text-center">
@@ -231,6 +235,16 @@ const Notifications: React.FC = () => {
           .unread-notification {
             background-color: rgba(var(--ion-color-primary-rgb), 0.08);
             border-left: 4px solid var(--ion-color-primary);
+          }
+          .notification-item {
+            position: relative;
+          }
+          .archive-button-corner {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            --padding-start: 0;
+            --padding-end: 0;
           }
         `}
       </style>

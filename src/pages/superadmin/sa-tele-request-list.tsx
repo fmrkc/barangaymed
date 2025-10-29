@@ -1231,7 +1231,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           </IonContent>
           <IonFooter>
             <IonToolbar>
-              <IonButton expand="full" color="success" onClick={() => setShowMarkCompleteAlert(true)} disabled={isMarkingComplete}>
+              <IonButton expand="full" color="success" onClick={() => setShowMarkCompleteAlert(true)} disabled={isMarkingComplete || (hasPrescription && !prescriptionFile)}>
                 Mark as Completed
               </IonButton>
             </IonToolbar>

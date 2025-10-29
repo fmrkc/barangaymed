@@ -40,7 +40,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
 
   const checkActiveRequest = async () => {
     if (!currentUser) return;
-    const activeStatuses = ['pending', 'accepted', 'scheduled', 'pending completion'];
+    const activeStatuses = ['pending', 'accepted', 'scheduled'];
     const activeRequestsQuery = query(
       collection(db, 'medicineRequests'),
       where('userId', '==', currentUser.uid),
