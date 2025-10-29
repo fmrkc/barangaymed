@@ -153,12 +153,15 @@ const Login: React.FC = () => {
                             style={{ cursor: "pointer" }}
                           />
                         </IonInput>
-                        <IonButton    
-                         
+                        <IonButton
+                          routerLink="/forgot-password"
                           type="button"
                           fill="clear"
                           expand="block"
-                        >Forgot Password?</IonButton>
+                          routerDirection="forward"
+                        >
+                          Forgot Password?
+                        </IonButton>
                         {error && <p style={{ color: "red" }}>{error}</p>}
                         <IonButton
                           type="submit"
