@@ -40,8 +40,9 @@ import RedirectIfLoggedIn from './components/RedirectIfLoggedIn';
 import DashboardRedirect from './components/DashboardRedirect';
 import VerificationRedirector from './components/VerificationRedirector';
 
+import ForgotPassword from './pages/forgot-password';
+import ResetPassword from './pages/reset-password';
 import Login from './pages/login';
-import SuperRegister from './pages/superadmin/sa-register-admin';
 
 import AMenu from './pages/admin/admin-menu';
 
@@ -72,6 +73,12 @@ const App: React.FC = () => (
                   <Login />
                 </RedirectIfLoggedIn>
               </Route>
+              <Route exact path="/forgot-password">
+                <ForgotPassword />
+              </Route>
+              <Route exact path="/reset-password">
+                <ResetPassword />
+              </Route>
               <Route exact path="/">
                 <RedirectIfLoggedIn redirectTo="/dashboard">
                   <Login />
@@ -88,14 +95,6 @@ const App: React.FC = () => (
                 </ProtectedRoute>
               </Route>
 
-              <Route exact path="/superadmin/register">
-                <ProtectedRoute
-                  requiredRole="superadmin"
-                  redirectTo="/login"
-                >
-                  <SuperRegister />
-                </ProtectedRoute>
-              </Route>
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard">
