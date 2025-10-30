@@ -16,6 +16,7 @@ import Profile from './sa-profile';
 
 import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar, shield, bagAdd, clipboard, videocam } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
+import SARegisterResident from './sa-register-resident';
 
 const Menu: React.FC = () => {
     const { currentUser, logout, userRole } = useAuth();
@@ -24,7 +25,7 @@ const Menu: React.FC = () => {
 
     const dashboard = { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium };
     const bmedfeatures = [
-        { name: 'Register New Resident', url: '/superadmin/dashboard', icon: personAdd },
+        { name: 'Register New Resident', url: '/superadmin/dashboard/register-resident', icon: personAdd },
         { name: 'Create Medicine Request', url: '/superadmin/dashboard/create-med-request', icon: medkit },
         { name: 'Create Consultation Request', url: '/superadmin/dashboard', icon: videocam },
 
@@ -236,6 +237,7 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard/register-bhw" component={Admin_Register} />
             <Route exact path="/superadmin/dashboard/register-rhu" component={Super_Admin_Register} />
             <Route exact path="/superadmin/dashboard/rhu-announcements" component={Super_Announcements} />
+            <Route exact path="/superadmin/dashboard/register-resident" component={SARegisterResident} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>
