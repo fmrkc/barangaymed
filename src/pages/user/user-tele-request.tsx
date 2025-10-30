@@ -199,12 +199,13 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
 
   if (hasActiveRequest) {
     return (
+      <>
       <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
             <IonTitle>Teleconsultation Request</IonTitle>
             <IonButtons slot="end">
-              <IonButton onClick={handleDismiss}>Close</IonButton>
+              <IonButton onClick={onDidDismiss}>Close</IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -230,6 +231,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           </div>
         </IonContent>
       </IonModal>
+      </>
     );
   }
 
