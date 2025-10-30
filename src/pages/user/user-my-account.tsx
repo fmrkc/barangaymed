@@ -32,7 +32,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from "../../services/addressService";
 import CreateMedicalRecord from "./medical-record/create-medical-record";
 import ViewMedicalRecord from "./medical-record/view-medical-record";
-import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from "firebase/auth";
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus, rejectionReason } = useAuth();
