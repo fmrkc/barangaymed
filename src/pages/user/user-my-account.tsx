@@ -54,13 +54,6 @@ const Account: React.FC = () => {
   const [verifiedBy, setVerifiedBy] = useState("");
   const [verifiedAt, setVerifiedAt] = useState("");
 
-  // Change Email States
-  const [showChangeEmailModal, setShowChangeEmailModal] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
-  const [currentPasswordForEmail, setCurrentPasswordForEmail] = useState("");
-  const [changeEmailLoading, setChangeEmailLoading] = useState(false);
-  const [changeEmailError, setChangeEmailError] = useState<string | null>(null);
-
   // Change Password States
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -70,7 +63,6 @@ const Account: React.FC = () => {
   const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
 
   // Close Alert States
-  const [showCloseEmailAlert, setShowCloseEmailAlert] = useState(false);
   const [showClosePasswordAlert, setShowClosePasswordAlert] = useState(false);
 
 
@@ -150,33 +142,6 @@ const Account: React.FC = () => {
       console.error("Logout error:", error);
     } finally {
       setShowLoading(false);
-    }
-  };
-
-  const handleChangeEmail = async () => {
-    if (!currentUser || !newEmail || !currentPasswordForEmail) {
-      setChangeEmailError("All fields are required.");
-      return;
-    }
-    setChangeEmailLoading(true);
-    setChangeEmailError(null);
-    try {
-      const credential = EmailAuthProvider.credential(currentUser.email!, currentPasswordForEmail);
-      await reauthenticateWithCredential(currentUser, credential);
-      await updateEmail(currentUser, newEmail);
-      setShowChangeEmailModal(false);
-      // Optionally, show a success message
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setChangeEmailError(error.message);
-      } else {
-        setChangeEmailError("An unknown error occurred.");
-      }
-    } finally {
-      setChangeEmailLoading(false);
-      setShowChangeEmailModal(false);
-      setCurrentPasswordForEmail("");
-      setNewEmail("");
     }
   };
 
@@ -317,30 +282,7 @@ const Account: React.FC = () => {
           ]}
         ></IonAlert>
 
-        <IonAlert
-          isOpen={showCloseEmailAlert}
-          onDidDismiss={() => setShowCloseEmailAlert(false)}
-          backdropDismiss={false}
-          header="Discard Changes?"
-          message="Are you sure you want to close without saving your email changes?"
-          buttons={[
-            {
-              text: "Cancel",
-              role: "cancel",
-            },
-            {
-              text: "Discard",
-              role: "confirm",
-              handler: () => {
-                setShowChangeEmailModal(false);
-                setShowCloseEmailAlert(false);
-                setNewEmail("");
-                setCurrentPasswordForEmail("");
-                setChangeEmailError(null);
-              },
-            },
-          ]}
-        ></IonAlert>
+
 
         <IonAlert
           isOpen={showClosePasswordAlert}
@@ -468,10 +410,7 @@ const Account: React.FC = () => {
                     {currentUser?.email || "Not specified"}
                   </IonLabel>
                 </IonItem>
-                <IonButton className="ion-padding-vertical" expand="block" onClick={() => setShowChangeEmailModal(true)}>
-                  Change Email
-                  <IonIcon icon={mail} slot="end" />
-                </IonButton>
+
                  <IonItemDivider className="ion-margin-top">Password:</IonItemDivider>
                 
                 <IonButton className="ion-padding-vertical" expand="block" onClick={() => setShowChangePasswordModal(true)}>
@@ -497,37 +436,8 @@ const Account: React.FC = () => {
           </IonContent>
         </IonModal>
 
-        {/* Change Email Modal */}
-        <IonModal isOpen={showChangeEmailModal} onDidDismiss={() => setShowChangeEmailModal(false)} backdropDismiss={false}>
-          <IonHeader className="ion-no-border">
-            <IonToolbar>
-              <IonTitle>Change Email</IonTitle>
-              <IonButton slot="end" fill="clear" onClick={() => setShowCloseEmailAlert(true)}>
-                <IonIcon icon={close} slot="icon-only" />
-              </IonButton>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent className="ion-padding">
-            <IonCard>
-              <IonCardContent>
-                <IonItemDivider className="ion-margin-top">New Email:</IonItemDivider>
-                <IonItem>
-                  <IonInput fill="outline" type="email" value={newEmail} onIonChange={(e) => setNewEmail(e.detail.value!)} />
-                </IonItem>
-                <IonItemDivider className="ion-margin-top">Current Password:</IonItemDivider>
-                <IonItem>
-                  <IonInput fill="outline" type="password" value={currentPasswordForEmail} onIonChange={(e) => setCurrentPasswordForEmail(e.detail.value!)} />
-                </IonItem>
 
 
-                {changeEmailError && <IonText color="danger"><p>{changeEmailError}</p></IonText>}
-                <IonButton className="ion-padding-vertical ion-margin-top" shape="round" expand="block" onClick={handleChangeEmail} disabled={changeEmailLoading}>
-                  {changeEmailLoading ? <IonLoading isOpen={changeEmailLoading} message={'Updating...'} /> : "Update Email"}
-                </IonButton>
-              </IonCardContent>
-            </IonCard>
-          </IonContent>
-        </IonModal>
 
         {/* Change Password Modal */}
         <IonModal isOpen={showChangePasswordModal} onDidDismiss={() => setShowChangePasswordModal(false)} backdropDismiss={false}>
