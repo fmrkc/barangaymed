@@ -26,9 +26,9 @@ import {
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, person, medical, document, checkmark, warning, time, mail, home, close, lockClosed } from "ionicons/icons";
+import { logOut, person, medical, document, checkmark, warning, time, mail, home, close, lockClosed, eye, eyeOff } from "ionicons/icons";
 import { db } from "../../firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc } from "firebase/firestore";
 import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from "../../services/addressService";
 import CreateMedicalRecord from "./medical-record/create-medical-record";
 import ViewMedicalRecord from "./medical-record/view-medical-record";
@@ -64,6 +64,7 @@ const Account: React.FC = () => {
 
   // Close Alert States
   const [showClosePasswordAlert, setShowClosePasswordAlert] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const fetchMedicalRecordStatus = async () => {
@@ -164,18 +165,45 @@ const Account: React.FC = () => {
       console.log("User re-authenticated. Updating password...");
       await updatePassword(currentUser, newPassword);
       console.log("Password updated successfully.");
+
+      // Create a notification for the password change
+      if (currentUser) {
+        await addDoc(collection(db, "notifications"), {
+          userId: currentUser.uid, // Add userId to the document
+          title: "Password Changed",
+          message: "Your password was successfully changed.",
+          type: "password_changed",
+          timestamp: new Date(),
+          read: false,
+          isShown: true, // Ensure it's shown by default
+        });
+      }
+
       present({
         message: 'Password changed successfully!',
         duration: 2000,
         color: 'success',
       });
-    } catch (error: unknown) {
+    } catch (error: any) { // Changed to 'any' to access error.code
       console.error("Error changing password:", error);
-      if (error instanceof Error) {
-        setChangePasswordError(error.message);
-      } else {
-        setChangePasswordError("An unknown error occurred.");
+      let errorMessage = "An unknown error occurred.";
+      switch (error.code) {
+        case "auth/wrong-password":
+          errorMessage = "The current password you entered is incorrect.";
+          break;
+        case "auth/requires-recent-login":
+          errorMessage = "For security, please log out and log back in before changing your password.";
+          break;
+        case "auth/weak-password":
+          errorMessage = "The new password is too weak. Please choose a stronger password.";
+          break;
+        default:
+          if (error instanceof Error) {
+            errorMessage = error.message;
+          }
+          break;
       }
+      setChangePasswordError(errorMessage);
     } finally {
       setChangePasswordLoading(false);
       setShowChangePasswordModal(false);
@@ -418,6 +446,11 @@ const Account: React.FC = () => {
                   <IonIcon icon={lockClosed} slot="end" />
                 </IonButton>
 
+                
+              </IonCardContent>
+            </IonCard>
+            <IonCard>
+              <IonCardContent>
                 {verificationStatus === 'verified' && (
                   <>
                     <IonItemDivider className="ion-margin-top">Verification Details:</IonItemDivider>
@@ -454,15 +487,33 @@ const Account: React.FC = () => {
               <IonCardContent>
                 <IonItemDivider className="ion-margin-top">Current Password:</IonItemDivider>
                 <IonItem lines="none">
-                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter old password here" type="password" value={currentPassword} onIonChange={(e) => setCurrentPassword(e.detail.value!)} />
+                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter old password here" type={showPassword ? 'text' : 'password'} value={currentPassword} onIonChange={(e) => setCurrentPassword(e.detail.value!)} />
+                  <IonIcon
+                    icon={showPassword ? eyeOff : eye}
+                    slot="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </IonItem>
-                <IonItemDivider className="ion-margin-top">New Password:</IonItemDivider>                
+                <IonItemDivider className="ion-margin-top">New Password:</IonItemDivider>
                 <IonItem lines="none">
-                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter new password here" type="password" value={newPassword} onIonChange={(e) => setNewPassword(e.detail.value!)} />
+                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter new password here" type={showPassword ? 'text' : 'password'} value={newPassword} onIonChange={(e) => setNewPassword(e.detail.value!)} />
+                  <IonIcon
+                    icon={showPassword ? eyeOff : eye}
+                    slot="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </IonItem>
                 <IonItemDivider className="ion-margin-top">Confirm New Password:</IonItemDivider>
                 <IonItem lines="none">
-                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter new password here" type="password" value={confirmNewPassword} onIonChange={(e) => setConfirmNewPassword(e.detail.value!)} />
+                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter new password here" type={showPassword ? 'text' : 'password'} value={confirmNewPassword} onIonChange={(e) => setConfirmNewPassword(e.detail.value!)} />
+                  <IonIcon
+                    icon={showPassword ? eyeOff : eye}
+                    slot="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ cursor: 'pointer' }}
+                  />
                 </IonItem>
 
               
