@@ -21,22 +21,26 @@ import {
   IonModal,
   IonInput,
   IonText,
+  IonToast,
+  useIonToast,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { logOut, create, person, logIn, medical, document, checkmark, warning, time, mail, home, heartCircle, ellipse } from "ionicons/icons";
+import { logOut, person, medical, document, checkmark, warning, time, mail, home, close, lockClosed } from "ionicons/icons";
 import { db } from "../../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { getBarangayNameByCode, getZipCodeByBarangay, getRegionNameByCode, getProvinceNameByCode, getCityMunNameByCode } from "../../services/addressService";
 import CreateMedicalRecord from "./medical-record/create-medical-record";
 import ViewMedicalRecord from "./medical-record/view-medical-record";
+import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from "firebase/auth";
 
 const Account: React.FC = () => {
   const { logout, currentUser, verificationStatus, rejectionReason } = useAuth();
   const router = useIonRouter();
+  const [present] = useIonToast();
   const [showLoading, setShowLoading] = useState(false);
-  const [FullName, setFullName] = useState("");
-  const [FullLocation, setFullLocation] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [fullLocation, setFullLocation] = useState("");
   const [barangayName, setBarangayName] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [gender, setGender] = useState("");
@@ -50,6 +54,26 @@ const Account: React.FC = () => {
   const [verifiedBy, setVerifiedBy] = useState("");
   const [verifiedAt, setVerifiedAt] = useState("");
 
+  // Change Email States
+  const [showChangeEmailModal, setShowChangeEmailModal] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [currentPasswordForEmail, setCurrentPasswordForEmail] = useState("");
+  const [changeEmailLoading, setChangeEmailLoading] = useState(false);
+  const [changeEmailError, setChangeEmailError] = useState<string | null>(null);
+
+  // Change Password States
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+  const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
+
+  // Close Alert States
+  const [showCloseEmailAlert, setShowCloseEmailAlert] = useState(false);
+  const [showClosePasswordAlert, setShowClosePasswordAlert] = useState(false);
+
+
   const fetchMedicalRecordStatus = async () => {
     if (!currentUser) return;
     const medicalRecordDoc = await getDoc(doc(db, "medicalRecords", currentUser.uid));
@@ -62,7 +86,6 @@ const Account: React.FC = () => {
 
       setIsLoadingUserData(true);
       try {
-        // Fetch user data
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -106,7 +129,6 @@ const Account: React.FC = () => {
           setVerifiedAt(userData.verifiedAt ? new Date(userData.verifiedAt.toDate()).toLocaleString() : "N/A");
         }
 
-        // Check for medical record
         fetchMedicalRecordStatus();
 
       } catch (error) {
@@ -119,8 +141,6 @@ const Account: React.FC = () => {
     fetchUserData();
   }, [currentUser, verificationStatus, rejectionReason]);
 
-
-
   const handleLogout = async () => {
     setShowLoading(true);
     try {
@@ -132,6 +152,74 @@ const Account: React.FC = () => {
       setShowLoading(false);
     }
   };
+
+  const handleChangeEmail = async () => {
+    if (!currentUser || !newEmail || !currentPasswordForEmail) {
+      setChangeEmailError("All fields are required.");
+      return;
+    }
+    setChangeEmailLoading(true);
+    setChangeEmailError(null);
+    try {
+      const credential = EmailAuthProvider.credential(currentUser.email!, currentPasswordForEmail);
+      await reauthenticateWithCredential(currentUser, credential);
+      await updateEmail(currentUser, newEmail);
+      setShowChangeEmailModal(false);
+      // Optionally, show a success message
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setChangeEmailError(error.message);
+      } else {
+        setChangeEmailError("An unknown error occurred.");
+      }
+    } finally {
+      setChangeEmailLoading(false);
+      setShowChangeEmailModal(false);
+      setCurrentPasswordForEmail("");
+      setNewEmail("");
+    }
+  };
+
+  const handleChangePassword = async () => {
+    console.log("handleChangePassword called");
+    if (!currentUser || !currentPassword || !newPassword || !confirmNewPassword) {
+      setChangePasswordError("All fields are required.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setChangePasswordError("New passwords do not match.");
+      return;
+    }
+    setChangePasswordLoading(true);
+    setChangePasswordError(null);
+    try {
+      console.log("Re-authenticating user...");
+      const credential = EmailAuthProvider.credential(currentUser.email!, currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      console.log("User re-authenticated. Updating password...");
+      await updatePassword(currentUser, newPassword);
+      console.log("Password updated successfully.");
+      present({
+        message: 'Password changed successfully!',
+        duration: 2000,
+        color: 'success',
+      });
+    } catch (error: unknown) {
+      console.error("Error changing password:", error);
+      if (error instanceof Error) {
+        setChangePasswordError(error.message);
+      } else {
+        setChangePasswordError("An unknown error occurred.");
+      }
+    } finally {
+      setChangePasswordLoading(false);
+      setShowChangePasswordModal(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    }
+  };
+
 
   const isVerified = verificationStatus === 'verified';
 
@@ -154,7 +242,7 @@ const Account: React.FC = () => {
                 <div>
                   <IonCardTitle>
                     <div style={{ fontWeight: "bold" }}>
-                      {FullName || "No Name Provided"}
+                      {fullName || "No Name Provided"}
                     </div>
                   </IonCardTitle>
                   <IonCardSubtitle>
@@ -220,21 +308,64 @@ const Account: React.FC = () => {
             {
               text: "Cancel",
               role: "cancel",
-              handler: () => {
-                console.log("Alert canceled");
-              },
             },
             {
               text: "OK",
               role: "confirm",
+              handler: handleLogout,
+            },
+          ]}
+        ></IonAlert>
+
+        <IonAlert
+          isOpen={showCloseEmailAlert}
+          onDidDismiss={() => setShowCloseEmailAlert(false)}
+          backdropDismiss={false}
+          header="Discard Changes?"
+          message="Are you sure you want to close without saving your email changes?"
+          buttons={[
+            {
+              text: "Cancel",
+              role: "cancel",
+            },
+            {
+              text: "Discard",
+              role: "confirm",
               handler: () => {
-                handleLogout();
+                setShowChangeEmailModal(false);
+                setShowCloseEmailAlert(false);
+                setNewEmail("");
+                setCurrentPasswordForEmail("");
+                setChangeEmailError(null);
               },
             },
           ]}
-          onDidDismiss={({ detail }) =>
-            console.log(`Dismissed with role: ${detail.role}`)
-          }
+        ></IonAlert>
+
+        <IonAlert
+          isOpen={showClosePasswordAlert}
+          onDidDismiss={() => setShowClosePasswordAlert(false)}
+          backdropDismiss={false}
+          header="Discard Changes?"
+          message="Are you sure you want to close without saving your password changes?"
+          buttons={[
+            {
+              text: "Cancel",
+              role: "cancel",
+            },
+            {
+              text: "Discard",
+              role: "confirm",
+              handler: () => {
+                setShowChangePasswordModal(false);
+                setShowClosePasswordAlert(false);
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmNewPassword("");
+                setChangePasswordError(null);
+              },
+            },
+          ]}
         ></IonAlert>
         
         {hasMedicalRecord ? (
@@ -255,13 +386,13 @@ const Account: React.FC = () => {
           />
         )}
 
-         
-
         <IonModal isOpen={showPersonalModal} onDidDismiss={() => setShowPersonalModal(false)}>
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Personal Info</IonTitle>
-              <IonButton slot="end" fill="clear" onClick={() => setShowPersonalModal(false)}>Close</IonButton>
+              <IonButton slot="end" fill="clear" onClick={() => setShowPersonalModal(false)}>
+                <IonIcon icon={close} slot="icon-only" />
+              </IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding">
@@ -270,7 +401,7 @@ const Account: React.FC = () => {
               <IonItemDivider className="ion-margin-top">Full Name:</IonItemDivider>
             <IonItem>
               <IonLabel style={{ fontWeight: 'bold'}}>
-                {FullName || "No Name Provided"}
+                {fullName || "No Name Provided"}
               </IonLabel>
             </IonItem>
             <IonItemDivider className="ion-margin-top">Birthdate:</IonItemDivider>
@@ -294,7 +425,9 @@ const Account: React.FC = () => {
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Location Info</IonTitle>
-              <IonButton slot="end" fill="clear" onClick={() => setShowLocationModal(false)}>Close</IonButton>
+              <IonButton slot="end" fill="clear" onClick={() => setShowLocationModal(false)}>
+                <IonIcon icon={close} slot="icon-only" />
+              </IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding">
@@ -303,7 +436,7 @@ const Account: React.FC = () => {
                 <IonItemDivider className="ion-margin-top">Full Location:</IonItemDivider>
                 <IonItem>
                   <IonLabel style={{ fontWeight: 'bold' }}>
-                    {FullLocation || "Not specified"}
+                    {fullLocation || "Not specified"}
                   </IonLabel>
                 </IonItem>
                 <IonItemDivider className="ion-margin-top">Address:</IonItemDivider>
@@ -321,7 +454,9 @@ const Account: React.FC = () => {
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Account Info</IonTitle>
-              <IonButton slot="end" fill="clear" onClick={() => setShowAccountModal(false)}>Close</IonButton>
+              <IonButton slot="end" fill="clear" onClick={() => setShowAccountModal(false)}>
+                <IonIcon icon={close} slot="icon-only" />
+              </IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding">
@@ -333,10 +468,16 @@ const Account: React.FC = () => {
                     {currentUser?.email || "Not specified"}
                   </IonLabel>
                 </IonItem>
-                <IonButton className="ion-padding-vertical" expand="block">Change Email</IonButton>
+                <IonButton className="ion-padding-vertical" expand="block" onClick={() => setShowChangeEmailModal(true)}>
+                  Change Email
+                  <IonIcon icon={mail} slot="end" />
+                </IonButton>
                  <IonItemDivider className="ion-margin-top">Password:</IonItemDivider>
                 
-                <IonButton className="ion-padding-vertical" expand="block">Change Password</IonButton>
+                <IonButton className="ion-padding-vertical" expand="block" onClick={() => setShowChangePasswordModal(true)}>
+                  Change Password
+                  <IonIcon icon={lockClosed} slot="end" />
+                </IonButton>
 
                 {verificationStatus === 'verified' && (
                   <>
@@ -353,8 +494,74 @@ const Account: React.FC = () => {
                 )}
               </IonCardContent>
             </IonCard>
-            
-          
+          </IonContent>
+        </IonModal>
+
+        {/* Change Email Modal */}
+        <IonModal isOpen={showChangeEmailModal} onDidDismiss={() => setShowChangeEmailModal(false)} backdropDismiss={false}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Change Email</IonTitle>
+              <IonButton slot="end" fill="clear" onClick={() => setShowCloseEmailAlert(true)}>
+                <IonIcon icon={close} slot="icon-only" />
+              </IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonCard>
+              <IonCardContent>
+                <IonItemDivider className="ion-margin-top">New Email:</IonItemDivider>
+                <IonItem>
+                  <IonInput fill="outline" type="email" value={newEmail} onIonChange={(e) => setNewEmail(e.detail.value!)} />
+                </IonItem>
+                <IonItemDivider className="ion-margin-top">Current Password:</IonItemDivider>
+                <IonItem>
+                  <IonInput fill="outline" type="password" value={currentPasswordForEmail} onIonChange={(e) => setCurrentPasswordForEmail(e.detail.value!)} />
+                </IonItem>
+
+
+                {changeEmailError && <IonText color="danger"><p>{changeEmailError}</p></IonText>}
+                <IonButton className="ion-padding-vertical ion-margin-top" shape="round" expand="block" onClick={handleChangeEmail} disabled={changeEmailLoading}>
+                  {changeEmailLoading ? <IonLoading isOpen={changeEmailLoading} message={'Updating...'} /> : "Update Email"}
+                </IonButton>
+              </IonCardContent>
+            </IonCard>
+          </IonContent>
+        </IonModal>
+
+        {/* Change Password Modal */}
+        <IonModal isOpen={showChangePasswordModal} onDidDismiss={() => setShowChangePasswordModal(false)} backdropDismiss={false}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Change Password</IonTitle>
+              <IonButton slot="end" fill="clear" onClick={() => setShowClosePasswordAlert(true)}>
+                <IonIcon icon={close} slot="icon-only" />
+              </IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonCard>
+              <IonCardContent>
+                <IonItemDivider className="ion-margin-top">Current Password:</IonItemDivider>
+                <IonItem lines="none">
+                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter old password here" type="password" value={currentPassword} onIonChange={(e) => setCurrentPassword(e.detail.value!)} />
+                </IonItem>
+                <IonItemDivider className="ion-margin-top">New Password:</IonItemDivider>                
+                <IonItem lines="none">
+                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter new password here" type="password" value={newPassword} onIonChange={(e) => setNewPassword(e.detail.value!)} />
+                </IonItem>
+                <IonItemDivider className="ion-margin-top">Confirm New Password:</IonItemDivider>
+                <IonItem lines="none">
+                  <IonInput className="ion-margin-bottom" fill="outline" placeholder="Enter new password here" type="password" value={confirmNewPassword} onIonChange={(e) => setConfirmNewPassword(e.detail.value!)} />
+                </IonItem>
+
+              
+                {changePasswordError && <IonText color="danger"><p>{changePasswordError}</p></IonText>}
+                <IonButton className="ion-padding-vertical ion-margin-top" shape="round" expand="block" onClick={handleChangePassword} disabled={changePasswordLoading}>
+                  {changePasswordLoading ? <IonLoading isOpen={changePasswordLoading} message={'Updating...'} /> : "Update Password"}
+                </IonButton>
+              </IonCardContent>
+            </IonCard>
           </IonContent>
         </IonModal>
 
