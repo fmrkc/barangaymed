@@ -356,11 +356,6 @@ const AdminManagement: React.FC = () => {
                         </IonList>
                     )}
                 </IonContent>
-                <IonFooter>
-                    <IonToolbar>
-                        <IonButton expand="block" onClick={() => { /* Placeholder for edit */ }}>Edit</IonButton>
-                    </IonToolbar>
-                </IonFooter>
             </IonModal>
         </IonPage>
     );

@@ -31,19 +31,16 @@ const Menu: React.FC = () => {
     ];
     const medicine = [
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
-        { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: megaphone },
-        { name: 'Medicine Transfer', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
+        { name: 'Medicine Requests', url: '/superadmin/dashboard/medicine-requests', icon: clipboard },
     ];
     const announcements = [
-        { name: 'Brgy. Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
-        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: medical },
+        { name: 'RHU Announcements', url: '/superadmin/dashboard/rhu-announcements', icon: megaphone },
     ];
     const teleconsultation = [
         { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
     ];
     const admins = [
         { name: 'BHW Accounts', url: '/superadmin/dashboard/bhw-accounts', icon: people },
-        { name: 'RHU Accounts', url: '/superadmin/dashboard/rhu-accounts', icon: people },
     ];
 
     const handleLogout = async () => {
@@ -157,6 +154,14 @@ const Menu: React.FC = () => {
                           </IonMenuToggle>
                         ))}
                       </div>
+                      {currentUser?.email === 'barangaymed@gmail.com' && (
+                        <IonMenuToggle autoHide={false}>
+                          <IonItem detail={false} routerLink="/superadmin/dashboard/register-rhu" routerDirection="none">
+                            <IonIcon slot="start" icon={person} />
+                            Create RHU Account
+                          </IonItem>
+                        </IonMenuToggle>
+                      )}
                     </IonAccordion>
                   </IonAccordionGroup>
                 </div>
@@ -167,14 +172,7 @@ const Menu: React.FC = () => {
                       RHU Dashboard
                     </IonLabel>
                   </IonItemDivider>
-                  {currentUser?.email === 'barangaymed@gmail.com' && (
-                    <IonMenuToggle autoHide={false}>
-                      <IonItem detail={false} routerLink="/superadmin/dashboard/register-rhu" routerDirection="none">
-                        <IonIcon slot="start" icon={person} />
-                        Create RHU Account
-                      </IonItem>
-                    </IonMenuToggle>
-                  )}
+                  
                   <IonAccordionGroup>
                     <IonAccordion value="account">
                       <IonItem slot="header">
