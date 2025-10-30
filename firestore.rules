@@ -50,8 +50,8 @@ service cloud.firestore {
                     isSuperAdmin();
 
       // CREATE: Allow user creation during registration.
-      allow create: if request.auth != null && request.auth.uid == userId
-                    && request.resource.data.role == 'user';
+      allow create: if (request.auth != null && request.auth.uid == userId
+                    && request.resource.data.role == 'user') || isSuperAdmin();
 
       // UPDATE: A user can update their own non-sensitive info. Admins/SuperAdmins have their own backend functions for updates.
       allow update: if isOwner(userId) &&
