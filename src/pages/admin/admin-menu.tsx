@@ -4,6 +4,7 @@ import { Route } from 'react-router';
 import { useIonRouter } from '@ionic/react';
 
 import Dashboard from './admin-dashboard';
+import Profile from './admin-profile';
 import Residents from './admin-residents';
 import Verification from './admin-resident-verification';
 import Inventory from './admin-med-inventory';
@@ -133,7 +134,7 @@ const Menu: React.FC = () => {
                       </IonItem>
                       <div slot="content">
                         <IonMenuToggle autoHide={false}>
-                          <IonItem detail={false} button>
+                          <IonItem detail={false} button routerLink="/admin/dashboard/profile" routerDirection="none">
                             <IonIcon slot="start" icon={person} />
                             Profile
                           </IonItem>
@@ -176,6 +177,7 @@ const Menu: React.FC = () => {
           </IonMenu>
           <IonRouterOutlet id="main">
             <Route exact path="/admin/dashboard" component={Dashboard} />
+            <Route exact path="/admin/dashboard/profile" component={Profile} />
             <Route exact path="/admin/dashboard/residents" component={Residents} />
             <Route exact path="/admin/dashboard/residents/verification" component={Verification} />
             <Route exact path="/admin/dashboard/inventory" component={Inventory} />
