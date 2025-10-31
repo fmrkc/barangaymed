@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   IonHeader,
   IonToolbar,
@@ -42,6 +42,7 @@ import {
   IonCol,
   IonCardSubtitle,
   IonToast,
+  IonSkeletonText,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -63,14 +64,6 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [regions, setRegions] = useState<Region[]>([]);
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
-  const [barangays, setBarangays] = useState<Barangay[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedCityMunicipality, setSelectedCityMunicipality] = useState('');
   const [selectedBarangayFilter, setSelectedBarangayFilter] = useState('all');
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
@@ -122,51 +115,15 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showAcceptToast, setShowAcceptToast] = useState(false);
 
-  useEffect(() => {
-    const loadRegions = async () => {
-      setRegions(await getRegions());
-    };
-    loadRegions();
-  }, []);
-
-  useEffect(() => {
-    const loadProvinces = async () => {
-      if (selectedRegion) {
-        setProvinces(await getProvincesByRegion(selectedRegion));
-        setSelectedProvince('');
-        setSelectedCityMunicipality('');
-      } else {
-        setProvinces([]);
-        setSelectedProvince('');
-        setSelectedCityMunicipality('');
+  const barangayFilterOptions = useMemo(() => {
+    const uniqueBarangays = new Map<string, string>();
+    requests.forEach(req => {
+      if (req.barangayId && req.barangayName) {
+        uniqueBarangays.set(req.barangayId, req.barangayName);
       }
-    };
-    loadProvinces();
-  }, [selectedRegion]);
-
-  useEffect(() => {
-    const loadCitiesMunicipalities = async () => {
-      if (selectedProvince) {
-        setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(selectedProvince));
-        setSelectedCityMunicipality('');
-      } else {
-        setCitiesMunicipalities([]);
-        setSelectedCityMunicipality('');
-      }
-    };
-    loadCitiesMunicipalities();
-  }, [selectedProvince]);
-
-  useEffect(() => {
-    const loadBarangays = async () => {
-      if (selectedCityMunicipality) {
-        setBarangays(await getBarangaysByCityMunicipality(selectedCityMunicipality));
-      } else {
-        setBarangays([]);
-      }
-    };
-    loadBarangays();
-  }, [selectedCityMunicipality]);
+    });
+    return Array.from(uniqueBarangays.entries()).map(([id, name]) => ({ id, name }));
+  }, [requests]);
 
   const handleRefresh = (event: CustomEvent) => {
     setLoading(true);
@@ -277,7 +234,7 @@ const SuperAdminMedRequestList: React.FC = () => {
     }
 
     setFilteredRequests(filtered);
-  }, [filter, requests, selectedBarangayFilter, selectedCityMunicipality, selectedProvince, selectedRegion]);
+  }, [filter, requests, selectedBarangayFilter]);
 
   const handleViewDetails = (request: MedicineRequest) => {
     setSelectedRequest(request);
@@ -641,12 +598,40 @@ const SuperAdminMedRequestList: React.FC = () => {
         </IonSegment>
         <IonToolbar>
             <IonSearchbar value={searchQuery} onIonChange={e => setSearchQuery(e.detail.value!)} placeholder="Search by resident name..." />
-          <IonButton size='large' fill='outline' slot="end" onClick={() => setShowFilterModal(true)}>
-            <IonIcon icon={filterOutline} slot='icon-only' />
-          </IonButton>
+        </IonToolbar>
+        <IonToolbar className="ion-padding-horizontal">
+            <IonSelect value={selectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setSelectedBarangayFilter(e.detail.value)}>
+            <IonSelectOption value="all">All Barangays</IonSelectOption>
+            {barangayFilterOptions.map(b => (
+              <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+            ))}
+          </IonSelect>
         </IonToolbar>
 
-        {loading && <IonLoading isOpen={loading} message="Loading requests..." />}
+                {loading && (
+          <IonList style={{ backgroundColor: 'transparent' }}>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <IonCard key={index}>
+                <IonCardHeader>
+                  <IonCardTitle>
+                    <IonSkeletonText animated style={{ width: '60%' }} />
+                  </IonCardTitle>
+                  <IonCardSubtitle>
+                    <IonSkeletonText animated style={{ width: '40%' }} />
+                  </IonCardSubtitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <IonSkeletonText animated style={{ width: '80%', marginBottom: '8px' }} />
+                  <IonSkeletonText animated style={{ width: '90%', marginBottom: '8px' }} />
+                   <div style={{ display: 'flex', gap: '10px' }}>
+                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                    </div>
+                </IonCardContent>
+              </IonCard>
+            ))}
+          </IonList>
+        )}
         {error && (
           <IonText color="danger" className="ion-padding">
             {error}
@@ -795,89 +780,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           ))}
         </IonList>
 
-        {/* Filter Modal */}
-        <IonModal isOpen={showFilterModal} onDidDismiss={() => setShowFilterModal(false)}>
-          <IonHeader className='ion-no-border'>
-            <IonToolbar>
-              <IonTitle>Filter Requests</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowFilterModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <IonCard>
-              <IonCardContent className='ion-margin-vertical'>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by Region'
-                    value={selectedRegion}
-                    onIonChange={e => setSelectedRegion(e.detail.value)}
-                    placeholder="Select Region"
-                  >
-                    <IonSelectOption value="">All Regions</IonSelectOption>
-                    {regions.map(region => (
-                      <IonSelectOption key={region.code} value={region.code}>{region.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by Province'
-                    value={selectedProvince}
-                    onIonChange={e => setSelectedProvince(e.detail.value)}
-                    placeholder="Select Province"
-                    disabled={!selectedRegion}
-                  >
-                    <IonSelectOption value="">All Provinces</IonSelectOption>
-                    {provinces.map(province => (
-                      <IonSelectOption key={province.code} value={province.code}>{province.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by City/Municipality'
-                    value={selectedCityMunicipality}
-                    onIonChange={e => setSelectedCityMunicipality(e.detail.value)}
-                    placeholder="Select City/Municipality"
-                    disabled={!selectedProvince}
-                  >
-                    <IonSelectOption value="">All Cities/Municipalities</IonSelectOption>
-                    {citiesMunicipalities.map(city => (
-                      <IonSelectOption key={city.code} value={city.code}>{city.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by Barangay'
-                    value={selectedBarangayFilter}
-                    onIonChange={e => setSelectedBarangayFilter(e.detail.value)}
-                    placeholder="Select Barangay"
-                    disabled={!selectedCityMunicipality}
-                  >
-                    <IonSelectOption value="all">All Barangays</IonSelectOption>
-                    {barangays.map(brgy => (
-                      <IonSelectOption key={brgy.code} value={brgy.code}>{brgy.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-              </IonCardContent>
-            </IonCard>
-          </IonContent>
-          <IonFooter>
-            <IonToolbar>
-               <IonButton className='ion-padding-vertical' shape='round' expand="block" onClick={() => setShowFilterModal(false)}>Apply Filters</IonButton>
-            </IonToolbar>
-          </IonFooter>
-        </IonModal>
+
 
         {/* Request Details Modal */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
@@ -904,6 +807,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 </IonSegment>
                 <IonCard>
                   {detailSegment === 'request' && (() => {
+                    const creationEntry = selectedRequest.auditTrail?.find(e => e.action === 'Created request from teleconsultation');
                     const acceptanceEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Accepted request');
                     const rejectionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Rejected request');
                     const processingEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Processed request');
@@ -963,6 +867,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonLabel>Requested At:</IonLabel>
                           <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
                         </IonItem>
+                        {creationEntry && (
+                          <IonItem>
+                            <IonLabel>Created By:</IonLabel>
+                            <IonText slot="end">{creationEntry.userName} ({creationEntry.userEmail})</IonText>
+                          </IonItem>
+                        )}
 
                         {/* Rejection Information */}
                         {isRejected && rejectionEntry && (

@@ -11,6 +11,7 @@ export interface UserData {
   zipCode?: string;
   contactNumber?: string;
   barangayId?: string;
+  barangayName?: string;
   selectedRegion?: string;
   selectedProvince?: string;
   selectedCityMunicipality?: string;

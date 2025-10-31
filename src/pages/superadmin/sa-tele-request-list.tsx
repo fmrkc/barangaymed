@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   IonHeader,
   IonToolbar,
@@ -39,18 +39,22 @@ import {
   IonSelect,
   IonSearchbar,
   IonToggle,
+  IonSkeletonText,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { close, checkmark, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline } from 'ionicons/icons';
+import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline, cloudUpload, checkmarkDone } from 'ionicons/icons';
 import './sa-tele-request-list.css';
+
+import { useIonRouter } from '@ionic/react';
 
 const db = getFirestore();
 
 const SuperAdminTeleRequestList: React.FC = () => {
+  const ionRouter = useIonRouter();
   const { currentUser, cityMunicipalityId } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
@@ -61,14 +65,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [resolvedAddresses, setResolvedAddresses] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [regions, setRegions] = useState<Region[]>([]);
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
-  const [barangays, setBarangays] = useState<Barangay[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedCityMunicipality, setSelectedCityMunicipality] = useState('');
   const [selectedBarangayFilter, setSelectedBarangayFilter] = useState('all');
 
   const [showAcceptAlert, setShowAcceptAlert] = useState(false);
@@ -104,52 +100,18 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [hasPrescription, setHasPrescription] = useState(false);
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [completionStep, setCompletionStep] = useState(1);
+  const [prescriptionPreview, setPrescriptionPreview] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadRegions = async () => {
-      setRegions(await getRegions());
-    };
-    loadRegions();
-  }, []);
-
-  useEffect(() => {
-    const loadProvinces = async () => {
-      if (selectedRegion) {
-        setProvinces(await getProvincesByRegion(selectedRegion));
-        setSelectedProvince('');
-        setSelectedCityMunicipality('');
-      } else {
-        setProvinces([]);
-        setSelectedProvince('');
-        setSelectedCityMunicipality('');
+  const barangayFilterOptions = useMemo(() => {
+    const uniqueBarangays = new Map<string, string>();
+    requests.forEach(req => {
+      if (req.barangayId && req.barangayName) {
+        uniqueBarangays.set(req.barangayId, req.barangayName);
       }
-    };
-    loadProvinces();
-  }, [selectedRegion]);
-
-  useEffect(() => {
-    const loadCitiesMunicipalities = async () => {
-      if (selectedProvince) {
-        setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(selectedProvince));
-        setSelectedCityMunicipality('');
-      } else {
-        setCitiesMunicipalities([]);
-        setSelectedCityMunicipality('');
-      }
-    };
-    loadCitiesMunicipalities();
-  }, [selectedProvince]);
-
-  useEffect(() => {
-    const loadBarangays = async () => {
-      if (selectedCityMunicipality) {
-        setBarangays(await getBarangaysByCityMunicipality(selectedCityMunicipality));
-      } else {
-        setBarangays([]);
-      }
-    };
-    loadBarangays();
-  }, [selectedCityMunicipality]);
+    });
+    return Array.from(uniqueBarangays.entries()).map(([id, name]) => ({ id, name }));
+  }, [requests]);
 
   // State for detail modal segment
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
@@ -269,7 +231,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
     }
 
     setFilteredRequests(filtered);
-  }, [filter, requests, selectedBarangayFilter, selectedCityMunicipality, selectedProvince, selectedRegion]);
+  }, [filter, requests, selectedBarangayFilter]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
@@ -355,13 +317,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
         return;
       }
       setPrescriptionFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPrescriptionPreview(previewUrl);
     }
   };
 
   const handleMarkAsComplete = async () => {
     if (!requestToMarkComplete) return;
     setIsMarkingComplete(true);
-    setShowMarkCompleteAlert(false);
 
     try {
       let prescriptionUrl = '';
@@ -395,12 +358,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
       setToastMessage(`You have successfully marked ${request?.userData?.firstName} ${request?.userData?.lastName}'s teleconsultation request as completed.`);
       setShowCompleteToast(true);
 
-      // Reset states
-      setShowCompleteModal(false);
-      setRequestToMarkComplete(null);
-      setHasPrescription(false);
-      setPrescriptionFile(null);
-      setShowModal(false); // also close details modal if open
+      setCompletionStep(2);
 
     } catch (error) {
       console.error('Error marking request as completed:', error);
@@ -474,6 +432,12 @@ const SuperAdminTeleRequestList: React.FC = () => {
     }
   };
 
+  const handleGoToCreateMedicineRequest = (request: TeleconsultationRequest) => {
+    setSelectedRequest(request);
+    setCompletionStep(2);
+    setShowCompleteModal(true);
+  };
+
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
@@ -514,15 +478,42 @@ const SuperAdminTeleRequestList: React.FC = () => {
             <IonLabel>All</IonLabel>
           </IonSegmentButton>
         </IonSegment>
-
          <IonToolbar>
           <IonSearchbar value={searchQuery} onIonChange={e => setSearchQuery(e.detail.value!)} placeholder="Search by resident name..." />
-          <IonButton size='large' slot="end" fill='outline' onClick={() => setShowFilterModal(true)}>
-            <IonIcon icon={filterOutline} slot='icon-only' />
-          </IonButton>
+        </IonToolbar>
+        <IonToolbar className='ion-padding-horizontal'>
+           <IonSelect value={selectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setSelectedBarangayFilter(e.detail.value)}>
+            <IonSelectOption value="all">All Barangays</IonSelectOption>
+            {barangayFilterOptions.map(b => (
+              <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+            ))}
+          </IonSelect>
         </IonToolbar>
 
-        {loading && <IonLoading isOpen={loading} message="Loading requests..." />}
+                {loading && (
+          <IonList style={{ backgroundColor: 'transparent' }}>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <IonCard key={index}>
+                <IonCardHeader>
+                  <IonCardTitle>
+                    <IonSkeletonText animated style={{ width: '60%' }} />
+                  </IonCardTitle>
+                  <IonCardSubtitle>
+                    <IonSkeletonText animated style={{ width: '40%' }} />
+                  </IonCardSubtitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <IonSkeletonText animated style={{ width: '80%', marginBottom: '8px' }} />
+                  <IonSkeletonText animated style={{ width: '90%', marginBottom: '8px' }} />
+                   <div style={{ display: 'flex', gap: '10px' }}>
+                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                    </div>
+                </IonCardContent>
+              </IonCard>
+            ))}
+          </IonList>
+        )}
         {error && (
           <IonText color="danger" className="ion-padding">
             {error}
@@ -630,6 +621,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                       </IonButton>
                       <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
                         setRequestToMarkComplete(request.id!);
+                        setCompletionStep(1);
                         setShowCompleteModal(true);
                       }}>
                         Mark as Completed
@@ -646,15 +638,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 )}
                 {request.status === 'completed' && (
                   <>
-                    <p>Completed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action.includes('completed'))?.userName || 'N/A'}</strong></p>
-                    <p>Completed at: <strong>{request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</strong></p>
+                    <p>Completed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action.includes('completed'))?.userName || 'N/A'}</strong> at <strong>{request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</strong></p>
+                  
                     <div style={{ display: 'flex', gap: '10px' }}>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)} style={{ flex: 1 }}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                    {request.prescriptionUrl && (
-                        <IonButton expand='block' className='ion-padding-vertical' color="primary" href={request.prescriptionUrl} target="_blank" rel="noopener noreferrer" style={{ flex: 1 }}>
-                            View Prescription
-                        </IonButton>
-                    )}
+                    <IonButton expand='block' className='ion-padding-vertical' onClick={() => handleGoToCreateMedicineRequest(request)} style={{ flex: 1 }}>
+                        Create Medicine Request
+                        <IonIcon slot='end' icon={open} />
+                    </IonButton>
                     </div>
                   </>
                 )}
@@ -663,96 +654,16 @@ const SuperAdminTeleRequestList: React.FC = () => {
           ))}
         </IonList>
 
-        {/* Filter Modal */}
-        <IonModal isOpen={showFilterModal} onDidDismiss={() => setShowFilterModal(false)}>
-          <IonHeader className='ion-no-border'>
-            <IonToolbar>
-              <IonTitle>Filter Requests</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowFilterModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <IonCard>
-              <IonCardContent className='ion-margin-vertical'>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by Region'
-                    value={selectedRegion}
-                    onIonChange={e => setSelectedRegion(e.detail.value)}
-                    placeholder="Select Region"
-                  >
-                    <IonSelectOption value="">All Regions</IonSelectOption>
-                    {regions.map(region => (
-                      <IonSelectOption key={region.code} value={region.code}>{region.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by Province'
-                    value={selectedProvince}
-                    onIonChange={e => setSelectedProvince(e.detail.value)}
-                    placeholder="Select Province"
-                    disabled={!selectedRegion}
-                  >
-                    <IonSelectOption value="">All Provinces</IonSelectOption>
-                    {provinces.map(province => (
-                      <IonSelectOption key={province.code} value={province.code}>{province.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by City/Municipality'
-                    value={selectedCityMunicipality}
-                    onIonChange={e => setSelectedCityMunicipality(e.detail.value)}
-                    placeholder="Select City/Municipality"
-                    disabled={!selectedProvince}
-                  >
-                    <IonSelectOption value="">All Cities/Municipalities</IonSelectOption>
-                    {citiesMunicipalities.map(city => (
-                      <IonSelectOption key={city.code} value={city.code}>{city.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect
-                    fill='outline'
-                    label='Filter by Barangay'
-                    value={selectedBarangayFilter}
-                    onIonChange={e => setSelectedBarangayFilter(e.detail.value)}
-                    placeholder="Select Barangay"
-                    disabled={!selectedCityMunicipality}
-                  >
-                    <IonSelectOption value="all">All Barangays</IonSelectOption>
-                    {barangays.map(brgy => (
-                      <IonSelectOption key={brgy.code} value={brgy.code}>{brgy.name}</IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-              </IonCardContent>
-            </IonCard>
-          </IonContent>
-          <IonFooter>
-            <IonToolbar>
-               <IonButton className='ion-padding-vertical' shape='round' expand="block" onClick={() => setShowFilterModal(false)}>Apply Filters</IonButton>
-            </IonToolbar>
-          </IonFooter>
-        </IonModal>
+
 
         <IonModal isOpen={showScheduleModal} onDidDismiss={() => setShowScheduleModal(false)}>
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Schedule Teleconsultation</IonTitle>
               <IonButtons slot="end">
-                <IonButton onClick={() => setShowScheduleModal(false)}>Close</IonButton>
+                <IonButton onClick={() => setShowScheduleModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
@@ -845,7 +756,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
               <IonTitle>Request Details</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowModal(false)}>
-                  Close
+                  <IonIcon icon={close} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -1191,69 +1102,106 @@ const SuperAdminTeleRequestList: React.FC = () => {
           setShowCompleteModal(false);
           setHasPrescription(false);
           setPrescriptionFile(null);
+          setCompletionStep(1);
         }}>
-          <IonHeader>
+          <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Complete Teleconsultation</IonTitle>
               <IonButtons slot="end">
-                <IonButton onClick={() => setShowCompleteModal(false)}>Close</IonButton>
+                <IonButton onClick={() => setShowCompleteModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonCard>
-              <IonCardContent>
-                <IonItem>
-                  <IonLabel>Doctor's Prescription</IonLabel>
-                  <IonToggle checked={hasPrescription} onIonChange={e => setHasPrescription(e.detail.checked)} />
-                </IonItem>
-                {hasPrescription && (
-                  <>
-                    <input
-                      type="file"
-                      accept="image/*,.pdf,.doc,.docx"
-                      ref={fileInputRef}
-                      style={{ display: 'none' }}
-                      onChange={handleFileChange}
-                    />
-                    <IonButton className='ion-margin-top' expand="block" onClick={() => fileInputRef.current?.click()}>
-                      Upload Image or File
-                    </IonButton>
-                    {prescriptionFile && (
-                      <IonItem lines="none">
-                        <IonLabel>{prescriptionFile.name}</IonLabel>
-                      </IonItem>
-                    )}
-                  </>
-                )}
-              </IonCardContent>
-            </IonCard>
+            {completionStep === 1 && (
+              <>
+              <IonCard>
+                <IonCardHeader>
+                  <IonItem lines='none'>
+                    <IonCardTitle>Upload Prescription (Optional)</IonCardTitle>
+                  </IonItem>
+                  <IonItem lines='none'>
+                    <IonCardSubtitle>
+                      If the doctor has provided a prescription for the resident, you may upload it here. Doing this step will require you to navigate to the <strong>Create Medicine Request</strong> page after marking the teleconsultation as complete.
+                    </IonCardSubtitle>
+                  </IonItem>
+                </IonCardHeader>
+              </IonCard>
+              <IonCard>
+                  <IonCardContent>
+                  <IonItem lines='none'>
+                    <IonLabel>Upload Doctor's Prescription</IonLabel>
+                    <IonToggle slot='end' checked={hasPrescription} onIonChange={e => setHasPrescription(e.detail.checked)} />
+                  </IonItem>
+                  {hasPrescription && (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                      />
+                      <IonButton fill='outline' className='ion-padding-vertical ' expand="block" onClick={() => fileInputRef.current?.click()}>
+                        Upload Image or File
+                        <IonIcon slot="end" icon={cloudUpload} />
+                      </IonButton>
+                      {prescriptionFile && (
+                        <IonItem lines="none">
+                          <IonLabel>Uploaded file: {prescriptionFile.name}</IonLabel>
+                        </IonItem>
+                      )}
+                      {prescriptionPreview && (
+                        <IonItem lines="none">
+                          <img src={prescriptionPreview} alt="Prescription Preview" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+                        </IonItem>
+                      )}
+                    </>
+                  )}
+                </IonCardContent>
+              </IonCard>
+              </>
+            )}
+            {completionStep === 2 && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
+                    <IonCardHeader>
+                      <IonText class='ion-text-center'>
+                        <IonIcon icon={checkmarkCircle} style={{ fontSize: '48px', color: 'var(--ion-color-success)' }} />
+                      </IonText>
+                      <IonCardTitle>Teleconsultation Completed</IonCardTitle>
+                    </IonCardHeader>
+                      <IonCardContent>
+                  <p>This consultation request has been completed. You can now proceed to create a medicine request for the resident.</p>
+                  <IonButton expand="block" className="ion-padding-vertical" onClick={() => {
+                    ionRouter.push('/superadmin/dashboard/create-med-request');
+                    setShowCompleteModal(false);
+                  }}>
+                    Go to Create Medicine Request
+                    <IonIcon slot="end" icon={open} />
+                  </IonButton>
+                </IonCardContent>
+                  </IonCard>
+        </div>
+              </>
+            )}
           </IonContent>
-          <IonFooter>
-            <IonToolbar>
-              <IonButton expand="full" color="success" onClick={() => setShowMarkCompleteAlert(true)} disabled={isMarkingComplete || (hasPrescription && !prescriptionFile)}>
-                Mark as Completed
-              </IonButton>
-            </IonToolbar>
-          </IonFooter>
+          {completionStep === 1 && (
+            <IonFooter>
+              <IonToolbar>
+                <IonButton className='ion-padding-vertical' shape='round' expand="full" color="success" onClick={handleMarkAsComplete} disabled={isMarkingComplete || (hasPrescription && !prescriptionFile)}>
+                  Confirm Completion
+                  <IonIcon slot="end" icon={checkmarkDone} />
+                </IonButton>
+              </IonToolbar>
+            </IonFooter>
+          )}
         </IonModal>
 
-        <IonAlert
-          isOpen={showMarkCompleteAlert}
-          onDidDismiss={() => setShowMarkCompleteAlert(false)}
-          header={'Confirm Mark as Complete'}
-          message={'Are you sure you want to mark this teleconsultation request as completed?'}
-          buttons={[
-            {
-              text: 'No',
-              role: 'cancel',
-            },
-            {
-              text: 'Yes',
-              handler: handleMarkAsComplete
-            }
-          ]}
-        />
+
         <IonAlert
           isOpen={showNoShowAlert}
           onDidDismiss={() => setShowNoShowAlert(false)}
