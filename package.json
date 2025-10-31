@@ -44,6 +44,7 @@
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
     "resend": "^6.0.2",
+    "select-philippines-address": "^1.0.6",
     "swiper": "^11.2.10"
   },
   "devDependencies": {
