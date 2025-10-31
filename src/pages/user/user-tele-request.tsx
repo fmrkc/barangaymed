@@ -328,9 +328,16 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
               <IonItem lines='none'>
                 <h2>These are the information you have provided:</h2>
               </IonItem>
-              <IonItem>
+              <IonItem lines='none'>
                 <IonLabel>Consultation Reason:</IonLabel>
-                <IonText>{getReasonString() || 'Not provided'}</IonText>
+              </IonItem>
+              <IonItem lines='none'>
+                <IonTextarea
+                fill='outline'
+                rows={5}
+                value= {getReasonString()} 
+                readonly
+                />
               </IonItem>
               {hasMedicalRecord && (
                 <IonItem>
