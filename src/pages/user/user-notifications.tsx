@@ -20,6 +20,7 @@ import {
   IonModal,
   IonAlert,
   IonLoading,
+  IonSkeletonText,
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -28,7 +29,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
 const Notifications: React.FC = () => {
-  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading } = useNotifications();
+  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading, refresh } = useNotifications();
 
   const [showArchiveAlert, setShowArchiveAlert] = useState(false);
   const [notificationToArchive, setNotificationToArchive] = useState<string | null>(null);
@@ -37,9 +38,8 @@ const Notifications: React.FC = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleRefresh = (event: CustomEvent) => {
-    setTimeout(() => {
-      event.detail.complete();
-    }, 500);
+    refresh();
+    event.detail.complete();
   };
 
   const handleArchiveClick = (notificationId: string) => {
@@ -141,6 +141,29 @@ const Notifications: React.FC = () => {
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
+
+        {loading && (
+          <IonList>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <IonItem key={index}>
+                <IonIcon slot="start" size="large" icon={mailOutline} />
+                <IonLabel>
+                  <h3>
+                    <IonSkeletonText animated style={{ width: '60%' }} />
+                  </h3>
+                  <p>
+                    <IonSkeletonText animated style={{ width: '80%' }} />
+                  </p>
+                  <IonText color="medium">
+                    <small>
+                      <IonSkeletonText animated style={{ width: '30%' }} />
+                    </small>
+                  </IonText>
+                </IonLabel>
+              </IonItem>
+            ))}
+          </IonList>
+        )}
 
         {notifications.length === 0 && !loading && (
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '90%' }}>

@@ -12,10 +12,10 @@ export const useNotifications = () => {
 
   const notificationsService = NotificationsService.getInstance();
 
-  useEffect(() => {
+  const fetchNotifications = useCallback(() => {
     if (!currentUser) {
       setLoading(false);
-      return;
+      return () => {}; // Return an empty unsubscribe function
     }
 
     setLoading(true);
@@ -32,8 +32,13 @@ export const useNotifications = () => {
       }
     );
 
+    return unsubscribe;
+  }, [currentUser, userRole, notificationsService]);
+
+  useEffect(() => {
+    const unsubscribe = fetchNotifications();
     return () => unsubscribe();
-  }, [currentUser, userRole]);
+  }, [fetchNotifications]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -89,5 +94,9 @@ export const useNotifications = () => {
     }
   }, [currentUser, notificationsService, notifications]);
 
-  return { notifications, loading, markAsRead, markAllAsRead, archivedNotifications, archivedLoading, archiveNotification };
+  const refresh = useCallback(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  return { notifications, loading, markAsRead, markAllAsRead, archivedNotifications, archivedLoading, archiveNotification, refresh };
 };

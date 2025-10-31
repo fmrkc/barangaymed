@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, getDocs, where } from 'firebase/firestore';
 import { getBarangayNameByCode } from '../../services/addressService';
 import { UserService } from '../../services/userService';
-import { paperPlane, send, arrowBack, arrowForward, open, checkmarkCircle } from 'ionicons/icons';
+import { paperPlane, send, arrowBack, arrowForward, open, checkmarkCircle, close } from 'ionicons/icons';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -242,7 +242,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           <IonToolbar>
             <IonTitle>Teleconsultation Request</IonTitle>
             <IonButtons slot="end">
-              <IonButton onClick={handleDismiss}>Close</IonButton>
+              <IonButton onClick={onDidDismiss}>
+                <IonIcon slot="icon-only" icon={close} />
+              </IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>

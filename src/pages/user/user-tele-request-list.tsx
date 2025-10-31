@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { IonLabel, IonList, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText, IonLoading, IonButtons, IonBackButton, IonModal, IonButton, IonAlert, IonItem, IonItemDivider, IonRefresher, IonRefresherContent, IonChip, IonFooter, IonGrid, IonRow, IonCol, IonToast, IonIcon, IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonContent } from '@ionic/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { IonLabel, IonList, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText, IonLoading, IonButtons, IonBackButton, IonModal, IonButton, IonAlert, IonItem, IonItemDivider, IonRefresher, IonRefresherContent, IonChip, IonFooter, IonGrid, IonRow, IonCol, IonToast, IonIcon, IonPage, IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonTitle, IonContent, IonSkeletonText } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
@@ -12,6 +12,7 @@ const UserTeleRequestList: React.FC = () => {
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
+  const [loading, setLoading] = useState(true);
   
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -26,17 +27,20 @@ const UserTeleRequestList: React.FC = () => {
   // State for detail modal segment
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     if (!userId) {
       setError('User not authenticated');
-      return;
+      setLoading(false);
+      return () => {};
     }
 
     if (verificationStatus !== 'verified') {
       setError('You must be a verified resident to view teleconsultation requests.');
-      return;
+      setLoading(false);
+      return () => {};
     }
 
+    setLoading(true);
     setError(null);
 
     const q = query(
@@ -47,6 +51,7 @@ const UserTeleRequestList: React.FC = () => {
 
     const timeoutId = setTimeout(() => {
         setError('Loading timed out. Please try again.');
+        setLoading(false);
     }, 10000);
 
     const unsubscribe = onSnapshot(
@@ -88,18 +93,26 @@ const UserTeleRequestList: React.FC = () => {
                 reqs.push(req);
             });
             setRequests(reqs);
+            setLoading(false);
         },
         (err) => {
             clearTimeout(timeoutId);
             setError('Failed to fetch teleconsultation requests');
+            setLoading(false);
         }
     );
 
-    return () => {
-        clearTimeout(timeoutId);
-        unsubscribe();
-    };
+    return unsubscribe;
   }, [userId, verificationStatus]);
+
+  useEffect(() => {
+    const unsubscribe = fetchData();
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+  }, [fetchData]);
 
   useEffect(() => {
     let filtered: TeleconsultationRequest[] = [];
@@ -157,11 +170,9 @@ const UserTeleRequestList: React.FC = () => {
     setRequestToCancel(null);
   };
 
-    const handleRefresh = async (event: CustomEvent) => {
-      // Simulate refresh delay to show loading
-      setTimeout(() => {
-        event.detail.complete();
-      }, 1500);
+    const handleRefresh = (event: CustomEvent) => {
+      fetchData();
+      event.detail.complete();
     };
   
     return (    <>
@@ -197,6 +208,27 @@ const UserTeleRequestList: React.FC = () => {
           </IonSegmentButton>
         </IonSegment>
 
+        {loading && (
+          <IonList>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <IonCard key={index}>
+                <IonCardHeader>
+                  <IonCardTitle>
+                    <IonSkeletonText animated style={{ width: '60%' }} />
+                  </IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <p><IonSkeletonText animated style={{ width: '80%' }} /></p>
+                  <p><IonSkeletonText animated style={{ width: '70%' }} /></p>
+                  <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                    <IonSkeletonText animated style={{ width: '100px', height: '40px' }} />
+                    <IonSkeletonText animated style={{ width: '100px', height: '40px' }} />
+                  </div>
+                </IonCardContent>
+              </IonCard>
+            ))}
+          </IonList>
+        )}
         
         {error && (
           <IonText color="danger" className="ion-padding">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   IonHeader,
   IonToolbar,
@@ -26,6 +26,7 @@ import {
   IonChip,
   IonPage,
   IonToast,
+  IonSkeletonText,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -40,6 +41,7 @@ const UserMedRequestList: React.FC = () => {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MedicineRequest[]>([]);
   const [filter, setFilter] = useState<'pending' | 'active' | 'completed' | 'unsuccessful' | 'all'>('pending');
+  const [loading, setLoading] = useState(true);
   
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -50,17 +52,20 @@ const UserMedRequestList: React.FC = () => {
   const [showCancelToast, setShowCancelToast] = useState<boolean>(false);
   const userId = currentUser?.uid;
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     if (!userId) {
       setError('User not authenticated');
+      setLoading(false);
       return;
     }
 
     if (verificationStatus !== 'verified') {
       setError('You must be a verified resident to view medicine requests.');
+      setLoading(false);
       return;
     }
 
+    setLoading(true);
     setError(null);
 
     const q = query(
@@ -71,6 +76,7 @@ const UserMedRequestList: React.FC = () => {
 
     const timeoutId = setTimeout(() => {
         setError('Loading timed out. Please try again.');
+        setLoading(false);
     }, 10000);
 
     const unsubscribe = onSnapshot(
@@ -111,18 +117,27 @@ const UserMedRequestList: React.FC = () => {
                 reqs.push(req);
             });
             setRequests(reqs);
+            setLoading(false);
         },
-                    (err) => {
-                        clearTimeout(timeoutId);
-                        console.error("Firestore error fetching medicine requests:", err);
-                        setError('Failed to fetch medicine requests');
-                    }    );
+        (err) => {
+            clearTimeout(timeoutId);
+            console.error("Firestore error fetching medicine requests:", err);
+            setError('Failed to fetch medicine requests');
+            setLoading(false);
+        }
+    );
 
-    return () => {
-        clearTimeout(timeoutId);
-        unsubscribe();
-    };
+    return unsubscribe;
   }, [userId, verificationStatus]);
+
+  useEffect(() => {
+    const unsubscribe = fetchData();
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+  }, [fetchData]);
 
   useEffect(() => {
     const medicinesCol = collection(db, 'medicine');
@@ -214,11 +229,9 @@ const UserMedRequestList: React.FC = () => {
     setRequestToCancel(null);
   };
 
-  const handleRefresh = async (event: CustomEvent) => {
-    // Simulate refresh delay to show loading
-    setTimeout(() => {
-      event.detail.complete();
-    }, 1500);
+  const handleRefresh = (event: CustomEvent) => {
+    fetchData();
+    event.detail.complete();
   };
 
   const [showMarkCompleteAlert, setShowMarkCompleteAlert] = useState(false);
@@ -276,6 +289,28 @@ const UserMedRequestList: React.FC = () => {
           </IonSegmentButton>
         </IonSegment>
 
+        {loading && (
+          <IonList>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <IonCard key={index}>
+                <IonCardHeader>
+                  <IonCardTitle>
+                    <IonSkeletonText animated style={{ width: '60%' }} />
+                  </IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <p><IonSkeletonText animated style={{ width: '80%' }} /></p>
+                  <p><IonSkeletonText animated style={{ width: '50%' }} /></p>
+                  <p><IonSkeletonText animated style={{ width: '70%' }} /></p>
+                  <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                    <IonSkeletonText animated style={{ width: '100px', height: '40px' }} />
+                    <IonSkeletonText animated style={{ width: '100px', height: '40px' }} />
+                  </div>
+                </IonCardContent>
+              </IonCard>
+            ))}
+          </IonList>
+        )}
         
         {error && (
           <IonText color="danger" className="ion-padding">
