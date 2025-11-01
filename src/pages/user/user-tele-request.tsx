@@ -205,7 +205,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           <IonToolbar>
             <IonTitle>Teleconsultation Request</IonTitle>
             <IonButtons slot="end">
-              <IonButton onClick={onDidDismiss}>Close</IonButton>
+              <IonButton onClick={onDidDismiss}>
+                <IonIcon slot="icon-only" icon={close} />
+              </IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>

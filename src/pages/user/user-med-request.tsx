@@ -382,11 +382,10 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                 Your medicine request has been submitted. You can check for updates on the <strong>My Requests</strong> page.
               </IonText>
             </IonItem>
-            <IonButton expand="block" routerLink="/user/dashboard/requests/medicine-requests" className="ion-padding-vertical" onClick={onDidDismiss}>
-              Go to My Requests
-              <IonIcon slot="end" icon={open} />
-            </IonButton>
-          </IonCard>
+                            <IonButton expand="block" routerLink="/user/dashboard/requests/medicine" className="ion-padding-vertical" onClick={onDidDismiss}>
+                              Go to My Requests
+                              <IonIcon slot="end" icon={open} />
+                            </IonButton>          </IonCard>
           )}
 
           <IonLoading isOpen={loading} message={'Submitting request...'} />
