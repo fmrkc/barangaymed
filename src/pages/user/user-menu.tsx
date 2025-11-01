@@ -47,7 +47,7 @@ const UserDashboard: React.FC = () => {
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
             <Route path="/user/dashboard/requests" component={User_Requests} exact />
-            <Route path="/user/dashboard/requests/teleconsultation-requests" component={UserTeleRequestList} exact />
+            <Route path="/user/dashboard/requests/teleconsultation" component={UserTeleRequestList} exact />
             <Route path="/user/dashboard/requests/medicine" component={UserMedRequestList} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
