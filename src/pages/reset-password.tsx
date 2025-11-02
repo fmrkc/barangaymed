@@ -21,8 +21,9 @@ import {
 } from '@ionic/react';
 import { checkmarkDoneOutline, eye, eyeOff } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
-import { auth } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig';
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
+import { collection, addDoc } from 'firebase/firestore';
 
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -86,6 +87,20 @@ const ResetPassword = () => {
       setIsLoading(false);
       setSuccessMessage('Password has been reset successfully. You can now log in with your new password.');
       setShowSuccessToast(true);
+
+      // Create a notification for the password change
+      if (auth.currentUser) { // Check if currentUser exists
+        await addDoc(collection(db, "notifications"), {
+          userId: auth.currentUser.uid,
+          title: "Password Changed",
+          message: "Your password was successfully changed.",
+          type: "password_changed",
+          timestamp: new Date(),
+          read: false,
+          isShown: true,
+        });
+      }
+
       setTimeout(() => {
         history.push('/login');
       }, 3000);
