@@ -311,49 +311,60 @@ export class NotificationsService {
   }
 
   /**
-   * Show all hidden 'user_login' notifications for a specific user.
+   * Get login history notifications for a specific user.
    * @param userId The user's ID.
+   * @returns Promise with an array of login history notifications.
    */
-  public async showAllLoginNotifications(userId: string): Promise<void> {
+  public async getLoginHistoryNotifications(userId: string): Promise<Notification[]> {
     const operation = async () => {
-      const notificationsRef = collection(db, 'notifications');
-      const hiddenLoginNotificationsQuery = query(
-        notificationsRef,
+      const q = query(
+        collection(db, 'notifications'),
         where('userId', '==', userId),
         where('type', '==', 'user_login'),
-        where('isShown', '==', false)
+        orderBy('timestamp', 'desc')
       );
 
-      const snapshot = await getDocs(hiddenLoginNotificationsQuery);
-      if (snapshot.empty) {
-        return;
-      }
+      const querySnapshot = await getDocs(q);
+      const notifications: Notification[] = [];
 
-      const batch = writeBatch(db);
-      snapshot.docs.forEach(doc => {
-        batch.update(doc.ref, { isShown: true });
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        notifications.push({
+          id: doc.id,
+          userId: data.userId,
+          userEmail: data.userEmail,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          timestamp: data.timestamp.toDate(),
+          read: data.read,
+          isShown: data.isShown ?? true,
+          metadata: data.metadata || {}
+        });
       });
-      await batch.commit();
+
+      return notifications;
     };
 
     try {
-      await executeWithRetry(
+      const loginHistoryNotifications = await executeWithRetry(
         operation,
-        `showAllLoginNotifications-${userId}`,
+        `getLoginHistoryNotifications-${userId}`,
         { maxRetries: 3 },
-        { userId, operation: 'showAllLoginNotifications' }
+        { userId, operation: 'getLoginHistoryNotifications' }
       );
-      logFirestoreEvent(userId, undefined, undefined, 'write', 'notifications', undefined, {
-        operation: 'showAllLoginNotifications',
-        success: true
+
+      logFirestoreEvent(userId, undefined, undefined, 'query', 'notifications', undefined, {
+        notificationCount: loginHistoryNotifications.length,
+        operation: 'getLoginHistoryNotifications'
       });
-      console.log(`All hidden 'user_login' notifications shown for user ${userId}`);
+
+      return loginHistoryNotifications;
     } catch (error) {
-      logFirestoreError('showAllLoginNotifications', error, {
+      logFirestoreError('getLoginHistoryNotifications', error, {
         userId,
-        operation: 'showAllLoginNotifications'
+        operation: 'getLoginHistoryNotifications'
       });
-      console.error(`Error showing all hidden 'user_login' notifications for user ${userId}:`, error);
       throw error;
     }
   }

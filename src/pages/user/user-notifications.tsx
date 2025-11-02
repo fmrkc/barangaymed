@@ -22,20 +22,23 @@ import {
   IonLoading,
   IonSkeletonText,
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useNotifications } from '../../hooks/useNotifications';
 import { useAuth } from '../../contexts/AuthContext'; // Added import
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles, documentTextOutline } from 'ionicons/icons';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles, documentTextOutline, eye } from 'ionicons/icons'; // Added eye icon
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
 const Notifications: React.FC = () => {
-  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading, refresh, showAllLoginNotifications } = useNotifications(); // Added showAllLoginNotifications
+  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading, refresh, getLoginHistoryNotifications } = useNotifications(); // Added getLoginHistoryNotifications
   const { currentUser } = useAuth(); // Get currentUser
 
   const [showArchiveAlert, setShowArchiveAlert] = useState(false);
   const [notificationToArchive, setNotificationToArchive] = useState<string | null>(null);
   const [showArchivedModal, setShowArchivedModal] = useState(false);
+  const [showLoginHistoryModal, setShowLoginHistoryModal] = useState(false); // New state for login history modal
+  const [loginHistory, setLoginHistory] = useState<Notification[]>([]);
+  const [loginHistoryLoading, setLoginHistoryLoading] = useState(false);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -120,8 +123,25 @@ const Notifications: React.FC = () => {
   };
 
   const formatTimestamp = (date: Date) => {
-    return formatDistanceToNow(date, { addSuffix: true });
+    return date.toLocaleString(); // Display exact date and time
   };
+
+  useEffect(() => {
+    if (showLoginHistoryModal && currentUser) {
+      const fetchLoginHistory = async () => {
+        setLoginHistoryLoading(true);
+        try {
+          const history = await getLoginHistoryNotifications(currentUser.uid);
+          setLoginHistory(history);
+        } catch (error) {
+          console.error('Error fetching login history:', error);
+        } finally {
+          setLoginHistoryLoading(false);
+        }
+      };
+      fetchLoginHistory();
+    }
+  }, [showLoginHistoryModal, currentUser, getLoginHistoryNotifications]);
 
   return (
     <>
@@ -202,9 +222,6 @@ const Notifications: React.FC = () => {
                 if (!notification.read) {
                   markAsRead(notification.id);
                 }
-                if (notification.type === 'user_login' && currentUser) {
-                  showAllLoginNotifications(currentUser.uid);
-                }
               }}
               className={`notification-item ${!notification.read ? 'unread-notification' : ''}`}>
               <IonIcon
@@ -227,16 +244,30 @@ const Notifications: React.FC = () => {
                   </IonBadge>
                 )}
               </IonLabel>
-              <IonButton
-                fill="clear"
-                size="small"
-                className="archive-button-corner"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleArchiveClick(notification.id);
-                }}>
-                <IonIcon slot="icon-only" icon={closeOutline} />
-              </IonButton>
+              {notification.type === 'user_login' && (
+                <IonButton
+                  fill="clear"
+                  size="small"
+                  className="archive-button-corner"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowLoginHistoryModal(true); // Open the new modal
+                  }}>
+                  <IonIcon slot="icon-only" icon={eye} />
+                </IonButton>
+              )}
+              {(notification.type !== 'user_login' && notification.type !== 'registration_approved') && (
+                <IonButton
+                  fill="clear"
+                  size="small"
+                  className="archive-button-corner"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleArchiveClick(notification.id);
+                  }}>
+                  <IonIcon slot="icon-only" icon={closeOutline} />
+                </IonButton>
+              )}
             </IonItem>
           ))}
         </IonList>
@@ -291,6 +322,54 @@ const Notifications: React.FC = () => {
           }
         `}
       </style>
+
+      {/* Login History Modal */}
+      <IonModal isOpen={showLoginHistoryModal} onDidDismiss={() => setShowLoginHistoryModal(false)}>
+        <IonHeader className="ion-no-border">
+          <IonToolbar>
+            <IonTitle>Login History</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setShowLoginHistoryModal(false)}>Close</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonLoading isOpen={loginHistoryLoading} message="Loading login history..." />
+          {!loginHistoryLoading && loginHistory.length === 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '90%' }}>
+              <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
+                <IonCardHeader>
+                  <IonText className='ion-text-center'>
+                    <IonIcon icon={mail} style={{ fontSize: '48px', color: 'var(--ion-color-medium)' }} />
+                  </IonText>
+                  <IonCardTitle>No login history found.</IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  <p className="ion-margin-top">
+                    Your login history will appear here.
+                  </p>
+                </IonCardContent>
+              </IonCard>
+            </div>
+          )}
+
+          {!loginHistoryLoading && loginHistory.length > 0 && (
+            <IonList>
+              {loginHistory.map((notification) => (
+                <IonCard key={notification.id}>
+                  <IonItem lines="none">
+                    <IonIcon icon={sparkles} slot="start" color="primary" />
+                    <IonLabel>
+                      <h3>Successful Login</h3>
+                      <p>{formatTimestamp(notification.timestamp)}</p>
+                    </IonLabel>
+                  </IonItem>
+                </IonCard>
+              ))}
+            </IonList>
+          )}
+        </IonContent>
+      </IonModal>
     </>
   );
 };
@@ -346,7 +425,9 @@ const ArchivedNotificationsModal: React.FC<ArchivedNotificationsModalProps> = ({
 
         {!archivedLoading && archivedNotifications.length > 0 && (
           <IonList>
-            {archivedNotifications.map((notification) => (
+            {archivedNotifications
+              .filter(notification => notification.type !== 'user_login') // Filter out 'user_login' notifications
+              .map((notification) => (
               <IonItem key={notification.id} detail={false}>
                 <IonIcon
                   slot="start"

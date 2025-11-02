@@ -94,20 +94,14 @@ export const useNotifications = () => {
     }
   }, [currentUser, notificationsService, notifications]);
 
-  const showAllLoginNotifications = useCallback(async (userId: string) => {
-    if (!currentUser) return;
-    try {
-      await notificationsService.showAllLoginNotifications(userId);
-      // After showing, refresh the notifications to reflect changes
+    const refresh = useCallback(() => {
+
       fetchNotifications();
-    } catch (err) {
-      console.error('Failed to show all login notifications:', err);
-    }
-  }, [currentUser, notificationsService, fetchNotifications]);
 
-  const refresh = useCallback(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    }, [fetchNotifications]);
 
-  return { notifications, loading, markAsRead, markAllAsRead, archivedNotifications, archivedLoading, archiveNotification, refresh, showAllLoginNotifications };
-};
+  
+
+    return { notifications, loading, markAsRead, markAllAsRead, archivedNotifications, archivedLoading, archiveNotification, refresh, getLoginHistoryNotifications: notificationsService.getLoginHistoryNotifications };
+
+  };
