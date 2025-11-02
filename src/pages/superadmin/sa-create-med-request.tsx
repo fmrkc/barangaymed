@@ -58,6 +58,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showHelpAlert, setShowHelpAlert] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [editableReason, setEditableReason] = useState('');
 
   const handleSearchChange = async (e: CustomEvent) => {
     const queryStr = e.detail.value?.toLowerCase() || '';
@@ -129,8 +130,8 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   };
 
   const handleCreateMedRequestFromTeleconsult = async (teleconsultRequest: TeleconsultationRequest) => {
-    if (!selectedUser || !currentUser) {
-      setToastMessage('User not selected.');
+    if (!selectedUser || !currentUser || !editableReason.trim()) {
+      setToastMessage('A reason for the request is required.');
       setShowToast(true);
       return;
     }
@@ -155,9 +156,9 @@ const SuperAdminCreateMedRequest: React.FC = () => {
           contactNumber: userData.contactNumber,
           email: userData.email,
         },
-        reason: teleconsultRequest.reason,
-        hasPrescription: false,
-        prescriptionUrl: '',
+        reason: editableReason.trim(),
+        hasPrescription: !!teleconsultRequest.prescriptionUrl,
+        prescriptionUrl: teleconsultRequest.prescriptionUrl || '',
         status: 'accepted',
         createdAt: serverTimestamp(),
         auditTrail: [
@@ -404,6 +405,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                           color="primary"
                           onClick={() => {
                             setSelectedTeleconsultRequest(request);
+                            setEditableReason(request.reason);
                             setShowSummaryModal(true);
                           }}
                           disabled={isSubmitting}
@@ -502,7 +504,6 @@ const SuperAdminCreateMedRequest: React.FC = () => {
           </IonFooter>
         </IonModal>
 
-        {/* Summary Modal */}
         <IonModal isOpen={showSummaryModal} onDidDismiss={() => setShowSummaryModal(false)}>
           <IonHeader className='ion-no-border'>
             <IonToolbar>
@@ -544,11 +545,23 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                   <IonItem lines='none'>
                     <IonTextarea
                       fill='outline'
-                      value={selectedTeleconsultRequest.reason}
-                      readonly
+                      value={editableReason}
+                      onIonInput={(e) => setEditableReason(e.detail.value!)}
                       rows={4}
                     />
                   </IonItem>
+
+                  {selectedTeleconsultRequest.prescriptionUrl && (
+                    <>
+                      <IonItemDivider className="ion-margin-top">Prescription</IonItemDivider>
+                      <IonItem lines="none">
+                        <IonLabel>Prescription attached</IonLabel>
+                        <IonButton slot="end" fill="outline" onClick={() => window.open(selectedTeleconsultRequest.prescriptionUrl, '_blank')}>
+                          View
+                        </IonButton>
+                      </IonItem>
+                    </>
+                  )}
 
                   <IonItemDivider className="ion-margin-top">Creator Details</IonItemDivider>
                   <IonItem lines='none'>
@@ -578,7 +591,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                     setShowToast(true);
                   }
                 }}
-                disabled={isSubmitting || !selectedTeleconsultRequest}
+                disabled={isSubmitting || !selectedTeleconsultRequest || !selectedTeleconsultRequest.prescriptionUrl}
                 className="ion-margin"
               >
                 Confirm and Create Request
