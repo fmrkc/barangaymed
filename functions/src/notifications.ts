@@ -102,9 +102,9 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
       case "user.registration.approved": {
         const eventData = data as UserRegistrationApprovedData;
         await sendInAppNotification(eventData.userId, {
-          type: "system",
-          title: "Account Approved",
-          message: "Your registration has been approved. You can now log in.",
+          type: "registration_approved",
+          title: "Welcome to BarangayMed+",
+          message: "Your registration has been successfully approved! We’re excited to have you on board. You can now access all features of BarangayMed+, connect with your barangay healthcare team, and manage your medical records anytime, anywhere. Let’s work together for a healthier community.",
         });
         break;
       }
@@ -112,7 +112,7 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
       case "user.registration.submitted": {
         const eventData = data as UserRegistrationSubmittedData;
         await sendInAppNotification(eventData.userId, {
-          type: "system",
+          type: "registration_submitted",
           title: "Registration Submitted",
           message: "Your full registration request has been received and is pending review.",
         });
@@ -122,7 +122,7 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
       case "user.registration.rejected": {
         const eventData = data as UserRegistrationRejectedData;
         await sendInAppNotification(eventData.userId, {
-          type: "system",
+          type: "registration_rejected",
           title: "Registration Rejected",
           message: `Your registration has been rejected. Reason: ${eventData.reason}`,
         });

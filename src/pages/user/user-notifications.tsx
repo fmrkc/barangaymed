@@ -64,9 +64,12 @@ const Notifications: React.FC = () => {
         return documentTextOutline;
       case 'password_changed':
         return lockClosed;
-      case 'status_change':
       case 'registration_approved':
         return checkmarkCircle;
+      case 'registration_submitted':
+        return mailOutline;
+      case 'registration_rejected':
+        return alertCircle;
       case 'teleconsultation_request_status_update':
         return alertCircle;
       case 'teleconsultation_request_created':
@@ -74,10 +77,6 @@ const Notifications: React.FC = () => {
       case 'admin_note':
       case 'new_announcement':
         return mailOutline;
-      case 'welcome':
-      case 'registration':
-      case 'registration_rejected':
-        return alertCircle;
       case 'medicine_request_created':
         return mailOutline;
       case 'medicine_request_status_update':
@@ -93,9 +92,12 @@ const Notifications: React.FC = () => {
         return 'primary';
       case 'password_changed':
         return 'success';
-      case 'status_change':
       case 'registration_approved':
         return 'success';
+      case 'registration_submitted':
+        return 'primary';
+      case 'registration_rejected':
+        return 'danger';
       case 'teleconsultation_request_status_update':
         return 'warning';
       case 'teleconsultation_request_created':
@@ -106,10 +108,6 @@ const Notifications: React.FC = () => {
       case 'user.medical_record.created':
       case 'user.medical_record.updated':
         return 'primary';
-      case 'welcome':
-      case 'registration':
-      case 'registration_rejected':
-        return 'danger';
       case 'medicine_request_created':
         return 'primary';
       case 'medicine_request_status_update':
