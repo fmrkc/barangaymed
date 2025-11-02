@@ -409,3 +409,4 @@ export * from "./notifications.js";
 export * from "./medicine-request-triggers.js";
 export * from "./teleconsultation-request-triggers.js";
 export * from "./teleconsultation-notifications.js";
+export * from "./event-publisher.js";

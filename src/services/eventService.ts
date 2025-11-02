@@ -1,22 +1,34 @@
-
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const functions = getFunctions();
 
-// Define a generic event publishing function
-const publishEvent = httpsCallable(functions, 'publishEvent');
+class EventService {
+  private static instance: EventService;
 
-/**
- * Publishes an event to the event bus.
- * @param eventType The type of event (e.g., 'user.registration.approved').
- * @param data The event payload.
- */
-export const dispatchEvent = async (eventType: string, data: object) => {
-  try {
-    await publishEvent({ eventType, data });
-    console.log(`Event '${eventType}' published successfully.`);
-  } catch (error) {
-    console.error(`Error publishing event '${eventType}':`, error);
-    // Optionally, handle the error more gracefully (e.g., show a toast to the user)
+  private constructor() {}
+
+  static getInstance(): EventService {
+    if (!EventService.instance) {
+      EventService.instance = new EventService();
+    }
+    return EventService.instance;
   }
-};
+
+  /**
+   * Publishes an event to the backend.
+   * @param eventType The type of the event (e.g., 'user.login.success').
+   * @param data The data payload for the event.
+   */
+  async publishEvent(eventType: string, data: any): Promise<void> {
+    try {
+      const publishBarangayMedEvent = httpsCallable(functions, 'publishBarangayMedEvent');
+      await publishBarangayMedEvent({ eventType, data });
+    } catch (error) {
+      console.error(`Failed to publish event: ${eventType}`, error);
+      // Depending on requirements, you might want to handle this more gracefully
+      // For now, we log the error and continue.
+    }
+  }
+}
+
+export const eventService = EventService.getInstance();

@@ -53,7 +53,7 @@ function getTimeAgo(timestamp: string | { toDate: () => Date; } | Date | null | 
   }
 }
 
-import { dispatchEvent } from '../../services/eventService';
+import { eventService } from '../../services/eventService';
 
 const AdminUserVerification: React.FC = () => {
   const { barangayId: adminBarangayId } = useAuth();
@@ -149,7 +149,7 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
 
     // Dispatch event instead of showing toast
     const eventType = action === 'verified' ? 'user.registration.approved' : 'user.registration.rejected';
-    await dispatchEvent(eventType, { 
+    await eventService.publishEvent(eventType, { 
       userId: user.uid, 
       reason: reason 
     });

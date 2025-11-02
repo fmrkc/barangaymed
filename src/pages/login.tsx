@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { login, auth } from '../firebaseConfig';
 import { logFailedLogin } from '../utils/logger';
 import { sendEmailVerification, signOut } from 'firebase/auth';
+import { eventService } from '../services/eventService';
 
 const INTR0_KEY = 'intro-seen';
 
@@ -52,15 +53,19 @@ const Login: React.FC = () => {
         }
 
         // Let AuthContext handle claims & Firestore role resolution
-        await authLogin(user);
+        const role = await authLogin(user);
         dismiss();
 
         // Redirect based on userRole from context
-        if (userRole === 'user') {
+        if (role === 'user') {
+          await eventService.publishEvent('user.login.success', {
+            userId: user.uid,
+            userName: user.displayName || user.email || 'User',
+          });
           router.push('/user/dashboard', 'forward');
-        } else if (userRole === 'admin') {
+        } else if (role === 'admin') {
           router.push('/admin/dashboard', 'forward');
-        } else if (userRole === 'superadmin') {
+        } else if (role === 'superadmin') {
           router.push('/superadmin/dashboard', 'forward');
         } else {
           logFailedLogin(email, 'Access denied: Invalid role or no role assigned.');

@@ -15,7 +15,7 @@ interface AuthContextType {
   verificationStatus: string | null;
   rejectionReason: string | null;
   loading: boolean;
-  login: (user: FirebaseUser) => Promise<void>;
+  login: (user: FirebaseUser) => Promise<string | null>;
   logout: () => Promise<void>;
   refreshUserClaims: () => Promise<void>;
 }
@@ -30,7 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   verificationStatus: null,
   rejectionReason: null,
   loading: true,
-  login: async () => {},
+  login: async () => null,
   logout: async () => {},
   refreshUserClaims: async () => {},
 });
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   // Function to extract user data from Firestore with retry logic
-  const extractUserData = async (user: FirebaseUser | null) => {
+  const extractUserData = async (user: FirebaseUser | null): Promise<string | null> => {
     if (!user) {
       setUserRole(null);
       setBarangayId(null);
@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setEmailVerified(false);
       setVerificationStatus(null);
       setRejectionReason(null);
-      return;
+      return null;
     }
 
     try {
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (userDoc.exists()) {
         const data = userDoc.data();
-        const role = data?.role as string | undefined;
+        let role = data?.role as string | undefined;
         const barangayId = data?.barangayId as string | undefined;
         const cityMunicipalityId = data?.cityMunicipalityId as string | undefined;
         const verificationStatus = data?.verificationStatus as string | undefined;
@@ -96,6 +96,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
           if (claimsRole && ['user', 'admin', 'superadmin'].includes(claimsRole)) {
             setUserRole(claimsRole);
+            role = claimsRole;
             console.log("AuthContext: Using claims role as fallback:", claimsRole);
 
             // Update Firestore document with role from claims with retry
@@ -124,6 +125,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           } else {
             console.warn("AuthContext: No valid role found in Firestore or claims for UID:", user.uid);
             setUserRole(null);
+            role = undefined;
           }
         }
 
@@ -131,6 +133,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCityMunicipalityId(cityMunicipalityId || null);
         setVerificationStatus(claimsVerificationStatus || verificationStatus || null);
         setRejectionReason(rejectionReason || null);
+        return role || null;
       } else {
         console.warn("AuthContext: User doc not found in Firestore for UID:", user.uid);
 
@@ -180,6 +183,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             console.warn("AuthContext: Failed to create Firestore document:", createError);
           }
+          return claimsRole;
         } else {
           console.warn("AuthContext: No valid role found in claims for UID:", user.uid);
           setUserRole(null);
@@ -187,6 +191,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setCityMunicipalityId(null);
           setVerificationStatus(null);
           setRejectionReason(null);
+          return null;
         }
       }
     } catch (error) {
@@ -201,6 +206,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setEmailVerified(false);
       setVerificationStatus(null);
       setRejectionReason(null);
+      return null;
     }
   };
 
@@ -232,19 +238,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = async (user: FirebaseUser) => {
+  const login = async (user: FirebaseUser): Promise<string | null> => {
     try {
       const userIP = await fetchUserIP();
       setCurrentUser(user);
-      await extractUserData(user);
+      const role = await extractUserData(user);
 
-      logLogin(user.uid, user.email || "Unknown", userRole || "Unknown", userIP);
+      logLogin(user.uid, user.email || "Unknown", role || "Unknown", userIP);
+      return role;
     } catch (error) {
       logFirestoreError('login', error, {
         userId: user.uid,
         operation: 'login'
       });
       console.error("Error during login:", error);
+      return null;
     }
   };
 

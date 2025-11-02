@@ -41,6 +41,11 @@ interface TeleconsultationRequestStatusUpdatedData {
   newStatus: string;
 }
 
+interface UserLoginSuccessData {
+  userId: string;
+  userName: string;
+}
+
 /**
  * Handles events published to the 'barangaymed-events' Pub/Sub topic.
  * This function will be the central hub for all notifications.
@@ -53,6 +58,15 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
 
   try {
     switch (eventType) {
+      case "user.login.success": {
+        const eventData = data as UserLoginSuccessData;
+        await sendInAppNotification(eventData.userId, {
+          type: "user_login",
+          title: `Welcome, ${eventData.userName}! `,
+          message: "You have successfully logged in.",
+        });
+        break;
+      }
       case "user.registration.approved": {
         const eventData = data as UserRegistrationApprovedData;
         await sendInAppNotification(eventData.userId, {
