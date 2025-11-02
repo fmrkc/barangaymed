@@ -21,11 +21,16 @@ export const onTeleconsultationEvent = onMessagePublished('barangaymed-events', 
 
   logger.info(`Received event: ${eventType}`, data);
 
-  let notificationTitle: string;
-  let notificationMessage: string;
-  let targetUserId: string;
+  let notificationTitle: string | null = null;
+  let notificationMessage: string | null = null;
+  let targetUserId: string | null = null;
 
   switch (eventType) {
+    case 'user.login.success':
+    case 'user.medical_record.created':
+    case 'user.medical_record.updated':
+      // These events are handled by onBarangayMedEvent, so we just break here.
+      break;
     case 'teleconsultation.request.created':
       targetUserId = data.userId;
       notificationTitle = 'Teleconsultation Request Submitted';
@@ -65,6 +70,15 @@ export const onTeleconsultationEvent = onMessagePublished('barangaymed-events', 
   }
 
   try {
+    if (!targetUserId) {
+      logger.warn(`Notification not created: targetUserId is null for event type: ${eventType}`);
+      return;
+    }
+    if (!notificationTitle || !notificationMessage) {
+      logger.warn(`Notification not created: title or message is null for event type: ${eventType}`);
+      return;
+    }
+
     const userRecord = await auth.getUser(targetUserId);
     const userEmail = userRecord.email;
 

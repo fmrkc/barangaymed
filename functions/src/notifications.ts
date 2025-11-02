@@ -46,6 +46,16 @@ interface UserLoginSuccessData {
   userName: string;
 }
 
+interface UserMedicalRecordCreatedData {
+  userId: string;
+  userName: string;
+}
+
+interface UserMedicalRecordUpdatedData {
+  userId: string;
+  userName: string;
+}
+
 /**
  * Handles events published to the 'barangaymed-events' Pub/Sub topic.
  * This function will be the central hub for all notifications.
@@ -64,6 +74,28 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
           type: "user_login",
           title: `Welcome, ${eventData.userName}! `,
           message: "You have successfully logged in.",
+        });
+        break;
+      }
+
+      case "user.medical_record.created": {
+        const eventData = data as UserMedicalRecordCreatedData;
+        await sendInAppNotification(eventData.userId, {
+          type: "user.medical_record.created",
+          title: "Medical Record Created",
+          message: "Your medical record has been successfully created.",
+          icon: 'document-text-outline',
+        });
+        break;
+      }
+
+      case "user.medical_record.updated": {
+        const eventData = data as UserMedicalRecordUpdatedData;
+        await sendInAppNotification(eventData.userId, {
+          type: "user.medical_record.updated",
+          title: "Medical Record Updated",
+          message: "Your medical record has been successfully updated.",
+          icon: 'document-text-outline',
         });
         break;
       }

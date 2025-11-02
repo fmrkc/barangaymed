@@ -34,6 +34,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { db, storage } from '../../../firebaseConfig';
 import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { eventService } from '../../../services/eventService';
 
 interface CreateMedicalRecordProps {
   isOpen: boolean;
@@ -112,6 +113,12 @@ const CreateMedicalRecord: React.FC<CreateMedicalRecordProps> = ({ isOpen, onDid
       setAlertMessage('Your medical record has been saved.');
       setShowAlert(true);
       handleDismiss();
+
+      // Publish event for medical record creation
+      await eventService.publishEvent('user.medical_record.created', {
+        userId: currentUser.uid,
+        userName: currentUser.displayName || currentUser.email || 'User',
+      });
 
     } catch (error) {
       console.error('Error saving medical record:', error);

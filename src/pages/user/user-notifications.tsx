@@ -24,7 +24,7 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles } from 'ionicons/icons';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles, documentTextOutline } from 'ionicons/icons';
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
@@ -59,6 +59,9 @@ const Notifications: React.FC = () => {
     switch (type) {
       case 'user_login':
         return sparkles;
+      case 'user.medical_record.created':
+      case 'user.medical_record.updated':
+        return documentTextOutline;
       case 'password_changed':
         return lockClosed;
       case 'status_change':
@@ -100,9 +103,11 @@ const Notifications: React.FC = () => {
       case 'admin_note':
       case 'new_announcement':
         return 'primary';
+      case 'user.medical_record.created':
+      case 'user.medical_record.updated':
+        return 'primary';
       case 'welcome':
       case 'registration':
-        return 'tertiary';
       case 'registration_rejected':
         return 'danger';
       case 'medicine_request_created':

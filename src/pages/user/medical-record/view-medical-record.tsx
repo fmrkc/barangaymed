@@ -32,6 +32,7 @@ import { arrowBack, arrowForward, checkmarkCircle, cloudUpload } from 'ionicons/
 import { useAuth } from '../../../contexts/AuthContext';
 import { db, storage } from '../../../firebaseConfig';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
+import { eventService } from '../../../services/eventService';
 
 interface ViewMedicalRecordProps {
   isOpen: boolean;
@@ -106,6 +107,12 @@ const ViewMedicalRecord: React.FC<ViewMedicalRecordProps> = ({ isOpen, onDidDism
       setAlertHeader('Success');
       setAlertMessage('Your medical record has been updated.');
       setShowAlert(true);
+
+      // Publish event for medical record update
+      await eventService.publishEvent('user.medical_record.updated', {
+        userId: currentUser.uid,
+        userName: currentUser.displayName || currentUser.email || 'User',
+      });
 
     } catch (error) {
       console.error("Error updating medical record:", error);
