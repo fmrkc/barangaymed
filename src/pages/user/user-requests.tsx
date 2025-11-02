@@ -18,7 +18,7 @@ const UserRequests: React.FC = () => {
 
   const handleTeleconsultationRequest = () => {
     if (isVerified) {
-      history.push('/user/dashboard/requests/teleconsultation-requests');
+      history.push('/user/dashboard/requests/teleconsultation');
     }
   };
 
