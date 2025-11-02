@@ -1,5 +1,6 @@
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import * as logger from "firebase-functions/logger";
+import admin from "firebase-admin"; // Added import
 import { sendInAppNotification } from "./services/notificationService.js";
 
 interface UserRegistrationApprovedData {
@@ -70,6 +71,22 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
     switch (eventType) {
       case "user.login.success": {
         const eventData = data as UserLoginSuccessData;
+
+        // Hide all previous 'user_login' notifications for this user
+        const notificationsRef = admin.firestore().collection('notifications');
+        const oldLoginNotificationsQuery = notificationsRef
+          .where('userId', '==', eventData.userId)
+          .where('type', '==', 'user_login')
+          .where('isShown', '==', true);
+
+        const snapshot = await oldLoginNotificationsQuery.get();
+        const batch = admin.firestore().batch();
+        snapshot.docs.forEach(doc => {
+          batch.update(doc.ref, { isShown: false });
+        });
+        await batch.commit();
+
+        // Create the new 'user_login' notification
         await sendInAppNotification(eventData.userId, {
           type: "user_login",
           title: `Welcome, ${eventData.userName}! `,

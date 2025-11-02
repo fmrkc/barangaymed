@@ -311,6 +311,54 @@ export class NotificationsService {
   }
 
   /**
+   * Show all hidden 'user_login' notifications for a specific user.
+   * @param userId The user's ID.
+   */
+  public async showAllLoginNotifications(userId: string): Promise<void> {
+    const operation = async () => {
+      const notificationsRef = collection(db, 'notifications');
+      const hiddenLoginNotificationsQuery = query(
+        notificationsRef,
+        where('userId', '==', userId),
+        where('type', '==', 'user_login'),
+        where('isShown', '==', false)
+      );
+
+      const snapshot = await getDocs(hiddenLoginNotificationsQuery);
+      if (snapshot.empty) {
+        return;
+      }
+
+      const batch = writeBatch(db);
+      snapshot.docs.forEach(doc => {
+        batch.update(doc.ref, { isShown: true });
+      });
+      await batch.commit();
+    };
+
+    try {
+      await executeWithRetry(
+        operation,
+        `showAllLoginNotifications-${userId}`,
+        { maxRetries: 3 },
+        { userId, operation: 'showAllLoginNotifications' }
+      );
+      logFirestoreEvent(userId, undefined, undefined, 'write', 'notifications', undefined, {
+        operation: 'showAllLoginNotifications',
+        success: true
+      });
+      console.log(`All hidden 'user_login' notifications shown for user ${userId}`);
+    } catch (error) {
+      logFirestoreError('showAllLoginNotifications', error, {
+        userId,
+        operation: 'showAllLoginNotifications'
+      });
+      console.error(`Error showing all hidden 'user_login' notifications for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Get archived notifications for a specific user.
    * @param userId The user's ID.
    * @returns Promise with an array of archived notifications.
@@ -321,7 +369,7 @@ export class NotificationsService {
         collection(db, 'notifications'),
         where('userId', '==', userId),
         where('isShown', '==', false),
-        orderBy('timestamp', 'asc') // Order by created date, ascending
+        orderBy('timestamp', 'desc') // Order by created date, descending
       );
 
       const querySnapshot = await getDocs(q);

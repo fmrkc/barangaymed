@@ -9,10 +9,11 @@ import healthcare from '../assets/healthcare.png';
 import Intro from '../components/Intro';
 import { Preferences } from '@capacitor/preferences';
 import { useAuth } from '../contexts/AuthContext';
-import { login, auth } from '../firebaseConfig';
+import { login, auth, db } from '../firebaseConfig'; // Added db import
 import { logFailedLogin } from '../utils/logger';
 import { sendEmailVerification, signOut } from 'firebase/auth';
 import { eventService } from '../services/eventService';
+import { doc, getDoc } from 'firebase/firestore'; // Added doc, getDoc import
 
 const INTR0_KEY = 'intro-seen';
 
@@ -52,6 +53,24 @@ const Login: React.FC = () => {
           return;
         }
 
+        // Fetch user's full name from Firestore
+        let userFullName = 'User'; // Default name
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const firstName = userData.firstName || '';
+            const lastName = userData.lastName || '';
+            if (firstName || lastName) {
+              userFullName = `${firstName} ${lastName}`.trim();
+            }
+          }
+        } catch (nameError) {
+          console.error('Error fetching user name for login notification:', nameError);
+          // Continue with default name if fetching fails
+        }
+
         // Let AuthContext handle claims & Firestore role resolution
         const role = await authLogin(user);
         dismiss();
@@ -60,7 +79,7 @@ const Login: React.FC = () => {
         if (role === 'user') {
           await eventService.publishEvent('user.login.success', {
             userId: user.uid,
-            userName: user.displayName || user.email || 'User',
+            userName: userFullName, // Use the fetched full name
           });
           router.push('/user/dashboard', 'forward');
         } else if (role === 'admin') {

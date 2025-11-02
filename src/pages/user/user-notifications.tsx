@@ -24,12 +24,14 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
+import { useAuth } from '../../contexts/AuthContext'; // Added import
 import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles, documentTextOutline } from 'ionicons/icons';
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
 const Notifications: React.FC = () => {
-  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading, refresh } = useNotifications();
+  const { notifications, loading, markAsRead, markAllAsRead, archiveNotification, archivedNotifications, archivedLoading, refresh, showAllLoginNotifications } = useNotifications(); // Added showAllLoginNotifications
+  const { currentUser } = useAuth(); // Get currentUser
 
   const [showArchiveAlert, setShowArchiveAlert] = useState(false);
   const [notificationToArchive, setNotificationToArchive] = useState<string | null>(null);
@@ -196,7 +198,14 @@ const Notifications: React.FC = () => {
               key={notification.id}
               button
               detail={false}
-              onClick={() => !notification.read && markAsRead(notification.id)}
+              onClick={() => {
+                if (!notification.read) {
+                  markAsRead(notification.id);
+                }
+                if (notification.type === 'user_login' && currentUser) {
+                  showAllLoginNotifications(currentUser.uid);
+                }
+              }}
               className={`notification-item ${!notification.read ? 'unread-notification' : ''}`}>
               <IonIcon
                 slot="start"
