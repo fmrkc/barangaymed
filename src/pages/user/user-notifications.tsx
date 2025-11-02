@@ -24,7 +24,7 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useNotifications } from '../../hooks/useNotifications';
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, handLeftOutline } from 'ionicons/icons';
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles } from 'ionicons/icons';
 import { formatDistanceToNow } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
@@ -58,7 +58,7 @@ const Notifications: React.FC = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'user_login':
-        return handLeftOutline;
+        return sparkles;
       case 'password_changed':
         return lockClosed;
       case 'status_change':
@@ -87,7 +87,7 @@ const Notifications: React.FC = () => {
   const getNotificationColor = (type: string) => {
     switch (type) {
       case 'user_login':
-        return 'light';
+        return 'primary';
       case 'password_changed':
         return 'success';
       case 'status_change':
