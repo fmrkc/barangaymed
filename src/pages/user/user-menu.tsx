@@ -7,6 +7,7 @@ import Home from './user-home';
 import Notifications from './user-notifications';
 import User_Requests from './user-requests';
 import UserTeleRequestList from './user-tele-request-list';
+import UserRequestsList from './user-requests-list';
 import UserMedRequestList from './user-med-request-list';
 import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
@@ -46,9 +47,10 @@ const UserDashboard: React.FC = () => {
 
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
-            <Route path="/user/dashboard/requests" component={User_Requests} exact />
+            {/* <Route path="/user/dashboard/requests" component={User_Requests} exact /> */}
             <Route path="/user/dashboard/requests/teleconsultation" component={UserTeleRequestList} exact />
             <Route path="/user/dashboard/requests/medicine" component={UserMedRequestList} exact />
+            <Route path="/user/dashboard/requests" component={UserRequestsList} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
             <Route path="/user/dashboard/account" component={Account} exact />
 
