@@ -92,13 +92,11 @@ const loadAddressesData = async () => {
     }
 };
 
-const getCityMunicipalityIdFromBarangayId = async (barangayId: string): Promise<string | undefined> => {
-    await loadAddressesData();
+const getCityMunicipalityIdFromBarangayId = (barangayId: string): string | undefined => {
     return barangayToCityMunMap?.get(barangayId);
 };
 
-const getNameFromCode = async (code: string): Promise<string | undefined> => {
-    await loadAddressesData();
+const getNameFromCode = (code: string): string | undefined => {
     return codeToNameMap?.get(code);
 };
 
@@ -133,6 +131,7 @@ interface ProvisionUserV2Data {
 }
 
 export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Data>) => {
+    await loadAddressesData();
     logger.info("provisionUserV2 started");
     logger.info("Incoming request data:", request.data);
     if (request.auth?.token.role !== 'superadmin' && request.auth?.token.email !== 'barangaymed@gmail.com') {
@@ -157,7 +156,7 @@ export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Da
 
     let finalBarangayName = barangayName;
     if (role === 'admin' && barangayId && !finalBarangayName) {
-        finalBarangayName = await getNameFromCode(barangayId);
+        finalBarangayName = getNameFromCode(barangayId);
     }
 
     // --- Validation ---
@@ -180,7 +179,7 @@ export const provisionUserV2 = async (request: CallableRequest<ProvisionUserV2Da
     if (request.auth?.token.role === 'superadmin') {
         const superadminCityMunicipalityId = request.auth.token.cityMunicipalityId;
         if (role === 'admin') {
-            const newAdminBarangayCityMunId = await getCityMunicipalityIdFromBarangayId(barangayId);
+            const newAdminBarangayCityMunId = getCityMunicipalityIdFromBarangayId(barangayId);
             if (!superadminCityMunicipalityId || newAdminBarangayCityMunId !== superadminCityMunicipalityId) {
                 throw new HttpsError(
                     'permission-denied',

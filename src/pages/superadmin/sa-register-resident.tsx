@@ -10,6 +10,7 @@ import {
 import { checkmarkDoneOutline, arrowForward, person, arrowBack, close } from 'ionicons/icons';
 import React, { useState, useEffect, useRef } from 'react';
 import { format, parseISO } from 'date-fns';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
     getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay,
     Region, Province, CityMunicipality, Barangay
@@ -178,7 +179,7 @@ const SARegisterResident: React.FC = () => {
             setShowErrorToast(true);
             return false;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             setError('Please enter a valid email address.');
             setShowErrorToast(true);
@@ -233,10 +234,59 @@ const SARegisterResident: React.FC = () => {
         }
     };
 
-    const handleConfirmRegistration = () => {
-        // This will be the final submission logic after confirmation
-        alert('CONFIRM REGISTRATION clicked!');
-        setShowSummaryModal(false);
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve((reader.result as string).split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+    };
+
+    const handleConfirmRegistration = async () => {
+        present('Creating account...');
+        try {
+            if (!idFile) {
+                throw new Error('ID file is not selected.');
+            }
+
+            const idFileBase64 = await fileToBase64(idFile);
+
+            const functions = getFunctions();
+            const createResidentAccount = httpsCallable(functions, 'createResidentAccount');
+
+            const result = await createResidentAccount({
+                email,
+                password,
+                firstName,
+                middleName,
+                lastName,
+                suffix,
+                birthdate,
+                gender,
+                selectedRegionCode,
+                selectedProvinceCode,
+                selectedCityMunCode,
+                selectedBarangayCode,
+                zipCode,
+                lotBlockHouseNo,
+                streetName,
+                subdivisionVillagePurok,
+                contactNumber,
+                idType,
+                idFile: idFileBase64,
+            });
+
+            dismiss();
+            setSuccessMessage('Resident account created successfully. A verification email has been sent.');
+            setShowSuccessToast(true);
+            setShowSummaryModal(false);
+            router.goBack();
+        } catch (error: any) {
+            dismiss();
+            setError(error.message);
+            setShowErrorToast(true);
+        }
     };
 
     const getRegionName = (code: string) => regions.find(r => r.code === code)?.name || code;
@@ -735,7 +785,6 @@ const SARegisterResident: React.FC = () => {
                                         expand="block"
                                         shape="round"
                                         onClick={handleConfirmRegistration}
-                                        disabled={true} // Disabled for now as per instruction
                                     >
                                         <IonText className="ion-padding-vertical">
                                             CONFIRM
