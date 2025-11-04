@@ -412,9 +412,9 @@ const SuperAdminMedRequestList: React.FC = () => {
     // Initialize selectedMedicines state with dispensedMedicines or empty
     const initialSelected: { [key: string]: { quantity: number } } = {};
     medicines.forEach(med => {
-      const qty = request.dispensedMedicines && request.dispensedMedicines[med.id || ''] ? request.dispensedMedicines[med.id || ''] : 0;
+      const qty = request.dispensedMedicines && request.dispensedMedicines[med.id] ? request.dispensedMedicines[med.id] : 0;
       if (qty > 0) {
-        initialSelected[med.id || ''] = { quantity: qty };
+        initialSelected[med.id] = { quantity: qty };
       }
     });
     setSelectedMedicines(initialSelected);
@@ -1158,14 +1158,14 @@ const SuperAdminMedRequestList: React.FC = () => {
                             </div>
                           </IonLabel>
                           <IonCheckbox slot='end'
-                            checked={!!selectedMedicines[med.id || '']}
-                            onIonChange={() => toggleMedicineSelection(med.id || '')}
+                            checked={!!selectedMedicines[med.id]}
+                            onIonChange={() => toggleMedicineSelection(med.id)}
                           />
                         </IonItem>
-                        {selectedMedicines[med.id || ''] && (
+                        {selectedMedicines[med.id] && (
                           <IonItem key={`${med.id}-quantity`}>
-                            <IonLabel slot='start'>Quantity: {selectedMedicines[med.id || '']?.quantity || 1} / {med.quantity} available</IonLabel>
-                            <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id || '')}>
+                            <IonLabel slot='start'>Quantity: {selectedMedicines[med.id]?.quantity || 1} / {med.quantity} available</IonLabel>
+                            <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id)}>
                               Change
                             </IonButton>
                           </IonItem>

@@ -16,7 +16,7 @@ export interface FirestoreAuditTrailEntry {
   timestamp: Timestamp;
 }
 export interface Medicine {
-  id?: string;
+  id: string;
   medicine_name: string;
   dosage_form: string;
   strength: string;
