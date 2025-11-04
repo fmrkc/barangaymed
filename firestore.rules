@@ -179,7 +179,8 @@ service cloud.firestore {
                     isSuperAdmin();
 
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                      (resource.data.status == 'pending' && request.resource.data.status == 'cancelled')) ||
+                      (resource.data.status == 'pending' && request.resource.data.status == 'cancelled') &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancellationReason', 'updatedAt', 'auditTrail'])) ||
                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                       (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'processed', 'completed', 'cancelled', 'no show']);
 
@@ -206,8 +207,9 @@ service cloud.firestore {
       // UPDATE: Users can cancel pending requests.
       // Superadmins can update any request to any valid status.
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
-                      ((resource.data.status == 'pending' || resource.data.status == 'accepted') && request.resource.data.status == 'cancelled')) ||
-                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'completed']);
+                      (resource.data.status == 'pending' && request.resource.data.status == 'cancelled') &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancellationReason', 'updatedAt', 'auditTrail'])) ||
+                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'completed', 'cancelled']);
 
       // DELETE: Deletion not allowed from client
       allow delete: if false;

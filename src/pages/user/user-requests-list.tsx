@@ -200,8 +200,14 @@ const UserRequestsList: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleCancelRequest = async () => {
+  const handleCancelRequest = async (reason: string) => {
     if (!requestToCancel || !currentUser) return;
+
+    if (!reason || reason.trim() === '') {
+      setToastMessage('Please provide a reason for cancellation.');
+      setShowCancelToast(true);
+      return;
+    }
     
     const { id, type } = requestToCancel;
     const collectionName = type === 'medicine' ? 'medicineRequests' : 'teleconsultationRequests';
@@ -211,6 +217,7 @@ const UserRequestsList: React.FC = () => {
       const requestRef = doc(db, collectionName, id);
       await updateDoc(requestRef, {
         status: 'cancelled',
+        cancellationReason: reason,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
           action: auditAction,
@@ -278,7 +285,7 @@ const UserRequestsList: React.FC = () => {
                 <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                     <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                    {['pending', 'accepted'].includes(status) && (
+                    {status === 'pending' && (
                         <IonButton color="danger" onClick={() => {
                             setRequestToCancel({id: request.id!, type: request.type});
                             setShowCancelAlert(true);
@@ -338,10 +345,21 @@ const UserRequestsList: React.FC = () => {
           <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
         </IonItem>
 
+        {/* Cancellation Details */}
+        {selectedRequest.status === 'cancelled' && (
+          <>
+            <IonItemDivider>Cancellation Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Reason for Cancellation:</IonLabel>
+              <IonText slot="end" className="ion-text-wrap">{(selectedRequest as any).cancellationReason}</IonText>
+            </IonItem>
+          </>
+        )}
+
         {/* Rejection Details */}
         {rejectionEntry && (
           <>
-            <IonItemDivider>Rejection Details</IonItemDivider>
+            <IonItemDivider className='ion-margin-top'>Rejection Details</IonItemDivider>
             <IonItem>
               <IonLabel>Reason for Rejection:</IonLabel>
               <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason}</IonText>
@@ -360,14 +378,12 @@ const UserRequestsList: React.FC = () => {
                             {/* Acceptance Details */}
                             {acceptanceEntry && (
                               <>
-                                <IonItemDivider>Acceptance Details</IonItemDivider>
+                                <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
                                 <IonItem>
-                                  <IonLabel>Accepted By:</IonLabel>
-                                  <IonText slot="end">{acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonText>
+                                  <IonLabel>Accepted By: {acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                  <IonLabel>Accepted At:</IonLabel>
-                                  <IonText slot="end">{acceptanceEntry.timestamp.toLocaleString()}</IonText>
+                                  <IonLabel>Accepted At: {acceptanceEntry.timestamp.toLocaleString()}</IonLabel>
                                 </IonItem>
                               </>
                             )}
@@ -377,12 +393,10 @@ const UserRequestsList: React.FC = () => {
                               <>
                                 <IonItemDivider>Processing Details</IonItemDivider>
                                 <IonItem>
-                                  <IonLabel>Processed By:</IonLabel>
-                                  <IonText slot="end">{processingEntry.userName} ({processingEntry.userEmail})</IonText>
+                                  <IonLabel>Processed By: {processingEntry.userName} ({processingEntry.userEmail})</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                  <IonLabel>Processed At:</IonLabel>
-                                  <IonText slot="end">{processingEntry.timestamp.toLocaleString()}</IonText>
+                                  <IonLabel>Processed At: {processingEntry.timestamp.toLocaleString()}</IonLabel>
                                 </IonItem>
                               </>
                             )}
@@ -390,7 +404,7 @@ const UserRequestsList: React.FC = () => {
                             {/* Dispensed Medicines */}
                             {['processed', 'scheduled', 'completed', 'no show'].includes(selectedRequest.status) && (
                               <>
-                                <IonItemDivider>Dispensed Medicines</IonItemDivider>
+                                <IonItemDivider className='ion-margin-top'>Dispensed Medicines</IonItemDivider>
                                 <IonItem>
                                   <IonLabel>Medicines:</IonLabel>
                                   <IonText slot="end" className="ion-text-wrap">{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
@@ -408,14 +422,12 @@ const UserRequestsList: React.FC = () => {
                             {/* Scheduling Details */}
                             {schedulingEntry && (
                               <>
-                                <IonItemDivider>Scheduling Details</IonItemDivider>
+                                <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
                                 <IonItem>
-                                  <IonLabel>Scheduled By:</IonLabel>
-                                  <IonText slot="end">{schedulingEntry.userName} ({schedulingEntry.userEmail})</IonText>
+                                  <IonLabel>Scheduled By: {schedulingEntry.userName} ({schedulingEntry.userEmail})</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                  <IonLabel>Scheduled At:</IonLabel>
-                                  <IonText slot="end">{schedulingEntry.timestamp.toLocaleString()}</IonText>
+                                  <IonLabel>Scheduled At: {schedulingEntry.timestamp.toLocaleString()}</IonLabel>
                                 </IonItem>
                               </>
                             )}
@@ -423,7 +435,7 @@ const UserRequestsList: React.FC = () => {
                             {/* Pickup Details */}
                             {['scheduled', 'completed'].includes(selectedRequest.status) && (
                               <>
-                                <IonItemDivider>Pickup Details</IonItemDivider>
+                                <IonItemDivider className='ion-margin-top'>Pickup Details</IonItemDivider>
                                 <IonItem>
                                   <IonLabel>Date:</IonLabel>
                                   <IonText slot="end">{selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}</IonText>
@@ -442,14 +454,12 @@ const UserRequestsList: React.FC = () => {
                             {/* Completion Details */}
                             {completionEntry && (
                               <>
-                                <IonItemDivider>Completion Details</IonItemDivider>
+                                <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
                                 <IonItem>
-                                  <IonLabel>Completed By:</IonLabel>
-                                  <IonText slot="end">{completionEntry.userName} ({completionEntry.userEmail})</IonText>
+                                  <IonLabel>Completed By: {completionEntry.userName} ({completionEntry.userEmail})</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                  <IonLabel>Completed At:</IonLabel>
-                                  <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
+                                  <IonLabel>Completed At: {completionEntry.timestamp.toLocaleString()}</IonLabel>
                                 </IonItem>
                               </>
                             )}
@@ -457,14 +467,12 @@ const UserRequestsList: React.FC = () => {
                             {/* No Show Details */}
                             {noShowEntry && (
                               <>
-                                <IonItemDivider>No Show Details</IonItemDivider>
+                                <IonItemDivider className='ion-margin-top'>No Show Details</IonItemDivider>
                                 <IonItem>
-                                  <IonLabel>Marked By:</IonLabel>
-                                  <IonText slot="end">{noShowEntry.userName} ({noShowEntry.userEmail})</IonText>
+                                  <IonLabel>Marked By: {noShowEntry.userName} ({noShowEntry.userEmail})</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                  <IonLabel>Marked At:</IonLabel>
-                                  <IonText slot="end">{noShowEntry.timestamp.toLocaleString()}</IonText>
+                                  <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
                                 </IonItem>
                               </>
                             )}
@@ -486,7 +494,7 @@ const UserRequestsList: React.FC = () => {
           {detailSegment === 'request' && (
             <>
               {/* Request Information */}
-              <IonItemDivider style={{ marginTop: '10px' }}>Your Request Details</IonItemDivider>
+              <IonItemDivider>Your Request Details</IonItemDivider>
               <IonItem>
                 <IonLabel>Status:</IonLabel>
                 <IonChip
@@ -520,12 +528,14 @@ const UserRequestsList: React.FC = () => {
                 <>
                   <IonItemDivider>Cancellation Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Cancelled By:</IonLabel>
-                    <IonText slot="end">{cancellationEntry.userName}</IonText>
+                    <IonLabel>Cancelled By: {cancellationEntry.userName}</IonLabel>
                   </IonItem>
                   <IonItem>
-                    <IonLabel>Cancelled At:</IonLabel>
-                    <IonText slot="end">{cancellationEntry.timestamp.toLocaleString()}</IonText>
+                    <IonLabel>Cancelled At: {cancellationEntry.timestamp.toLocaleString()}</IonLabel>
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel>Reason for Cancellation:</IonLabel>
+                    <IonText slot="end" className="ion-text-wrap">{(selectedRequest as any).cancellationReason || 'N/A'}</IonText>
                   </IonItem>
                 </>
               )}
@@ -539,12 +549,10 @@ const UserRequestsList: React.FC = () => {
                     <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
                   </IonItem>
                   <IonItem>
-                    <IonLabel>Rejected By:</IonLabel>
-                    <IonText slot="end">{rejectionEntry.userName}</IonText>
+                    <IonLabel>Rejected By: {rejectionEntry.userName}</IonLabel>
                   </IonItem>
                   <IonItem>
-                    <IonLabel>Rejected At:</IonLabel>
-                    <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+                    <IonLabel>Rejected At: {rejectionEntry.timestamp.toLocaleString()}</IonLabel>
                   </IonItem>
                 </>
               )}
@@ -554,12 +562,10 @@ const UserRequestsList: React.FC = () => {
                 <>
                   <IonItemDivider>No Show Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Marked By:</IonLabel>
-                    <IonText slot="end">{noShowEntry.userName}</IonText>
+                    <IonLabel>Marked By: {noShowEntry.userName}</IonLabel>
                   </IonItem>
                   <IonItem>
-                    <IonLabel>Marked At:</IonLabel>
-                    <IonText slot="end">{noShowEntry.timestamp.toLocaleString()}</IonText>
+                    <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
                   </IonItem>
                 </>
               )}
@@ -795,10 +801,17 @@ const UserRequestsList: React.FC = () => {
           isOpen={showCancelAlert}
           onDidDismiss={() => setShowCancelAlert(false)}
           header={'Confirm Cancellation'}
-          message={'Are you sure you want to cancel this request?'}
+          message={'Please provide a reason for cancelling this request.'}
+          inputs={[
+            {
+              name: 'cancellationReason',
+              type: 'textarea',
+              placeholder: 'Reason for cancellation...'
+            }
+          ]}
           buttons={[
-            { text: 'No', role: 'cancel', handler: () => setRequestToCancel(null) },
-            { text: 'Yes', handler: handleCancelRequest }
+            { text: 'Back', role: 'cancel', handler: () => setRequestToCancel(null) },
+            { text: 'Yes, Cancel', handler: (data) => handleCancelRequest(data.cancellationReason) }
           ]}
         />
 
