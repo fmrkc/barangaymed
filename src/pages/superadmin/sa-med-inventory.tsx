@@ -1,9 +1,9 @@
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonFooter, IonLoading, IonItemDivider, IonActionSheet, IonAlert, IonSearchbar, IonRefresher, IonRefresherContent, RefresherCustomEvent, IonText, IonSegment, IonSegmentButton, IonCardSubtitle, IonChip, IonPopover } from '@ionic/react';
-import { add, addCircle, albums, close, create, filter, pencil } from 'ionicons/icons';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonFooter, IonLoading, IonItemDivider, IonActionSheet, IonAlert, IonSearchbar, IonRefresher, IonRefresherContent, RefresherCustomEvent, IonText, IonSegment, IonSegmentButton, IonCardSubtitle, IonChip, IonPopover, IonSkeletonText } from '@ionic/react';
+import { add, addCircle, albums, close, create, ellipsisVertical, filter, pencil } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, serverTimestamp, doc, updateDoc, arrayUnion, query, where } from 'firebase/firestore';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 
 const Med_Inventory: React.FC = () => {
@@ -22,7 +22,8 @@ const Med_Inventory: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [medicines, setMedicines] = useState<Medicine[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessingAction, setIsProcessingAction] = useState(false); // For add/edit/delete forms
+  const [isFetchingList, setIsFetchingList] = useState(false); // For fetching the medicine list
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [customQuantity, setCustomQuantity] = useState('');
@@ -34,6 +35,27 @@ const Med_Inventory: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState('details');
   const [showPopover, setShowPopover] = useState(false);
   const [popoverEvent, setPopoverEvent] = useState<Event | undefined>(undefined);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [medicineToArchive, setMedicineToArchive] = useState<Medicine | null>(null);
+  const [showArchiveAlert, setShowArchiveAlert] = useState(false);
+  const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [medicineToUnarchive, setMedicineToUnarchive] = useState<Medicine | null>(null);
+  const [showUnarchiveAlert, setShowUnarchiveAlert] = useState(false);
+
+  useEffect(() => {
+    setIsSearching(true);
+    const searchDebounce = setTimeout(() => {
+      let meds = [...medicines];
+      if (searchQuery) {
+        meds = meds.filter(med => med.medicine_name.toLowerCase().includes(searchQuery.toLowerCase()));
+      }
+      setFilteredMedicines(meds);
+      setIsSearching(false);
+    }, 300); // Debounce to improve performance and user experience
+
+    return () => clearTimeout(searchDebounce);
+  }, [searchQuery, medicines]);
 
   const resetForm = () => {
     setMedicineName('');
@@ -70,7 +92,7 @@ const Med_Inventory: React.FC = () => {
 
     
 
-    setIsLoading(true);
+    setIsProcessingAction(true);
 
     try {
       await addDoc(collection(db, 'medicine'), {
@@ -84,6 +106,7 @@ const Med_Inventory: React.FC = () => {
         expiration_date: new Date(expirationDate + "-01"),
         unit_name: unitName,
         quantity: quantity,
+        isDeleted: false,
         auditTrail: [{
           action: 'Medicine added',
           userId: currentUser?.uid,
@@ -94,19 +117,64 @@ const Med_Inventory: React.FC = () => {
       });
       setToastMessage('Medicine added successfully.');
       setShowToast(true);
-      setShowModal(false);
-      resetForm();
+      setShowModal(false); // This will trigger onDidDismiss which handles cleanup
       fetchMedicines(); // Refresh list
     } catch (error) {
       setToastMessage('Failed to add medicine. Please try again.');
       setShowToast(true);
       console.error('Error adding medicine:', error);
     } finally {
-      setIsLoading(false);
+      setIsProcessingAction(false);
+    }
+  };
+
+  const handleUpdateMedicine = async () => {
+    if (!selectedMedicine || !currentUser) return;
+
+    if (!medicineName || !dosageForm || !strength || !category || !unitName || quantity === undefined || !expirationDate) {
+      setToastMessage('Please fill in all required fields.');
+      setShowToast(true);
+      return;
+    }
+
+    setIsProcessingAction(true);
+
+    try {
+      const medRef = doc(db, 'medicine', selectedMedicine.id!);
+      await updateDoc(medRef, {
+        medicine_name: medicineName,
+        dosage_form: dosageForm,
+        strength: strength,
+        category: category,
+        requires_prescription: requiresPrescription,
+        description: description || null,
+        expiration_date: new Date(expirationDate + "-01"),
+        unit_name: unitName,
+        quantity: quantity,
+        auditTrail: arrayUnion({
+          action: 'Medicine details updated',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown',
+          userName: currentUser.displayName || currentUser.email || 'Super Admin',
+          timestamp: new Date(),
+        })
+      });
+      setToastMessage('Medicine updated successfully.');
+      setShowToast(true);
+      setShowModal(false); // This will trigger onDidDismiss which handles cleanup
+      setSearchQuery(''); // Clear search query
+      fetchMedicines(); // Refresh list
+    } catch (error) {
+      setToastMessage('Failed to update medicine.');
+      setShowToast(true);
+      console.error('Error updating medicine:', error);
+    } finally {
+      setIsProcessingAction(false);
     }
   };
 
   const fetchMedicines = async () => {
+    setIsFetchingList(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'medicine'));
       const meds: Medicine[] = [];
@@ -129,6 +197,64 @@ const Med_Inventory: React.FC = () => {
       setMedicines(meds);
     } catch (error) {
       console.error('Error fetching medicines:', error);
+    } finally {
+      setIsFetchingList(false);
+    }
+  };
+
+  const handleArchiveMedicine = async () => {
+    if (!medicineToArchive || !currentUser) return;
+    setIsProcessingAction(true);
+    try {
+      const medRef = doc(db, 'medicine', medicineToArchive.id!);
+      await updateDoc(medRef, {
+        isDeleted: true, // Still using isDeleted for the underlying logic
+        auditTrail: arrayUnion({
+          action: 'Medicine archived',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown',
+          userName: currentUser.displayName || currentUser.email || 'Super Admin',
+          timestamp: new Date(),
+        })
+      });
+      setToastMessage('Medicine archived successfully.');
+      setShowToast(true);
+      fetchMedicines(); // Refresh list
+    } catch (error) {
+      setToastMessage('Failed to archive medicine.');
+      setShowToast(true);
+      console.error('Error archiving medicine:', error);
+    } finally {
+      setIsProcessingAction(false);
+      setMedicineToArchive(null);
+    }
+  };
+
+  const handleUnarchiveMedicine = async () => {
+    if (!medicineToUnarchive || !currentUser) return;
+    setIsProcessingAction(true);
+    try {
+      const medRef = doc(db, 'medicine', medicineToUnarchive.id!);
+      await updateDoc(medRef, {
+        isDeleted: false,
+        auditTrail: arrayUnion({
+          action: 'Medicine unarchived',
+          userId: currentUser.uid,
+          userEmail: currentUser.email || 'unknown',
+          userName: currentUser.displayName || currentUser.email || 'Super Admin',
+          timestamp: new Date(),
+        })
+      });
+      setToastMessage('Medicine unarchived successfully.');
+      setShowToast(true);
+      fetchMedicines(); // Refresh list
+    } catch (error) {
+      setToastMessage('Failed to unarchive medicine.');
+      setShowToast(true);
+      console.error('Error unarchiving medicine:', error);
+    } finally {
+      setIsProcessingAction(false);
+      setMedicineToUnarchive(null);
     }
   };
 
@@ -227,7 +353,32 @@ const Med_Inventory: React.FC = () => {
      
 
        
-        {medicines.length === 0 && !isLoading && (
+        {(isFetchingList || isSearching) && (
+          <IonList style={{ backgroundColor: 'transparent' }}>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <IonItem className='ion-margin' lines='none' key={index}>
+                <IonChip>
+                  <IonSkeletonText animated style={{ width: '50px' }} />
+                </IonChip>
+                <IonCard style={{ flexGrow: 1 }}>
+                  <IonCardHeader>
+                    <IonCardTitle>
+                      <IonSkeletonText animated style={{ width: '80%' }} />
+                    </IonCardTitle>
+                  </IonCardHeader>
+                  <IonCardContent>
+                    <IonSkeletonText animated style={{ width: '60%' }} />
+                  </IonCardContent>
+                </IonCard>
+                <IonButton slot='end' fill='clear' size='default'>
+                  <IonIcon icon={ellipsisVertical} slot='icon-only' />
+                </IonButton>
+              </IonItem>
+            ))}
+          </IonList>
+        )}
+
+        {!isFetchingList && !isSearching && medicines.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
             <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
               <IonCardHeader>
@@ -244,25 +395,54 @@ const Med_Inventory: React.FC = () => {
             </IonCard>
           </div>
         )}
+
+        {!isFetchingList && !isSearching && medicines.length > 0 && filteredMedicines.length === 0 && searchQuery && (
+           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+           <IonCard style={{ textAlign: 'center' }} className='ion-padding-vertical'>
+             <IonCardHeader>
+               <IonCardTitle>
+                 <IonText color={'primary'}>
+                   <strong>No Results Found</strong>
+                 </IonText>
+               </IonCardTitle>
+             </IonCardHeader>
+             <IonCardContent>
+               <p>Your search for "{searchQuery}" did not return any results.</p>
+               <p>Try checking your spelling or using different keywords.</p>
+             </IonCardContent>
+           </IonCard>
+         </div>
+        )}
         
-        <IonList style={{ backgroundColor: 'transparent' }} className='ion-margin-horizontal'>
-          {medicines.filter(med => med.medicine_name.toLowerCase().includes(searchQuery.toLowerCase())).map((med) => (
-            <IonCard button key={med.id} onClick={(e) => {
-              setSelectedMedicine(med);
-              setPopoverEvent(e.nativeEvent as Event);
-              setShowPopover(true);
-            }}>
-              <IonCardHeader>
-                <IonCardTitle>{med.medicine_name}</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <p><strong>Strength:</strong> {med.strength}</p>
-                <p><strong>Quantity:</strong> {getDisplayQuantity(med)}</p>
-                <p><strong>Expiration Date:</strong> {med.expiration_date.toLocaleDateString()}</p>
-              </IonCardContent>
-            </IonCard>
-          ))}
-        </IonList>
+        {!isFetchingList && !isSearching && filteredMedicines.length > 0 && (
+          <IonList style={{ backgroundColor: 'transparent' }}>
+            {filteredMedicines.map((med) => (
+              <IonItem className='ion-margin' lines='none' key={med.id} style={{ opacity: med.isDeleted ? 0.6 : 1 }}>
+                <IonChip>
+                    {med.quantity} pc/s.
+                  </IonChip>
+                <IonCard key={med.id}>
+                <IonCardHeader>
+                    <IonCardTitle>
+                      {med.medicine_name} ({med.unit_name})
+                      {med.isDeleted && <IonChip color="medium" slot="end">Archived</IonChip>}
+                    </IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
+                   {med.strength} • {`${String(med.expiration_date.getMonth() + 1).padStart(2, '0')}/${med.expiration_date.getFullYear()}`}
+                </IonCardContent>
+              </IonCard>
+              <IonButton slot='end' fill='clear' size='default' onClick={(e) => {
+                setSelectedMedicine(med);
+                setPopoverEvent(e.nativeEvent as Event);
+                setShowPopover(true);
+              }}>
+                <IonIcon icon={ellipsisVertical} slot='icon-only' />
+              </IonButton>
+              </IonItem>
+            ))}
+          </IonList>
+        )}
 
            {/* Medicine Details Modal */}
         <IonModal isOpen={showDetailsModal} onDidDismiss={() => setShowDetailsModal(false)}>
@@ -286,9 +466,9 @@ const Med_Inventory: React.FC = () => {
                   <IonSegmentButton value="history">
                     <IonLabel>History</IonLabel>
                   </IonSegmentButton>
-                  <IonSegmentButton value="transactions">
+                  {/* <IonSegmentButton value="transactions">
                     <IonLabel>Transactions</IonLabel>
-                  </IonSegmentButton>
+                  </IonSegmentButton> */}
                 </IonSegment>
 
                 {selectedSegment === 'details' && (
@@ -330,10 +510,6 @@ const Med_Inventory: React.FC = () => {
                         <IonText slot="end">{selectedMedicine.unit_name}</IonText>
                       </IonItem>
                       <IonItem>
-                        <IonLabel>Conversion Factor:</IonLabel>
-                        <IonText slot="end">{selectedMedicine.conversion_factor}</IonText>
-                      </IonItem>
-                      <IonItem>
                         <IonLabel>Quantity:</IonLabel>
                         <IonText slot="end">{selectedMedicine.quantity}</IonText>
                       </IonItem>
@@ -352,7 +528,7 @@ const Med_Inventory: React.FC = () => {
                 {selectedSegment === 'history' && (
                   <IonCard>
                     <IonCardHeader>
-                      <IonCardTitle>Audit Trail</IonCardTitle>
+                      <IonCardTitle>History</IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
                       {selectedMedicine.auditTrail && selectedMedicine.auditTrail.length > 0 ? (
@@ -367,7 +543,7 @@ const Med_Inventory: React.FC = () => {
                         ))
                       ) : (
                         <IonItem>
-                          <IonLabel>No audit trail available.</IonLabel>
+                          <IonLabel>No history available.</IonLabel>
                         </IonItem>
                       )}
                     </IonCardContent>
@@ -422,27 +598,50 @@ const Med_Inventory: React.FC = () => {
             </IonItem>
             <IonItem button onClick={() => {
               setShowPopover(false);
-              // Placeholder for edit functionality
-              console.log('Edit clicked for:', selectedMedicine?.medicine_name);
+              if (selectedMedicine) {
+                setModalMode('edit');
+                setMedicineName(selectedMedicine.medicine_name);
+                setDosageForm(selectedMedicine.dosage_form);
+                setStrength(selectedMedicine.strength);
+                setCategory(selectedMedicine.category);
+                setRequiresPrescription(selectedMedicine.requires_prescription);
+                setDescription(selectedMedicine.description || '');
+                setExpirationDate(selectedMedicine.expiration_date.toISOString().substring(0, 7));
+                setUnitName(selectedMedicine.unit_name);
+                setQuantity(selectedMedicine.quantity);
+                setShowModal(true);
+              }
             }}>
-              <IonLabel>
-                Edit (Placeholder)
-              </IonLabel>
+              <IonLabel>Edit</IonLabel>
             </IonItem>
-            <IonItem button onClick={() => {
-              setShowPopover(false);
-              // Placeholder for delete functionality
-              console.log('Delete clicked for:', selectedMedicine?.medicine_name);
-            }}>
-              <IonLabel>Delete (Placeholder)</IonLabel>
-            </IonItem>
+            {selectedMedicine && !selectedMedicine.isDeleted ? (
+              <IonItem button onClick={() => {
+                setShowPopover(false);
+                if (selectedMedicine) {
+                  setMedicineToArchive(selectedMedicine);
+                  setShowArchiveAlert(true);
+                }
+              }}>
+                <IonLabel color="warning">Archive</IonLabel>
+              </IonItem>
+            ) : (
+              <IonItem button onClick={() => {
+                setShowPopover(false);
+                if (selectedMedicine) {
+                  setMedicineToUnarchive(selectedMedicine);
+                  setShowUnarchiveAlert(true);
+                }
+              }}>
+                <IonLabel color="success">Unarchive</IonLabel>
+              </IonItem>
+            )}
           </IonList>
         </IonPopover>
 
-        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+        <IonModal isOpen={showModal} onDidDismiss={() => { resetForm(); setModalMode('add'); }}>
           <IonHeader className='ion-no-border'>
             <IonToolbar>
-              <IonTitle>Add New Medicine</IonTitle>
+              <IonTitle>{modalMode === 'add' ? 'Add New Medicine' : 'Edit Medicine'}</IonTitle>
               <IonButtons slot='end'>
                 <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
               </IonButtons>
@@ -574,9 +773,9 @@ const Med_Inventory: React.FC = () => {
           </IonContent>
           <IonFooter>
             <IonToolbar>
-               <IonButton shape='round' color={'success'} expand="block" className="ion-padding-vertical" disabled={isLoading} onClick={handleAddMedicine}>
-                {isLoading ? 'Adding...' : 'Add Medicine'}
-                <IonIcon slot="end" icon={add} />
+               <IonButton shape='round' color={'success'} expand="block" className="ion-padding-vertical" disabled={isProcessingAction} onClick={modalMode === 'add' ? handleAddMedicine : handleUpdateMedicine}>
+                {isProcessingAction ? (modalMode === 'add' ? 'Adding...' : 'Updating...') : (modalMode === 'add' ? 'Add Medicine' : 'Update Medicine')}
+                <IonIcon slot="end" icon={modalMode === 'add' ? add : pencil} />
                </IonButton>
 
             </IonToolbar>
@@ -584,7 +783,7 @@ const Med_Inventory: React.FC = () => {
         </IonModal>
 
         <IonToast isOpen={showToast} onDidDismiss={() => setShowToast(false)} message={toastMessage} duration={3000} />
-        <IonLoading isOpen={isLoading} message="Adding medicine..." />
+        <IonLoading isOpen={isProcessingAction} message="Processing..." />
 
         <IonActionSheet
           isOpen={showActionSheet}
@@ -652,6 +851,28 @@ const Med_Inventory: React.FC = () => {
                 }
               },
             },
+          ]}
+        />
+
+        <IonAlert
+          isOpen={showArchiveAlert}
+          onDidDismiss={() => setShowArchiveAlert(false)}
+          header="Confirm Archive"
+          message={`Are you sure you want to archive ${medicineToArchive?.medicine_name}? It will no longer appear in the active inventory but can be restored later.`}
+          buttons={[
+            { text: 'Cancel', role: 'cancel', handler: () => setMedicineToArchive(null) },
+            { text: 'Archive', handler: () => handleArchiveMedicine() }
+          ]}
+        />
+
+        <IonAlert
+          isOpen={showUnarchiveAlert}
+          onDidDismiss={() => setShowUnarchiveAlert(false)}
+          header="Confirm Unarchive"
+          message={`Are you sure you want to unarchive ${medicineToUnarchive?.medicine_name}? It will be visible in the active inventory again.`}
+          buttons={[
+            { text: 'Cancel', role: 'cancel', handler: () => setMedicineToUnarchive(null) },
+            { text: 'Unarchive', handler: () => handleUnarchiveMedicine() }
           ]}
         />
       </IonContent>

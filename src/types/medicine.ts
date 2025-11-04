@@ -28,5 +28,6 @@ export interface Medicine {
   unit_name: string;
   conversion_factor: number;
   quantity: number;
+  isDeleted: boolean;
   auditTrail?: AuditTrailEntry[];
 }
