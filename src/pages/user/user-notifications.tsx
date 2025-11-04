@@ -25,7 +25,7 @@ import {
 import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useNotifications } from '../../hooks/useNotifications';
 import { useAuth } from '../../contexts/AuthContext'; // Added import
-import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles, documentTextOutline, eye } from 'ionicons/icons'; // Added eye icon
+import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mail, archiveOutline, folderOpenOutline, closeOutline, sparkles, eye, checkmarkDoneCircle, addCircle, closeCircle } from 'ionicons/icons'; // Added eye icon
 import { formatDistanceToNow, isBefore, subDays, format } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
@@ -65,25 +65,26 @@ const Notifications: React.FC = () => {
       case 'user_login':
         return sparkles;
       case 'user.medical_record.created':
+        return addCircle;
       case 'user.medical_record.updated':
-        return documentTextOutline;
+        return checkmarkDoneCircle;
       case 'password_changed':
-        return lockClosed;
+        return checkmarkCircle;
       case 'registration_approved':
         return checkmarkCircle;
       case 'registration_submitted':
-        return mailOutline;
+        return addCircle;
       case 'registration_rejected':
-        return alertCircle;
+        return closeCircle;
       case 'teleconsultation_request_status_update':
         return alertCircle;
       case 'teleconsultation_request_created':
-        return callOutline;
+        return addCircle;
       case 'admin_note':
       case 'new_announcement':
-        return mailOutline;
+        return alertCircle;
       case 'medicine_request_created':
-        return mailOutline;
+        return addCircle;
       case 'medicine_request_status_update':
         return alertCircle;
       default:
@@ -104,21 +105,22 @@ const Notifications: React.FC = () => {
       case 'registration_rejected':
         return 'danger';
       case 'teleconsultation_request_status_update':
-        return 'warning';
-      case 'teleconsultation_request_created':
         return 'primary';
+      case 'teleconsultation_request_created':
+        return 'success';
       case 'admin_note':
       case 'new_announcement':
         return 'primary';
       case 'user.medical_record.created':
+        return 'success';
       case 'user.medical_record.updated':
         return 'primary';
       case 'medicine_request_created':
-        return 'primary';
+        return 'success';
       case 'medicine_request_status_update':
-        return 'tertiary';
+        return 'primary';
       default:
-        return 'warning';
+        return 'primary';
     }
   };
 
