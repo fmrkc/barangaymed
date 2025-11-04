@@ -2,6 +2,7 @@ import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import * as logger from "firebase-functions/logger";
 import admin from "firebase-admin"; // Added import
 import { sendInAppNotification } from "./services/notificationService.js";
+import { sendSms } from "./services/smsService.js";
 
 interface UserRegistrationApprovedData {
   userId: string;
@@ -173,6 +174,21 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
             newStatus: eventData.newStatus,
           },
         });
+
+        // Send SMS notification
+        try {
+          const userDoc = await admin.firestore().collection('users').doc(eventData.userId).get();
+          const user = userDoc.data();
+          if (user && user.phoneNumber) {
+            await sendSms({
+              to: user.phoneNumber,
+              message: `Your medicine request for ${eventData.medicineName} has been updated to ${eventData.newStatus}.`,
+            });
+          }
+        } catch (error) {
+          logger.error('Error sending SMS for medicine request status update:', error);
+        }
+
         break;
       }
 
@@ -201,6 +217,21 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
             newStatus: eventData.newStatus,
           },
         });
+
+        // Send SMS notification
+        try {
+          const userDoc = await admin.firestore().collection('users').doc(eventData.userId).get();
+          const user = userDoc.data();
+          if (user && user.phoneNumber) {
+            await sendSms({
+              to: user.phoneNumber,
+              message: `Your teleconsultation request has been updated to ${eventData.newStatus}.`,
+            });
+          }
+        } catch (error) {
+          logger.error('Error sending SMS for teleconsultation request status update:', error);
+        }
+
         break;
       }
 
