@@ -332,6 +332,11 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                         </IonItem>
                       </>
                     )}
+                    {!prescriptionFile && (
+                      <IonItem lines="none" className='ion-margin-top'>
+                        <IonNote color="danger">Please upload a prescription file to continue.</IonNote>
+                      </IonItem>
+                    )}
                   </IonCard>
                 )}
 
@@ -436,6 +441,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                         expand="block"
                         shape="round"
                         onClick={nextStep}
+                        disabled={step === 3 && hasPrescription && !prescriptionFile}
                       >
                         <IonIcon slot="end" icon={arrowForward} />
                         <IonText className='ion-padding-vertical'>Next</IonText>
