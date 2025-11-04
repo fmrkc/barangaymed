@@ -43,16 +43,19 @@ import {
   IonCardSubtitle,
   IonToast,
   IonSkeletonText,
+  ActionSheetButton,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment, FieldValue, UpdateData } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
-import { Medicine } from '../../types/medicine';
+import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
 import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline } from 'ionicons/icons';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
+
+
 
 const SuperAdminMedRequestList: React.FC = () => {
   const { currentUser, cityMunicipalityId } = useAuth();
@@ -101,7 +104,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [currentMedId, setCurrentMedId] = useState<string>('');
   const [showQuantityAlert, setShowQuantityAlert] = useState(false);
   const [quantityInput, setQuantityInput] = useState<string>('1');
-  const [actionSheetButtons, setActionSheetButtons] = useState<any[]>([]);
+  const [actionSheetButtons, setActionSheetButtons] = useState<(string | ActionSheetButton)[]>([]);
   const [maxQty, setMaxQty] = useState(0);
 
 
@@ -176,7 +179,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             dispensedMedicines: data.dispensedMedicines,
             processNote: data.processNote,
             rejectionReason: data.rejectionReason,
-            auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
+            auditTrail: data.auditTrail ? data.auditTrail.map((entry: FirestoreAuditTrailEntry) => ({
               action: entry.action,
               userId: entry.userId,
               userEmail: entry.userEmail,
@@ -248,7 +251,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       return;
     }
     try {
-      const updateData: any = {
+      const updateData: UpdateData<MedicineRequest> = {
         status: status,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
@@ -374,6 +377,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             unit_name: data.unit_name,
             conversion_factor: data.conversion_factor,
             quantity: data.quantity,
+            isDeleted: data.isDeleted || false,
           });
         });
         setMedicines(medicinesList);
@@ -576,7 +580,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
-        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as any)}>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all')}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
