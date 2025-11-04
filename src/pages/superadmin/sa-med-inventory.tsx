@@ -42,20 +42,47 @@ const Med_Inventory: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [medicineToUnarchive, setMedicineToUnarchive] = useState<Medicine | null>(null);
   const [showUnarchiveAlert, setShowUnarchiveAlert] = useState(false);
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+  const [selectedDosageFormFilter, setSelectedDosageFormFilter] = useState('all');
+  const [selectedStrengthFilter, setSelectedStrengthFilter] = useState('all');
+  const [showArchivedFilter, setShowArchivedFilter] = useState(false);
 
   useEffect(() => {
     setIsSearching(true);
     const searchDebounce = setTimeout(() => {
       let meds = [...medicines];
+
+      // Apply search query filter
       if (searchQuery) {
         meds = meds.filter(med => med.medicine_name.toLowerCase().includes(searchQuery.toLowerCase()));
       }
+
+      // Apply category filter
+      if (selectedCategoryFilter !== 'all') {
+        meds = meds.filter(med => med.category === selectedCategoryFilter);
+      }
+
+      // Apply dosage form filter
+      if (selectedDosageFormFilter !== 'all') {
+        meds = meds.filter(med => med.dosage_form === selectedDosageFormFilter);
+      }
+
+      // Apply strength filter
+      if (selectedStrengthFilter !== 'all') {
+        meds = meds.filter(med => med.strength === selectedStrengthFilter);
+      }
+
+      // Apply archived filter
+      if (!showArchivedFilter) {
+        meds = meds.filter(med => !med.isDeleted);
+      }
+
       setFilteredMedicines(meds);
       setIsSearching(false);
     }, 300); // Debounce to improve performance and user experience
 
     return () => clearTimeout(searchDebounce);
-  }, [searchQuery, medicines]);
+  }, [searchQuery, medicines, selectedCategoryFilter, selectedDosageFormFilter, selectedStrengthFilter, showArchivedFilter]);
 
   const resetForm = () => {
     setMedicineName('');
@@ -323,22 +350,32 @@ const Med_Inventory: React.FC = () => {
             <IonCard>
               <IonCardContent className='ion-margin-vertical'>
                 <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect fill='outline' label='Placeholder Filter 1' placeholder="Select Category">
-                    <IonSelectOption value="placeholder1">Placeholder Category 1</IonSelectOption>
-                    <IonSelectOption value="placeholder2">Placeholder Category 2</IonSelectOption>
+                  <IonSelect fill='outline' label='Category' placeholder="All Categories" value={selectedCategoryFilter} onIonChange={e => setSelectedCategoryFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Categories</IonSelectOption>
+                    {categoryOptions.map(option => (
+                      <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+                    ))}
                   </IonSelect>
                 </IonItem>
                 <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect fill='outline' label='Placeholder Filter 2' placeholder="Select Category">
-                    <IonSelectOption value="placeholder1">Placeholder Category 3</IonSelectOption>
-                    <IonSelectOption value="placeholder2">Placeholder Category 4</IonSelectOption>
+                  <IonSelect fill='outline' label='Dosage Form' placeholder="All Dosage Forms" value={selectedDosageFormFilter} onIonChange={e => setSelectedDosageFormFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Dosage Forms</IonSelectOption>
+                    {dosageFormOptions.map(option => (
+                      <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+                    ))}
                   </IonSelect>
                 </IonItem>
-                  <IonItem lines='none' className='ion-margin-top'>
-                  <IonSelect fill='outline' label='Placeholder Filter 3' placeholder="Select Category">
-                    <IonSelectOption value="placeholder1">Placeholder Category 5</IonSelectOption>
-                    <IonSelectOption value="placeholder2">Placeholder Category 6</IonSelectOption>
+                <IonItem lines='none' className='ion-margin-top'>
+                  <IonSelect fill='outline' label='Strength' placeholder="All Strengths" value={selectedStrengthFilter} onIonChange={e => setSelectedStrengthFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Strengths</IonSelectOption>
+                    {strengthOptions.map(option => (
+                      <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+                    ))}
                   </IonSelect>
+                </IonItem>
+                <IonItem lines='none' className='ion-margin-top'>
+                  <IonLabel>Show Archived Medicines</IonLabel>
+                  <IonToggle slot='end' checked={showArchivedFilter} onIonChange={e => setShowArchivedFilter(e.detail.checked)} />
                 </IonItem>
               </IonCardContent>
             </IonCard>
