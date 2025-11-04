@@ -160,6 +160,7 @@ const UserMedRequestList: React.FC = () => {
             unit_name: data.unit_name,
             conversion_factor: data.conversion_factor,
             quantity: data.quantity,
+            isDeleted: data.isDeleted || false,
           });
         });
         setMedicines(medicinesList);
