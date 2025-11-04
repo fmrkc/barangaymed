@@ -11,6 +11,7 @@ import { checkmarkDoneOutline, arrowForward, person, arrowBack, close } from 'io
 import React, { useState, useEffect, useRef } from 'react';
 import { format, parseISO } from 'date-fns';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
     getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality, getZipCodeByBarangay,
     Region, Province, CityMunicipality, Barangay
@@ -234,11 +235,17 @@ const SARegisterResident: React.FC = () => {
         }
     };
 
-    const fileToBase64 = (file: File): Promise<string> => {
+    const fileToBase64 = (file: File): Promise<{ base64: string, type: string }> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => resolve((reader.result as string).split(',')[1]);
+            reader.onload = () => {
+                const result = reader.result as string;
+                const parts = result.split(',');
+                const type = parts[0].split(':')[1].split(';')[0];
+                const base64 = parts[1];
+                resolve({ base64, type });
+            };
             reader.onerror = error => reject(error);
         });
     };
@@ -250,12 +257,31 @@ const SARegisterResident: React.FC = () => {
                 throw new Error('ID file is not selected.');
             }
 
-            const idFileBase64 = await fileToBase64(idFile);
-
             const functions = getFunctions();
             const createResidentAccount = httpsCallable(functions, 'createResidentAccount');
 
-            const result = await createResidentAccount({
+            // Construct full address string
+            const barangayName = getBarangayName(selectedBarangayCode);
+            const cityName = getCityMunName(selectedCityMunCode);
+            const provinceName = getProvinceName(selectedProvinceCode);
+            const regionName = getRegionName(selectedRegionCode);
+
+            const addressParts = [];
+            if (lotBlockHouseNo) addressParts.push(lotBlockHouseNo);
+            if (streetName) addressParts.push(streetName);
+            if (subdivisionVillagePurok) addressParts.push(subdivisionVillagePurok);
+            if (barangayName) addressParts.push(barangayName);
+            if (cityName) addressParts.push(cityName);
+            if (provinceName) addressParts.push(provinceName);
+            if (regionName) addressParts.push(regionName);
+            if (zipCode) addressParts.push(zipCode);
+            const fullAddress = addressParts.filter(Boolean).join(', ');
+
+            // Prepend +63 to the contact number before submitting
+            const formattedContactNumber = `+63${contactNumber}`;
+
+            // Step 1: Create user in Auth and Firestore (without file)
+            const createResult = await createResidentAccount({
                 email,
                 password,
                 firstName,
@@ -272,10 +298,25 @@ const SARegisterResident: React.FC = () => {
                 lotBlockHouseNo,
                 streetName,
                 subdivisionVillagePurok,
-                contactNumber,
-                idType,
-                idFile: idFileBase64,
-            });
+                contactNumber: formattedContactNumber,
+                address: fullAddress,
+            }) as any;
+
+            const uid = createResult.data.uid;
+            if (!uid) {
+                throw new Error('Failed to get new user UID.');
+            }
+
+            // Step 2: Upload ID file to Storage
+            const storage = getStorage();
+            const storagePath = `user_ids/${uid}/${idType}-${Date.now()}`;
+            const storageRef = ref(storage, storagePath);
+            await uploadBytes(storageRef, idFile);
+            const downloadUrl = await getDownloadURL(storageRef);
+
+            // Step 3: Finalize registration with the ID URL and type
+            const finalizeResidentRegistration = httpsCallable(functions, 'finalizeResidentRegistration');
+            await finalizeResidentRegistration({ uid, downloadUrl, idType });
 
             dismiss();
             setSuccessMessage('Resident account created successfully. A verification email has been sent.');
