@@ -26,7 +26,7 @@ import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useNotifications } from '../../hooks/useNotifications';
 import { useAuth } from '../../contexts/AuthContext'; // Added import
 import { checkmarkCircle, alertCircle, mailOutline, mailOpenOutline, mailOpen, mail, archiveOutline, folderOpenOutline, closeOutline, callOutline, lockClosed, sparkles, documentTextOutline, eye } from 'ionicons/icons'; // Added eye icon
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isBefore, subDays, format } from 'date-fns';
 import { Notification } from '../../types/notifications';
 
 const Notifications: React.FC = () => {
@@ -123,7 +123,25 @@ const Notifications: React.FC = () => {
   };
 
   const formatTimestamp = (date: Date) => {
-    return date.toLocaleString(); // Display exact date and time
+    const now = new Date();
+    const eightDaysAgo = subDays(now, 8);
+
+    if (isBefore(date, eightDaysAgo)) {
+      // If 8 days ago or more, display exact date and time
+      return format(date, 'MMM d, yyyy h:mm a');
+    } else {
+      // If under 8 days ago, display relative timestamp
+      const distance = formatDistanceToNow(date, { addSuffix: true });
+      // Customize for "Yesterday at X:XX AM/PM" and "X days ago at X:XX AM/PM"
+      if (distance.includes('day') && !distance.includes('about')) { // "about X days" is for more than 7 days
+        if (distance.includes('1 day')) {
+          return `Yesterday at ${format(date, 'h:mm a')}`;
+        } else {
+          return `${distance.replace('about ', '')} at ${format(date, 'h:mm a')}`;
+        }
+      }
+      return distance;
+    }
   };
 
   useEffect(() => {
