@@ -34,7 +34,7 @@ export const sendSmsNotification = onCall({ secrets: [SMS_API_KEY, SMS_SENDER_ID
       throw new HttpsError('internal', 'SMS service not configured properly.');
     }
 
-    const smsApiUrl = 'https://sms.iprogtech.com/api/send';
+    const smsApiUrl = 'https://sms.iprogtech.com/api/v1/send';
     const params = new URLSearchParams();
     params.append('api_key', apiKey);
     params.append('sender_id', senderId);
