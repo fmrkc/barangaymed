@@ -41,7 +41,8 @@ import {
   IonToggle,
   IonSkeletonText,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
@@ -52,6 +53,28 @@ import './sa-tele-request-list.css';
 import { useIonRouter } from '@ionic/react';
 
 const db = getFirestore();
+const functions = getFunctions();
+const sendSmsCloudFunction = httpsCallable(functions, 'sendSmsNotification');
+
+const sendSms = async (userId: string, message: string) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const recipientContactNumber = userData?.contactNumber;
+      if (recipientContactNumber) {
+        await sendSmsCloudFunction({ recipientContactNumber, message });
+        console.log('SMS sent successfully!');
+      } else {
+        console.warn('User has no contact number for SMS notification.');
+      }
+    } else {
+      console.warn('User document not found for SMS notification.');
+    }
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+  }
+};
 
 const SuperAdminTeleRequestList: React.FC = () => {
   const ionRouter = useIonRouter();
@@ -249,6 +272,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
       return;
     }
     try {
+      const requestRef = doc(db, 'teleconsultationRequests', requestId);
+      const requestDoc = await getDoc(requestRef);
+      if (!requestDoc.exists()) {
+        setError('Teleconsultation request not found.');
+        return;
+      }
+      const requestData = requestDoc.data() as TeleconsultationRequest;
+
       const updateData: any = {
         status: status,
         updatedAt: new Date(),
@@ -263,8 +294,24 @@ const SuperAdminTeleRequestList: React.FC = () => {
       if (reason) {
         updateData.rejectionReason = reason;
       }
-      const requestRef = doc(db, 'teleconsultationRequests', requestId);
       await updateDoc(requestRef, updateData);
+
+      let smsMessage = '';
+      switch (status) {
+        case 'accepted':
+          smsMessage = `Your teleconsultation request has been accepted.`;
+          break;
+        case 'rejected':
+          smsMessage = `Your teleconsultation request has been rejected. Reason: ${reason || 'N/A'}.`;
+          break;
+        case 'no show':
+          smsMessage = `Your teleconsultation request has been marked as no-show.`;
+          break;
+      }
+      if (smsMessage && requestData.userId) {
+        await sendSms(requestData.userId, smsMessage);
+      }
+
     } catch (error) {
       console.error(`Error updating request to ${status}: `, error);
       setError(`Failed to update the request.`);
@@ -326,6 +373,13 @@ const SuperAdminTeleRequestList: React.FC = () => {
     if (!requestToMarkComplete) return;
     setIsMarkingComplete(true);
 
+    const request = requests.find(r => r.id === requestToMarkComplete);
+    if (!request) {
+      setError('Teleconsultation request not found.');
+      setIsMarkingComplete(false);
+      return;
+    }
+
     try {
       let prescriptionUrl = '';
       if (hasPrescription && prescriptionFile) {
@@ -354,7 +408,16 @@ const SuperAdminTeleRequestList: React.FC = () => {
 
       await updateDoc(requestRef, updateData);
 
-      const request = requests.find(r => r.id === requestToMarkComplete);
+      // Send SMS notification
+      if (request && request.userId) {
+        let smsMessage = `Your teleconsultation request has been marked as completed.`;
+        if (prescriptionUrl) {
+          smsMessage += ` A prescription has been uploaded.`;
+        }
+        await sendSms(request.userId, smsMessage);
+      }
+
+      // Use the request already retrieved above for the toast message
       setToastMessage(`You have successfully marked ${request?.userData?.firstName} ${request?.userData?.lastName}'s teleconsultation request as completed.`);
       setShowCompleteToast(true);
 
@@ -412,6 +475,13 @@ const SuperAdminTeleRequestList: React.FC = () => {
           timestamp: new Date(),
         }),
       });
+
+      // Send SMS notification
+      if (selectedRequest.userId) {
+        const smsMessage = `Your teleconsultation with Dr. ${doctorName} has been scheduled for ${startDateTime.toLocaleDateString()} at ${startDateTime.toLocaleTimeString()}. Meeting link: ${meetingLink}.`;
+        await sendSms(selectedRequest.userId, smsMessage);
+      }
+
       // Update local state
       setRequests(prev => prev.map(r => r.id === selectedRequest.id ? { ...r, status: 'scheduled', startTime: startDateTime, endTime: endDateTime, doctorName, meetingLink, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled teleconsultation request', userId: currentUser.uid, userEmail: currentUser.email!, userName: currentUser.displayName || currentUser.email || 'Super Admin', timestamp: new Date() }] } : r));
 
