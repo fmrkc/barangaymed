@@ -45,7 +45,8 @@ import {
   IonSkeletonText,
   ActionSheetButton,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment, FieldValue, UpdateData } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment, FieldValue, UpdateData, getDoc } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
@@ -54,7 +55,28 @@ import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close
 import './sa-med-request-list.css';
 
 const db = getFirestore();
+const functions = getFunctions();
+const sendSmsCloudFunction = httpsCallable(functions, 'sendSmsNotification');
 
+const sendSms = async (userId: string, message: string) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const recipientContactNumber = userData?.contactNumber;
+      if (recipientContactNumber) {
+        await sendSmsCloudFunction({ recipientContactNumber, message });
+        console.log('SMS sent successfully!');
+      } else {
+        console.warn('User has no contact number for SMS notification.');
+      }
+    } else {
+      console.warn('User document not found for SMS notification.');
+    }
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+  }
+};
 
 
 const SuperAdminMedRequestList: React.FC = () => {
@@ -251,6 +273,14 @@ const SuperAdminMedRequestList: React.FC = () => {
       return;
     }
     try {
+      const requestRef = doc(db, 'medicineRequests', requestId);
+      const requestDoc = await getDoc(requestRef);
+      if (!requestDoc.exists()) {
+        setError('Medicine request not found.');
+        return;
+      }
+      const requestData = requestDoc.data() as MedicineRequest;
+
       const updateData: UpdateData<MedicineRequest> = {
         status: status,
         updatedAt: new Date(),
@@ -265,8 +295,27 @@ const SuperAdminMedRequestList: React.FC = () => {
       if (reason) {
         updateData.rejectionReason = reason;
       }
-      const requestRef = doc(db, 'medicineRequests', requestId);
       await updateDoc(requestRef, updateData);
+
+      let smsMessage = '';
+      switch (status) {
+        case 'accepted':
+          smsMessage = `Your medicine request has been accepted.`;
+          break;
+        case 'rejected':
+          smsMessage = `Your medicine request has been rejected. Reason: ${reason || 'N/A'}.`;
+          break;
+        case 'completed':
+          smsMessage = `Your medicine request has been completed.`;
+          break;
+        case 'no show':
+          smsMessage = `Your medicine request has been marked as no-show.`;
+          break;
+      }
+      if (smsMessage && requestData.userId) {
+        await sendSms(requestData.userId, smsMessage);
+      }
+
     } catch (error) {
       console.error(`Error updating request to ${status}: `, error);
       setError(`Failed to update the request.`);
@@ -339,6 +388,14 @@ const SuperAdminMedRequestList: React.FC = () => {
           timestamp: new Date(),
         }),
       });
+
+      // Send SMS notification
+      const request = requests.find(r => r.id === requestToSchedule);
+      if (request && request.userId) {
+        const smsMessage = `Your medicine request has been scheduled for pickup on ${new Date(scheduleDate).toLocaleDateString()} at ${scheduleTime} in ${schedulePlace}.`;
+        await sendSms(request.userId, smsMessage);
+      }
+
       // Update local state
       setRequests(prev => prev.map(r => r.id === requestToSchedule ? { ...r, status: 'scheduled', scheduleDate: new Date(scheduleDate), scheduleTime, schedulePlace, auditTrail: [...(r.auditTrail || []), { action: 'Scheduled request', userId: currentUser.uid, userEmail: currentUser.email!, userName: currentUser.displayName || currentUser.email || 'Super Admin', timestamp: new Date() }] } : r));
       setShowScheduleModal(false);
@@ -543,6 +600,16 @@ const SuperAdminMedRequestList: React.FC = () => {
         });
       });
       await Promise.all(updatePromises);
+
+      // Send SMS notification
+      if (selectedRequest.userId) {
+        const dispensedMedNames = Object.entries(dispensedMedicines).map(([id, qty]) => {
+          const med = medicines.find(m => m.id === id);
+          return `${med?.medicine_name || id} (x${qty})`;
+        }).join(', ');
+        const smsMessage = `Your medicine request has been processed. Dispensed medicines: ${dispensedMedNames}.`;
+        await sendSms(selectedRequest.userId, smsMessage);
+      }
 
       // Update local state
       setRequests(prev =>

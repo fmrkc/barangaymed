@@ -411,3 +411,4 @@ export * from "./teleconsultation-request-triggers.js";
 export * from "./teleconsultation-notifications.js";
 export * from "./event-publisher.js";
 export * from "./resident-registration.js";
+export * from "./sendSms.js";
