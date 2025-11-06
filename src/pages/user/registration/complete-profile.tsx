@@ -170,7 +170,8 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
         setLotBlkHouseNo(data.lotBlkHouseNo || '');
         setStreetName(data.streetName || '');
         setSubdivisionVillageZonePurok(data.subdivisionVillageZonePurok || '');
-        setContactNumber(data.contactNumber || '');
+        const phone = data.contactNumber || '';
+        setContactNumber(phone.startsWith('+63') ? phone.slice(3) : phone);
       }
     } catch (error) {
       console.error('Error loading existing data:', error);
@@ -274,7 +275,8 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
     setError(null);
 
     try {
-      const unmaskedContactNumber = contactNumber;
+      // Prepend +63 to the contact number before submitting
+      const unmaskedContactNumber = `+63${contactNumber}`;
 
       // Construct full address
       const barangayName = barangays.find(b => b.code === barangayId)?.name || '';
