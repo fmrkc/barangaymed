@@ -392,7 +392,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       // Send SMS notification
       const request = requests.find(r => r.id === requestToSchedule);
       if (request && request.userId) {
-        const smsMessage = `Your medicine request has been scheduled for pickup on ${new Date(scheduleDate).toLocaleDateString()} at ${scheduleTime} in ${schedulePlace}.`;
+        const smsMessage = `Your medicine request has been scheduled on ${new Date(scheduleDate).toLocaleDateString()} at ${scheduleTime} in ${schedulePlace}.`;
         await sendSms(request.userId, smsMessage);
       }
 
