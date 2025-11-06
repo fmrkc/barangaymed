@@ -5,9 +5,8 @@ import { logger } from "firebase-functions/v2";
 
 // Define secrets for SMS API key and sender ID
 const SMS_API_KEY = defineSecret('SMS_API_KEY');
-const SMS_SENDER_ID = defineSecret('SMS_SENDER_ID');
 
-export const sendSmsNotification = onCall({ secrets: [SMS_API_KEY, SMS_SENDER_ID] }, async (request) => {
+export const sendSmsNotification = onCall({ secrets: [SMS_API_KEY] }, async (request) => {
   // Ensure the request is authenticated
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
@@ -27,33 +26,27 @@ export const sendSmsNotification = onCall({ secrets: [SMS_API_KEY, SMS_SENDER_ID
 
   try {
     const apiKey = SMS_API_KEY.value();
-    const senderId = SMS_SENDER_ID.value();
 
-    if (!apiKey || !senderId) {
-      logger.error('SMS API Key or Sender ID not configured.');
+    if (!apiKey) {
+      logger.error('SMS API Key not configured.');
       throw new HttpsError('internal', 'SMS service not configured properly.');
     }
 
-    const smsApiUrl = 'https://sms.iprogtech.com/api/v1/sms_messages';
     const formattedMobileNumber = recipientContactNumber.startsWith('+') ? recipientContactNumber.substring(1) : recipientContactNumber;
 
-    const params = new URLSearchParams();
-    params.append('api_key', apiKey);
-    params.append('sender_id', senderId);
-    params.append('message', message);
-    params.append('mobile_number', formattedMobileNumber);
+    const smsApiUrl = `https://sms.iprogtech.com/api/v1/sms_messages?api_token=${apiKey}&phone_number=${formattedMobileNumber}&message=${encodeURIComponent(message)}`;
 
-    logger.info(`Sending SMS to ${recipientContactNumber} with message: ${message}`);
+    logger.info(`Sending SMS to ${formattedMobileNumber} with message: ${message}`);
 
-    const response = await axios.post(smsApiUrl, params, {
+    const response = await axios.post(smsApiUrl, null, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
     });
 
     logger.info('SMS API response:', response.data);
 
-    if (response.data && response.data.status === 'success') {
+    if (response.data && response.data.status === 200) {
       return { success: true, message: 'SMS sent successfully!' };
     } else {
       logger.error('SMS API returned an error:', response.data);
