@@ -35,11 +35,13 @@ export const sendSmsNotification = onCall({ secrets: [SMS_API_KEY, SMS_SENDER_ID
     }
 
     const smsApiUrl = 'https://sms.iprogtech.com/api/v1/send';
+    const formattedMobileNumber = recipientContactNumber.startsWith('+') ? recipientContactNumber.substring(1) : recipientContactNumber;
+
     const params = new URLSearchParams();
     params.append('api_key', apiKey);
     params.append('sender_id', senderId);
     params.append('message', message);
-    params.append('mobile_number', recipientContactNumber);
+    params.append('mobile_number', formattedMobileNumber);
 
     logger.info(`Sending SMS to ${recipientContactNumber} with message: ${message}`);
 
