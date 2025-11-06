@@ -65,8 +65,7 @@ const sendSms = async (userId: string, message: string) => {
       const userData = userDoc.data();
       const recipientContactNumber = userData?.contactNumber;
       if (recipientContactNumber) {
-        const formattedContactNumber = recipientContactNumber.startsWith('+') ? recipientContactNumber.substring(1) : recipientContactNumber;
-        await sendSmsCloudFunction({ recipientContactNumber: formattedContactNumber, message });
+        await sendSmsCloudFunction({ recipientContactNumber, message });
         console.log('SMS sent successfully!');
       } else {
         console.warn('User has no contact number for SMS notification.');
