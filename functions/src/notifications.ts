@@ -152,7 +152,7 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
         await sendInAppNotification(eventData.userId, {
           type: "medicine_request_created",
           title: "Medicine Request Submitted",
-          message: `Your medicine request has been submitted and is pending review.`, 
+          message: `Your medicine request has been submitted and is pending review.`,
           metadata: {
             requestId: eventData.requestId,
             medicineName: eventData.medicineName,
@@ -179,9 +179,9 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
         try {
           const userDoc = await admin.firestore().collection('users').doc(eventData.userId).get();
           const user = userDoc.data();
-          if (user && user.phoneNumber) {
+          if (user && user.contactNumber) {
             await sendSms({
-              to: user.phoneNumber,
+              to: user.contactNumber,
               message: `Your medicine request for ${eventData.medicineName} has been updated to ${eventData.newStatus}.`,
             });
           }
@@ -222,9 +222,9 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
         try {
           const userDoc = await admin.firestore().collection('users').doc(eventData.userId).get();
           const user = userDoc.data();
-          if (user && user.phoneNumber) {
+          if (user && user.contactNumber) {
             await sendSms({
-              to: user.phoneNumber,
+              to: user.contactNumber,
               message: `Your teleconsultation request has been updated to ${eventData.newStatus}.`,
             });
           }
