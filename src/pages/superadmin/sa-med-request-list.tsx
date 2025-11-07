@@ -134,6 +134,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [isSavingProcess, setIsSavingProcess] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
   const [showScheduleToast, setShowScheduleToast] = useState(false);
+  const [showMarkCompleteToast, setShowMarkCompleteToast] = useState(false);
 
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showRejectToast, setShowRejectToast] = useState(false);
@@ -303,7 +304,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           smsMessage = `Your medicine request has been accepted.`;
           break;
         case 'rejected':
-          smsMessage = `Your medicine request has been rejected. Reason: ${reason || 'N/A'}.`;
+          smsMessage = `Your medicine request has been rejected.`;
           break;
         case 'completed':
           smsMessage = `Your medicine request has been completed.`;
@@ -357,10 +358,17 @@ const SuperAdminMedRequestList: React.FC = () => {
     }
   };
 
-  const handleMarkAsComplete = () => {
+  const handleMarkAsComplete = async () => {
     if (!requestToMarkComplete) return;
-    handleUpdateRequestStatus(requestToMarkComplete, 'completed', 'Marked as completed');
-    setRequestToMarkComplete(null);
+    try {
+      await handleUpdateRequestStatus(requestToMarkComplete, 'completed', 'Marked as completed');
+      setShowMarkCompleteToast(true);
+      setRequestToMarkComplete(null);
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error marking request as complete:', error);
+      setError('Failed to mark the request as complete.');
+    }
   };
 
   const handleMarkAsNoShow = () => {
@@ -392,7 +400,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       // Send SMS notification
       const request = requests.find(r => r.id === requestToSchedule);
       if (request && request.userId) {
-        const smsMessage = `Your medicine request has been scheduled on ${new Date(scheduleDate).toLocaleDateString()} at ${scheduleTime} in ${schedulePlace}.`;
+        const smsMessage = 'Your medicine request has been scheduled.';
         await sendSms(request.userId, smsMessage);
       }
 
@@ -607,7 +615,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           const med = medicines.find(m => m.id === id);
           return `${med?.medicine_name || id} (x${qty})`;
         }).join(', ');
-        const smsMessage = `Your medicine request has been processed. Dispensed medicines: ${dispensedMedNames}.`;
+        const smsMessage = 'Your medicine request has been processed.';
         await sendSms(selectedRequest.userId, smsMessage);
       }
 
@@ -679,7 +687,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonSelect>
         </IonToolbar>
 
-                {loading && (
+        {loading && (
           <IonList style={{ backgroundColor: 'transparent' }}>
             {Array.from({ length: 5 }).map((_, index) => (
               <IonCard key={index}>
@@ -694,10 +702,10 @@ const SuperAdminMedRequestList: React.FC = () => {
                 <IonCardContent>
                   <IonSkeletonText animated style={{ width: '80%', marginBottom: '8px' }} />
                   <IonSkeletonText animated style={{ width: '90%', marginBottom: '8px' }} />
-                   <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
-                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
-                    </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                    <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                  </div>
                 </IonCardContent>
               </IonCard>
             ))}
@@ -745,7 +753,7 @@ const SuperAdminMedRequestList: React.FC = () => {
               <IonCardHeader>
                 <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {request.userData?.firstName} {request.userData?.lastName} 
+                   Request ID: {request.id}
                   
                     <IonChip
                       color={
@@ -773,72 +781,37 @@ const SuperAdminMedRequestList: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 {request.status === 'pending' && (
-                  <>
-                    <p>Reason: <strong>{request.reason}</strong> </p>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                  </>
                 )}
                 {request.status === 'rejected' && (
-                  <>
-                    <p>Rejected by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected request')?.userName || 'N/A'}</strong> </p>
-                    <p>Reason: <strong>{request.rejectionReason || 'N/A'}</strong></p>
                     <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                  </>
                 )}
                 {request.status === 'accepted' && (
-                  <>
-                    <p>Approved by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted request')?.userName || 'N/A'}</strong> </p>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
                       <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
                     </div>
-                  </>
                 )}
                 {request.status === 'processed' && (
                   <>
-                    <p>Medication/s: <strong>{Object.entries(request.dispensedMedicines || {}).map(([id, qty]) => {
-                      const med = medicines.find(m => m.id === id);
-                      return `${med?.medicine_name || id} (${qty})`;
-                    }).join(', ')}</strong> </p>
-                    <p>Processed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Processed request')?.userName || 'N/A'}</strong> </p>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
-                        setRequestToMarkComplete(request.id!);
-                        setShowMarkCompleteAlert(true);
-                      }}>Mark as Completed<IonIcon slot='end' icon={checkmark} /></IonButton>
+                      <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                     </div>
                   </>
                 )}
                 {request.status === 'scheduled' && (
-                  <>
-                    <p>Scheduled Date: <strong>{request.scheduleDate ? request.scheduleDate.toLocaleDateString() : 'N/A'}</strong></p>
-                    <p>Scheduled Time: <strong>{request.scheduleTime || 'N/A'}</strong></p>
-                    <p>Scheduled Place: <strong>{request.schedulePlace || 'N/A'}</strong></p>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                    <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>
+                    <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
                       <IonIcon icon={open} />
                       View Details
                     </IonButton>
-                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>
-                      Process
-                      <IonIcon slot='end' icon={paperPlane} />
-                    </IonButton>
                     </div>
-                  </>
                 )}
                 {request.status === 'no show' && (
-                  <>
-                    <p>Marked as no-show by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked as no show')?.userName || 'N/A'}</strong> </p>
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                  </>
+                      <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'completed' && (
-                  <>
-                    <p>Completed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked as completed')?.userName || 'N/A'}</strong> </p>
-                    <p>Completed at: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked as completed')?.timestamp.toLocaleString() || 'N/A'}</strong></p>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                  </>
                 )}
               </IonCardContent>
             </IonCard>
@@ -1127,6 +1100,41 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </IonCol>
                   </IonRow>
                 </IonGrid>
+              </IonToolbar>
+            </IonFooter>
+          )}
+          {selectedRequest?.status === 'scheduled' && (
+            <IonFooter>
+              <IonToolbar>
+                <IonButton
+                  className='ion-padding-vertical'
+                  shape='round'
+                  expand="block"
+                  color="primary"
+                  onClick={() => handleProcessClick(selectedRequest)}
+                >
+                  Process Request
+                  <IonIcon slot='end' icon={paperPlane} />
+                </IonButton>
+              </IonToolbar>
+            </IonFooter>
+          )}
+          {selectedRequest?.status === 'processed' && (
+            <IonFooter>
+              <IonToolbar>
+                <IonButton
+                  className='ion-padding-vertical'
+                  shape='round'
+                  expand="block"
+                  color="success"
+                  onClick={() => {
+                    setRequestToMarkComplete(selectedRequest.id!);
+                    setShowMarkCompleteAlert(true);
+                  }}
+                >
+                  Mark as Completed
+                  <IonIcon slot='end' icon={checkmark} />
+                </IonButton>
               </IonToolbar>
             </IonFooter>
           )}
@@ -1572,6 +1580,14 @@ const SuperAdminMedRequestList: React.FC = () => {
           isOpen={showScheduleToast}
           onDidDismiss={() => setShowScheduleToast(false)}
           message="Request scheduled successfully!"
+          duration={2000}
+          color="success"
+        />
+
+        <IonToast
+          isOpen={showMarkCompleteToast}
+          onDidDismiss={() => setShowMarkCompleteToast(false)}
+          message="Request marked as completed successfully!"
           duration={2000}
           color="success"
         />

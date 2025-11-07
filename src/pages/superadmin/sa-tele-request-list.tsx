@@ -40,6 +40,7 @@ import {
   IonSearchbar,
   IonToggle,
   IonSkeletonText,
+  IonTextarea,
 } from '@ionic/react';
 import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -118,6 +119,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [showScheduleToast, setShowScheduleToast] = useState(false);
   const [showCompleteToast, setShowCompleteToast] = useState(false);
   const [showNoShowToast, setShowNoShowToast] = useState(false);
+  const [showConfirmCompleteAlert, setShowConfirmCompleteAlert] = useState(false);
 
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [hasPrescription, setHasPrescription] = useState(false);
@@ -302,7 +304,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           smsMessage = `Your teleconsultation request has been accepted.`;
           break;
         case 'rejected':
-          smsMessage = `Your teleconsultation request has been rejected. Reason: ${reason || 'N/A'}.`;
+          smsMessage = `Your teleconsultation request has been rejected.`;
           break;
         case 'no show':
           smsMessage = `Your teleconsultation request has been marked as no-show.`;
@@ -358,11 +360,25 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB
-        setToastMessage('File size must be less than 5MB.');
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (!allowedTypes.includes(file.type)) {
+        setToastMessage('Invalid file type. Only PNG, JPG, and JPEG are allowed.');
         setShowRejectToast(true); // Using reject toast for error color
+        setPrescriptionFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
+
+      if (file.size > maxSize) {
+        setToastMessage('File size exceeds 5MB limit.');
+        setShowRejectToast(true); // Using reject toast for error color
+        setPrescriptionFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
       setPrescriptionFile(file);
       const previewUrl = URL.createObjectURL(file);
       setPrescriptionPreview(previewUrl);
@@ -420,6 +436,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
       // Use the request already retrieved above for the toast message
       setToastMessage(`You have successfully marked ${request?.userData?.firstName} ${request?.userData?.lastName}'s teleconsultation request as completed.`);
       setShowCompleteToast(true);
+      setShowModal(false);
 
       setCompletionStep(2);
 
@@ -452,6 +469,32 @@ const SuperAdminTeleRequestList: React.FC = () => {
 
 
 
+  const handleEndTimeChange = (value: string) => {
+    setEndTime(value);
+    if (value) {
+      const [hours, minutes] = value.split(':').map(Number);
+      const endDate = new Date();
+      endDate.setHours(hours, minutes, 0, 0);
+      endDate.setHours(endDate.getHours() - 1);
+      const startHours = endDate.getHours().toString().padStart(2, '0');
+      const startMinutes = endDate.getMinutes().toString().padStart(2, '0');
+      setStartTime(`${startHours}:${startMinutes}`);
+    }
+  };
+
+  const handleStartTimeChange = (value: string) => {
+    setStartTime(value);
+    if (value) {
+      const [hours, minutes] = value.split(':').map(Number);
+      const startDate = new Date();
+      startDate.setHours(hours, minutes, 0, 0);
+      startDate.setHours(startDate.getHours() + 1);
+      const endHours = startDate.getHours().toString().padStart(2, '0');
+      const endMinutes = startDate.getMinutes().toString().padStart(2, '0');
+      setEndTime(`${endHours}:${endMinutes}`);
+    }
+  };
+
   const handleScheduleSubmit = async () => {
     if (!selectedRequest || !currentUser) return;
     setIsScheduling(true);
@@ -478,7 +521,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
 
       // Send SMS notification
       if (selectedRequest.userId) {
-        const smsMessage = `Your teleconsultation with Dr. ${doctorName} has been scheduled for ${startDateTime.toLocaleDateString()} at ${startDateTime.toLocaleTimeString()}. Meeting link: ${meetingLink}.`;
+        const smsMessage = 'Your teleconsultation request has been scheduled.';
         await sendSms(selectedRequest.userId, smsMessage);
       }
 
@@ -560,7 +603,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           </IonSelect>
         </IonToolbar>
 
-                {loading && (
+        {loading && (
           <IonList style={{ backgroundColor: 'transparent' }}>
             {Array.from({ length: 5 }).map((_, index) => (
               <IonCard key={index}>
@@ -575,10 +618,10 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 <IonCardContent>
                   <IonSkeletonText animated style={{ width: '80%', marginBottom: '8px' }} />
                   <IonSkeletonText animated style={{ width: '90%', marginBottom: '8px' }} />
-                   <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
-                      <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
-                    </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                    <IonSkeletonText animated style={{ flex: 1, height: '40px' }} />
+                  </div>
                 </IonCardContent>
               </IonCard>
             ))}
@@ -624,7 +667,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
               <IonCardHeader>
                 <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {request.userData?.firstName} {request.userData?.lastName}
+                     Request ID: {request.id}
 
                     <IonChip
                       color={
@@ -652,64 +695,36 @@ const SuperAdminTeleRequestList: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 {request.status === 'pending' && (
-                  <>
-                    <p>Reason: <strong>{request.reason}</strong> </p>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                  </>
                 )}
                 {request.status === 'rejected' && (
-                  <>
-                    <p>Rejected by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request')?.userName || 'N/A'}</strong> ({request.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request')?.userEmail || 'N/A'}) </p>
-                    <p>Reason: <strong>{request.rejectionReason || 'N/A'}</strong></p>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                  </>
                 )}
                 {request.status === 'accepted' && (
-                  <>
-                    <p>Approved by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request')?.userName || 'N/A'} ({request.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request')?.userEmail || 'N/A'}) </strong> </p>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
                       <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleScheduleClick(request)}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
                     </div>
-                  </>
                 )}
                 {request.status === 'scheduled' && (
-                  <>
-                    <p>Scheduled Date: <strong>{request.startTime ? request.startTime.toLocaleDateString() : 'N/A'}</strong></p>
-                    <p>Scheduled Time: <strong>{request.startTime ? request.startTime.toLocaleTimeString() : 'N/A'}</strong></p>
-                    <p>Doctor: <strong>{request.doctorName || 'N/A'}</strong></p>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonButton className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>
-                        <IonIcon slot='icon-only' icon={open} />
+                      <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>
+                        View Details
+                        <IonIcon slot='end' icon={open} />
                       </IonButton>
-                      <IonButton className='btn-25-w ion-padding-vertical' expand='block' color="danger" onClick={() => {
-                        setRequestToNoShow(request.id!);
-                        setShowNoShowAlert(true);
-                      }}>
-                        No Show
-                        <IonIcon slot='end' icon={personRemove} />
-                      </IonButton>
-                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="success" onClick={() => {
-                        setRequestToMarkComplete(request.id!);
-                        setCompletionStep(1);
-                        setShowCompleteModal(true);
-                      }}>
-                        Mark as Completed
-                        <IonIcon slot='end' icon={checkmark} />
-                      </IonButton>
+                      {request.meetingLink && (
+                        <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" href={request.meetingLink} target="_blank" rel="noopener noreferrer">
+                          Join Meeting
+                          <IonIcon slot='end' icon={open} />
+                        </IonButton>
+                      )}
                     </div>
-                  </>
                 )}
                 {request.status === 'no show' && (
-                  <>
-                    <p>Marked as no-show by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show')?.userName || 'N/A'}</strong> ({request.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show')?.userEmail || 'N/A'}) </p>
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                  </>
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'completed' && (
                   <>
-                    <p>Completed by: <strong>{request.auditTrail?.slice().reverse().find(e => e.action.includes('completed'))?.userName || 'N/A'}</strong> at <strong>{request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</strong></p>
-                  
                     <div style={{ display: 'flex', gap: '10px' }}>
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)} style={{ flex: 1 }}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                     <IonButton expand='block' className='ion-padding-vertical' onClick={() => handleGoToCreateMedicineRequest(request)} style={{ flex: 1 }}>
@@ -768,7 +783,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     fill='outline'
                     type="time"
                     value={startTime}
-                    onIonChange={e => setStartTime(e.detail.value!)}
+                    onIonChange={e => handleStartTimeChange(e.detail.value!)}
                   />
                 </IonItem>
                 <IonItemDivider>End Time</IonItemDivider>
@@ -777,7 +792,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     fill='outline'
                     type="time"
                     value={endTime}
-                    onIonChange={e => setEndTime(e.detail.value!)}
+                    onIonChange={e => handleEndTimeChange(e.detail.value!)}
                   />
                 </IonItem>
                 <IonItemDivider>Assigned Doctor's Name</IonItemDivider>
@@ -842,7 +857,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     <IonLabel>Resident Info</IonLabel>
                   </IonSegmentButton>
                 </IonSegment>
-                <IonCard>
                   {detailSegment === 'request' && (() => {
                     const acceptanceEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Accepted teleconsultation request');
                     const rejectionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Rejected teleconsultation request');
@@ -859,12 +873,17 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     return (
                       <>
                         {/* Request Information */}
-                        <IonItemDivider style={{ marginTop: '10px' }}>Request Information</IonItemDivider>
-                        <IonItem>
+                        <IonCard>
+                          <IonItemDivider style={{ marginTop: '10px' }}>Request Information</IonItemDivider>
+                        <IonItem className='ion-margin-top'>
                           <IonLabel>Request ID:</IonLabel>
                           <IonText slot="end" className="ion-text-wrap">{selectedRequest.id}</IonText>
                         </IonItem>
-                        <IonItem>
+                        <IonItem className='ion-margin-top'>
+                          <IonLabel>Requested At:</IonLabel>
+                          <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                        </IonItem>
+                        <IonItem className='ion-margin-top'>
                           <IonLabel>Status:</IonLabel>
                           <IonChip
                             slot="end"
@@ -883,18 +902,18 @@ const SuperAdminTeleRequestList: React.FC = () => {
                             {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
                           </IonChip>
                         </IonItem>
-                        <IonItem>
-                          <IonLabel>Reason:</IonLabel>
-                          <IonText slot="end" className="ion-text-wrap">{selectedRequest.reason}</IonText>
+                        <IonItem lines='none'>
+                          <IonLabel>Reason for Consultation:</IonLabel>
                         </IonItem>
-                        <IonItem>
-                          <IonLabel>Requested At:</IonLabel>
-                          <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                        <IonItem lines='none' className='ion-margin-bottom'>
+                             <IonTextarea  fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
                         </IonItem>
+                        </IonCard>
+                        
 
                         {/* Rejection Information */}
                         {isRejected && rejectionEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider>Rejection Details</IonItemDivider>
                             <IonItem>
                               <IonLabel>Rejected By:</IonLabel>
@@ -908,12 +927,12 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonLabel>Reason:</IonLabel>
                               <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* No Show Information */}
                         {isNoShow && noShowEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider>No Show Details</IonItemDivider>
                             <IonItem>
                               <IonLabel>Marked By:</IonLabel>
@@ -923,72 +942,54 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonLabel>Marked At:</IonLabel>
                               <IonText slot="end">{noShowEntry.timestamp.toLocaleString()}</IonText>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Acceptance Information */}
                         {isAccepted && acceptanceEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider>Acceptance Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Accepted By:</IonLabel>
-                              <IonText slot="end">{acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonText>
+                              <IonLabel>
+                                Accepted By: {acceptanceEntry.userName}
+                                <p>({acceptanceEntry.userEmail}) at {acceptanceEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
+                              <IonText slot="end"> </IonText>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Accepted At:</IonLabel>
-                              <IonText slot="end">{acceptanceEntry.timestamp.toLocaleString()}</IonText>
-                            </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Scheduling Information */}
                         {isScheduled && (
-                          <>
+                          <IonCard>
                             <IonItemDivider>Scheduling Details</IonItemDivider>
-                            {schedulingEntry && (
-                              <>
-                                <IonItem>
-                                  <IonLabel>Scheduled By:</IonLabel>
-                                  <IonText slot="end">{schedulingEntry.userName} ({schedulingEntry.userEmail})</IonText>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Scheduled At:</IonLabel>
-                                  <IonText slot="end">{schedulingEntry.timestamp.toLocaleString()}</IonText>
-                                </IonItem>
-                              </>
-                            )}
+                            
                             <IonItem>
-                              <IonLabel>Doctor:</IonLabel>
+                              <IonLabel>Assigned Professional:</IonLabel>
                               <IonText slot="end">{selectedRequest.doctorName || 'N/A'}</IonText>
                             </IonItem>
-                            {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
                             <IonItem>
-                              <IonLabel>Meeting Link:</IonLabel>
-                              <IonButton expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
+                              <IonLabel>Scheduled Time: </IonLabel>
+                              <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'} - {selectedRequest.endTime ? selectedRequest.endTime.toLocaleString() : 'N/A'}</IonText>
                             </IonItem>
+                            {schedulingEntry && (
+                                <IonItem>
+                                  <IonLabel>Scheduled By: {schedulingEntry.userName}
+                                  <p>{schedulingEntry.userEmail} at {schedulingEntry.timestamp.toLocaleString()}</p>
+                                  </IonLabel>
+                                </IonItem>
                             )}
-                            <IonItem>
-                              <IonLabel>Start Time:</IonLabel>
-                              <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'}</IonText>
-                            </IonItem>
-                            <IonItem>
-                              <IonLabel>End Time:</IonLabel>
-                              <IonText slot="end">{selectedRequest.endTime ? selectedRequest.endTime.toLocaleString() : 'N/A'}</IonText>
-                            </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Completion Information */}
                         {isCompleted && completionEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider>Completion Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Completed By:</IonLabel>
-                              <IonText slot="end">{completionEntry.userName} ({completionEntry.userEmail})</IonText>
-                            </IonItem>
-                            <IonItem>
-                              <IonLabel>Completed At:</IonLabel>
-                              <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
+                              <IonLabel>Completed By: {completionEntry.userName}
+                                <p>{completionEntry.userEmail} at {completionEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
                             </IonItem>
                             {selectedRequest.prescriptionUrl && (
                             <IonItem>
@@ -998,16 +999,17 @@ const SuperAdminTeleRequestList: React.FC = () => {
                                 </IonButton>
                             </IonItem>
                             )}
-                          </>
+                          </IonCard>
                         )}
                       </>
                     );
                   })()}
                   {detailSegment === 'resident' && (
                     <>
-                      <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
+                     
                       {selectedRequest.userData && (
-                        <>
+                        <IonCard>
+                          <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
                           <IonItem>
                             <IonLabel>
                               Name: &nbsp;
@@ -1032,10 +1034,10 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonText>{selectedRequest.userData.email || 'N/A'}</IonText>
                             </IonLabel>
                           </IonItem>
-                        </>
+                        </IonCard>
                       )}
                       {selectedRequest.medicalRecord && (
-                        <>
+                        <IonCard>
                           <IonItemDivider>Medical Record</IonItemDivider>
                           {selectedRequest.medicalRecord.symptoms.length > 0 && (
                             <IonItem>
@@ -1070,7 +1072,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               ))}
                             </>
                           )}
-                        </>
+                        </IonCard>
                       )}
                       {selectedRequest.notes && (
                         <IonItem>
@@ -1082,7 +1084,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
                       )}
                     </>
                   )}
-                </IonCard>
               </>
             )}
           </IonContent>
@@ -1112,6 +1113,43 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         onClick={() => { setRequestToAccept(selectedRequest.id!); setShowAcceptAlert(true); }}
                       >
                         Accept<IonIcon slot='end' icon={checkmark} />
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </IonToolbar>
+            </IonFooter>
+          )}
+          {selectedRequest?.status === 'scheduled' && (
+            <IonFooter>
+              <IonToolbar>
+                <IonGrid>
+                  <IonRow>
+                    <IonCol size="3">
+                      <IonButton
+                        className='ion-padding-vertical'
+                        shape='round'
+                        fill='outline'
+                        expand="block"
+                        color="danger"
+                        onClick={() => { setRequestToNoShow(selectedRequest.id!); setShowNoShowAlert(true); }}
+                      >
+                        No Show<IonIcon slot='end' icon={personRemove} />
+                      </IonButton>
+                    </IonCol>
+                    <IonCol size="9">
+                      <IonButton
+                        className='ion-padding-vertical'
+                        shape='round'
+                        expand="block"
+                        color="success"
+                        onClick={() => {
+                          setRequestToMarkComplete(selectedRequest.id!); 
+                          setCompletionStep(1);
+                          setShowCompleteModal(true);
+                        }}
+                      >
+                        Mark as Completed<IonIcon slot='end' icon={checkmark} />
                       </IonButton>
                     </IonCol>
                   </IonRow>
@@ -1187,6 +1225,18 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonContent>
             {completionStep === 1 && (
               <>
+               <IonCard>
+                <IonCardHeader>
+                  <IonItem lines='none'>
+                    <IonCardTitle>You are about to complete a teleconsultation request.</IonCardTitle>
+                  </IonItem>
+                  <IonItem lines='none'>
+                    <IonCardSubtitle>
+                      You can either choose to upload a prescription provided by the doctor or complete the teleconsultation without uploading any prescription. If you choose to upload a prescription, you will be redirected to the Create Medicine Request page after marking the teleconsultation as complete.
+                    </IonCardSubtitle>
+                  </IonItem>
+                </IonCardHeader>
+              </IonCard>
               <IonCard>
                 <IonCardHeader>
                   <IonItem lines='none'>
@@ -1198,8 +1248,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     </IonCardSubtitle>
                   </IonItem>
                 </IonCardHeader>
-              </IonCard>
-              <IonCard>
                   <IonCardContent>
                   <IonItem lines='none'>
                     <IonLabel>Upload Doctor's Prescription</IonLabel>
@@ -1209,7 +1257,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     <>
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/png, image/jpeg, image/jpg"
                         ref={fileInputRef}
                         style={{ display: 'none' }}
                         onChange={handleFileChange}
@@ -1218,6 +1266,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         Upload Image or File
                         <IonIcon slot="end" icon={cloudUpload} />
                       </IonButton>
+                      <IonItem lines="none">
+                        <small>Accepted file types: PNG, JPG, JPEG. Maximum file size: 5MB.</small>
+                      </IonItem>
                       {prescriptionFile && (
                         <IonItem lines="none">
                           <IonLabel>Uploaded file: {prescriptionFile.name}</IonLabel>
@@ -1232,6 +1283,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   )}
                 </IonCardContent>
               </IonCard>
+              <IonCard>
+                
+              </IonCard>
               </>
             )}
             {completionStep === 2 && (
@@ -1240,7 +1294,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                   <IonCard style={{ maxWidth: '450px', textAlign: 'center' }}>
                     <IonCardHeader>
                       <IonText class='ion-text-center'>
-                        <IonIcon icon={checkmarkCircle} style={{ fontSize: '48px', color: 'var(--ion-color-success)' }} />
+                        <IonIcon icon={checkmarkCircle} style={{ fontSize: '48px', color: 'var(--ion-color-primary)' }} />
                       </IonText>
                       <IonCardTitle>Teleconsultation Completed</IonCardTitle>
                     </IonCardHeader>
@@ -1262,7 +1316,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           {completionStep === 1 && (
             <IonFooter>
               <IonToolbar>
-                <IonButton className='ion-padding-vertical' shape='round' expand="full" color="success" onClick={handleMarkAsComplete} disabled={isMarkingComplete || (hasPrescription && !prescriptionFile)}>
+                <IonButton className='ion-padding-vertical' shape='round' expand="full" color="success" onClick={() => setShowConfirmCompleteAlert(true)} disabled={isMarkingComplete || (hasPrescription && !prescriptionFile)}>
                   Confirm Completion
                   <IonIcon slot="end" icon={checkmarkDone} />
                 </IonButton>
@@ -1288,6 +1342,23 @@ const SuperAdminTeleRequestList: React.FC = () => {
             {
               text: 'Yes',
               handler: handleNoShow
+            }
+          ]}
+        />
+
+        <IonAlert
+          isOpen={showConfirmCompleteAlert}
+          onDidDismiss={() => setShowConfirmCompleteAlert(false)}
+          header={'Confirm Completion'}
+          message={'Are you sure you want to mark this teleconsultation request as completed?'}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+            },
+            {
+              text: 'Yes',
+              handler: handleMarkAsComplete
             }
           ]}
         />
