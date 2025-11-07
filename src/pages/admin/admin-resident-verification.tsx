@@ -2,10 +2,12 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem,
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth, db } from '../../firebaseConfig';
-import { query, where, getDocs, collection, doc, updateDoc, deleteField } from 'firebase/firestore';
+import { query, where, getDocs, collection, doc, updateDoc, deleteField, getDoc } from 'firebase/firestore';
 import { call, checkmarkCircleOutline, close, closeCircleOutline, eyeOutline, home, mail, mailOutline, open, person, phonePortrait } from 'ionicons/icons';
 import { getBarangayNameByCode } from '../../services/addressService';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+
+const functions = getFunctions();
 
 interface UserForVerification {
   uid: string;
@@ -54,6 +56,26 @@ function getTimeAgo(timestamp: string | { toDate: () => Date; } | Date | null | 
 }
 
 import { eventService } from '../../services/eventService';
+
+const sendSmsCloudFunction = httpsCallable(functions, 'sendSmsNotification');
+
+const sendSms = async (userId: string, message: string) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const recipientContactNumber = userData?.contactNumber;
+      if (recipientContactNumber) {
+        await sendSmsCloudFunction({ recipientContactNumber, message });
+        console.log('SMS sent successfully!');
+      } else {
+        console.warn('User has no contact number for SMS notification.');
+      }
+    }
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+  }
+};
 
 const AdminUserVerification: React.FC = () => {
   const { barangayId: adminBarangayId } = useAuth();
@@ -127,7 +149,6 @@ const AdminUserVerification: React.FC = () => {
 
 
 
-const functions = getFunctions();
 const setCustomClaimsOnVerification = httpsCallable(functions, 'setCustomClaimsOnVerification');
 
 const handleReview = async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
@@ -153,6 +174,16 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
       userId: user.uid, 
       reason: reason 
     });
+
+    if (action === 'verified') {
+      const title = "Welcome to BarangayMed+";
+      const message = "Your registration has been successfully approved! We're excited to have you on board. You can now access all features of BarangayMed+, connect with your barangay healthcare team, and manage your medical records anytime, anywhere. Let's work together for a healthier community.";
+      await sendSms(user.uid, `${title}: ${message}`);
+    } else if (action === 'rejected') {
+      const title = "Registration Rejected";
+      const message = `Your registration has been rejected. Reason: ${reason || 'N/A'}. Please review the requirements and try again.`;
+      await sendSms(user.uid, `${title}: ${message}`);
+    }
 
     fetchPendingUsers(); // Refresh list
     setShowModal(false); // Close modal
