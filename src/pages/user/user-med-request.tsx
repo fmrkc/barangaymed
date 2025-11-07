@@ -31,6 +31,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
+  const [isDebouncing, setIsDebouncing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const db = getFirestore();
@@ -83,6 +84,25 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (!allowedTypes.includes(file.type)) {
+        setToastMessage('Invalid file type. Only PNG, JPG, and JPEG are allowed.');
+        setShowToast(true);
+        setPrescriptionFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      if (file.size > maxSize) {
+        setToastMessage('File size exceeds 5MB limit.');
+        setShowToast(true);
+        setPrescriptionFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
       setPrescriptionFile(file);
     }
   };
@@ -104,6 +124,8 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
     }
     return finalReason;
   };
+
+  const isAnyReasonSelected = Object.values(reasons).some(Boolean);
 
   const handleSubmit = async () => {
     if (!isUser) {
@@ -256,14 +278,15 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
               </IonItem>
               {Object.keys(reasons).map((reasonKey) => (
                 <IonItem key={reasonKey}>
-                  <IonLabel>{reasonKey}</IonLabel>
                   <IonCheckbox
-                    slot="end"
+                    justify="space-between"
                     checked={reasons[reasonKey as keyof typeof reasons]}
                     onIonChange={e => {
                       setReasons(prev => ({ ...prev, [reasonKey]: e.detail.checked }));
                     }}
-                  />
+                  >
+                    {reasonKey}
+                  </IonCheckbox>
                 </IonItem>
               ))}
               {reasons.Others && (
@@ -272,7 +295,9 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                     <IonTextarea
                       fill="outline"
                       value={otherReason}
-                      onIonChange={e => setOtherReason(e.detail.value!)}
+                      onIonInput={e => setOtherReason((e.target as HTMLIonTextareaElement).value ?? '')}
+                      onIonFocus={() => setIsDebouncing(true)}
+                      onIonBlur={() => setTimeout(() => setIsDebouncing(false), 1500)}
                       placeholder="Please specify your reason here..."
                       rows={3}
                     />
@@ -310,7 +335,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                   <IonCard>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png, image/jpeg, image/jpg"
                       onChange={handleFileChange}
                       ref={fileInputRef}
                       style={{ display: 'none' }}
@@ -333,8 +358,8 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                       </>
                     )}
                     {!prescriptionFile && (
-                      <IonItem lines="none" className='ion-margin-top'>
-                        <IonNote color="danger">Please upload a prescription file to continue.</IonNote>
+                      <IonItem lines="none">
+                        Accepted file types: PNG, JPG, JPEG. Maximum file size: 5MB.
                       </IonItem>
                     )}
                   </IonCard>
@@ -352,7 +377,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
               </IonItem>
 
               <IonItem>
-                <IonTextarea color={'primary'} fill='outline' value={getReasonString() || 'Not provided'} rows={10} readonly></IonTextarea>
+                <IonTextarea color={'primary'} fill='outline' value={getReasonString() || 'Not provided'} rows={10}></IonTextarea>
               </IonItem>
               <IonItem>
                 <IonLabel>Has Prescription:</IonLabel>
@@ -442,7 +467,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                         expand="block"
                         shape="round"
                         onClick={nextStep}
-                        disabled={step === 3 && hasPrescription && !prescriptionFile}
+                        disabled={(step === 3 && hasPrescription && !prescriptionFile) || (step === 2 && (!isAnyReasonSelected || (reasons.Others && !otherReason.trim())))}
                       >
                         <IonIcon slot="end" icon={arrowForward} />
                         <IonText className='ion-padding-vertical'>Next</IonText>
@@ -453,7 +478,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                         expand="block"
                         shape="round"
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={loading || isDebouncing}
                       >
                         <IonText className='ion-padding-vertical'>Submit Request</IonText>
                         <IonIcon slot="end" icon={paperPlane} />
