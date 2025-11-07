@@ -29,8 +29,11 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const [showToast, setShowToast] = useState(false);
   const [hasMedicalRecord, setHasMedicalRecord] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
+  const [isDebouncing, setIsDebouncing] = useState(false);
 
   const db = getFirestore();
+
+  const isAnyReasonSelected = Object.values(reasons).some(Boolean);
 
   const isUser = userRole === 'user';
 
@@ -278,14 +281,15 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 </IonItem>
                 {Object.keys(reasons).map((reasonKey) => (
                   <IonItem key={reasonKey}>
-                    <IonLabel>{reasonKey}</IonLabel>
                     <IonCheckbox
-                      slot="end"
+                      justify='space-between'
                       checked={reasons[reasonKey as keyof typeof reasons]}
                       onIonChange={e => {
                         setReasons(prev => ({ ...prev, [reasonKey]: e.detail.checked }));
                       }}
-                    />
+                    >
+                      {reasonKey}
+                    </IonCheckbox>
                   </IonItem>
                 ))}
                 {reasons.Others && (
@@ -294,7 +298,9 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                       <IonTextarea
                         fill="outline"
                         value={otherReason}
-                        onIonChange={e => setOtherReason(e.detail.value!)}
+                        onIonInput={e => setOtherReason((e.target as HTMLIonTextareaElement).value ?? '')}
+                        onIonFocus={() => setIsDebouncing(true)}
+                        onIonBlur={() => setTimeout(() => setIsDebouncing(false), 1500)}
                         placeholder="Please specify other reason"
                         rows={3}
                       />
@@ -339,8 +345,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <IonTextarea
                 fill='outline'
                 rows={5}
-                value= {getReasonString()} 
-                readonly
+                value={getReasonString()} 
                 />
               </IonItem>
               {hasMedicalRecord && (
@@ -419,6 +424,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         expand="block"
                         shape="round"
                         onClick={nextStep}
+                        disabled={!isAnyReasonSelected || (reasons.Others && !otherReason.trim())}
                       >
                         <IonIcon slot="end" icon={arrowForward} />
                         <IonText className='ion-padding-vertical'>Next</IonText>
@@ -429,7 +435,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                         expand="block"
                         shape="round"
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={loading || isDebouncing}
                       >
                         <IonText className='ion-padding-vertical'>Submit Request</IonText>
                         <IonIcon slot="end" icon={paperPlane} />

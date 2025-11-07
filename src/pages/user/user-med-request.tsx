@@ -154,6 +154,12 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
       setShowToast(true);
       return;
     }
+    if (hasActiveRequest) {
+      setToastMessage('You have an active medicine request. Please check your existing requests for updates.');
+      setShowToast(true);
+      return;
+    }
+
     setLoading(true);
     try {
       await currentUser?.getIdToken(true);
