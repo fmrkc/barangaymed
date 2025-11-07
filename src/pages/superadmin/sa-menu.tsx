@@ -41,7 +41,7 @@ const Menu: React.FC = () => {
         { name: 'Teleconsultation Requests', url: '/superadmin/dashboard/teleconsultation-requests', icon: calendar },
     ];
     const admins = [
-        { name: 'BHW Accounts', url: '/superadmin/dashboard/bhw-accounts', icon: people },
+        { name: 'Accounts', url: '/superadmin/dashboard/bhw-accounts', icon: people },
     ];
 
     const handleLogout = async () => {
@@ -141,7 +141,18 @@ const Menu: React.FC = () => {
                         ))}
                       </div>
                     </IonAccordion>
-                    <IonAccordion value="admins">
+                  </IonAccordionGroup>
+                </div>
+                
+                <div>
+                  <IonItemDivider>
+                    <IonLabel>
+                      RHU Dashboard
+                    </IonLabel>
+                  </IonItemDivider>
+                  
+                  <IonAccordionGroup>
+                      <IonAccordion value="admins">
                       <IonItem slot="header">
                         <IonLabel>Accounts</IonLabel>
                       </IonItem>
@@ -164,20 +175,9 @@ const Menu: React.FC = () => {
                         </IonMenuToggle>
                       )}
                     </IonAccordion>
-                  </IonAccordionGroup>
-                </div>
-                
-                <div>
-                  <IonItemDivider>
-                    <IonLabel>
-                      RHU Dashboard
-                    </IonLabel>
-                  </IonItemDivider>
-                  
-                  <IonAccordionGroup>
                     <IonAccordion value="account">
                       <IonItem slot="header">
-                        <IonLabel>Account</IonLabel>
+                        <IonLabel>My Account</IonLabel>
                       </IonItem>
                       <div slot="content">
                         <IonMenuToggle autoHide={false}>
