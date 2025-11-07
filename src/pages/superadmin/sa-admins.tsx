@@ -1,13 +1,8 @@
 import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonList, IonItem, IonLabel, IonSpinner, IonModal, IonSelect, IonSelectOption, IonButtons, IonMenuButton, IonFab, IonFabButton, IonRefresher, IonText, IonFooter, IonSearchbar } from '@ionic/react';
 import { add, close } from 'ionicons/icons';
 import React, { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { getAuth, deleteUser } from 'firebase/auth';
-import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { useLocation } from 'react-router-dom';
-import { useIonRouter } from '@ionic/react';
 
 interface AdminUser {
     id: string;
@@ -30,7 +25,6 @@ interface AdminUser {
 }
 
 const AdminManagement: React.FC = () => {
-    const { currentUser } = useAuth();
     const [admins, setAdmins] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAdmin, setSelectedAdmin] = useState<AdminUser | null>(null);
@@ -41,85 +35,22 @@ const AdminManagement: React.FC = () => {
 
     const [searchText, setSearchText] = useState('');
     const [selectedRole, setSelectedRole] = useState('');
-    const [selectedCity, setSelectedCity] = useState('');
     const [selectedBrgy, setSelectedBrgy] = useState('');
     const [filteredAdmins, setFilteredAdmins] = useState<AdminUser[]>([]);
 
-    const [regions, setRegions] = useState<Region[]>([]);
-    const [provinces, setProvinces] = useState<Province[]>([]);
-    const [citiesMunicipalities, setCitiesMunicipalities] = useState<CityMunicipality[]>([]);
-    const [barangays, setBarangays] = useState<Barangay[]>([]);
-
-    const [selectedRegion, setSelectedRegion] = useState('');
-    const [selectedProvince, setSelectedProvince] = useState('');
-    const [selectedCityMunicipality, setSelectedCityMunicipality] = useState('');
-
     useEffect(() => {
         fetchAdmins();
-        const loadRegions = async () => {
-            setRegions(await getRegions());
-        };
-        loadRegions();
     }, []);
-
-    useEffect(() => {
-        const loadProvinces = async () => {
-            if (selectedRegion) {
-                setProvinces(await getProvincesByRegion(selectedRegion));
-                setSelectedProvince('');
-                setSelectedCityMunicipality('');
-            } else {
-                setProvinces([]);
-                setSelectedProvince('');
-                setSelectedCityMunicipality('');
-            }
-        };
-        loadProvinces();
-    }, [selectedRegion]);
-
-    useEffect(() => {
-        const loadCitiesMunicipalities = async () => {
-            if (selectedProvince) {
-                setCitiesMunicipalities(await getCitiesMunicipalitiesByProvince(selectedProvince));
-                setSelectedCityMunicipality('');
-            } else {
-                setCitiesMunicipalities([]);
-                setSelectedCityMunicipality('');
-            }
-        };
-        loadCitiesMunicipalities();
-    }, [selectedProvince]);
-
-    useEffect(() => {
-        const loadBarangays = async () => {
-            if (selectedCityMunicipality) {
-                setBarangays(await getBarangaysByCityMunicipality(selectedCityMunicipality));
-            } else {
-                setBarangays([]);
-            }
-        };
-        loadBarangays();
-    }, [selectedCityMunicipality]);
-
-    const uniqueCities = useMemo(() => {
-        const cityMap = new Map<string, string>();
-        admins.forEach(admin => {
-            if (admin.cityMunicipalityId && admin.cityMunicipalityName) {
-                cityMap.set(admin.cityMunicipalityId, admin.cityMunicipalityName);
-            }
-        });
-        return Array.from(cityMap.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
-    }, [admins]);
 
     const uniqueBarangays = useMemo(() => {
         const barangayMap = new Map<string, string>();
         admins.forEach(admin => {
-            if (admin.barangayId && admin.barangayName && (!selectedCity || admin.cityMunicipalityId === selectedCity)) {
+            if (admin.barangayId && admin.barangayName) {
                 barangayMap.set(admin.barangayId, admin.barangayName);
             }
         });
         return Array.from(barangayMap.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
-    }, [admins, selectedCity]);
+    }, [admins]);
 
     useEffect(() => {
         let filtered = admins;
@@ -135,16 +66,12 @@ const AdminManagement: React.FC = () => {
             filtered = filtered.filter(admin => admin.role === selectedRole);
         }
 
-        if (selectedCity) {
-            filtered = filtered.filter(admin => admin.cityMunicipalityId === selectedCity);
-        }
-
         if (selectedBrgy) {
             filtered = filtered.filter(admin => admin.barangayId === selectedBrgy);
         }
 
         setFilteredAdmins(filtered);
-    }, [searchText, selectedRole, selectedCity, selectedBrgy, admins]);
+    }, [searchText, selectedRole, selectedBrgy, admins]);
 
     const fetchAdmins = async () => {
         try {
@@ -209,7 +136,7 @@ const AdminManagement: React.FC = () => {
                     <IonButtons slot="start">
                         <IonMenuButton />
                     </IonButtons>
-                    <IonTitle>BHW Accounts</IonTitle>
+                    <IonTitle>Accounts</IonTitle>
                 </IonToolbar>
                 <IonToolbar>
                     <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} placeholder="Search by Name or Email"></IonSearchbar>
@@ -217,7 +144,7 @@ const AdminManagement: React.FC = () => {
                 <IonToolbar>
                     <IonGrid>
                         <IonRow className="ion-margin-horizontal">
-                            <IonCol size="3">
+                            <IonCol size="6">
                                 <IonSelect
                                     value={selectedRole}
                                     placeholder="Filter by Role"
@@ -229,26 +156,12 @@ const AdminManagement: React.FC = () => {
                                     <IonSelectOption value="superadmin">Super Admin</IonSelectOption>
                                 </IonSelect>
                             </IonCol>
-                            <IonCol size="3">
-                                <IonSelect
-                                    value={selectedCity}
-                                    placeholder="Filter by City"
-                                    onIonChange={e => { setSelectedCity(e.detail.value); setSelectedBrgy(''); }}
-                                    interface="popover"
-                                >
-                                    <IonSelectOption value="">All Cities</IonSelectOption>
-                                    {uniqueCities.map(city => (
-                                        <IonSelectOption key={city.id} value={city.id}>{city.name}</IonSelectOption>
-                                    ))}
-                                </IonSelect>
-                            </IonCol>
-                            <IonCol size="3">
+                            <IonCol size="6">
                                 <IonSelect
                                     value={selectedBrgy}
                                     placeholder="Filter by Barangay"
                                     onIonChange={e => setSelectedBrgy(e.detail.value)}
                                     interface="popover"
-                                    disabled={!selectedCity}
                                 >
                                     <IonSelectOption value="">All Barangays</IonSelectOption>
                                     {uniqueBarangays.map(brgy => (
