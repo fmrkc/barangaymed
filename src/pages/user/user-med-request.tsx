@@ -204,7 +204,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                 <p className="ion-margin-top">
                   Your request has been successfully sent. Please check your newly created request for updates on the <strong>My Requests</strong> page.
                 </p>
-                <IonButton expand="block" routerLink="/user/dashboard/requests/medicine" className="ion-padding-vertical" onClick={onDidDismiss}>
+                <IonButton expand="block" routerLink="/user/dashboard/requests" className="ion-padding-vertical" onClick={onDidDismiss}>
                   Go to My Requests
                   <IonIcon slot="end" icon={open} />
                 </IonButton>

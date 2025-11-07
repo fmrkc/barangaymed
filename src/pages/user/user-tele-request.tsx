@@ -224,7 +224,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <p className="ion-margin-top">
                   Your request has been successfully sent. Please check your newly created request for updates on the <strong>My Requests</strong> page.
                 </p>
-                <IonButton expand="block" routerLink="/user/dashboard/requests/teleconsultation" className="ion-padding-vertical" onClick={handleDismiss}>
+                <IonButton expand="block" routerLink="/user/dashboard/requests" className="ion-padding-vertical" onClick={handleDismiss}>
                   Go to My Requests
                   <IonIcon slot="end" icon={open} />
                 </IonButton>
