@@ -1,14 +1,11 @@
-import { IonPage, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
+import { IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 
 import Home from './user-home';
 import Notifications from './user-notifications';
-import User_Requests from './user-requests';
-import UserTeleRequestList from './user-tele-request-list';
 import UserRequestsList from './user-requests-list';
-import UserMedRequestList from './user-med-request-list';
 import Account from './user-my-account';
 import Announcements from './user-brgy-announcements';
 import { clipboard, home, notifications, person } from 'ionicons/icons';
@@ -16,7 +13,7 @@ import { clipboard, home, notifications, person } from 'ionicons/icons';
 
 
 const UserDashboard: React.FC = () => {
-  const { currentUser, refreshUserClaims } = useAuth();
+  useAuth();
   const [selectedTab, setSelectedTab] = useState('home'); // State to track selected tab
 
   useEffect(() => {
@@ -47,9 +44,6 @@ const UserDashboard: React.FC = () => {
 
         <IonRouterOutlet>
             <Route path="/user/dashboard/home" component={Home} exact />
-            {/* <Route path="/user/dashboard/requests" component={User_Requests} exact /> */}
-            <Route path="/user/dashboard/requests/teleconsultation" component={UserTeleRequestList} exact />
-            <Route path="/user/dashboard/requests/medicine" component={UserMedRequestList} exact />
             <Route path="/user/dashboard/requests" component={UserRequestsList} exact />
             <Route path="/user/dashboard/notifications" component={Notifications} exact />
             <Route path="/user/dashboard/account" component={Account} exact />

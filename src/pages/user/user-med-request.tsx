@@ -377,20 +377,21 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
 
           {step === 5 && (
             <IonCard className="ion-padding">
-            <IonCardHeader>
-              <IonText color={'success'}>
-                <h1>Request Submitted Successfully!</h1>
-              </IonText>
-            </IonCardHeader>
-            <IonItem lines='none'>
-              <IonText>
-                Your medicine request has been submitted. You can check for updates on the <strong>My Requests</strong> page.
-              </IonText>
-            </IonItem>
-                            <IonButton expand="block" routerLink="/user/dashboard/requests/medicine" className="ion-padding-vertical" onClick={onDidDismiss}>
-                              Go to My Requests
-                              <IonIcon slot="end" icon={open} />
-                            </IonButton>          </IonCard>
+              <IonCardHeader>
+                <IonText color={'success'}>
+                  <h1>Request Submitted Successfully!</h1>
+                </IonText>
+              </IonCardHeader>
+              <IonItem lines='none'>
+                <IonText>
+                  Your medicine request has been submitted. You can check for updates on the <strong>My Requests</strong> page.
+                </IonText>
+              </IonItem>
+              <IonButton expand="block" routerLink="/user/dashboard/requests" className="ion-padding-vertical" onClick={onDidDismiss}>
+                Go to My Requests
+                <IonIcon slot="end" icon={open} />
+              </IonButton>          
+            </IonCard>
           )}
 
           <IonLoading isOpen={loading} message={'Submitting request...'} />

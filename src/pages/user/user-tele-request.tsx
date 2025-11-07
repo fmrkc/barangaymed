@@ -364,7 +364,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 Your teleconsultation request has been submitted. You can check for updates on the <strong>My Requests</strong> page.
               </IonText>
             </IonItem>
-            <IonButton expand="block" routerLink="/user/dashboard/requests/teleconsultation" className="ion-padding-vertical" onClick={onDidDismiss}>
+            <IonButton expand="block" routerLink="/user/dashboard/requests" className="ion-padding-vertical" onClick={onDidDismiss}>
               Go to My Requests
               <IonIcon slot="end" icon={open} />
             </IonButton>
