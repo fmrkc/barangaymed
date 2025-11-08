@@ -34,7 +34,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Medicine } from '../../types/medicine';
-import { open } from 'ionicons/icons';
+import { close, open } from 'ionicons/icons';
 
 const db = getFirestore();
 
@@ -48,12 +48,12 @@ const UserRequestsList: React.FC = () => {
   const [filteredRequests, setFilteredRequests] = useState<CombinedRequest[]>([]);
   const [filter, setFilter] = useState<'active' | 'completed'>('active');
   const [loading, setLoading] = useState(true);
-  
+
   const [selectedRequest, setSelectedRequest] = useState<CombinedRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
-  const [requestToCancel, setRequestToCancel] = useState<{id: string, type: 'medicine' | 'teleconsultation'} | null>(null);
+  const [requestToCancel, setRequestToCancel] = useState<{ id: string, type: 'medicine' | 'teleconsultation' } | null>(null);
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showCancelToast, setShowCancelToast] = useState<boolean>(false);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -77,76 +77,76 @@ const UserRequestsList: React.FC = () => {
     setError(null);
 
     const medQuery = query(
-        collection(db, 'medicineRequests'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+      collection(db, 'medicineRequests'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
     );
 
     const teleQuery = query(
-        collection(db, 'teleconsultationRequests'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+      collection(db, 'teleconsultationRequests'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
     );
 
     const unsubMedicine = onSnapshot(medQuery, (querySnapshot) => {
-        const reqs: MedicineRequest[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            reqs.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
-                updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
-                scheduleDate: data.scheduleDate ? (data.scheduleDate instanceof Timestamp ? data.scheduleDate.toDate() : new Date(data.scheduleDate)) : undefined,
-                auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
-                    ...entry,
-                    timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
-                })) : [],
-            } as MedicineRequest);
-        });
-        setMedicineRequests(reqs);
+      const reqs: MedicineRequest[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        reqs.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
+          updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
+          scheduleDate: data.scheduleDate ? (data.scheduleDate instanceof Timestamp ? data.scheduleDate.toDate() : new Date(data.scheduleDate)) : undefined,
+          auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
+            ...entry,
+            timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
+          })) : [],
+        } as MedicineRequest);
+      });
+      setMedicineRequests(reqs);
     }, (err) => {
-        console.error("Firestore error fetching medicine requests:", err);
-        setError('Failed to fetch medicine requests');
-        setLoading(false);
+      console.error("Firestore error fetching medicine requests:", err);
+      setError('Failed to fetch medicine requests');
+      setLoading(false);
     });
 
     const unsubTeleconsultation = onSnapshot(teleQuery, (querySnapshot) => {
-        const reqs: TeleconsultationRequest[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            reqs.push({
-                id: doc.id,
-                ...data,
-                createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
-                updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
-                startTime: data.startTime ? (data.startTime instanceof Timestamp ? data.startTime.toDate() : new Date(data.startTime)) : undefined,
-                endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
-                auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
-                    ...entry,
-                    timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
-                })) : [],
-            } as TeleconsultationRequest);
-        });
-        setTeleconsultationRequests(reqs);
+      const reqs: TeleconsultationRequest[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        reqs.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
+          updatedAt: data.updatedAt ? (data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date(data.updatedAt)) : undefined,
+          startTime: data.startTime ? (data.startTime instanceof Timestamp ? data.startTime.toDate() : new Date(data.startTime)) : undefined,
+          endTime: data.endTime ? (data.endTime instanceof Timestamp ? data.endTime.toDate() : new Date(data.endTime)) : undefined,
+          auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
+            ...entry,
+            timestamp: entry.timestamp instanceof Timestamp ? entry.timestamp.toDate() : new Date(entry.timestamp),
+          })) : [],
+        } as TeleconsultationRequest);
+      });
+      setTeleconsultationRequests(reqs);
     }, (err) => {
-        console.error("Firestore error fetching teleconsultation requests:", err);
-        setError('Failed to fetch teleconsultation requests');
-        setLoading(false);
+      console.error("Firestore error fetching teleconsultation requests:", err);
+      setError('Failed to fetch teleconsultation requests');
+      setLoading(false);
     });
 
     const medicinesCol = collection(db, 'medicine');
     const unsubMedicines = onSnapshot(medicinesCol, (querySnapshot) => {
-        const medicinesList: Medicine[] = [];
-        querySnapshot.forEach(doc => {
-            const data = doc.data();
-            medicinesList.push({
-                id: doc.id,
-                ...data
-            } as Medicine);
-        });
-        setMedicines(medicinesList);
-      },
+      const medicinesList: Medicine[] = [];
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        medicinesList.push({
+          id: doc.id,
+          ...data
+        } as Medicine);
+      });
+      setMedicines(medicinesList);
+    },
       (error) => {
         console.error('Error fetching medicines:', error);
         setLoading(false);
@@ -154,18 +154,18 @@ const UserRequestsList: React.FC = () => {
     );
 
     return () => {
-        unsubMedicine();
-        unsubTeleconsultation();
-        unsubMedicines();
+      unsubMedicine();
+      unsubTeleconsultation();
+      unsubMedicines();
     };
   }, [userId, verificationStatus]);
 
   useEffect(() => {
     const unsubscribe = fetchData();
     return () => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [fetchData]);
 
@@ -181,13 +181,13 @@ const UserRequestsList: React.FC = () => {
   useEffect(() => {
     let filtered: CombinedRequest[] = [];
     if (filter === 'active') {
-        filtered = combinedRequests.filter((r) =>
-          ['pending', 'accepted', 'scheduled'].includes(r.status)
-        );
+      filtered = combinedRequests.filter((r) =>
+        ['pending', 'accepted', 'scheduled'].includes(r.status)
+      );
     } else { // completed
-        filtered = combinedRequests.filter((r) =>
-          ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
-        );
+      filtered = combinedRequests.filter((r) =>
+        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
+      );
     }
     setFilteredRequests(filtered);
   }, [filter, combinedRequests]);
@@ -208,7 +208,7 @@ const UserRequestsList: React.FC = () => {
       setShowCancelToast(true);
       return;
     }
-    
+
     const { id, type } = requestToCancel;
     const collectionName = type === 'medicine' ? 'medicineRequests' : 'teleconsultationRequests';
     const auditAction = type === 'medicine' ? 'Cancelled medicine request by user' : 'Cancelled teleconsultation request by user';
@@ -250,50 +250,49 @@ const UserRequestsList: React.FC = () => {
     const status = request.status;
 
     return (
-        <IonCard
-            key={request.id}
-            style={{
-                borderLeft: `8px solid ${
-                  status === 'pending'
-                    ? '#ffc409' // warning
-                    : ['accepted', 'scheduled'].includes(status)
-                    ? '#017457' // primary
-                    : status === 'completed'
-                    ? '#2dd36f' // success
-                    : '#eb445a' // danger
-                }`
-            }}>
-            <IonCardHeader>
-                <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {title}
-                        <IonChip
-                            color={
-                                status === 'pending' ? 'warning' :
-                                ['accepted', 'scheduled'].includes(status) ? 'primary' :
-                                status === 'completed' ? 'success' : 'danger'
-                            }
-                            style={{ margin: '0' }}
-                        >
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </IonChip>
-                    </div>
-                </IonCardTitle>
-            </IonCardHeader>
-            <IonCardContent>
-                <p><strong>Reasons:</strong> {reason}</p>
-                <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
-                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                    <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                    {status === 'pending' && (
-                        <IonButton color="danger" onClick={() => {
-                            setRequestToCancel({id: request.id!, type: request.type});
-                            setShowCancelAlert(true);
-                        }}>Cancel</IonButton>
-                    )}
-                </div>
-            </IonCardContent>
-        </IonCard>
+      <IonCard
+        key={request.id}
+        style={{
+          borderLeft: `8px solid ${status === 'pending'
+              ? '#ffc409' // warning
+              : ['accepted', 'scheduled'].includes(status)
+                ? '#017457' // primary
+                : status === 'completed'
+                  ? '#2dd36f' // success
+                  : '#eb445a' // danger
+            }`
+        }}>
+        <IonCardHeader>
+          <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {title}
+              <IonChip
+                color={
+                  status === 'pending' ? 'warning' :
+                    ['accepted', 'scheduled'].includes(status) ? 'primary' :
+                      status === 'completed' ? 'success' : 'danger'
+                }
+                style={{ margin: '0' }}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </IonChip>
+            </div>
+          </IonCardTitle>
+        </IonCardHeader>
+        <IonCardContent>
+          <p><strong>Reasons:</strong> {reason}</p>
+          <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
+          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+            {status === 'pending' && (
+              <IonButton color="danger" onClick={() => {
+                setRequestToCancel({ id: request.id!, type: request.type });
+                setShowCancelAlert(true);
+              }}>Cancel</IonButton>
+            )}
+          </div>
+        </IonCardContent>
+      </IonCard>
     );
   }
 
@@ -306,9 +305,10 @@ const UserRequestsList: React.FC = () => {
     const noShowEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked as no show');
 
     return (
-      <IonCard>
+      <>
         {/* Request Information */}
-        <IonItemDivider style={{ marginTop: '10px' }}>Your Request Details</IonItemDivider>
+       <IonCard>
+         <IonItemDivider style={{ marginTop: '10px' }}>Your Request Details</IonItemDivider>
         <IonItem>
           <IonLabel>Status:</IonLabel>
           <IonChip
@@ -317,10 +317,10 @@ const UserRequestsList: React.FC = () => {
               selectedRequest.status === 'pending'
                 ? 'warning'
                 : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
-                ? 'primary'
-                : selectedRequest.status === 'completed'
-                ? 'success'
-                : 'danger'
+                  ? 'primary'
+                  : selectedRequest.status === 'completed'
+                    ? 'success'
+                    : 'danger'
             }
           >
             {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
@@ -344,139 +344,141 @@ const UserRequestsList: React.FC = () => {
           <IonLabel>Requested At:</IonLabel>
           <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
         </IonItem>
+       </IonCard>
+      
 
         {/* Cancellation Details */}
         {selectedRequest.status === 'cancelled' && (
-          <>
+          <IonCard>
             <IonItemDivider>Cancellation Details</IonItemDivider>
             <IonItem>
               <IonLabel>Reason for Cancellation:</IonLabel>
               <IonText slot="end" className="ion-text-wrap">{(selectedRequest as any).cancellationReason}</IonText>
             </IonItem>
-          </>
+          </IonCard>
         )}
 
         {/* Rejection Details */}
         {rejectionEntry && (
-          <>
+          <IonCard>
             <IonItemDivider className='ion-margin-top'>Rejection Details</IonItemDivider>
             <IonItem>
               <IonLabel>Reason for Rejection:</IonLabel>
               <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason}</IonText>
             </IonItem>
-             <IonItem>
-                                  <IonLabel>Reviewed By:</IonLabel>
-                                  <IonText slot="end">{rejectionEntry.userName} ({rejectionEntry.userEmail})</IonText>
-                                </IonItem>
-                                 <IonItem>
-                                  <IonLabel>Reviewed At:</IonLabel>
-                                  <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* Acceptance Details */}
-                            {acceptanceEntry && (
-                              <>
-                                <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Accepted By: {acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Accepted At: {acceptanceEntry.timestamp.toLocaleString()}</IonLabel>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* Processing Details */}
-                            {processingEntry && (
-                              <>
-                                <IonItemDivider>Processing Details</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Processed By: {processingEntry.userName} ({processingEntry.userEmail})</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Processed At: {processingEntry.timestamp.toLocaleString()}</IonLabel>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* Dispensed Medicines */}
-                            {['processed', 'scheduled', 'completed', 'no show'].includes(selectedRequest.status) && (
-                              <>
-                                <IonItemDivider className='ion-margin-top'>Dispensed Medicines</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Medicines:</IonLabel>
-                                  <IonText slot="end" className="ion-text-wrap">{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
-                                    const med = medicines.find(m => m.id === id);
-                                    return `${med?.medicine_name || id} (x${qty})`;
-                                  }).join(', ') || 'N/A'}</IonText>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Notes from Health Worker:</IonLabel>
-                                  <IonText slot="end" className="ion-text-wrap">{selectedRequest.processNote || 'N/A'}</IonText>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* Scheduling Details */}
-                            {schedulingEntry && (
-                              <>
-                                <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Scheduled By: {schedulingEntry.userName} ({schedulingEntry.userEmail})</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Scheduled At: {schedulingEntry.timestamp.toLocaleString()}</IonLabel>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* Pickup Details */}
-                            {['scheduled', 'completed'].includes(selectedRequest.status) && (
-                              <>
-                                <IonItemDivider className='ion-margin-top'>Pickup Details</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Date:</IonLabel>
-                                  <IonText slot="end">{selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}</IonText>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Time:</IonLabel>
-                                  <IonText slot="end">{selectedRequest.scheduleTime || 'N/A'}</IonText>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Location:</IonLabel>
-                                  <IonText slot="end" className="ion-text-wrap">{selectedRequest.schedulePlace || 'N/A'}</IonText>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* Completion Details */}
-                            {completionEntry && (
-                              <>
-                                <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Completed By: {completionEntry.userName} ({completionEntry.userEmail})</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Completed At: {completionEntry.timestamp.toLocaleString()}</IonLabel>
-                                </IonItem>
-                              </>
-                            )}
-              
-                            {/* No Show Details */}
-                            {noShowEntry && (
-                              <>
-                                <IonItemDivider className='ion-margin-top'>No Show Details</IonItemDivider>
-                                <IonItem>
-                                  <IonLabel>Marked By: {noShowEntry.userName} ({noShowEntry.userEmail})</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
-                                </IonItem>
-                              </>
-                            )}
-      </IonCard>
+            <IonItem>
+              <IonLabel>Reviewed By:</IonLabel>
+              <IonText slot="end">{rejectionEntry.userName} ({rejectionEntry.userEmail})</IonText>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Reviewed At:</IonLabel>
+              <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* Acceptance Details */}
+        {acceptanceEntry && (
+          <IonCard>
+            <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Accepted By: {acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonLabel>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Accepted At: {acceptanceEntry.timestamp.toLocaleString()}</IonLabel>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* Processing Details */}
+        {processingEntry && (
+          <IonCard>
+            <IonItemDivider>Processing Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Processed By: {processingEntry.userName} ({processingEntry.userEmail})</IonLabel>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Processed At: {processingEntry.timestamp.toLocaleString()}</IonLabel>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* Dispensed Medicines */}
+        {['processed', 'scheduled', 'completed', 'no show'].includes(selectedRequest.status) && (
+          <IonCard>
+            <IonItemDivider className='ion-margin-top'>Dispensed Medicines</IonItemDivider>
+            <IonItem>
+              <IonLabel>Medicines:</IonLabel>
+              <IonText slot="end" className="ion-text-wrap">{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
+                const med = medicines.find(m => m.id === id);
+                return `${med?.medicine_name || id} (x${qty})`;
+              }).join(', ') || 'N/A'}</IonText>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Notes from Health Worker:</IonLabel>
+              <IonText slot="end" className="ion-text-wrap">{selectedRequest.processNote || 'N/A'}</IonText>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* Scheduling Details */}
+        {schedulingEntry && (
+          <IonCard>
+            <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Scheduled By: {schedulingEntry.userName} ({schedulingEntry.userEmail})</IonLabel>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Scheduled At: {schedulingEntry.timestamp.toLocaleString()}</IonLabel>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* Pickup Details */}
+        {['scheduled', 'completed'].includes(selectedRequest.status) && (
+          <IonCard>
+            <IonItemDivider className='ion-margin-top'>Pickup Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Date:</IonLabel>
+              <IonText slot="end">{selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}</IonText>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Time:</IonLabel>
+              <IonText slot="end">{selectedRequest.scheduleTime || 'N/A'}</IonText>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Location:</IonLabel>
+              <IonText slot="end" className="ion-text-wrap">{selectedRequest.schedulePlace || 'N/A'}</IonText>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* Completion Details */}
+        {completionEntry && (
+          <IonCard>
+            <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Completed By: {completionEntry.userName} ({completionEntry.userEmail})</IonLabel>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Completed At: {completionEntry.timestamp.toLocaleString()}</IonLabel>
+            </IonItem>
+          </IonCard>
+        )}
+
+        {/* No Show Details */}
+        {noShowEntry && (
+          <IonCard>
+            <IonItemDivider className='ion-margin-top'>No Show Details</IonItemDivider>
+            <IonItem>
+              <IonLabel>Marked By: {noShowEntry.userName} ({noShowEntry.userEmail})</IonLabel>
+            </IonItem>
+            <IonItem>
+              <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
+            </IonItem>
+          </IonCard>
+        )}
+      </>
     );
   }
 
@@ -490,7 +492,7 @@ const UserRequestsList: React.FC = () => {
 
     return (
       <>
-        <IonCard>
+        <>
           {detailSegment === 'request' && (
             <>
               {/* Request Information */}
@@ -503,12 +505,12 @@ const UserRequestsList: React.FC = () => {
                     selectedRequest.status === 'pending'
                       ? 'warning'
                       : selectedRequest.status === 'rejected' || selectedRequest.status === 'cancelled' || selectedRequest.status === 'no show'
-                      ? 'danger'
-                      : ['accepted', 'scheduled'].includes(selectedRequest.status)
-                      ? 'primary'
-                      : selectedRequest.status === 'completed'
-                      ? 'success'
-                      : 'medium'
+                        ? 'danger'
+                        : ['accepted', 'scheduled'].includes(selectedRequest.status)
+                          ? 'primary'
+                          : selectedRequest.status === 'completed'
+                            ? 'success'
+                            : 'medium'
                   }
                 >
                   {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
@@ -606,10 +608,10 @@ const UserRequestsList: React.FC = () => {
                     <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
                   </IonItem>
                   {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
-                  <IonItem>
-                    <IonLabel>Meeting Link:</IonLabel>
-                    <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
-                  </IonItem>
+                    <IonItem>
+                      <IonLabel>Meeting Link:</IonLabel>
+                      <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
+                    </IonItem>
                   )}
                   <IonItem>
                     <IonLabel>Start Time:</IonLabel>
@@ -635,12 +637,12 @@ const UserRequestsList: React.FC = () => {
                     <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
                   </IonItem>
                   {selectedRequest.prescriptionUrl && (
-                  <IonItem>
-                    <IonLabel>Prescription:</IonLabel>
-                    <IonButton slot="end" fill="outline" size="small" href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
-                      View Prescription
-                    </IonButton>
-                  </IonItem>
+                    <IonItem>
+                      <IonLabel>Prescription:</IonLabel>
+                      <IonButton slot="end" fill="outline" size="small" href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                        View Prescription
+                      </IonButton>
+                    </IonItem>
                   )}
                 </>
               )}
@@ -725,7 +727,7 @@ const UserRequestsList: React.FC = () => {
               )}
             </>
           )}
-        </IonCard>
+        </>
       </>
     );
   }
@@ -766,7 +768,7 @@ const UserRequestsList: React.FC = () => {
             ))}
           </IonList>
         )}
-        
+
         {error && <IonText color="danger" className="ion-padding">{error}</IonText>}
 
         {!loading && !error && filteredRequests.length === 0 && (
@@ -784,16 +786,18 @@ const UserRequestsList: React.FC = () => {
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
               <IonButtons slot="end">
-                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+                <IonButton onClick={() => setShowModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
           <IonContent>
-          {selectedRequest && (
-            selectedRequest.type === 'medicine' 
-            ? renderMedicineModalDetails(selectedRequest)
-            : renderTeleconsultationModalDetails(selectedRequest)
-          )}
+            {selectedRequest && (
+              selectedRequest.type === 'medicine'
+                ? renderMedicineModalDetails(selectedRequest)
+                : renderTeleconsultationModalDetails(selectedRequest)
+            )}
           </IonContent>
         </IonModal>
 
