@@ -28,6 +28,7 @@ import {
   IonToast,
   IonSkeletonText,
   IonIcon,
+  IonTextarea,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -326,10 +327,12 @@ const UserRequestsList: React.FC = () => {
             {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
           </IonChip>
         </IonItem>
-        <IonItem>
-          <IonLabel>Reason:</IonLabel>
-          <IonText slot="end" className="ion-text-wrap">{selectedRequest.reason}</IonText>
-        </IonItem>
+          <IonItem lines='none'>
+            <IonLabel>Reason:</IonLabel>
+          </IonItem>
+          <IonItem lines='none' className='ion-margin-bottom'>
+            <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
+          </IonItem>
         <IonItem>
           <IonLabel>Has Prescription:</IonLabel>
           <IonText slot="end">{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
@@ -351,9 +354,12 @@ const UserRequestsList: React.FC = () => {
         {selectedRequest.status === 'cancelled' && (
           <IonCard>
             <IonItemDivider>Cancellation Details</IonItemDivider>
-            <IonItem>
-              <IonLabel>Reason for Cancellation:</IonLabel>
-              <IonText slot="end" className="ion-text-wrap">{(selectedRequest as any).cancellationReason}</IonText>
+           
+            <IonItem lines='none'>
+              <IonLabel>Reason:</IonLabel>
+            </IonItem>
+            <IonItem lines='none' className='ion-margin-bottom'>
+              <IonTextarea fill='outline' readonly value={selectedRequest.cancellationReason}></IonTextarea>
             </IonItem>
           </IonCard>
         )}
@@ -363,16 +369,15 @@ const UserRequestsList: React.FC = () => {
           <IonCard>
             <IonItemDivider className='ion-margin-top'>Rejection Details</IonItemDivider>
             <IonItem>
-              <IonLabel>Reason for Rejection:</IonLabel>
-              <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason}</IonText>
+              <IonLabel>Rejected By: {rejectionEntry.userName}
+                <p>{rejectionEntry.userEmail} at {rejectionEntry.timestamp.toLocaleString()}</p>
+              </IonLabel>
             </IonItem>
-            <IonItem>
-              <IonLabel>Reviewed By:</IonLabel>
-              <IonText slot="end">{rejectionEntry.userName} ({rejectionEntry.userEmail})</IonText>
+            <IonItem lines='none'>
+              <IonLabel>Reason:</IonLabel>
             </IonItem>
-            <IonItem>
-              <IonLabel>Reviewed At:</IonLabel>
-              <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+            <IonItem lines='none' className='ion-margin-bottom'>
+              <IonTextarea fill='outline' readonly value={selectedRequest.rejectionReason}></IonTextarea>
             </IonItem>
           </IonCard>
         )}
@@ -382,10 +387,9 @@ const UserRequestsList: React.FC = () => {
           <IonCard>
             <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
             <IonItem>
-              <IonLabel>Accepted By: {acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Accepted At: {acceptanceEntry.timestamp.toLocaleString()}</IonLabel>
+              <IonLabel>Accepted By: {acceptanceEntry.userName}
+                <p>{acceptanceEntry.userEmail} at {acceptanceEntry.timestamp.toLocaleString()}</p>
+              </IonLabel>
             </IonItem>
           </IonCard>
         )}
@@ -395,10 +399,9 @@ const UserRequestsList: React.FC = () => {
           <IonCard>
             <IonItemDivider>Processing Details</IonItemDivider>
             <IonItem>
-              <IonLabel>Processed By: {processingEntry.userName} ({processingEntry.userEmail})</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Processed At: {processingEntry.timestamp.toLocaleString()}</IonLabel>
+              <IonLabel>Processed By: {processingEntry.userName}
+                <p>{processingEntry.userEmail} at {processingEntry.timestamp.toLocaleString()}</p>
+              </IonLabel>
             </IonItem>
           </IonCard>
         )}
@@ -426,10 +429,9 @@ const UserRequestsList: React.FC = () => {
           <IonCard>
             <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
             <IonItem>
-              <IonLabel>Scheduled By: {schedulingEntry.userName} ({schedulingEntry.userEmail})</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Scheduled At: {schedulingEntry.timestamp.toLocaleString()}</IonLabel>
+              <IonLabel>Scheduled By: {schedulingEntry.userName}
+                <p>{schedulingEntry.userEmail} at {schedulingEntry.timestamp.toLocaleString()}</p>
+              </IonLabel>
             </IonItem>
           </IonCard>
         )}
@@ -458,10 +460,9 @@ const UserRequestsList: React.FC = () => {
           <IonCard>
             <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
             <IonItem>
-              <IonLabel>Completed By: {completionEntry.userName} ({completionEntry.userEmail})</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Completed At: {completionEntry.timestamp.toLocaleString()}</IonLabel>
+              <IonLabel>Completed By: {completionEntry.userName}
+                <p>{completionEntry.userEmail} at {completionEntry.timestamp.toLocaleString()}</p>
+              </IonLabel>
             </IonItem>
           </IonCard>
         )}
@@ -471,10 +472,9 @@ const UserRequestsList: React.FC = () => {
           <IonCard>
             <IonItemDivider className='ion-margin-top'>No Show Details</IonItemDivider>
             <IonItem>
-              <IonLabel>Marked By: {noShowEntry.userName} ({noShowEntry.userEmail})</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
+              <IonLabel>Marked By: {noShowEntry.userName}
+                <p>{noShowEntry.userEmail} at {noShowEntry.timestamp.toLocaleString()}</p>
+              </IonLabel>
             </IonItem>
           </IonCard>
         )}
@@ -516,80 +516,75 @@ const UserRequestsList: React.FC = () => {
                   {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
                 </IonChip>
               </IonItem>
-              <IonItem>
-                <IonLabel>Reason:</IonLabel>
-                <IonText slot="end" className="ion-text-wrap">{selectedRequest.reason}</IonText>
-              </IonItem>
-              <IonItem>
+               <IonItem>
                 <IonLabel>Requested At:</IonLabel>
                 <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
               </IonItem>
+              <IonItem lines='none'>
+                <IonLabel>Reason for Consultation:</IonLabel>
+              </IonItem>
+              <IonItem lines='none' className='ion-margin-bottom'>
+                <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
+              </IonItem>
 
-              {/* Cancellation Details */}
               {cancellationEntry && (
-                <>
+                <IonCard>
                   <IonItemDivider>Cancellation Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Cancelled By: {cancellationEntry.userName}</IonLabel>
+                    <IonLabel>Cancelled By: {cancellationEntry.userName}
+                      <p>{cancellationEntry.userEmail} at {cancellationEntry.timestamp.toLocaleString()}</p>
+                    </IonLabel>
                   </IonItem>
-                  <IonItem>
-                    <IonLabel>Cancelled At: {cancellationEntry.timestamp.toLocaleString()}</IonLabel>
-                  </IonItem>
-                  <IonItem>
+                  <IonItem lines='none'>
                     <IonLabel>Reason for Cancellation:</IonLabel>
-                    <IonText slot="end" className="ion-text-wrap">{(selectedRequest as any).cancellationReason || 'N/A'}</IonText>
                   </IonItem>
-                </>
+                  <IonItem lines='none' className='ion-margin-bottom'>
+                    <IonTextarea fill='outline' readonly value={(selectedRequest as any).cancellationReason || 'N/A'}></IonTextarea>
+                  </IonItem>
+                </IonCard>
               )}
 
-              {/* Rejection Details */}
               {rejectionEntry && (
-                <>
+                <IonCard>
                   <IonItemDivider>Rejection Details</IonItemDivider>
-                  <IonItem>
+                  <IonItem lines='none'>
                     <IonLabel>Reason for Rejection:</IonLabel>
-                    <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
+                  </IonItem>
+                  <IonItem lines='none' className='ion-margin-bottom'>
+                    <IonTextarea fill='outline' readonly value={selectedRequest.rejectionReason || 'N/A'}></IonTextarea>
                   </IonItem>
                   <IonItem>
-                    <IonLabel>Rejected By: {rejectionEntry.userName}</IonLabel>
+                    <IonLabel>Rejected By: {rejectionEntry.userName}
+                      <p>{rejectionEntry.userEmail} at {rejectionEntry.timestamp.toLocaleString()}</p>
+                    </IonLabel>
                   </IonItem>
-                  <IonItem>
-                    <IonLabel>Rejected At: {rejectionEntry.timestamp.toLocaleString()}</IonLabel>
-                  </IonItem>
-                </>
+                </IonCard>
               )}
 
-              {/* No Show Details */}
               {noShowEntry && (
-                <>
+                <IonCard>
                   <IonItemDivider>No Show Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Marked By: {noShowEntry.userName}</IonLabel>
+                    <IonLabel>Marked By: {noShowEntry.userName}
+                      <p>{noShowEntry.userEmail} at {noShowEntry.timestamp.toLocaleString()}</p>
+                    </IonLabel>
                   </IonItem>
-                  <IonItem>
-                    <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
-                  </IonItem>
-                </>
+                </IonCard>
               )}
 
-              {/* Acceptance Details */}
               {acceptanceEntry && (
-                <>
+                <IonCard>
                   <IonItemDivider>Acceptance Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Accepted By:</IonLabel>
-                    <IonText slot="end">{acceptanceEntry.userName}</IonText>
+                    <IonLabel>Accepted By: {acceptanceEntry.userName}
+                      <p>{acceptanceEntry.userEmail} at {acceptanceEntry.timestamp.toLocaleString()}</p>
+                    </IonLabel>
                   </IonItem>
-                  <IonItem>
-                    <IonLabel>Accepted At:</IonLabel>
-                    <IonText slot="end">{acceptanceEntry.timestamp.toLocaleString()}</IonText>
-                  </IonItem>
-                </>
+                </IonCard>
               )}
 
-              {/* Scheduling Details */}
               {schedulingEntry && (
-                <>
+                <IonCard>
                   <IonItemDivider>Scheduling Details</IonItemDivider>
                   <IonItem>
                     <IonLabel>Scheduled By:</IonLabel>
@@ -608,43 +603,46 @@ const UserRequestsList: React.FC = () => {
                     <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
                   </IonItem>
                   {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
-                    <IonItem>
-                      <IonLabel>Meeting Link:</IonLabel>
-                      <IonButton slot="end" fill="outline" size="small" href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">Join</IonButton>
-                    </IonItem>
+                      <IonButton fill="outline" expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
+                        Join Meeting
+                        <IonIcon icon={open} slot="end" />
+                      </IonButton>
                   )}
-                  <IonItem>
-                    <IonLabel>Start Time:</IonLabel>
-                    <IonText slot="end">{selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'}</IonText>
+                  <IonItem lines='none'>
+                    <IonLabel>Scheduled Time:</IonLabel>
                   </IonItem>
-                  <IonItem>
-                    <IonLabel>End Time:</IonLabel>
-                    <IonText slot="end">{selectedRequest.endTime ? selectedRequest.endTime.toLocaleString() : 'N/A'}</IonText>
+                  <IonItem className='ion-margin-bottom'>
+                    <IonTextarea
+                      fill="outline"
+                      readonly
+                      value={
+                        (selectedRequest.startTime || selectedRequest.endTime)
+                          ? `${selectedRequest.startTime ? selectedRequest.startTime.toLocaleString() : 'N/A'} - ${selectedRequest.endTime ? selectedRequest.endTime.toLocaleString() : 'N/A'}`
+                          : 'N/A'
+                      }
+                    />
                   </IonItem>
-                </>
+                </IonCard>
               )}
 
-              {/* Completion Details */}
               {completionEntry && (
-                <>
+                <IonCard>
                   <IonItemDivider>Completion Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Completed By:</IonLabel>
-                    <IonText slot="end">{completionEntry.userName}</IonText>
-                  </IonItem>
-                  <IonItem>
-                    <IonLabel>Completed At:</IonLabel>
-                    <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
+                    <IonLabel>Completed By: {completionEntry.userName}
+                      <p>{completionEntry.userEmail} at {completionEntry.timestamp.toLocaleString()}</p>
+                    </IonLabel>
+                    <IonText slot="end"></IonText>
                   </IonItem>
                   {selectedRequest.prescriptionUrl && (
                     <IonItem>
                       <IonLabel>Prescription:</IonLabel>
-                      <IonButton slot="end" fill="outline" size="small" href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                      <IonButton slot="end" fill="outline" expand='block' href={selectedRequest.prescriptionUrl} target="_blank" rel="noopener noreferrer">
                         View Prescription
                       </IonButton>
                     </IonItem>
                   )}
-                </>
+                </IonCard>
               )}
             </>
           )}
