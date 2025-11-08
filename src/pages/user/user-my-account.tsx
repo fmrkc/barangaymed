@@ -455,13 +455,11 @@ const Account: React.FC = () => {
                   <>
                     <IonItemDivider className="ion-margin-top">Verification Details:</IonItemDivider>
                     <IonItem>
-                      <IonLabel>Verified By:</IonLabel>
-                      <IonText slot="end" style={{ fontWeight: 'bold' }}>{verifiedBy}</IonText>
+                      <IonLabel>Verified By: {verifiedBy}</IonLabel>
                     </IonItem>
                     <IonItem>
-                      <IonLabel>Verified At:</IonLabel>
-                      <IonText slot="end" style={{ fontWeight: 'bold' }}>{verifiedAt}</IonText>
-                    </IonItem>
+                      <IonLabel>Verified At: {verifiedAt}</IonLabel>
+                     </IonItem>
                   </>
                 )}
               </IonCardContent>
