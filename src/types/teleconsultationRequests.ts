@@ -31,8 +31,9 @@ export interface TeleconsultationRequest {
   doctorSpecialty?: string;
   meetingLink?: string;
   superadminMarkedComplete?: boolean;
-  rejectionReason?: string;
-  prescriptionUrl?: string;
-  medicalRecord?: MedicalRecord;
-  auditTrail?: { action: string; userId: string; userEmail: string; userName?: string; timestamp: Date }[];
+    rejectionReason?: string;
+    cancellationReason?: string;
+    prescriptionUrl?: string;
+    medicalRecord?: MedicalRecord;
+    auditTrail?: { action: string; userId: string; userEmail: string; userName?: string; timestamp: Date }[];
 }

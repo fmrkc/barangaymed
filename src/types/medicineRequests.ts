@@ -20,5 +20,6 @@ export interface MedicineRequest {
   dispensedMedicines?: { [key: string]: number };
   processNote?: string;
   rejectionReason?: string;
+  cancellationReason?: string;
   auditTrail?: { action: string; userId: string; userEmail: string; userName?: string; timestamp: Date }[];
 }

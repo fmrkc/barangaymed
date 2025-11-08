@@ -42,7 +42,7 @@ import {
   IonSkeletonText,
   IonTextarea,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion, getDoc, UpdateData } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
@@ -52,6 +52,7 @@ import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowB
 import './sa-tele-request-list.css';
 
 import { useIonRouter } from '@ionic/react';
+import { FirestoreAuditTrailEntry } from '../../types/medicine';
 
 const db = getFirestore();
 const functions = getFunctions();
@@ -194,9 +195,10 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     meetingLink: data.meetingLink,
                     superadminMarkedComplete: data.superadminMarkedComplete,
                     rejectionReason: data.rejectionReason,
+                    cancellationReason: data.cancellationReason,
                     prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
-                    auditTrail: data.auditTrail ? data.auditTrail.map((entry: any) => ({
+                    auditTrail: data.auditTrail ? data.auditTrail.map((entry: FirestoreAuditTrailEntry) => ({
                       action: entry.action,
                       userId: entry.userId,
                       userEmail: entry.userEmail,
@@ -241,7 +243,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
         break;
       case 'not completed':
         filtered = filtered.filter((r) =>
-          ['rejected', 'no show'].includes(r.status)
+          ['rejected', 'no show', 'cancelled'].includes(r.status)
         );
         break;
       case 'all':
@@ -282,7 +284,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
       }
       const requestData = requestDoc.data() as TeleconsultationRequest;
 
-      const updateData: any = {
+      const updateData: UpdateData<TeleconsultationRequest> = {
         status: status,
         updatedAt: new Date(),
         auditTrail: arrayUnion({
@@ -652,7 +654,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 borderLeft: `8px solid ${
                   request.status === 'pending'
                     ? '#ffc409' // warning (yellow)
-                    : request.status === 'rejected' || request.status === 'no show'
+                    : request.status === 'rejected' || request.status === 'no show' || request.status === 'cancelled'
                     ? '#eb445a' // danger (red)
                     : request.status === 'accepted'
                     ? '#017457' // primary (green-ish)
@@ -673,7 +675,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                       color={
                         request.status === 'pending'
                           ? 'warning'
-                          : request.status === 'rejected' || request.status === 'no show'
+                          : request.status === 'rejected' || request.status === 'no show' || request.status === 'cancelled'
                           ? 'danger'
                           : request.status === 'accepted'
                           ? 'primary'
@@ -721,6 +723,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     </div>
                 )}
                 {request.status === 'no show' && (
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                )}
+                {request.status === 'cancelled' && (
                   <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'completed' && (
@@ -863,12 +868,14 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     const schedulingEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Scheduled teleconsultation request');
                     const completionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as completed');
                     const noShowEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked teleconsultation as no show');
+                    const cancellationEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Cancelled teleconsultation request by user');
 
                     const isAccepted = !!acceptanceEntry || ['scheduled', 'completed'].includes(selectedRequest.status);
                     const isScheduled = !!schedulingEntry || ['completed'].includes(selectedRequest.status);
                     const isCompleted = !!completionEntry;
                     const isRejected = !!rejectionEntry;
                     const isNoShow = !!noShowEntry;
+                    const isCancelled = !!cancellationEntry;
 
                     return (
                       <>
@@ -890,7 +897,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                             color={
                               selectedRequest.status === 'pending'
                                 ? 'warning'
-                                : selectedRequest.status === 'rejected' || selectedRequest.status === 'no show'
+                                : selectedRequest.status === 'rejected' || selectedRequest.status === 'no show' || selectedRequest.status === 'cancelled'
                                 ? 'danger'
                                 : ['accepted', 'scheduled'].includes(selectedRequest.status)
                                 ? 'primary'
@@ -903,29 +910,46 @@ const SuperAdminTeleRequestList: React.FC = () => {
                           </IonChip>
                         </IonItem>
                         <IonItem lines='none'>
-                          <IonLabel>Reason for Consultation:</IonLabel>
+                          <IonLabel>Reason:</IonLabel>
                         </IonItem>
                         <IonItem lines='none' className='ion-margin-bottom'>
                              <IonTextarea  fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
                         </IonItem>
                         </IonCard>
                         
+                        {/* Cancellation Information */}
+                        {isCancelled && cancellationEntry && (
+                          <IonCard>
+                            <IonItemDivider>Cancellation Details</IonItemDivider>
+                            <IonItem>
+                              <IonLabel>
+                                Cancelled By: {cancellationEntry.userName}
+                                <p>({cancellationEntry.userEmail}) at {cancellationEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
+                            </IonItem>
+                            <IonItem lines='none'>
+                              <IonLabel>Cancellation Reason:</IonLabel>
+                            </IonItem>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.cancellationReason}></IonTextarea>
+                            </IonItem>
+                          </IonCard>
+                        )}
 
                         {/* Rejection Information */}
                         {isRejected && rejectionEntry && (
                           <IonCard>
                             <IonItemDivider>Rejection Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Rejected By:</IonLabel>
-                              <IonText slot="end">{rejectionEntry.userName} ({rejectionEntry.userEmail})</IonText>
+                              <IonLabel>Rejected By: {rejectionEntry.userName}
+                                <p>({rejectionEntry.userEmail}) at {rejectionEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Rejected At:</IonLabel>
-                              <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+                            <IonItem lines='none'>
+                              <IonLabel>Rejection Reason:</IonLabel>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Reason:</IonLabel>
-                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
                             </IonItem>
                           </IonCard>
                         )}

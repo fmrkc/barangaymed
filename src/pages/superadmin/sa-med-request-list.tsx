@@ -83,7 +83,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const { currentUser, cityMunicipalityId } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MedicineRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all' | 'not completed'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -202,6 +202,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             dispensedMedicines: data.dispensedMedicines,
             processNote: data.processNote,
             rejectionReason: data.rejectionReason,
+            cancellationReason: data.cancellationReason,
             auditTrail: data.auditTrail ? data.auditTrail.map((entry: FirestoreAuditTrailEntry) => ({
               action: entry.action,
               userId: entry.userId,
@@ -247,6 +248,11 @@ const SuperAdminMedRequestList: React.FC = () => {
         break;
       case 'completed':
         filtered = filtered.filter((r) => r.status === 'completed');
+        break;
+      case 'not completed':
+        filtered = filtered.filter((r) =>
+          ['rejected', 'no show', 'cancelled'].includes(r.status)
+        );
         break;
       case 'all':
       default:
@@ -655,7 +661,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
-        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all')}>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all' | 'not completed')}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -670,6 +676,9 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonSegmentButton>
           <IonSegmentButton value="completed">
             <IonLabel>Completed</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="not completed">
+            <IonLabel>Not Completed</IonLabel>
           </IonSegmentButton>
           <IonSegmentButton value="all">
             <IonLabel>All</IonLabel>
@@ -736,7 +745,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 borderLeft: `8px solid ${
                   request.status === 'pending'
                     ? '#ffc409' // warning (yellow)
-                    : request.status === 'rejected' || request.status === 'no show'
+                    : request.status === 'rejected' || request.status === 'no show' || request.status === 'cancelled'
                     ? '#eb445a' // danger (red)
                     : request.status === 'accepted'
                     ? '#017457' // primary (green-ish)
@@ -759,7 +768,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                       color={
                         request.status === 'pending'
                           ? 'warning'
-                          : request.status === 'rejected' || request.status === 'no show'
+                          : request.status === 'rejected' || request.status === 'no show' || request.status === 'cancelled'
                           ? 'danger'
                           : request.status === 'accepted'
                           ? 'primary'
@@ -784,7 +793,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'rejected' && (
-                    <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'accepted' && (
                     <div style={{ display: 'flex', gap: '10px' }}>
@@ -811,6 +820,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                       <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'completed' && (
+                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                )}
+                {request.status === 'cancelled' && (
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
               </IonCardContent>
@@ -843,7 +855,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                     <IonLabel>Resident Info</IonLabel>
                   </IonSegmentButton>
                 </IonSegment>
-                <IonCard>
+                <>
                   {detailSegment === 'request' && (() => {
                     const creationEntry = selectedRequest.auditTrail?.find(e => e.action === 'Created request from teleconsultation');
                     const acceptanceEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Accepted request');
@@ -852,6 +864,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                     const schedulingEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Scheduled request');
                     const completionEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked as completed');
                     const noShowEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Marked as no show');
+                    const cancellationEntry = selectedRequest.auditTrail?.slice().reverse().find(e => e.action === 'Cancelled medicine request by user');
 
                     const isAccepted = !!acceptanceEntry || ['processed', 'scheduled', 'completed'].includes(selectedRequest.status);
                     const isProcessed = !!processingEntry || ['scheduled', 'completed'].includes(selectedRequest.status);
@@ -859,11 +872,13 @@ const SuperAdminMedRequestList: React.FC = () => {
                     const isCompleted = !!completionEntry;
                     const isRejected = !!rejectionEntry;
                     const isNoShow = !!noShowEntry;
+                    const isCancelled = !!cancellationEntry;
 
                     return (
                       <>
                         {/* Request Information */}
-                        <IonItemDivider className='ion-margin-top'>Request Information ({selectedRequest.id})</IonItemDivider>
+                       <IonCard>
+                         <IonItemDivider className='ion-margin-top'>Request Information ({selectedRequest.id})</IonItemDivider>
                         <IonItem>
                           <IonLabel>Status:</IonLabel>
                           <IonChip
@@ -871,21 +886,23 @@ const SuperAdminMedRequestList: React.FC = () => {
                             color={
                               selectedRequest.status === 'pending'
                                 ? 'warning'
-                                : selectedRequest.status === 'rejected' || selectedRequest.status === 'no show'
-                                ? 'danger'
-                                : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
-                                ? 'primary'
-                                : selectedRequest.status === 'completed'
-                                ? 'success'
-                                : 'medium'
+                                : selectedRequest.status === 'rejected' || selectedRequest.status === 'no show' || selectedRequest.status === 'cancelled'
+                                  ? 'danger'
+                                  : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
+                                    ? 'primary'
+                                    : selectedRequest.status === 'completed'
+                                      ? 'success'
+                                      : 'medium'
                             }
                           >
                             {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
                           </IonChip>
                         </IonItem>
-                        <IonItem>
-                          <IonLabel>Reason:</IonLabel>
-                          <IonText slot="end" className="ion-text-wrap">{selectedRequest.reason}</IonText>
+                        <IonItem lines='none'>
+                          <IonLabel>Request Reason:</IonLabel>
+                        </IonItem>
+                        <IonItem lines='none'>
+                          <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
                         </IonItem>
                         <IonItem>
                           <IonLabel>Has Prescription:</IonLabel>
@@ -907,29 +924,47 @@ const SuperAdminMedRequestList: React.FC = () => {
                             <IonText slot="end">{creationEntry.userName} ({creationEntry.userEmail})</IonText>
                           </IonItem>
                         )}
+                       </IonCard>
+
+                        {/* Cancellation Information */}
+                        {isCancelled && cancellationEntry && (
+                          <IonCard>
+                            <IonItemDivider className='ion-margin-top'>Cancellation Details</IonItemDivider>
+                            <IonItem>
+                              <IonLabel>Cancelled By: {cancellationEntry.userName}
+                              <p>{cancellationEntry.userEmail} at {cancellationEntry.timestamp.toLocaleString()}</p> 
+                              </IonLabel>
+                            </IonItem>
+                            <IonItem lines='none'>
+                              <IonLabel>Cancellation Reason:</IonLabel>
+                            </IonItem>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.cancellationReason || 'N/A'}></IonTextarea>
+                            </IonItem>
+                          </IonCard>
+                        )}
 
                         {/* Rejection Information */}
                         {isRejected && rejectionEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider className='ion-margin-top'>Rejection Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Rejected By:</IonLabel>
-                              <IonText slot="end">{rejectionEntry.userName} ({rejectionEntry.userEmail})</IonText>
+                              <IonLabel>Rejected By: {rejectionEntry.userName}
+                                <p>({rejectionEntry.userEmail} at {rejectionEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Rejected At:</IonLabel>
-                              <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
+                            <IonItem lines='none'>
+                              <IonLabel>Rejection Reason:</IonLabel>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Reason:</IonLabel>
-                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.rejectionReason || 'N/A'}</IonText>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.rejectionReason}></IonTextarea>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* No Show Information */}
                         {isNoShow && noShowEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider className='ion-margin-top'>No Show Details</IonItemDivider>
                             <IonItem>
                               <IonLabel>Marked By: {noShowEntry.userName} ({noShowEntry.userEmail})</IonLabel>
@@ -937,12 +972,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                             <IonItem>
                               <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Acceptance Information */}
                         {isAccepted && acceptanceEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
                             <IonItem>
                               <IonLabel>Accepted By: {acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonLabel>
@@ -950,12 +985,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                             <IonItem>
                               <IonLabel>Accepted At: {acceptanceEntry.timestamp.toLocaleString()}</IonLabel>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Processing Information */}
                         {isProcessed && (
-                          <>
+                          <IonCard>
                             <IonItemDivider className='ion-margin-top'>Processing Details</IonItemDivider>
                             {processingEntry && (
                               <>
@@ -978,12 +1013,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                               <IonLabel>Process Note:</IonLabel>
                               <IonText slot="end" className="ion-text-wrap">{selectedRequest.processNote || 'N/A'}</IonText>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Scheduling Information */}
                         {isScheduled && (
-                          <>
+                          <IonCard>
                             <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
                             {schedulingEntry && (
                               <>
@@ -1007,12 +1042,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                               <IonLabel>Pickup Location:</IonLabel>
                               <IonText slot="end" className="ion-text-wrap">{selectedRequest.schedulePlace || 'N/A'}</IonText>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
 
                         {/* Completion Information */}
                         {isCompleted && completionEntry && (
-                          <>
+                          <IonCard>
                             <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
                             <IonItem>
                               <IonLabel>Completed By: {completionEntry.userName} ({completionEntry.userEmail})</IonLabel>
@@ -1020,16 +1055,16 @@ const SuperAdminMedRequestList: React.FC = () => {
                             <IonItem>
                               <IonLabel>Completed At: {completionEntry.timestamp.toLocaleString()}</IonLabel>
                             </IonItem>
-                          </>
+                          </IonCard>
                         )}
                       </>
                     );
                   })()}
                   {detailSegment === 'resident' && (
-                    <>
-                      <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
+                    <IonCard>   
                       {selectedRequest.userData && (
                         <>
+                        <IonItemDivider style={{ marginTop: '10px' }}>Resident Information</IonItemDivider>
                           <IonItem>
                             <IonLabel>
                               Name: &nbsp;
@@ -1064,9 +1099,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                           </IonLabel>
                         </IonItem>
                       )}
-                    </>
+                    </IonCard>
                   )}
-                </IonCard>
+                </>
               </>
             )}
           </IonContent>
