@@ -949,7 +949,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                               <IonLabel>Rejection Reason:</IonLabel>
                             </IonItem>
                             <IonItem lines='none' className='ion-margin-bottom'>
-                              <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.rejectionReason}></IonTextarea>
                             </IonItem>
                           </IonCard>
                         )}
