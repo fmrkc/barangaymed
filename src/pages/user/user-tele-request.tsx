@@ -346,6 +346,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 fill='outline'
                 rows={5}
                 value={getReasonString()} 
+                readonly
                 />
               </IonItem>
               {hasMedicalRecord && (

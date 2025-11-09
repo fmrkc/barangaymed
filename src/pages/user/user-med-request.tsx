@@ -383,7 +383,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
               </IonItem>
 
               <IonItem>
-                <IonTextarea color={'primary'} fill='outline' value={getReasonString() || 'Not provided'} rows={10}></IonTextarea>
+                <IonTextarea color={'primary'} fill='outline' value={getReasonString() || 'Not provided'} rows={10} readonly></IonTextarea>
               </IonItem>
               <IonItem>
                 <IonLabel>Has Prescription:</IonLabel>
