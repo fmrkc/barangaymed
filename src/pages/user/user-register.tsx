@@ -27,8 +27,10 @@ import {
   IonToast,
   IonLoading,
   IonCardSubtitle,
+  IonCheckbox,
+  IonLabel,
 } from '@ionic/react';
-import { arrowForward, checkmarkDoneOutline, close, eye, eyeOff, person, arrowBack, mail, lockClosed, transgender } from 'ionicons/icons';
+import { arrowForward, checkmarkDoneOutline, close, eye, eyeOff, person, arrowBack, mail, lockClosed } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { auth, db } from '../../firebaseConfig';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
@@ -38,6 +40,7 @@ const UserRegister: React.FC = () => {
   const history = useHistory();
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -54,9 +57,19 @@ const UserRegister: React.FC = () => {
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
-  const progress = currentStep / 3;
+  const progress = currentStep / 4;
 
   const validateStep1 = () => {
+    if (!termsAccepted) {
+      setError('You must accept the terms and conditions to continue.');
+      setShowErrorToast(true);
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  const validateStep2 = () => {
     if (!firstName.trim() || !lastName.trim()) {
       setError('First name and last name are required.');
       setShowErrorToast(true);
@@ -66,7 +79,7 @@ const UserRegister: React.FC = () => {
     return true;
   };
 
-  const validateStep2 = () => {
+  const validateStep3 = () => {
     if (!birthdate || !gender) {
       setError('Birthdate and gender are required.');
       setShowErrorToast(true);
@@ -76,7 +89,7 @@ const UserRegister: React.FC = () => {
     return true;
   };
 
-  const validateStep3 = () => {
+  const validateStep4 = () => {
     if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError('Email, password, and confirm password are required.');
       setShowErrorToast(true);
@@ -87,8 +100,9 @@ const UserRegister: React.FC = () => {
       setShowErrorToast(true);
       return false;
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long.');
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one number, and one special character.');
       setShowErrorToast(true);
       return false;
     }
@@ -101,6 +115,8 @@ const UserRegister: React.FC = () => {
       setCurrentStep(2);
     } else if (currentStep === 2 && validateStep2()) {
       setCurrentStep(3);
+    } else if (currentStep === 3 && validateStep3()) {
+      setCurrentStep(4);
     }
   };
 
@@ -112,7 +128,7 @@ const UserRegister: React.FC = () => {
   };
 
   const handleRegister = async () => {
-    if (!validateStep3()) return;
+    if (!validateStep4()) return;
 
     setIsLoading(true);
     try {
@@ -190,8 +206,43 @@ const UserRegister: React.FC = () => {
           <IonCard>
             <br />
             <IonCardHeader>
+              <IonCardTitle>Step 1: Terms and Conditions</IonCardTitle>
+              <IonCardSubtitle>Please read and accept the terms and conditions to proceed.</IonCardSubtitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <p style={{'maxHeight': '200px', 'overflowY': 'auto', 'border': '1px solid #ccc', 'padding': '10px'}}>
+                <strong>Terms and Conditions for BarangayMed</strong><br/><br/>
+                <strong>1. Acceptance of Terms</strong><br/>
+                By using BarangayMed, you agree to these Terms and Conditions. If you do not agree, do not use the app.<br/><br/>
+                <strong>2. Services</strong><br/>
+                BarangayMed provides a platform for residents to request medicine, schedule teleconsultations, and receive health announcements from their local barangay health unit.<br/><br/>
+                <strong>3. User Accounts</strong><br/>
+                You must provide accurate information when creating your account. You are responsible for maintaining the confidentiality of your account and password.<br/><br/>
+                <strong>4. Data Privacy</strong><br/>
+                We collect and use your personal and health information in accordance with our Privacy Policy. By using the app, you consent to such collection and use.<br/><br/>
+                <strong>5. User Conduct</strong><br/>
+                You agree not to use the app for any unlawful purpose or to harass, abuse, or harm another person.<br/><br/>
+                <strong>6. Disclaimer</strong><br/>
+                BarangayMed is a tool to facilitate communication and is not a substitute for professional medical advice. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.<br/><br/>
+                <strong>7. Limitation of Liability</strong><br/>
+                BarangayMed is not liable for any damages arising from your use of the app.<br/><br/>
+                <strong>8. Changes to Terms</strong><br/>
+                We may modify these Terms at any time. Your continued use of the app after changes constitutes your acceptance of the new Terms.
+              </p>
+              <IonItem lines="none">
+                <IonCheckbox checked={termsAccepted} onIonChange={e => setTermsAccepted(e.detail.checked)} slot="start"></IonCheckbox>
+                <IonLabel>I have read and agree to the terms and conditions.</IonLabel>
+              </IonItem>
+            </IonCardContent>
+          </IonCard>
+        )}
+
+        {currentStep === 2 && (
+          <IonCard>
+            <br />
+            <IonCardHeader>
               <IonCardTitle>
-                Step 1: Your Name
+                Step 2: Your Name
               </IonCardTitle>
               <IonCardSubtitle>
                   Please provide your full name. Middle Name and Suffix can be left out if not applicable.
@@ -208,6 +259,8 @@ const UserRegister: React.FC = () => {
                   onIonChange={(e) => setFirstName(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
+                  maxlength={50}
+                  counter={true}
                 >
                   <IonIcon slot="start" icon={person}></IonIcon>
                 </IonInput>
@@ -220,6 +273,8 @@ const UserRegister: React.FC = () => {
                   value={middleName}
                   onIonChange={(e) => setMiddleName(e.detail.value!)}
                   className="ion-margin-bottom"
+                  maxlength={50}
+                  counter={true}
                 >
                   <IonIcon slot="start" icon={person}></IonIcon>
                 </IonInput>
@@ -233,13 +288,15 @@ const UserRegister: React.FC = () => {
                   onIonChange={(e) => setLastName(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
+                  maxlength={50}
+                  counter={true}
                 >
                   <IonIcon slot="start" icon={person}></IonIcon>
                 </IonInput>
               </IonItem>
               <IonItemDivider>Suffix (Optional)</IonItemDivider>
               <IonItem>
-                <IonInput
+                <IonSelect
                   fill="outline"
                   placeholder="e.g. Jr., Sr. (optional)"
                   value={suffix}
@@ -247,18 +304,26 @@ const UserRegister: React.FC = () => {
                   className="ion-margin-bottom"
                 >
                   <IonIcon slot="start" icon={person}></IonIcon>
-                </IonInput>
+                  <IonSelectOption value="">None</IonSelectOption>
+                  <IonSelectOption value="Jr.">Jr.</IonSelectOption>
+                  <IonSelectOption value="Sr.">Sr.</IonSelectOption>
+                  <IonSelectOption value="I">I</IonSelectOption>
+                  <IonSelectOption value="II">II</IonSelectOption>
+                  <IonSelectOption value="III">III</IonSelectOption>
+                  <IonSelectOption value="IV">IV</IonSelectOption>
+                  <IonSelectOption value="V">V</IonSelectOption>
+                </IonSelect>
               </IonItem>
             </IonCardContent>
           </IonCard>
         )}
 
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <IonCard>
             <br />
             <IonCardHeader>
               <IonCardTitle>
-                Step 2: Personal Details
+                Step 3: Personal Details
               </IonCardTitle>
               <IonCardSubtitle>
                   Please provide your birthdate and gender.
@@ -299,12 +364,12 @@ const UserRegister: React.FC = () => {
           </IonCard>
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 4 && (
           <IonCard>
             <br />
             <IonCardHeader>
               <IonCardTitle>
-                Step 3: Account Credentials
+                Step 4: Account Credentials
               </IonCardTitle>
               <IonCardSubtitle>
                   Please provide a valid email address and create a secure password.
@@ -337,7 +402,7 @@ const UserRegister: React.FC = () => {
                   onIonChange={(e) => setPassword(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
-                  helperText="Password must be at least 8 characters long."
+                  helperText="Min 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character."
                 >
 
                   <IonIcon
@@ -382,6 +447,7 @@ const UserRegister: React.FC = () => {
               shape="round"
               onClick={nextStep}
               className="ion-margin"
+              disabled={!termsAccepted}
             >
               <IonIcon slot="end" icon={arrowForward} />
               <IonText className='ion-padding-vertical'>Next</IonText>
@@ -407,6 +473,7 @@ const UserRegister: React.FC = () => {
                     expand="block"
                     shape="round"
                     onClick={nextStep}
+                    disabled={!firstName.trim() || !lastName.trim()}
                   >
                     <IonIcon slot="end" icon={arrowForward} />
                     <IonText className='ion-padding-vertical'>Next</IonText>
@@ -432,11 +499,40 @@ const UserRegister: React.FC = () => {
                 </IonCol>
                 <IonCol size="9">
                   <IonButton
+                    expand="block"
+                    shape="round"
+                    onClick={nextStep}
+                    disabled={!birthdate || !gender}
+                  >
+                    <IonIcon slot="end" icon={arrowForward} />
+                    <IonText className='ion-padding-vertical'>Next</IonText>
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          )}
+
+          {currentStep === 4 && (
+            <IonGrid>
+              <IonRow>
+                <IonCol size="3">
+                  <IonButton
+                    expand="block"
+                    shape="round"
+                    fill="outline"
+                    onClick={prevStep}
+                  >
+                    <IonIcon slot="start" icon={arrowBack} />
+                    <IonText className='ion-padding-vertical'>Back</IonText>
+                  </IonButton>
+                </IonCol>
+                <IonCol size="9">
+                  <IonButton
                     color={'success'}
                     expand="block"
                     shape="round"
                     onClick={handleRegister}
-                    disabled={isLoading}
+                    disabled={isLoading || !email.trim() || !password.trim() || !confirmPassword.trim()}
                   >
                     <IonText className='ion-padding-vertical'>Register</IonText>
                     <IonIcon slot="end" icon={checkmarkDoneOutline} />
