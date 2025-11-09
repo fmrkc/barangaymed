@@ -265,8 +265,12 @@ const SuperAdminMedRequestList: React.FC = () => {
       filtered = filtered.filter(r => r.barangayId === selectedBarangayFilter);
     }
 
-    setFilteredRequests(filtered);
-  }, [filter, requests, selectedBarangayFilter]);
+    setFilteredRequests(filtered.filter(request =>
+      request.userData?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      request.userData?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      request.id?.toLowerCase().includes(searchQuery.toLowerCase())
+    ));
+  }, [filter, requests, selectedBarangayFilter, searchQuery]);
 
   const handleViewDetails = (request: MedicineRequest) => {
     setSelectedRequest(request);
@@ -685,7 +689,7 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonSegmentButton>
         </IonSegment>
         <IonToolbar>
-            <IonSearchbar value={searchQuery} onIonChange={e => setSearchQuery(e.detail.value!)} placeholder="Search by resident name..." />
+            <IonSearchbar value={searchQuery} onIonInput={e => setSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
         </IonToolbar>
         <IonToolbar className="ion-padding-horizontal">
             <IonSelect value={selectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setSelectedBarangayFilter(e.detail.value)}>
@@ -735,10 +739,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         )}
 
         <IonList style={{ backgroundColor: 'transparent' }}>
-          {filteredRequests.filter(request =>
-            request.userData?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            request.userData?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
-          ).map((request) => (
+          {filteredRequests.map((request) => (
             <IonCard
               key={request.id}
               style={{
@@ -804,14 +805,17 @@ const SuperAdminMedRequestList: React.FC = () => {
                 {request.status === 'processed' && (
                   <>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                      <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
+                        View Details
+                        <IonIcon slot='start' icon={open} />
+                      </IonButton>
                     </div>
                   </>
                 )}
                 {request.status === 'scheduled' && (
                     <div style={{ display: 'flex', gap: '10px' }}>
                     <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
-                      <IonIcon icon={open} />
+                      <IonIcon slot='start' icon={open} />
                       View Details
                     </IonButton>
                     </div>

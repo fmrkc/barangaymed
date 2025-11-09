@@ -318,7 +318,7 @@ const Med_Inventory: React.FC = () => {
           <IonTitle>Medicine Inventory</IonTitle>
         </IonToolbar>
         <IonToolbar>                                                                                                                         
-          <IonSearchbar value={searchQuery} onIonChange={e => setSearchQuery(e.detail.value!)} placeholder="Search by medicine name..." />
+          <IonSearchbar value={searchQuery} onIonInput={e => setSearchQuery(e.detail.value!)} placeholder="Search by medicine name..." showClearButton="always" />
           <IonButton size='large' slot="end" onClick={() => setShowFilterModal(true)}>
             <IonIcon icon={filter} slot='icon-only' />
           </IonButton>
