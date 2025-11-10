@@ -31,15 +31,38 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, QueryDocumentSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, QueryDocumentSnapshot, getDoc, doc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
 import { getBarangayNameByCode } from '../../services/addressService';
 import { checkmark, help, open, paperPlane, arrowBack, arrowForward, cloudUpload } from 'ionicons/icons';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const db = getFirestore();
+const functions = getFunctions();
+const sendSmsCloudFunction = httpsCallable(functions, 'sendSmsNotification');
+
+const sendSms = async (userId: string, message: string) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const recipientContactNumber = userData?.contactNumber;
+      if (recipientContactNumber) {
+        await sendSmsCloudFunction({ recipientContactNumber, message });
+        console.log('SMS sent successfully!');
+      } else {
+        console.warn('User has no contact number for SMS notification.');
+      }
+    } else {
+      console.warn('User document not found for SMS notification.');
+    }
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+  }
+};
 
 const SuperAdminCreateMedRequest: React.FC = () => {
   const { currentUser } = useAuth();
@@ -223,6 +246,13 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       setShowToast(true);
       setShowUserRequests(false);
       setSelectedUser(null);
+
+      // Send SMS notification
+      if (selectedUser.uid) {
+        const smsMessage = `Your medicine request has been created and accepted by the Superadmin.`;
+        await sendSms(selectedUser.uid, smsMessage);
+      }
+
     } catch (error) {
       console.error('Error creating medicine request:', error);
       setToastMessage('Failed to create medicine request. Please try again.');
@@ -326,6 +356,12 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       setToastMessage('Medicine request created successfully.');
       setShowToast(true);
       
+      // Send SMS notification
+      if (selectedUser.uid) {
+        const smsMessage = `Your medicine request has been created and accepted by the Superadmin.`;
+        await sendSms(selectedUser.uid, smsMessage);
+      }
+      
       setShowCreateGeneralRequestModal(false);
       setSelectedUser(null);
       setMedRequestStep(1);
@@ -394,6 +430,13 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       });
       setToastMessage('Medicine request created successfully.');
       setShowToast(true);
+
+      // Send SMS notification
+      if (selectedUser.uid) {
+        const smsMessage = `Your medicine request has been created and accepted by the Superadmin.`;
+        await sendSms(selectedUser.uid, smsMessage);
+      }
+
       setShowModal(false);
       setSelectedUser(null);
       setReason('');
