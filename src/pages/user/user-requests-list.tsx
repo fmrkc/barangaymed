@@ -196,6 +196,25 @@ const UserRequestsList: React.FC = () => {
     setFilteredRequests(filtered);
   }, [filter, combinedRequests]);
 
+  useEffect(() => {
+    const archived = combinedRequests.filter(r =>
+        r.isShown === false &&
+        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
+    );
+
+    const grouped = archived.reduce((acc, request) => {
+        const date = request.createdAt;
+        const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        if (!acc[monthYear]) {
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(request);
+        return acc;
+    }, {} as {[key: string]: CombinedRequest[]});
+
+    setArchivedRequests(grouped);
+}, [combinedRequests]);
+
   const handleViewDetails = (request: CombinedRequest) => {
     setSelectedRequest(request);
     if (request.type === 'teleconsultation') {
@@ -807,7 +826,32 @@ const UserRequestsList: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {/* Content will be added later */}
+            <IonCard className="ion-padding-horizontal">
+                <IonItem lines="none">
+                    <IonText>
+                        <p>Requests that are over 31 days old are automatically archived to maintain an organized and clutter-free list. Archived requests are grouped by month and year for easier tracking and reference. You can view them anytime in this Archive section.</p>
+                    </IonText>
+                </IonItem>
+            </IonCard>
+
+            {Object.keys(archivedRequests).length === 0 ? (
+                <IonCard className="ion-padding"><IonText>No archived requests found.</IonText></IonCard>
+            ) : (
+                <IonList>
+                    {Object.keys(archivedRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
+                        <div key={groupKey}>
+                                  <IonItem button onClick={() => setOpenArchiveGroup(openArchiveGroup === groupKey ? null : groupKey)}>
+                                    <IonLabel>{groupKey}</IonLabel>
+                                    <IonIcon icon={openArchiveGroup === groupKey ? chevronUp : chevronDown} slot="end" />
+                                  </IonItem>  {openArchiveGroup === groupKey && (
+                                <IonList>
+                                    {archivedRequests[groupKey].map(request => renderCard(request))}
+                                </IonList>
+                            )}
+                        </div>
+                    ))}
+                </IonList>
+            )}
           </IonContent>
         </IonModal>
 
