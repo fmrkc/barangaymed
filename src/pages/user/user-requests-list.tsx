@@ -35,7 +35,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Medicine } from '../../types/medicine';
-import { close, open, archiveOutline } from 'ionicons/icons';
+import { close, open, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
 
 const db = getFirestore();
 
@@ -59,6 +59,8 @@ const UserRequestsList: React.FC = () => {
   const [showCancelToast, setShowCancelToast] = useState<boolean>(false);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [archivedRequests, setArchivedRequests] = useState<{[key: string]: CombinedRequest[]}>({});
+  const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
   const userId = currentUser?.uid;
 
