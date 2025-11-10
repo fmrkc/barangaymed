@@ -48,7 +48,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline, cloudUpload, checkmarkDone } from 'ionicons/icons';
+import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline, cloudUpload, checkmarkDone, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
 import './sa-tele-request-list.css';
 
 import { useIonRouter } from '@ionic/react';
@@ -142,6 +142,12 @@ const SuperAdminTeleRequestList: React.FC = () => {
   // State for detail modal segment
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
 
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [archivedTeleconsultationRequests, setArchivedTeleconsultationRequests] = useState<{[key: string]: TeleconsultationRequest[]}>({});
+  const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
+  const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
+  const [archiveSelectedBarangayFilter, setArchiveSelectedBarangayFilter] = useState('all');
+
 
   // Add refresher handler
   const handleRefresh = (event: CustomEvent) => {
@@ -198,6 +204,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     cancellationReason: data.cancellationReason,
                     prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
+                    isShown: data.isShown, // Add isShown property
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: FirestoreAuditTrailEntry) => ({
                       action: entry.action,
                       userId: entry.userId,
@@ -239,11 +246,11 @@ const SuperAdminTeleRequestList: React.FC = () => {
         filtered = filtered.filter((r) => r.status === 'scheduled');
         break;
       case 'completed':
-        filtered = filtered.filter((r) => r.status === 'completed');
+        filtered = filtered.filter((r) => r.status === 'completed' && (r as any).isShown !== false);
         break;
       case 'not completed':
         filtered = filtered.filter((r) =>
-          ['rejected', 'no show', 'cancelled'].includes(r.status)
+          ['rejected', 'no show', 'cancelled'].includes(r.status) && (r as any).isShown !== false
         );
         break;
       default:
@@ -262,6 +269,39 @@ const SuperAdminTeleRequestList: React.FC = () => {
       request.id?.toLowerCase().includes(searchQuery.toLowerCase())
     ));
   }, [filter, requests, selectedBarangayFilter, searchQuery]);
+
+  useEffect(() => {
+    let archived = requests.filter(r =>
+        (r as any).isShown === false &&
+        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
+    );
+
+    // Apply search query to archived requests
+    if (archiveSearchQuery) {
+      archived = archived.filter(request =>
+        request.userData?.firstName?.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+        request.userData?.lastName?.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+        request.id?.toLowerCase().includes(archiveSearchQuery.toLowerCase())
+      );
+    }
+
+    // Apply barangay filter to archived requests
+    if (archiveSelectedBarangayFilter !== 'all') {
+      archived = archived.filter(r => r.barangayId === archiveSelectedBarangayFilter);
+    }
+
+    const grouped = archived.reduce((acc, request) => {
+        const date = request.createdAt;
+        const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        if (!acc[monthYear]) {
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(request);
+        return acc;
+    }, {} as {[key: string]: TeleconsultationRequest[]});
+
+    setArchivedTeleconsultationRequests(grouped);
+}, [requests, archiveSearchQuery, archiveSelectedBarangayFilter]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
@@ -564,6 +604,11 @@ const SuperAdminTeleRequestList: React.FC = () => {
             <IonMenuButton />
           </IonButtons>
           <IonTitle>Teleconsultation Requests</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => setShowArchiveModal(true)}>
+              <IonIcon icon={archiveOutline} slot='icon-only' />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
        
       </IonHeader>
@@ -604,6 +649,60 @@ const SuperAdminTeleRequestList: React.FC = () => {
             ))}
           </IonSelect>
         </IonToolbar>
+
+        {/* Archive Modal */}
+        <IonModal isOpen={showArchiveModal} onDidDismiss={() => setShowArchiveModal(false)}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Archived Teleconsultation Requests</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowArchiveModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard className="ion-padding-horizontal">
+                <IonItem lines="none">
+                    <IonText>
+                        <p>Requests that are over 31 days old are automatically archived to maintain an organized and clutter-free list. Archived requests are grouped by month and year for easier tracking and reference. You can view them anytime in this Archive section.</p>
+                    </IonText>
+                </IonItem>
+            </IonCard>
+
+            <IonToolbar>
+                <IonSearchbar value={archiveSearchQuery} onIonInput={e => setArchiveSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
+            </IonToolbar>
+            <IonToolbar className="ion-padding-horizontal">
+                <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Barangays</IonSelectOption>
+                    {barangayFilterOptions.map(b => (
+                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                    ))}
+                </IonSelect>
+            </IonToolbar>
+
+            {Object.keys(archivedTeleconsultationRequests).length === 0 ? (
+                <IonCard className="ion-padding"><IonText>No archived teleconsultation requests found.</IonText></IonCard>
+            ) : (
+                <IonList>
+                    {Object.keys(archivedTeleconsultationRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
+                        <div key={groupKey}>
+                                  <IonItem button onClick={() => setOpenArchiveGroup(openArchiveGroup === groupKey ? null : groupKey)}>
+                                    <IonLabel>{groupKey}</IonLabel>
+                                    <IonIcon icon={openArchiveGroup === groupKey ? chevronUp : chevronDown} slot="end" />
+                                  </IonItem>  {openArchiveGroup === groupKey && (
+                                <IonList>
+                                    {archivedTeleconsultationRequests[groupKey].map(request => renderArchivedTeleconsultationCard(request, handleViewDetails))}
+                                </IonList>
+                            )}
+                        </div>
+                    ))}
+                </IonList>
+            )}
+          </IonContent>
+        </IonModal>
 
         {loading && (
           <IonList style={{ backgroundColor: 'transparent' }}>
@@ -1434,3 +1533,54 @@ const SuperAdminTeleRequestList: React.FC = () => {
 };
 
 export default SuperAdminTeleRequestList;
+
+const renderArchivedTeleconsultationCard = (request: TeleconsultationRequest, handleViewDetails: (request: TeleconsultationRequest) => void) => {
+    const title = 'Teleconsultation Request';
+    const reason = request.reason;
+    const createdAt = request.createdAt;
+    const status = request.status;
+
+    return (
+      <IonCard
+        key={request.id}
+        style={{
+          borderLeft: `8px solid ${status === 'pending'
+              ? '#ffc409' // warning
+              : ['accepted', 'scheduled'].includes(status)
+                ? '#017457' // primary
+                : status === 'completed'
+                  ? '#2dd36f' // success
+                  : '#eb445a' // danger
+            }`
+        }}>
+        <IonCardHeader>
+          <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {title}
+              <IonChip
+                color={
+                  status === 'pending' ? 'warning' :
+                    ['accepted', 'scheduled'].includes(status) ? 'primary' :
+                      status === 'completed' ? 'success' : 'danger'
+                }
+                style={{ margin: '0' }}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </IonChip>
+            </div>
+          </IonCardTitle>
+           <IonCardSubtitle>
+            Barangay: <strong>{request.barangayName || request.barangayId}</strong>
+          </IonCardSubtitle>
+        </IonCardHeader>
+        <IonCardContent>
+          <p><strong>Resident:</strong> {request.userData?.firstName} {request.userData?.lastName}</p>
+          <p><strong>Reasons:</strong> {reason}</p>
+          <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
+          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+          </div>
+        </IonCardContent>
+      </IonCard>
+    );
+  };
