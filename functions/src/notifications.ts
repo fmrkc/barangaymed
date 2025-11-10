@@ -57,6 +57,12 @@ interface UserMedicalRecordUpdatedData {
   userName: string;
 }
 
+interface AnnouncementCreatedData {
+  announcementId: string;
+  title: string;
+  barangayId: string;
+}
+
 /**
  * Handles events published to the 'barangaymed-events' Pub/Sub topic.
  * This function will be the central hub for all notifications.
@@ -203,6 +209,37 @@ export const onBarangayMedEvent = onMessagePublished("barangaymed-events", async
           },
         });
 
+        break;
+      }
+
+      case "announcement.created": {
+        const eventData = data as AnnouncementCreatedData;
+        const usersRef = admin.firestore().collection("users");
+        const usersSnapshot = await usersRef.where("barangayId", "==", eventData.barangayId).get();
+
+        if (usersSnapshot.empty) {
+          logger.info(`No users found for barangay ${eventData.barangayId} to notify about announcement ${eventData.announcementId}`);
+          return;
+        }
+
+        const notificationPromises = usersSnapshot.docs.map((doc) => {
+          const user = doc.data();
+          if (user.role === 'user') {
+            return sendInAppNotification(doc.id, {
+              type: "new_announcement",
+              title: "New Barangay Announcement",
+              message: `A new announcement has been posted: "${eventData.title}"`,
+              metadata: {
+                announcementId: eventData.announcementId,
+                announcementTitle: eventData.title,
+              },
+            });
+          }
+          return Promise.resolve();
+        });
+
+        await Promise.all(notificationPromises);
+        logger.info(`Sent ${notificationPromises.length} notifications for announcement ${eventData.announcementId}`);
         break;
       }
 

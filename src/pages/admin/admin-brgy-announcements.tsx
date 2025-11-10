@@ -53,6 +53,7 @@ import { db } from '../../firebaseConfig';
 import { validateAccess, validateAdminBarangayAccess } from '../../utils/securityUtils';
 import { logSecurityEvent, logEvent } from '../../utils/logger';
 import { getBarangayNameByCode } from '../../services/addressService';
+import { eventService } from '../../services/eventService';
 
 const BarangayAnnouncements: React.FC = () => {
   const { currentUser, userRole } = useAuth();
@@ -263,6 +264,15 @@ const BarangayAnnouncements: React.FC = () => {
           currentUser.email || '',
           adminName
         );
+
+        if (announcementId) {
+          await eventService.publishEvent('announcement.created', {
+            announcementId,
+            title: formData.title,
+            barangayId: barangayId,
+          });
+        }
+
         setToastMessage('Announcement created successfully.');
       }
       
