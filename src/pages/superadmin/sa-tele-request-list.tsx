@@ -83,7 +83,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const { currentUser, cityMunicipalityId } = useAuth();
   const [requests, setRequests] = useState<TeleconsultationRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<TeleconsultationRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'accepted' | 'scheduled' | 'completed' | 'not completed' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'accepted' | 'scheduled' | 'completed' | 'not completed'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<TeleconsultationRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -246,7 +246,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
           ['rejected', 'no show', 'cancelled'].includes(r.status)
         );
         break;
-      case 'all':
       default:
         // No status filter needed
         break;
@@ -577,7 +576,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
-        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'accepted' | 'scheduled' | 'completed' | 'not completed' | 'all')}>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'accepted' | 'scheduled' | 'completed' | 'not completed')}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -592,9 +591,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
           </IonSegmentButton>
           <IonSegmentButton value="not completed">
             <IonLabel>Not Completed</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="all">
-            <IonLabel>All</IonLabel>
           </IonSegmentButton>
         </IonSegment>
          <IonToolbar>

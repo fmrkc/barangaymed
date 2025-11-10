@@ -51,7 +51,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
@@ -83,7 +83,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const { currentUser, cityMunicipalityId } = useAuth();
   const [requests, setRequests] = useState<MedicineRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<MedicineRequest[]>([]);
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all' | 'not completed'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'not completed'>('pending');
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<MedicineRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -140,6 +140,10 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [showRejectToast, setShowRejectToast] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showAcceptToast, setShowAcceptToast] = useState(false);
+
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [archivedRequests, setArchivedRequests] = useState<{ [key: string]: MedicineRequest[] }>({});
+  const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
 
   const barangayFilterOptions = useMemo(() => {
     const uniqueBarangays = new Map<string, string>();
@@ -203,6 +207,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             processNote: data.processNote,
             rejectionReason: data.rejectionReason,
             cancellationReason: data.cancellationReason,
+            isShown: data.isShown,
             auditTrail: data.auditTrail ? data.auditTrail.map((entry: FirestoreAuditTrailEntry) => ({
               action: entry.action,
               userId: entry.userId,
@@ -247,14 +252,13 @@ const SuperAdminMedRequestList: React.FC = () => {
         filtered = filtered.filter((r) => r.status === 'scheduled');
         break;
       case 'completed':
-        filtered = filtered.filter((r) => r.status === 'completed');
+        filtered = filtered.filter((r) => r.status === 'completed' && (r as any).isShown !== false);
         break;
       case 'not completed':
         filtered = filtered.filter((r) =>
-          ['rejected', 'no show', 'cancelled'].includes(r.status)
+          ['rejected', 'no show', 'cancelled'].includes(r.status) && (r as any).isShown !== false
         );
         break;
-      case 'all':
       default:
         // No status filter needed
         break;
@@ -271,6 +275,25 @@ const SuperAdminMedRequestList: React.FC = () => {
       request.id?.toLowerCase().includes(searchQuery.toLowerCase())
     ));
   }, [filter, requests, selectedBarangayFilter, searchQuery]);
+
+  useEffect(() => {
+    const archived = requests.filter(r =>
+        (r as any).isShown === false &&
+        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
+    );
+
+    const grouped = archived.reduce((acc, request) => {
+        const date = request.createdAt;
+        const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        if (!acc[monthYear]) {
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(request);
+        return acc;
+    }, {} as {[key: string]: MedicineRequest[]});
+
+    setArchivedRequests(grouped);
+}, [requests]);
 
   const handleViewDetails = (request: MedicineRequest) => {
     setSelectedRequest(request);
@@ -657,6 +680,11 @@ const SuperAdminMedRequestList: React.FC = () => {
             <IonMenuButton />
           </IonButtons>
           <IonTitle>Medicine Requests</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => setShowArchiveModal(true)}>
+              <IonIcon icon={archiveOutline} slot='icon-only' />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -665,7 +693,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
-        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'all' | 'not completed')}>
+        <IonSegment scrollable value={filter} onIonChange={e => setFilter(e.detail.value as 'pending' | 'approved' | 'processed' | 'scheduled' | 'completed' | 'not completed')}>
           <IonSegmentButton value="pending">
             <IonLabel>Pending</IonLabel>
           </IonSegmentButton>
@@ -683,9 +711,6 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonSegmentButton>
           <IonSegmentButton value="not completed">
             <IonLabel>Not Completed</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="all">
-            <IonLabel>All</IonLabel>
           </IonSegmentButton>
         </IonSegment>
         <IonToolbar>
@@ -834,7 +859,47 @@ const SuperAdminMedRequestList: React.FC = () => {
           ))}
         </IonList>
 
+        {/* Archive Modal */}
+        <IonModal isOpen={showArchiveModal} onDidDismiss={() => setShowArchiveModal(false)}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Archived Requests</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowArchiveModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard className="ion-padding-horizontal">
+                <IonItem lines="none">
+                    <IonText>
+                        <p>Requests that are over 31 days old are automatically archived to maintain an organized and clutter-free list. Archived requests are grouped by month and year for easier tracking and reference. You can view them anytime in this Archive section.</p>
+                    </IonText>
+                </IonItem>
+            </IonCard>
 
+            {Object.keys(archivedRequests).length === 0 ? (
+                <IonCard className="ion-padding"><IonText>No archived requests found.</IonText></IonCard>
+            ) : (
+                <IonList>
+                    {Object.keys(archivedRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
+                        <div key={groupKey}>
+                                  <IonItem button onClick={() => setOpenArchiveGroup(openArchiveGroup === groupKey ? null : groupKey)}>
+                                    <IonLabel>{groupKey}</IonLabel>
+                                    <IonIcon icon={openArchiveGroup === groupKey ? chevronUp : chevronDown} slot="end" />
+                                  </IonItem>  {openArchiveGroup === groupKey && (
+                                <IonList>
+                                    {archivedRequests[groupKey].map(request => renderArchivedCard(request, handleViewDetails))}
+                                </IonList>
+                            )}
+                        </div>
+                    ))}
+                </IonList>
+            )}
+          </IonContent>
+        </IonModal>
 
         {/* Request Details Modal */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
@@ -1634,5 +1699,56 @@ const SuperAdminMedRequestList: React.FC = () => {
     </IonPage>
   );
 };
+
+const renderArchivedCard = (request: MedicineRequest, handleViewDetails: (request: MedicineRequest) => void) => {
+    const title = 'Medicine Request';
+    const reason = request.reason;
+    const createdAt = request.createdAt;
+    const status = request.status;
+
+    return (
+      <IonCard
+        key={request.id}
+        style={{
+          borderLeft: `8px solid ${status === 'pending'
+              ? '#ffc409' // warning
+              : ['accepted', 'scheduled', 'processed'].includes(status)
+                ? '#017457' // primary
+                : status === 'completed'
+                  ? '#2dd36f' // success
+                  : '#eb445a' // danger
+            }`
+        }}>
+        <IonCardHeader>
+          <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {title}
+              <IonChip
+                color={
+                  status === 'pending' ? 'warning' :
+                    ['accepted', 'scheduled', 'processed'].includes(status) ? 'primary' :
+                      status === 'completed' ? 'success' : 'danger'
+                }
+                style={{ margin: '0' }}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </IonChip>
+            </div>
+          </IonCardTitle>
+           <IonCardSubtitle>
+            Barangay: <strong>{request.barangayName || request.barangayId}</strong>
+          </IonCardSubtitle>
+        </IonCardHeader>
+        <IonCardContent>
+          <p><strong>Resident:</strong> {request.userData?.firstName} {request.userData?.lastName}</p>
+          <p><strong>Reasons:</strong> {reason}</p>
+          <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
+          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+          </div>
+        </IonCardContent>
+      </IonCard>
+    );
+  };
 
 export default SuperAdminMedRequestList;
