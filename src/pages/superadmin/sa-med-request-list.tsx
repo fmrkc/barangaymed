@@ -144,6 +144,8 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [archivedRequests, setArchivedRequests] = useState<{ [key: string]: MedicineRequest[] }>({});
   const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
+  const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
+  const [archiveSelectedBarangayFilter, setArchiveSelectedBarangayFilter] = useState('all');
 
   const barangayFilterOptions = useMemo(() => {
     const uniqueBarangays = new Map<string, string>();
@@ -277,10 +279,24 @@ const SuperAdminMedRequestList: React.FC = () => {
   }, [filter, requests, selectedBarangayFilter, searchQuery]);
 
   useEffect(() => {
-    const archived = requests.filter(r =>
+    let archived = requests.filter(r =>
         (r as any).isShown === false &&
         ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
     );
+
+    // Apply search query to archived requests
+    if (archiveSearchQuery) {
+      archived = archived.filter(request =>
+        request.userData?.firstName?.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+        request.userData?.lastName?.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+        request.id?.toLowerCase().includes(archiveSearchQuery.toLowerCase())
+      );
+    }
+
+    // Apply barangay filter to archived requests
+    if (archiveSelectedBarangayFilter !== 'all') {
+      archived = archived.filter(r => r.barangayId === archiveSelectedBarangayFilter);
+    }
 
     const grouped = archived.reduce((acc, request) => {
         const date = request.createdAt;
@@ -293,7 +309,7 @@ const SuperAdminMedRequestList: React.FC = () => {
     }, {} as {[key: string]: MedicineRequest[]});
 
     setArchivedRequests(grouped);
-}, [requests]);
+}, [requests, archiveSearchQuery, archiveSelectedBarangayFilter]);
 
   const handleViewDetails = (request: MedicineRequest) => {
     setSelectedRequest(request);
@@ -879,6 +895,18 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </IonText>
                 </IonItem>
             </IonCard>
+
+            <IonToolbar>
+                <IonSearchbar value={archiveSearchQuery} onIonInput={e => setArchiveSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
+            </IonToolbar>
+            <IonToolbar className="ion-padding-horizontal">
+                <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Barangays</IonSelectOption>
+                    {barangayFilterOptions.map(b => (
+                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                    ))}
+                </IonSelect>
+            </IonToolbar>
 
             {Object.keys(archivedRequests).length === 0 ? (
                 <IonCard className="ion-padding"><IonText>No archived requests found.</IonText></IonCard>
