@@ -192,23 +192,29 @@ service cloud.firestore {
 // Users can create teleconsultation requests. Admins and Superadmins can manage them.
 // =================================================================
     match /teleconsultationRequests/{requestId} {
-      // CREATE: Users can create teleconsultation requests for themselves only
-      allow create: if isVerifiedResident()
+      // CREATE: Users can create for themselves. Admins/Superadmins can create for users.
+      allow create: if (isVerifiedResident()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.userData is map
                     && request.resource.data.reason is string
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.createdAt == request.time;
+                    && request.resource.data.createdAt == request.time) ||
+                    ((isSuperAdmin() || (isAdmin() && request.resource.data.barangayId == request.auth.token.barangayId))
+                    && request.resource.data.userData is map
+                    && request.resource.data.reason is string
+                    && request.resource.data.status == 'accepted'
+                    && request.resource.data.createdAt == request.time);
 
       // READ: Users can read their own requests. Admins can read requests from their barangay. Superadmins can read all requests.
       allow read: if (isVerifiedResident() && resource.data.userId == request.auth.uid) ||
+                    (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                     isSuperAdmin();
 
-      // UPDATE: Users can cancel pending requests.
-      // Superadmins can update any request to any valid status.
+      // UPDATE: Users can cancel pending requests. Admins/Superadmins can update.
       allow update: if (isUserRole() && resource.data.userId == request.auth.uid &&
                       (resource.data.status == 'pending' && request.resource.data.status == 'cancelled') &&
                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancellationReason', 'updatedAt', 'auditTrail'])) ||
+                      (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
                       (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'no show', 'completed', 'cancelled']);
 
       // DELETE: Deletion not allowed from client

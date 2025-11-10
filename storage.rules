@@ -124,9 +124,8 @@ service firebase.storage {
       // READ: The owner, admins, and superadmins can read the file.
       allow read: if (isAuthenticated() && request.auth.uid == userId) || isAdmin() || isSuperAdmin();
 
-      // WRITE: Only the owner can upload files, with size checks.
-      allow write: if isAuthenticated()
-                   && request.auth.uid == userId
+      // WRITE: The owner, admins, and superadmins can upload files, with size checks.
+      allow write: if ((isAuthenticated() && request.auth.uid == userId) || isAdmin() || isSuperAdmin())
                    && request.resource.size < 5 * 1024 * 1024;
     }
   }

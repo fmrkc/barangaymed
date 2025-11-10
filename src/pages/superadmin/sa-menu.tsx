@@ -11,6 +11,7 @@ import Med_Inventory from './sa-med-inventory';
 import Med_Requests from './sa-med-request-list';
 import SuperAdminTeleRequestList from './sa-tele-request-list';
 import SuperAdminCreateMedRequest from './sa-create-med-request';
+import SuperAdminCreateTeleRequest from './sa-create-tele-request';
 import Profile from './sa-profile';
 
 
@@ -27,7 +28,7 @@ const Menu: React.FC = () => {
     const bmedfeatures = [
         { name: 'Register New Resident', url: '/superadmin/dashboard/register-resident', icon: personAdd },
         { name: 'Create Medicine Request', url: '/superadmin/dashboard/create-med-request', icon: medkit },
-        { name: 'Create Consultation Request', url: '/superadmin/dashboard', icon: videocam },
+        { name: 'Create Consultation Request', url: '/superadmin/dashboard/create-tele-request', icon: videocam },
 
     ];
     const medicine = [
@@ -236,6 +237,7 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard/register-rhu" component={Super_Admin_Register} />
             <Route exact path="/superadmin/dashboard/rhu-announcements" component={Super_Announcements} />
             <Route exact path="/superadmin/dashboard/register-resident" component={SARegisterResident} />
+            <Route exact path="/superadmin/dashboard/create-tele-request" component={SuperAdminCreateTeleRequest} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>
