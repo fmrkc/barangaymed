@@ -194,6 +194,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
         prescriptionUrl,
         status: 'pending',
         createdAt: serverTimestamp(),
+        isShown: true,
       });
       setHasActiveRequest(true);
       nextStep();

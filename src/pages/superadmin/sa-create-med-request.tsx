@@ -201,6 +201,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         prescriptionUrl: teleconsultRequest.prescriptionUrl || '',
         status: 'accepted',
         createdAt: serverTimestamp(),
+        isShown: true,
         auditTrail: [
           {
             action: 'Created request from teleconsultation',
@@ -304,6 +305,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         prescriptionUrl,
         status: 'accepted', // Superadmin creates it as accepted
         createdAt: serverTimestamp(),
+        isShown: true,
         auditTrail: [
           {
             action: 'Created request by Superadmin',
@@ -388,6 +390,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
         prescriptionUrl,
         status: 'accepted',
         createdAt: serverTimestamp(),
+        isShown: true,
       });
       setToastMessage('Medicine request created successfully.');
       setShowToast(true);

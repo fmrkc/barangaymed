@@ -215,6 +215,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         createdAt: serverTimestamp(),
         ...(uploadedFileData && { uploadedFile: uploadedFileData }),
         ...(medicalRecord && { medicalRecord }),
+        isShown: true,
       });
       setHasActiveRequest(true);
       nextStep();

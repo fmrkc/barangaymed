@@ -200,6 +200,7 @@ const SuperAdminCreateTeleRequest: React.FC = () => {
         status: 'accepted',
         createdAt: serverTimestamp(),
         ...(uploadedFileData && { uploadedFile: uploadedFileData }),
+        isShown: true,
         auditTrail: [
           {
             action: 'Created request by Superadmin',
