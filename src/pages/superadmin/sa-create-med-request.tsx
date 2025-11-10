@@ -53,7 +53,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchedUsers, setSearchedUsers] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string; barangayName: string; name: string }[]>([]);
+  const [searchedUsers, setSearchedUsers] = useState<{ uid: string; firstName: string; lastName: string; barangayId: string; barangayName: string; name: string; birthdate: any; gender: string; }[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedUserRequests, setSelectedUserRequests] = useState<TeleconsultationRequest[]>([]);
   const [showUserRequests, setShowUserRequests] = useState(false);
@@ -79,6 +79,25 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const medRequestFileInputRef = useRef<HTMLInputElement>(null);
   const [isDebouncing, setIsDebouncing] = useState(false);
 
+  const calculateAge = (birthdate: any) => {
+    if (!birthdate) return '';
+    const birthDate = birthdate.toDate ? birthdate.toDate() : new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+  };
+
+  const formatBirthdate = (birthdate: any) => {
+      if (!birthdate) return '';
+      const date = birthdate.toDate ? birthdate.toDate() : new Date(birthdate);
+      const options: Intl.DateTimeFormatOptions = { month: 'short', day: '2-digit', year: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+  };
+
   const handleSearchChange = async (e: CustomEvent) => {
     const queryStr = e.detail.value?.toLowerCase() || '';
     setSearchQuery(queryStr);
@@ -96,9 +115,9 @@ const SuperAdminCreateMedRequest: React.FC = () => {
     try {
       const q = query(collection(db, 'users'), where('role', '==', 'user'));
       const querySnapshot = await getDocs(q);
-      const users: { uid: string; firstName: string; lastName: string; barangayId: string; barangayName: string; name: string }[] = [];
+      const users: { uid: string; firstName: string; lastName: string; barangayId: string; barangayName: string; name: string; birthdate: any; gender: string; }[] = [];
       querySnapshot.forEach((doc) => {
-        const data = doc.data() as { firstName: string, lastName: string, barangayId: string, barangayName: string };
+        const data = doc.data() as { firstName: string, lastName: string, barangayId: string, barangayName: string, birthdate: any, gender: string };
         const fullName = `${data.firstName || ''} ${data.lastName || ''}`.toLowerCase().trim();
         if (fullName.includes(queryStr)) {
           users.push({
@@ -108,6 +127,8 @@ const SuperAdminCreateMedRequest: React.FC = () => {
             barangayId: data.barangayId || '',
             barangayName: data.barangayName || '',
             name: fullName,
+            birthdate: data.birthdate,
+            gender: data.gender,
           });
         }
       });
@@ -442,6 +463,9 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                       {user.firstName} {user.lastName}
                     </IonCardTitle>
                     <IonCardSubtitle>
+                      {formatBirthdate(user.birthdate)} ({calculateAge(user.birthdate)}) | {user.gender}
+                    </IonCardSubtitle>
+                    <IonCardSubtitle>
                       Barangay: {user.barangayName}
                     </IonCardSubtitle>
                   </IonCardHeader>
@@ -454,7 +478,7 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                   className='ion-padding-vertical'
                   onClick={() => handleUserSelect(user)}
                 >
-                  View Recent Requests
+                  Create Medicine Request
                   <IonIcon slot='end' icon={open} />
                 </IonButton>
               </IonItem>
