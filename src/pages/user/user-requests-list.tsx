@@ -186,7 +186,7 @@ const UserRequestsList: React.FC = () => {
     let filtered: CombinedRequest[] = [];
     if (filter === 'active') {
       filtered = combinedRequests.filter((r) =>
-        ['pending', 'accepted', 'scheduled'].includes(r.status)
+        ['pending', 'accepted', 'scheduled', 'processed'].includes(r.status)
       );
     } else { // completed
       filtered = combinedRequests.filter((r) =>
@@ -278,7 +278,7 @@ const UserRequestsList: React.FC = () => {
         style={{
           borderLeft: `8px solid ${status === 'pending'
               ? '#ffc409' // warning
-              : ['accepted', 'scheduled'].includes(status)
+              : ['accepted', 'scheduled', 'processed'].includes(status)
                 ? '#017457' // primary
                 : status === 'completed'
                   ? '#2dd36f' // success
@@ -528,7 +528,7 @@ const UserRequestsList: React.FC = () => {
                       ? 'warning'
                       : selectedRequest.status === 'rejected' || selectedRequest.status === 'cancelled' || selectedRequest.status === 'no show'
                         ? 'danger'
-                        : ['accepted', 'scheduled'].includes(selectedRequest.status)
+                        : ['accepted', 'scheduled', 'processed'].includes(selectedRequest.status)
                           ? 'primary'
                           : selectedRequest.status === 'completed'
                             ? 'success'
