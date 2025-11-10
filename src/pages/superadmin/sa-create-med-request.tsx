@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   IonHeader,
   IonToolbar,
@@ -27,13 +27,16 @@ import {
   IonSearchbar,
   IonSkeletonText,
   IonItemDivider,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, QueryDocumentSnapshot } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserService } from '../../services/userService';
 import { getBarangayNameByCode } from '../../services/addressService';
-import { checkmark, help, open } from 'ionicons/icons';
+import { checkmark, help, open, paperPlane, arrowBack, arrowForward, cloudUpload } from 'ionicons/icons';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 
 const db = getFirestore();
@@ -59,6 +62,22 @@ const SuperAdminCreateMedRequest: React.FC = () => {
   const [showHelpAlert, setShowHelpAlert] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [editableReason, setEditableReason] = useState('');
+  const [showCreateGeneralRequestModal, setShowCreateGeneralRequestModal] = useState(false);
+  const [medRequestStep, setMedRequestStep] = useState(1);
+  const [medRequestReasons, setMedRequestReasons] = useState({
+    'Fever': false,
+    'Cough and Colds': false,
+    'Headache': false,
+    'Body Pain': false,
+    'Allergies': false,
+    'Diarrhea': false,
+    'Others': false,
+  });
+  const [medRequestOtherReason, setMedRequestOtherReason] = useState('');
+  const [medRequestHasPrescription, setMedRequestHasPrescription] = useState(false);
+  const [medRequestPrescriptionFile, setMedRequestPrescriptionFile] = useState<File | null>(null);
+  const medRequestFileInputRef = useRef<HTMLInputElement>(null);
+  const [isDebouncing, setIsDebouncing] = useState(false);
 
   const handleSearchChange = async (e: CustomEvent) => {
     const queryStr = e.detail.value?.toLowerCase() || '';
@@ -182,6 +201,118 @@ const SuperAdminCreateMedRequest: React.FC = () => {
       setShowToast(true);
       setShowUserRequests(false);
       setSelectedUser(null);
+    } catch (error) {
+      console.error('Error creating medicine request:', error);
+      setToastMessage('Failed to create medicine request. Please try again.');
+      setShowToast(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGeneralMedRequestSubmit = async () => {
+    if (!selectedUser || !currentUser) {
+      setToastMessage('No user selected.');
+      setShowToast(true);
+      return;
+    }
+    
+    const getReasonString = () => {
+        const selectedReasons = Object.entries(medRequestReasons)
+          .filter(([, isChecked]) => isChecked)
+          .map(([reason]) => reason)
+          .filter(reason => reason !== 'Others');
+        let finalReason = selectedReasons.join(', ');
+        if (medRequestReasons.Others && medRequestOtherReason.trim()) {
+          if (finalReason) {
+            finalReason += `, ${medRequestOtherReason.trim()}`;
+          } else {
+            finalReason = medRequestOtherReason.trim();
+          }
+        }
+        return finalReason;
+    };
+
+    const reasonString = getReasonString();
+    if (!reasonString) {
+      setToastMessage('Please provide a reason for the medicine request.');
+      setShowToast(true);
+      return;
+    }
+    if (medRequestReasons.Others && !medRequestOtherReason.trim()) {
+      setToastMessage('Please specify the other reason.');
+      setShowToast(true);
+      return;
+    }
+    if (medRequestHasPrescription && !medRequestPrescriptionFile) {
+      setToastMessage('Please upload a photo of your prescription.');
+      setShowToast(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const userService = UserService.getInstance();
+      const userData = await userService.getUserData(selectedUser.uid);
+      const barangayName = await getBarangayNameByCode(selectedUser.barangayId);
+
+      let prescriptionUrl = '';
+      if (medRequestHasPrescription && medRequestPrescriptionFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `prescriptions/${selectedUser.uid}/${Date.now()}_${medRequestPrescriptionFile.name}`);
+        await uploadBytes(storageRef, medRequestPrescriptionFile);
+        prescriptionUrl = await getDownloadURL(storageRef);
+      }
+
+      await addDoc(collection(db, 'medicineRequests'), {
+        userId: selectedUser.uid,
+        barangayId: selectedUser.barangayId,
+        barangayName: barangayName,
+        userData: {
+          firstName: userData.firstName,
+          middleName: userData.middleName,
+          lastName: userData.lastName,
+          suffix: userData.suffix,
+          address: userData.address,
+          gender: userData.gender,
+          contactNumber: userData.contactNumber,
+          email: userData.email,
+        },
+        reason: reasonString,
+        hasPrescription: medRequestHasPrescription,
+        prescriptionUrl,
+        status: 'accepted', // Superadmin creates it as accepted
+        createdAt: serverTimestamp(),
+        auditTrail: [
+          {
+            action: 'Created request by Superadmin',
+            userId: currentUser.uid,
+            userEmail: currentUser.email || 'unknown',
+            userName: currentUser.displayName || currentUser.email || 'Super Admin',
+            timestamp: new Date(),
+          },
+          {
+            action: 'Accepted request',
+            userId: currentUser.uid,
+            userEmail: currentUser.email || 'unknown',
+            userName: currentUser.displayName || currentUser.email || 'Super Admin',
+            timestamp: new Date(),
+          }
+        ],
+      });
+      setToastMessage('Medicine request created successfully.');
+      setShowToast(true);
+      
+      setShowCreateGeneralRequestModal(false);
+      setSelectedUser(null);
+      setMedRequestStep(1);
+      setMedRequestReasons({
+        'Fever': false, 'Cough and Colds': false, 'Headache': false, 'Body Pain': false, 'Allergies': false, 'Diarrhea': false, 'Others': false,
+      });
+      setMedRequestOtherReason('');
+      setMedRequestHasPrescription(false);
+      setMedRequestPrescriptionFile(null);
+
     } catch (error) {
       console.error('Error creating medicine request:', error);
       setToastMessage('Failed to create medicine request. Please try again.');
@@ -381,8 +512,15 @@ const SuperAdminCreateMedRequest: React.FC = () => {
                     Barangay: {selectedUser.barangayName}
                  </IonCardSubtitle>
                 </IonCardHeader>
+                <IonButton expand="block" onClick={() => {
+                    setShowCreateGeneralRequestModal(true);
+                    setShowUserRequests(false);
+                }}>
+                    Create New Medicine Request
+                </IonButton>
               </IonCard>
             )}
+            <IonItemDivider>Or create from a completed teleconsultation</IonItemDivider>
             {selectedUserRequests.length > 0 ? (
               <IonList>
                 {selectedUserRequests.map((request, index) => (
@@ -616,6 +754,153 @@ const SuperAdminCreateMedRequest: React.FC = () => {
           message="Type the resident's full name in the searchbar then look for the recently completed teleconsultation requests to add the medicine request."
           buttons={['OK']}
         />
+
+        <IonModal isOpen={showCreateGeneralRequestModal} onDidDismiss={() => setShowCreateGeneralRequestModal(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Create Medicine Request for {selectedUser?.firstName}</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowCreateGeneralRequestModal(false)}>Close</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {medRequestStep === 1 && (
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>What are the resident's current symptoms or conditions?</h2>
+                </IonItem>
+                {Object.keys(medRequestReasons).map((reasonKey) => (
+                  <IonItem key={reasonKey}>
+                    <IonCheckbox
+                      justify="space-between"
+                      checked={medRequestReasons[reasonKey as keyof typeof medRequestReasons]}
+                      onIonChange={e => {
+                        setMedRequestReasons(prev => ({ ...prev, [reasonKey]: e.detail.checked }));
+                      }}
+                    >
+                      {reasonKey}
+                    </IonCheckbox>
+                  </IonItem>
+                ))}
+                {medRequestReasons.Others && (
+                  <>
+                    <IonItem className="ion-margin-top">
+                      <IonTextarea
+                        fill="outline"
+                        value={medRequestOtherReason}
+                        onIonInput={e => setMedRequestOtherReason((e.target as HTMLIonTextareaElement).value ?? '')}
+                        onIonFocus={() => setIsDebouncing(true)}
+                        onIonBlur={() => setTimeout(() => setIsDebouncing(false), 1500)}
+                        placeholder="Please specify other reason"
+                        rows={3}
+                      />
+                    </IonItem>
+                    <IonItem lines='none'><small>Please provide accurate information.</small></IonItem>
+                  </>
+                )}
+              </IonCard>
+            )}
+
+            {medRequestStep === 2 && (
+              <IonCard className='ion-padding'>
+                <IonItem lines='none'><h2>Upload a prescription (optional)</h2></IonItem>
+                <IonItem lines='none'><small>Upload a photo of the prescription if available.</small></IonItem>
+                <IonItem>
+                  Does the resident have a prescription?
+                  <IonCheckbox
+                    slot="end"
+                    checked={medRequestHasPrescription}
+                    onIonChange={e => setMedRequestHasPrescription(e.detail.checked)}
+                  />
+                </IonItem>
+                {medRequestHasPrescription && (
+                  <IonCard>
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg, image/jpg"
+                      onChange={(e) => setMedRequestPrescriptionFile(e.target.files?.[0] || null)}
+                      ref={medRequestFileInputRef}
+                      style={{ display: 'none' }}
+                    />
+                    <IonButton className='ion-padding-vertical' expand='block' onClick={() => medRequestFileInputRef.current?.click()}>
+                      {medRequestPrescriptionFile ? 'Change Prescription' : 'Upload Prescription'}
+                      <IonIcon slot="start" icon={cloudUpload} />
+                    </IonButton>
+                    {medRequestPrescriptionFile && (
+                      <IonItem>
+                        Uploaded file: <IonText color={'primary'}>{medRequestPrescriptionFile.name}</IonText>
+                      </IonItem>
+                    )}
+                  </IonCard>
+                )}
+              </IonCard>
+            )}
+
+            {medRequestStep === 3 && (
+              <IonCard className="ion-padding">
+                <IonItem lines='none'><h2>Review Request Details</h2></IonItem>
+                <IonItem>
+                  <IonTextarea color={'primary'} fill='outline' value={Object.entries(medRequestReasons).filter(([, v]) => v).map(([k]) => k === 'Others' ? medRequestOtherReason : k).join(', ')} rows={10} readonly></IonTextarea>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Has Prescription:</IonLabel>
+                  <IonText>{medRequestHasPrescription ? 'Yes' : 'No'}</IonText>
+                </IonItem>
+                {medRequestHasPrescription && medRequestPrescriptionFile && (
+                  <IonItem>
+                    <IonLabel>Prescription File:</IonLabel>
+                    <IonText>{medRequestPrescriptionFile.name}</IonText>
+                  </IonItem>
+                )}
+              </IonCard>
+            )}
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="3">
+                    <IonButton
+                      expand="block"
+                      shape="round"
+                      fill="outline"
+                      onClick={() => setMedRequestStep(s => s - 1)}
+                      disabled={medRequestStep === 1}
+                    >
+                      <IonIcon slot="start" icon={arrowBack} />
+                      Back
+                    </IonButton>
+                  </IonCol>
+                  <IonCol size="9">
+                    {medRequestStep < 3 ? (
+                      <IonButton
+                        expand="block"
+                        shape="round"
+                        onClick={() => setMedRequestStep(s => s + 1)}
+                        disabled={(medRequestStep === 2 && medRequestHasPrescription && !medRequestPrescriptionFile) || (medRequestStep === 1 && !Object.values(medRequestReasons).some(Boolean) || (medRequestReasons.Others && !medRequestOtherReason.trim()))}
+                      >
+                        Next
+                        <IonIcon slot="end" icon={arrowForward} />
+                      </IonButton>
+                    ) : (
+                      <IonButton
+                        color={'success'}
+                        expand="block"
+                        shape="round"
+                        onClick={handleGeneralMedRequestSubmit}
+                        disabled={isSubmitting || isDebouncing}
+                      >
+                        Submit Request
+                        <IonIcon slot="end" icon={paperPlane} />
+                      </IonButton>
+                    )}
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
