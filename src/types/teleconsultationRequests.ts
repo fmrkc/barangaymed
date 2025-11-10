@@ -36,4 +36,5 @@ export interface TeleconsultationRequest {
     prescriptionUrl?: string;
     medicalRecord?: MedicalRecord;
     auditTrail?: { action: string; userId: string; userEmail: string; userName?: string; timestamp: Date }[];
+    uploadedFile?: { url: string; name: string; };
 }

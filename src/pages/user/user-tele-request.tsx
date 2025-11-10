@@ -4,7 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, getDocs, where } from 'firebase/firestore';
 import { getBarangayNameByCode } from '../../services/addressService';
 import { UserService } from '../../services/userService';
-import { paperPlane, send, arrowBack, arrowForward, open, checkmarkCircle, close } from 'ionicons/icons';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { paperPlane, send, arrowBack, arrowForward, open, checkmarkCircle, close, cloudUpload, trash } from 'ionicons/icons';
 
 interface UserTeleRequestProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   const [hasMedicalRecord, setHasMedicalRecord] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
   const [isDebouncing, setIsDebouncing] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const db = getFirestore();
 
@@ -82,6 +85,20 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     setAttachMedicalRecord(false);
     setToastMessage('');
     setShowToast(false);
+    setUploadedFile(null);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        setToastMessage('File size should not exceed 5MB.');
+        setShowToast(true);
+        return;
+      }
+      setUploadedFile(file);
+    }
   };
 
     const getReasonString = () => {
@@ -170,6 +187,15 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         }
       }
 
+      let uploadedFileData: { url: string; name: string } | undefined;
+      if (uploadedFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `teleconsultation-files/${currentUser.uid}/${Date.now()}_${uploadedFile.name}`);
+        const snapshot = await uploadBytes(storageRef, uploadedFile);
+        const uploadedFileUrl = await getDownloadURL(snapshot.ref);
+        uploadedFileData = { url: uploadedFileUrl, name: uploadedFile.name };
+      }
+
       await addDoc(collection(db, 'teleconsultationRequests'), {
         userId: currentUser?.uid,
         barangayId: barangayId,
@@ -187,6 +213,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         reason: reasonString,
         status: 'pending',
         createdAt: serverTimestamp(),
+        ...(uploadedFileData && { uploadedFile: uploadedFileData }),
         ...(medicalRecord && { medicalRecord }),
       });
       setHasActiveRequest(true);
@@ -279,6 +306,30 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <IonItem lines='none'>
                   <h2>What are your current symptoms or conditions?</h2>
                 </IonItem>
+
+                <IonItem lines="none" className="ion-margin-bottom">
+                    <IonLabel>Upload a File [e.g. Laboratory Results] (Optional)</IonLabel>
+                </IonItem>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                />
+                <IonButton fill="outline" expand="block" onClick={() => fileInputRef.current?.click()}>
+                    <IonIcon slot="start" icon={cloudUpload} />
+                    Select File
+                </IonButton>
+                {uploadedFile && (
+                    <IonItem lines="none">
+                        <IonLabel>{uploadedFile.name}</IonLabel>
+                        <IonButton fill="clear" color="danger" onClick={() => setUploadedFile(null)}>
+                            <IonIcon slot="icon-only" icon={trash} />
+                        </IonButton>
+                    </IonItem>
+                )}
+                <IonItemDivider className="ion-margin-top">Reason for Consultation</IonItemDivider>
+
                 {Object.keys(reasons).map((reasonKey) => (
                   <IonItem key={reasonKey}>
                     <IonCheckbox
@@ -349,6 +400,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 readonly
                 />
               </IonItem>
+              {uploadedFile && (
+                <IonItem>
+                  <IonLabel>Uploaded File:</IonLabel>
+                  <IonText>{uploadedFile.name}</IonText>
+                </IonItem>
+              )}
               {hasMedicalRecord && (
                 <IonItem>
                   <IonLabel>Attach Medical Record:</IonLabel>

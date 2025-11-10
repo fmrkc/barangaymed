@@ -526,6 +526,14 @@ const UserRequestsList: React.FC = () => {
               <IonItem lines='none' className='ion-margin-bottom'>
                 <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
               </IonItem>
+              {selectedRequest.uploadedFile && (
+                <IonItem>
+                  <IonLabel>Uploaded File:</IonLabel>
+                  <IonButton slot="end" fill="outline" size="small" onClick={() => window.open(selectedRequest.uploadedFile!.url, '_blank')}>
+                      View {selectedRequest.uploadedFile.name}
+                  </IonButton>
+                </IonItem>
+              )}
 
               {cancellationEntry && (
                 <IonCard>
