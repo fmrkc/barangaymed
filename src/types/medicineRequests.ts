@@ -22,4 +22,5 @@ export interface MedicineRequest {
   rejectionReason?: string;
   cancellationReason?: string;
   auditTrail?: { action: string; userId: string; userEmail: string; userName?: string; timestamp: Date }[];
+  isShown?: boolean;
 }

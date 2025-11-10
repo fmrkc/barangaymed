@@ -35,7 +35,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Medicine } from '../../types/medicine';
-import { close, open } from 'ionicons/icons';
+import { close, open, archiveOutline } from 'ionicons/icons';
 
 const db = getFirestore();
 
@@ -58,6 +58,7 @@ const UserRequestsList: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showCancelToast, setShowCancelToast] = useState<boolean>(false);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
   const userId = currentUser?.uid;
 
@@ -187,7 +188,7 @@ const UserRequestsList: React.FC = () => {
       );
     } else { // completed
       filtered = combinedRequests.filter((r) =>
-        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
+        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status) && r.isShown !== false
       );
     }
     setFilteredRequests(filtered);
@@ -743,6 +744,11 @@ const UserRequestsList: React.FC = () => {
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>My Requests</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => setShowArchiveModal(true)}>
+              <IonIcon icon={archiveOutline} slot='icon-only' />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -786,6 +792,22 @@ const UserRequestsList: React.FC = () => {
         <IonList style={{ backgroundColor: 'transparent' }}>
           {filteredRequests.map(renderCard)}
         </IonList>
+
+        <IonModal isOpen={showArchiveModal} onDidDismiss={() => setShowArchiveModal(false)}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Archived Requests</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowArchiveModal(false)}>
+                  <IonIcon icon={close} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            {/* Content will be added later */}
+          </IonContent>
+        </IonModal>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader className="ion-no-border">
