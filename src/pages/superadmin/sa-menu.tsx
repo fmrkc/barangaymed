@@ -13,9 +13,11 @@ import SuperAdminTeleRequestList from './sa-tele-request-list';
 import SuperAdminCreateMedRequest from './sa-create-med-request';
 import SuperAdminCreateTeleRequest from './sa-create-tele-request';
 import Profile from './sa-profile';
+import SAResidents from './sa-residents';
+import SAResidentVerification from './sa-resident-verification';
 
 
-import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar, shield, bagAdd, clipboard, videocam } from 'ionicons/icons';
+import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar, shield, bagAdd, clipboard, videocam, checkbox } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 import SARegisterResident from './sa-register-resident';
 
@@ -26,10 +28,14 @@ const Menu: React.FC = () => {
 
     const dashboard = { name: 'Dashboard', url: '/superadmin/dashboard', icon: podium };
     const bmedfeatures = [
-        { name: 'Register New Resident', url: '/superadmin/dashboard/register-resident', icon: personAdd },
         { name: 'Create Medicine Request', url: '/superadmin/dashboard/create-med-request', icon: medkit },
         { name: 'Create Consultation Request', url: '/superadmin/dashboard/create-tele-request', icon: videocam },
 
+    ];
+    const residentmanagement = [
+        { name: 'Verified Residents', url: '/superadmin/dashboard/residents', icon: people },
+        { name: 'Register New Resident', url: '/superadmin/dashboard/register-resident', icon: personAdd },
+        { name: 'Resident Verification', url: '/superadmin/dashboard/residents/verification', icon: checkbox },
     ];
     const medicine = [
         { name: 'Medicine Inventory', url: '/superadmin/dashboard/medicine-inventory', icon: medkit },
@@ -88,6 +94,21 @@ const Menu: React.FC = () => {
                       </IonItem>
                       <div slot="content">
                         {bmedfeatures.map((item, index) => (
+                          <IonMenuToggle key={index} autoHide={false}>
+                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
+                              <IonIcon slot="start" icon={item.icon} />
+                              {item.name}
+                            </IonItem>
+                          </IonMenuToggle>
+                        ))}
+                      </div>
+                    </IonAccordion>
+                    <IonAccordion value="residentmanagement">
+                      <IonItem slot="header">
+                        <IonLabel>Resident Management</IonLabel>
+                      </IonItem>
+                      <div slot="content">
+                        {residentmanagement.map((item, index) => (
                           <IonMenuToggle key={index} autoHide={false}>
                             <IonItem detail={false} routerLink={item.url} routerDirection="none">
                               <IonIcon slot="start" icon={item.icon} />
@@ -228,6 +249,8 @@ const Menu: React.FC = () => {
           <IonRouterOutlet id="main">
             <Route exact path="/superadmin/dashboard" component={Dashboard} />
             <Route exact path="/superadmin/dashboard/profile" component={Profile} />
+            <Route exact path="/superadmin/dashboard/residents" component={SAResidents} />
+            <Route exact path="/superadmin/dashboard/residents/verification" component={SAResidentVerification} />
             <Route exact path="/superadmin/dashboard/medicine-inventory" component={Med_Inventory} />
             <Route exact path="/superadmin/dashboard/medicine-requests" component={Med_Requests} />
             <Route exact path="/superadmin/dashboard/teleconsultation-requests" component={SuperAdminTeleRequestList} />
