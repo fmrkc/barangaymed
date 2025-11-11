@@ -1,5 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonButton, IonIcon, IonButtons, IonModal, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonMenuButton } from '@ionic/react';
-import React, { useState, useEffect, useCallback } from 'react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonButton, IonIcon, IonButtons, IonModal, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonMenuButton, IonSearchbar, IonSelect, IonSelectOption } from '@ionic/react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth, db } from '../../firebaseConfig';
 import { query, where, getDocs, collection, doc, updateDoc, deleteField, getDoc } from 'firebase/firestore';
@@ -76,6 +76,9 @@ const sendSms = async (userId: string, message: string) => {
 
 const SAResidentVerification: React.FC = () => {
   const [pendingUsers, setPendingUsers] = useState<UserForVerification[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserForVerification[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBarangayFilter, setSelectedBarangayFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserForVerification | null>(null);
@@ -85,6 +88,35 @@ const SAResidentVerification: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastColor, setToastColor] = useState('success');
   const [isReviewing, setIsReviewing] = useState(false);
+
+  const barangayFilterOptions = useMemo(() => {
+    const uniqueBarangays = new Map<string, string>();
+    pendingUsers.forEach(req => {
+      if (req.barangayId && req.barangayName) {
+        uniqueBarangays.set(req.barangayId, req.barangayName);
+      }
+    });
+    return Array.from(uniqueBarangays.entries()).map(([id, name]) => ({ id, name }));
+  }, [pendingUsers]);
+
+  useEffect(() => {
+    let filtered: UserForVerification[] = pendingUsers;
+
+    // Filter by barangay
+    if (selectedBarangayFilter !== 'all') {
+      filtered = filtered.filter(user => user.barangayId === selectedBarangayFilter);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(user =>
+        user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredUsers(filtered);
+  }, [pendingUsers, searchQuery, selectedBarangayFilter]);
 
   const fetchPendingUsers = useCallback(async () => {
     setLoading(true);
@@ -201,19 +233,30 @@ const SAResidentVerification: React.FC = () => {
       <IonContent className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={async (e) => { await fetchPendingUsers(); e.detail.complete(); }} />
 
-        <p>Showing all residents awaiting verification from all barangays.</p>
+        <IonToolbar>
+            <IonSearchbar value={searchQuery} onIonInput={e => setSearchQuery(e.detail.value!)} placeholder="Search by resident name..." showClearButton="always" />
+        </IonToolbar>
+        <IonToolbar className="ion-padding-horizontal">
+            <IonSelect value={selectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setSelectedBarangayFilter(e.detail.value)}>
+            <IonSelectOption value="all">All Barangays</IonSelectOption>
+            {barangayFilterOptions.map(b => (
+              <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+            ))}
+          </IonSelect>
+        </IonToolbar>
+
         {loading ? (
           <div className="ion-text-center ion-padding">
             <IonSpinner />
             <p>Loading pending users...</p>
           </div>
-        ) : pendingUsers.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <div className="ion-text-center ion-padding">
-            <p>No pending users for verification.</p>
+            <p>No pending users for verification found.</p>
           </div>
         ) : (
           <IonList>
-            {pendingUsers.map((user) => (
+            {filteredUsers.map((user) => (
               <IonCard key={user.uid}>
                 <IonCardHeader>
                   <IonCardTitle>
