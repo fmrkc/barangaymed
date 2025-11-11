@@ -1,5 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonButton, IonIcon, IonButtons, IonModal, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonMenuButton } from '@ionic/react';
-import React, { useState, useEffect, useCallback } from 'react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonCard, IonCardHeader, IonCardTitle, IonButton, IonIcon, IonButtons, IonModal, IonToast, IonCardSubtitle, IonRefresher, IonText, IonItemDivider, IonFooter, IonCol, IonGrid, IonRow, IonAlert, IonLoading, IonMenuButton, IonSearchbar } from '@ionic/react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth, db } from '../../firebaseConfig';
 import { query, where, getDocs, collection, doc, updateDoc, deleteField, getDoc } from 'firebase/firestore';
@@ -80,6 +80,8 @@ const sendSms = async (userId: string, message: string) => {
 const AdminUserVerification: React.FC = () => {
   const { barangayId: adminBarangayId } = useAuth();
   const [pendingUsers, setPendingUsers] = useState<UserForVerification[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserForVerification[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserForVerification | null>(null);
@@ -90,6 +92,20 @@ const AdminUserVerification: React.FC = () => {
   const [toastColor, setToastColor] = useState('success');
 
   const [isReviewing, setIsReviewing] = useState(false);
+
+  useEffect(() => {
+    let filtered: UserForVerification[] = pendingUsers;
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(user =>
+        user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredUsers(filtered);
+  }, [pendingUsers, searchQuery]);
 
   const fetchPendingUsers = useCallback(async () => {
     if (!adminBarangayId) {
@@ -216,19 +232,23 @@ const handleReview = async (user: UserForVerification, action: 'verified' | 'rej
       <IonContent className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={async (e) => { await fetchPendingUsers(); e.detail.complete(); }} />
 
+        <IonToolbar>
+            <IonSearchbar value={searchQuery} onIonInput={e => setSearchQuery(e.detail.value!)} placeholder="Search by resident name..." showClearButton="always" />
+        </IonToolbar>
+
         <p>Showing all residents awaiting verification in your barangay.</p>
         {loading ? (
           <div className="ion-text-center ion-padding">
             <IonSpinner />
             <p>Loading pending users...</p>
           </div>
-        ) : pendingUsers.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <div className="ion-text-center ion-padding">
-            <p>No pending users for verification in your barangay.</p>
+            <p>No pending users for verification found in your barangay.</p>
           </div>
         ) : (
           <IonList>
-            {pendingUsers.map((user) => (
+            {filteredUsers.map((user) => (
               <IonCard key={user.uid}>
                 <IonCardHeader>
                   <IonCardTitle>

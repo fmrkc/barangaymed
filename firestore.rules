@@ -78,6 +78,15 @@ service cloud.firestore {
                      // Admin can update these specific fields
                      request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                        'verificationStatus', 'rejectionReason', 'verifiedAt', 'verifiedBy'
+                     ])) ||
+                    // OR a Super Admin can update verification-related fields
+                    (isSuperAdmin() &&
+                     // Super Admin can change status to 'verified' or 'rejected'
+                     (request.resource.data.verificationStatus == 'verified' ||
+                      request.resource.data.verificationStatus == 'rejected') &&
+                     // Super Admin can update these specific fields
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                       'verificationStatus', 'rejectionReason', 'verifiedAt', 'verifiedBy'
                      ]));
 
       // DELETE: Disallowed from client.
