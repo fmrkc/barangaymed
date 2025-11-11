@@ -52,7 +52,7 @@ const SAResidents: React.FC = () => {
                     where('verificationStatus', '==', 'verified')
                 );
                 const querySnapshot = await getDocs(q);
-                const residentsList: Resident[] = await Promise.all(querySnapshot.docs.map(async (doc) => {
+                const residentsData = await Promise.all(querySnapshot.docs.map(async (doc) => {
                     const residentData = doc.data() as Omit<Resident, 'id'>;
                     const barangayName = await getBarangayNameByCode(residentData.barangayId);
                     return {
@@ -61,7 +61,8 @@ const SAResidents: React.FC = () => {
                         barangayName: barangayName || 'N/A'
                     };
                 }));
-                setResidents(residentsList);
+                const sortedResidents = residentsData.sort((a, b) => a.firstName.localeCompare(b.firstName));
+                setResidents(sortedResidents);
             } catch (error) {
                 console.error("Error fetching residents:", error);
             } finally {

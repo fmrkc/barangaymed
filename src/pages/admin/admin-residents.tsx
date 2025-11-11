@@ -69,7 +69,7 @@ const Residents: React.FC = () => {
                 const residentsList: Resident[] = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data() as Omit<Resident, 'id'>
-                }));
+                })).sort((a, b) => a.firstName.localeCompare(b.firstName));
                 setResidents(residentsList);
             } catch (error) {
                 console.error("Error fetching residents:", error);
