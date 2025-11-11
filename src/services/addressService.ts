@@ -192,3 +192,23 @@ export const getCityMunByCode = async (code: string): Promise<CityMunicipality |
   return cityMunMap.get(code);
 };
 
+export const getCityMunCodeByName = async (name: string): Promise<string | undefined> => {
+  await initializeCaches();
+  for (const cityMun of cityMunMap.values()) {
+    if (cityMun.name.toLowerCase() === name.toLowerCase()) {
+      return cityMun.code;
+    }
+  }
+  return undefined;
+};
+
+export const getBarangaysByMunicipalityName = async (municipalityName: string): Promise<Barangay[]> => {
+  await initializeCaches();
+  const cityMunCode = await getCityMunCodeByName(municipalityName);
+  if (cityMunCode) {
+    return barangaysCache[cityMunCode] || [];
+  }
+  return [];
+};
+
+

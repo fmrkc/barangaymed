@@ -1,9 +1,9 @@
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonSearchbar, IonCardSubtitle, IonModal, IonButton, IonIcon, IonItemDivider, IonText, IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonSearchbar, IonCardSubtitle, IonModal, IonButton, IonIcon, IonItemDivider, IonText, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSelect, IonSelectOption } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { getBarangayNameByCode } from '../../services/addressService';
+import { getBarangayNameByCode, getBarangaysByMunicipalityName, Barangay } from '../../services/addressService';
 import { person, call, mail, home, close, open } from 'ionicons/icons';
 
 interface Resident {
@@ -35,6 +35,8 @@ const SAResidents: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
+    const [selectedBarangayFilter, setSelectedBarangayFilter] = useState<string>('all');
+    const [barangayFilterOptions, setBarangayFilterOptions] = useState<Barangay[]>([]);
 
     const openModal = (resident: Resident) => {
         setSelectedResident(resident);
@@ -42,15 +44,28 @@ const SAResidents: React.FC = () => {
     };
 
     useEffect(() => {
+        const fetchBarangays = async () => {
+            const barangays = await getBarangaysByMunicipalityName('Floridablanca');
+            setBarangayFilterOptions(barangays);
+        };
+        fetchBarangays();
+    }, []);
+
+    useEffect(() => {
         const fetchResidents = async () => {
             setLoading(true);
             try {
                 const residentsRef = collection(db, 'users');
-                const q = query(
+                let q = query(
                     residentsRef,
                     where('role', '==', 'user'),
                     where('verificationStatus', '==', 'verified')
                 );
+
+                if (selectedBarangayFilter !== 'all') {
+                    q = query(q, where('barangayId', '==', selectedBarangayFilter));
+                }
+                
                 const querySnapshot = await getDocs(q);
                 const residentsData = await Promise.all(querySnapshot.docs.map(async (doc) => {
                     const residentData = doc.data() as Omit<Resident, 'id'>;
@@ -71,14 +86,13 @@ const SAResidents: React.FC = () => {
         };
 
         fetchResidents();
-    }, []);
+    }, [selectedBarangayFilter]);
 
     const filteredResidents = residents.filter(resident => {
         const searchLower = searchQuery.toLowerCase();
         const nameToSearch = (resident.name || `${resident.firstName} ${resident.lastName}`).toLowerCase();
         const emailToSearch = resident.email.toLowerCase();
-        const barangayToSearch = resident.barangayName?.toLowerCase() || '';
-        return nameToSearch.includes(searchLower) || emailToSearch.includes(searchLower) || barangayToSearch.includes(searchLower);
+        return nameToSearch.includes(searchLower) || emailToSearch.includes(searchLower);
     });
 
     return (
@@ -92,10 +106,18 @@ const SAResidents: React.FC = () => {
                 </IonToolbar>
                 <IonToolbar>
                     <IonSearchbar
-                    placeholder="Search by name, email, or barangay"
+                    placeholder="Search by name or email"
                     value={searchQuery}
                     onIonChange={e => setSearchQuery(e.detail.value!)}
                 />
+                </IonToolbar>
+                <IonToolbar className="ion-padding-horizontal">
+                    <IonSelect value={selectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setSelectedBarangayFilter(e.detail.value)}>
+                        <IonSelectOption value="all">All Barangays</IonSelectOption>
+                        {barangayFilterOptions.map(b => (
+                            <IonSelectOption key={b.code} value={b.code}>{b.name}</IonSelectOption>
+                        ))}
+                    </IonSelect>
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
