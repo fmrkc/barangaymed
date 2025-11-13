@@ -308,29 +308,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   <h2>What are your current symptoms or conditions?</h2>
                 </IonItem>
 
-                <IonItem lines="none" className="ion-margin-bottom">
-                    <IonLabel>Upload a File [e.g. Laboratory Results] (Optional)</IonLabel>
-                </IonItem>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleFileChange}
-                />
-                <IonButton fill="outline" expand="block" onClick={() => fileInputRef.current?.click()}>
-                    <IonIcon slot="start" icon={cloudUpload} />
-                    Select File
-                </IonButton>
-                {uploadedFile && (
-                    <IonItem lines="none">
-                        <IonLabel>{uploadedFile.name}</IonLabel>
-                        <IonButton fill="clear" color="danger" onClick={() => setUploadedFile(null)}>
-                            <IonIcon slot="icon-only" icon={trash} />
-                        </IonButton>
-                    </IonItem>
-                )}
-                <IonItemDivider className="ion-margin-top">Reason for Consultation</IonItemDivider>
-
+                <IonItemDivider className="ion-margin-top">Select all that apply:</IonItemDivider>
                 {Object.keys(reasons).map((reasonKey) => (
                   <IonItem key={reasonKey}>
                     <IonCheckbox
@@ -363,6 +341,39 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                   </>
                 )}
               
+              </IonCard>
+              <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>Are you uploading a file?</h2>
+                </IonItem>
+                <IonItem lines='none'>
+                  <small>
+                    If you have any relevant documents (e.g., previous consultation notes, lab results, images), you may upload them here to provide more context for your teleconsultation.
+                  </small>
+                </IonItem>
+                
+                <IonItem lines='none'>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                />
+                <IonButton fill="outline" expand="block" onClick={() => fileInputRef.current?.click()}>
+                    <IonIcon slot="start" icon={cloudUpload} />
+                    Upload a File Here
+                </IonButton>
+                </IonItem>
+                <IonItem>
+                  {uploadedFile && (
+                    <IonItem lines="none">
+                        <IonLabel>Uploaded file:{uploadedFile.name}</IonLabel>
+                        <IonButton fill="clear" color="danger" onClick={() => setUploadedFile(null)}>
+                            <IonIcon slot="icon-only" icon={trash} />
+                        </IonButton>
+                    </IonItem>
+                )}
+                </IonItem>
               </IonCard>
 
               {hasMedicalRecord && (
