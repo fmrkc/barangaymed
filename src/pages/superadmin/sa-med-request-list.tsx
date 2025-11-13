@@ -51,7 +51,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown, checkmarkDone } from 'ionicons/icons';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
@@ -832,43 +832,47 @@ const SuperAdminMedRequestList: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 {request.status === 'pending' && (
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'rejected' && (
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'accepted' && (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                      <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
-                    </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
+                  </div>
                 )}
                 {request.status === 'processed' && (
-                  <>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
-                        View Details
-                        <IonIcon slot='start' icon={open} />
-                      </IonButton>
-                    </div>
-                  </>
-                )}
-                {request.status === 'scheduled' && (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                    <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
-                      <IonIcon slot='start' icon={open} />
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
                       View Details
                     </IonButton>
-                    </div>
+                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>
+                      Process
+                      <IonIcon slot='end' icon={open} />
+                    </IonButton>
+                  </div>
+                )}
+                {request.status === 'scheduled' && (
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
+                      View Details
+                    </IonButton>
+                    <IonButton className='ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToMarkComplete(request.id!); setShowMarkCompleteAlert(true);}}>
+                      Mark as Complete
+                      <IonIcon slot='end' icon={checkmarkDone} />
+                    </IonButton>
+                  </div>
                 )}
                 {request.status === 'no show' && (
-                      <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'completed' && (
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'cancelled' && (
-                    <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
+                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
               </IonCardContent>
             </IonCard>
