@@ -742,7 +742,34 @@ const Med_Inventory: React.FC = () => {
               ))}
             </IonSelect>
            </IonItem>
-
+           <IonItem>
+              <IonSelect
+               label="Unit Name"
+               fill="outline"
+               value={unitName}
+               placeholder="Select Unit Name"
+               onIonChange={e => setUnitName(e.detail.value)}
+               interface="alert"
+               className="ion-margin-bottom"
+            >
+                    {unitNameOptions.map(option => (
+                      <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
+                    ))}
+                  </IonSelect>
+                </IonItem>
+            <IonItemDivider>Expiration Date *</IonItemDivider>
+            <IonItem>
+              <IonInput
+                fill="outline"
+                type="month"
+                placeholder="Select expiration month and year"
+                value={expirationDate}
+                min={new Date().toISOString().slice(0, 7)}
+                onIonChange={(e) => setExpirationDate(e.detail.value!)}
+                className="ion-margin-bottom"
+                required
+              />
+            </IonItem>
             <IonItem lines="none" className="ion-margin-bottom">
               <IonLabel>Requires Prescription?</IonLabel>
               <IonToggle slot='end' checked={requiresPrescription} onIonChange={e => setRequiresPrescription(e.detail.checked)} />
@@ -757,34 +784,7 @@ const Med_Inventory: React.FC = () => {
               className="ion-margin-bottom"
             />
             </IonItem>
-            <IonItemDivider>Expiration Date *</IonItemDivider>
-            <IonItem>
-              <IonInput
-                fill="outline"
-                type="month"
-                placeholder="Select expiration month and year"
-                value={expirationDate}
-                min={new Date().toISOString().slice(0, 7)}
-                onIonChange={(e) => setExpirationDate(e.detail.value!)}
-                className="ion-margin-bottom"
-                required
-              />
-            </IonItem>
-           <IonItem>
-             <IonSelect
-              label="Unit Name"
-              fill="outline"
-              value={unitName}
-              placeholder="Select Unit Name"
-              onIonChange={e => setUnitName(e.detail.value)}
-              interface="alert"
-              className="ion-margin-bottom"
-            >
-              {unitNameOptions.map(option => (
-                <IonSelectOption key={option} value={option}>{option}</IonSelectOption>
-              ))}
-            </IonSelect>
-           </IonItem>
+            
            <IonItemDivider className='ion-margin-top'>Quantity *</IonItemDivider>
            <IonItem>
              <IonInput
