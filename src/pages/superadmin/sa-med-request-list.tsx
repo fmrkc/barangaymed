@@ -1371,6 +1371,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCheckbox slot='end'
                             checked={!!selectedMedicines[med.id]}
                             onIonChange={() => toggleMedicineSelection(med.id)}
+                            disabled={med.quantity <= 0}
                           />
                         </IonItem>
                         {selectedMedicines[med.id] && (
@@ -1466,6 +1467,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                           expand="block"
                           shape="round"
                           onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}
+                          disabled={Object.keys(selectedMedicines).length === 0}
                         >
                           <IonIcon slot="end" icon={arrowForward} />
                           <IonText className='ion-padding-vertical'>Next</IonText>
@@ -1476,7 +1478,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                           expand="block"
                           shape="round"
                           onClick={handleSaveProcess}
-                          disabled={isSavingProcess}
+                          disabled={isSavingProcess || Object.keys(selectedMedicines).length === 0}
                         >
                           <IonText className='ion-padding-vertical'>Update</IonText>
                           <IonIcon slot="end" icon={paperPlane} />
