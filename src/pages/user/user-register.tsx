@@ -402,7 +402,7 @@ const UserRegister: React.FC = () => {
                   onIonChange={(e) => setPassword(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
-                  helperText="Min 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character."
+                  helperText="Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one number, and one special character from the following: @ $ ! % * ? &"
                 >
 
                   <IonIcon
