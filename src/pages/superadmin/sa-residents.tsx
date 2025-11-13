@@ -1,5 +1,5 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSpinner, IonSearchbar, IonCardSubtitle, IonModal, IonButton, IonIcon, IonItemDivider, IonText, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSelect, IonSelectOption } from '@ionic/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -36,35 +36,33 @@ const SAResidents: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
     const [selectedBarangayFilter, setSelectedBarangayFilter] = useState<string>('all');
-    const [barangayFilterOptions, setBarangayFilterOptions] = useState<Barangay[]>([]);
+    const [filteredResidents, setFilteredResidents] = useState<Resident[]>([]);
 
     const openModal = (resident: Resident) => {
         setSelectedResident(resident);
         setShowModal(true);
     };
 
-    useEffect(() => {
-        const fetchBarangays = async () => {
-            const barangays = await getBarangaysByMunicipalityName('Floridablanca');
-            setBarangayFilterOptions(barangays);
-        };
-        fetchBarangays();
-    }, []);
+    const uniqueBarangays = useMemo(() => {
+        const barangayMap = new Map<string, string>();
+        residents.forEach(resident => {
+            if (resident.barangayId && resident.barangayName && resident.barangayName !== 'N/A') {
+                barangayMap.set(resident.barangayId, resident.barangayName);
+            }
+        });
+        return Array.from(barangayMap.entries()).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    }, [residents]);
 
     useEffect(() => {
         const fetchResidents = async () => {
             setLoading(true);
             try {
                 const residentsRef = collection(db, 'users');
-                let q = query(
+                const q = query(
                     residentsRef,
                     where('role', '==', 'user'),
                     where('verificationStatus', '==', 'verified')
                 );
-
-                if (selectedBarangayFilter !== 'all') {
-                    q = query(q, where('barangayId', '==', selectedBarangayFilter));
-                }
                 
                 const querySnapshot = await getDocs(q);
                 const residentsData = await Promise.all(querySnapshot.docs.map(async (doc) => {
@@ -86,14 +84,26 @@ const SAResidents: React.FC = () => {
         };
 
         fetchResidents();
-    }, [selectedBarangayFilter]);
+    }, []);
 
-    const filteredResidents = residents.filter(resident => {
-        const searchLower = searchQuery.toLowerCase();
-        const nameToSearch = (resident.name || `${resident.firstName} ${resident.lastName}`).toLowerCase();
-        const emailToSearch = resident.email.toLowerCase();
-        return nameToSearch.includes(searchLower) || emailToSearch.includes(searchLower);
-    });
+    useEffect(() => {
+        let filtered = residents;
+
+        if (searchQuery) {
+            const searchLower = searchQuery.toLowerCase();
+            filtered = filtered.filter(resident => {
+                const nameToSearch = (resident.name || `${resident.firstName} ${resident.lastName}`).toLowerCase();
+                const emailToSearch = resident.email.toLowerCase();
+                return nameToSearch.includes(searchLower) || emailToSearch.includes(searchLower);
+            });
+        }
+
+        if (selectedBarangayFilter !== 'all') {
+            filtered = filtered.filter(resident => resident.barangayId === selectedBarangayFilter);
+        }
+
+        setFilteredResidents(filtered);
+    }, [searchQuery, selectedBarangayFilter, residents]);
 
     return (
         <IonPage>
@@ -108,14 +118,14 @@ const SAResidents: React.FC = () => {
                     <IonSearchbar
                     placeholder="Search by name or email"
                     value={searchQuery}
-                    onIonChange={e => setSearchQuery(e.detail.value!)}
+                    onIonInput={e => setSearchQuery(e.detail.value!)}
                 />
                 </IonToolbar>
                 <IonToolbar className="ion-padding-horizontal">
                     <IonSelect value={selectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setSelectedBarangayFilter(e.detail.value)}>
                         <IonSelectOption value="all">All Barangays</IonSelectOption>
-                        {barangayFilterOptions.map(b => (
-                            <IonSelectOption key={b.code} value={b.code}>{b.name}</IonSelectOption>
+                        {uniqueBarangays.map(b => (
+                            <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
                         ))}
                     </IonSelect>
                 </IonToolbar>
@@ -128,7 +138,6 @@ const SAResidents: React.FC = () => {
                     </div>
                 ) : (
                      <>
-                     <IonCardSubtitle className="ion-margin-bottom">Showing all residents from all barangays.</IonCardSubtitle>
                     <IonList>
                         {filteredResidents.length > 0 ? (
                             filteredResidents.map(resident => (
