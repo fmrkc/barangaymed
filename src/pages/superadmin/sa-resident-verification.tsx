@@ -194,9 +194,11 @@ const SAResidentVerification: React.FC = () => {
       if (action === 'verified') {
         const title = "Welcome to BarangayMed+";
         const message = "Your registration has been successfully approved! We're excited to have you on board. You can now access all features of BarangayMed+, connect with your barangay healthcare team, and manage your medical records anytime, anywhere. Let's work together for a healthier community.";
-        await sendSms(user.uid, `${title}: ${message}`);
-      } else if (action === 'rejected') {
-        const title = "Registration Rejected";
+              await sendSms(user.uid, `${title}: ${message}`);
+              setToastMessage('User approved successfully.');
+              setToastColor('success');
+              setShowToast(true);
+            } else if (action === 'rejected') {        const title = "Registration Rejected";
         const message = `Your registration has been rejected. Reason: ${reason || 'N/A'}. Please review the requirements and try again.`;
         await sendSms(user.uid, `${title}: ${message}`);
       }
