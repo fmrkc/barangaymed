@@ -36,7 +36,7 @@ const SuperAdminDashboard: React.FC = () => {
             </IonCol>
           </IonRow>
           <IonRow>
-            <IonCol size="12" size-md="4">
+            <IonCol size="12" size-md="6">
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-inventory">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -51,7 +51,7 @@ const SuperAdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
             </IonCol>
-            <IonCol size="12" size-md="4">
+            <IonCol size="12" size-md="6">
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-requests">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -66,21 +66,7 @@ const SuperAdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
             </IonCol>
-            <IonCol size="12" size-md="4">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-inventory">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
-                    <IonText>Medicine Transfer</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    Transfer medicines.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
+
           </IonRow>
 
           <IonRow>
