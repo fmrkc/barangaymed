@@ -146,7 +146,7 @@ const SAResidentVerification: React.FC = () => {
           contactNumber: data.contactNumber || '',
           idVerificationUrl: data.idVerificationUrl || '',
           idVerificationType: data.idVerificationType || '',
-          fullRegistrationSubmittedAt: data.createdAt,
+          fullRegistrationSubmittedAt: data.fullRegistrationSubmittedAt,
         };
       }));
       
@@ -168,7 +168,7 @@ const SAResidentVerification: React.FC = () => {
 
   const setCustomClaimsOnVerification = httpsCallable(functions, 'setCustomClaimsOnVerification');
 
-  const handleReview = async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
+  const handleReview = useCallback(async (user: UserForVerification, action: 'verified' | 'rejected', reason?: string) => {
     setIsReviewing(true);
     try {
       await setCustomClaimsOnVerification({ 
@@ -213,7 +213,7 @@ const SAResidentVerification: React.FC = () => {
     } finally {
       setIsReviewing(false);
     }
-  };
+  }, [fetchPendingUsers]);
 
   const openModal = (user: UserForVerification) => {
     setSelectedUser(user);

@@ -29,12 +29,13 @@ export const setCustomClaimsOnVerification = onCall(
 
     try {
       const adminUser = await admin.auth().getUser(adminUID);
-      const isAdmin = adminUser.customClaims?.role === "admin";
+      const userRole = adminUser.customClaims?.role;
+      const isAllowed = userRole === "admin" || userRole === "superadmin";
 
-      if (!isAdmin) {
+      if (!isAllowed) {
         throw new HttpsError(
           "permission-denied",
-          "Only admins can perform this action."
+          "Only admins or superadmins can perform this action."
         );
       }
 
@@ -46,8 +47,9 @@ export const setCustomClaimsOnVerification = onCall(
           barangayId: barangayId,
         };
       } else if (action === "rejected") {
+        const userToUpdate = await admin.auth().getUser(userId);
         claimsToSet = {
-          ...adminUser.customClaims,
+          ...userToUpdate.customClaims,
           verificationStatus: "rejected",
         };
       }
