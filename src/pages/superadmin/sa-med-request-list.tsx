@@ -115,7 +115,6 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
-  const categoryOptions = ['antibiotic', 'analgesic', 'supplement', 'antihistamine', 'antacid', 'diuretic'];
   const [selectedMedicines, setSelectedMedicines] = useState<{ [key: string]: { quantity: number } }>({});
   const [processNote, setProcessNote] = useState<string>('');
   const [processStep, setProcessStep] = useState<number>(1);
@@ -156,6 +155,16 @@ const SuperAdminMedRequestList: React.FC = () => {
     });
     return Array.from(uniqueBarangays.entries()).map(([id, name]) => ({ id, name }));
   }, [requests]);
+
+  const medicineCategoryOptions = useMemo(() => {
+    const categories = new Set<string>();
+    medicines.forEach(med => {
+      if (med.category) {
+        categories.add(med.category);
+      }
+    });
+    return Array.from(categories);
+  }, [medicines]);
 
   const handleRefresh = (event: CustomEvent) => {
     setLoading(true);
@@ -514,7 +523,8 @@ const SuperAdminMedRequestList: React.FC = () => {
       filtered = filtered.filter(med =>
         med.medicine_name.toLowerCase().includes(medicineSearch.toLowerCase()) ||
         med.dosage_form.toLowerCase().includes(medicineSearch.toLowerCase()) ||
-        med.strength.toLowerCase().includes(medicineSearch.toLowerCase())
+        med.strength.toLowerCase().includes(medicineSearch.toLowerCase()) ||
+        med.category.toLowerCase().includes(medicineSearch.toLowerCase())
       );
     }
     setFilteredMedicines(filtered);
@@ -525,12 +535,11 @@ const SuperAdminMedRequestList: React.FC = () => {
     setSelectedRequest(request);
     // Initialize selectedMedicines state with dispensedMedicines or empty
     const initialSelected: { [key: string]: { quantity: number } } = {};
-    medicines.forEach(med => {
-      const qty = request.dispensedMedicines && request.dispensedMedicines[med.id] ? request.dispensedMedicines[med.id] : 0;
-      if (qty > 0) {
-        initialSelected[med.id] = { quantity: qty };
-      }
-    });
+    if (request.dispensedMedicines) {
+      Object.entries(request.dispensedMedicines).forEach(([medId, quantity]) => {
+        initialSelected[medId] = { quantity };
+      });
+    }
     setSelectedMedicines(initialSelected);
     setProcessNote(request.processNote || '');
     setProcessStep(1);
@@ -572,24 +581,23 @@ const SuperAdminMedRequestList: React.FC = () => {
   const openQuantityActionSheet = (medId: string) => {
     const med = medicines.find(m => m.id === medId);
     if (!med) return;
-    setCurrentMedId(medId);
     setMaxQty(med.quantity);
     const buttons = [];
     for (let i = 1; i <= Math.min(10, med.quantity); i++) {
       buttons.push({
         text: i.toString(),
-        handler: () => handleActionSheetClick(i),
+        handler: () => handleActionSheetClick(medId, i),
       });
     }
     if (med.quantity > 10) {
       buttons.push({
         text: 'Custom',
-        handler: () => handleActionSheetClick('custom'),
+        handler: () => handleActionSheetClick(medId, 'custom'),
       });
     }
     buttons.push({
       text: 'Remove',
-      handler: () => handleActionSheetClick(0),
+      handler: () => handleActionSheetClick(medId, 0),
     });
     buttons.push({
       text: 'Cancel',
@@ -600,12 +608,13 @@ const SuperAdminMedRequestList: React.FC = () => {
   };
 
   // Handle action sheet button clicks
-  const handleActionSheetClick = (quantity: number | 'custom') => {
+  const handleActionSheetClick = (medId: string, quantity: number | 'custom') => {
     if (quantity === 'custom') {
-      setQuantityInput(selectedMedicines[currentMedId]?.quantity?.toString() || '1');
+      setCurrentMedId(medId);
+      setQuantityInput(selectedMedicines[medId]?.quantity?.toString() || '1');
       setShowQuantityAlert(true);
     } else {
-      changeMedicineQuantity(currentMedId, quantity);
+      changeMedicineQuantity(medId, quantity);
     }
     setShowQuantityActionSheet(false);
   };
@@ -843,9 +852,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                     <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
                   </div>
                 )}
-                {request.status === 'processed' && (
+                {request.status === 'scheduled' && (
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
+                    <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
                       View Details
                     </IonButton>
                     <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>
@@ -854,21 +863,21 @@ const SuperAdminMedRequestList: React.FC = () => {
                     </IonButton>
                   </div>
                 )}
-                {request.status === 'scheduled' && (
+                {request.status === 'processed' && (
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
+                    <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
                       View Details
                     </IonButton>
-                    <IonButton className='ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToMarkComplete(request.id!); setShowMarkCompleteAlert(true);}}>
+                     <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToMarkComplete(request.id!); setShowMarkCompleteAlert(true);}}>
                       Mark as Complete
                       <IonIcon slot='end' icon={checkmarkDone} />
                     </IonButton>
                   </div>
                 )}
-                {request.status === 'no show' && (
+                {request.status === 'completed' && (
                   <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
-                {request.status === 'completed' && (
+                {request.status === 'no show' && (
                   <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'cancelled' && (
@@ -1081,11 +1090,11 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Accepted By: {acceptanceEntry.userName} ({acceptanceEntry.userEmail})</IonLabel>
+                              <IonLabel>Accepted By: {acceptanceEntry.userName}
+                                <p>{acceptanceEntry.userEmail} at {acceptanceEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Accepted At: {acceptanceEntry.timestamp.toLocaleString()}</IonLabel>
-                            </IonItem>
+                          
                           </IonCard>
                         )}
 
@@ -1094,25 +1103,26 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Processing Details</IonItemDivider>
                             {processingEntry && (
-                              <>
                                 <IonItem>
-                                  <IonLabel>Processed By: {processingEntry.userName} ({processingEntry.userEmail})</IonLabel>
+                                  <IonLabel>Processed By: {processingEntry.userName}
+                                    <p>{processingEntry.userEmail} at {processingEntry.timestamp.toLocaleString()}</p>
+                                  </IonLabel>
                                 </IonItem>
-                                <IonItem>
-                                  <IonLabel>Processed At: {processingEntry.timestamp.toLocaleString()}</IonLabel>
-                                </IonItem>
-                              </>
                             )}
                             <IonItem>
                               <IonLabel>Dispensed Medicines:</IonLabel>
-                              <IonText slot="end" className="ion-text-wrap">{Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
+                            </IonItem>
+                            <IonItem lines='none'>
+                                <IonTextarea fill='outline' readonly value={Object.entries(selectedRequest.dispensedMedicines || {}).map(([id, qty]) => {
                                 const med = medicines.find(m => m.id === id);
                                 return `${med?.medicine_name || id} (x${qty})`;
-                              }).join(', ') || 'N/A'}</IonText>
+                              }).join(', ') || 'N/A'}></IonTextarea>
                             </IonItem>
-                            <IonItem>
+                            <IonItem lines='none'>
                               <IonLabel>Process Note:</IonLabel>
-                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.processNote || 'N/A'}</IonText>
+                            </IonItem>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.processNote || 'N/A'}></IonTextarea>
                             </IonItem>
                           </IonCard>
                         )}
@@ -1124,24 +1134,17 @@ const SuperAdminMedRequestList: React.FC = () => {
                             {schedulingEntry && (
                               <>
                                 <IonItem>
-                                  <IonLabel>Scheduled By: {schedulingEntry.userName} ({schedulingEntry.userEmail})</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                  <IonLabel>Scheduled At: {schedulingEntry.timestamp.toLocaleString()}</IonLabel>
+                                  <IonLabel>Scheduled By: {schedulingEntry.userName}
+                                    <p>{schedulingEntry.userEmail} at {schedulingEntry.timestamp.toLocaleString()}</p>
+                                  </IonLabel>
                                 </IonItem>
                               </>
                             )}
-                            <IonItem>
-                              <IonLabel>Pickup Date:</IonLabel>
-                              <IonText slot="end">{selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}</IonText>
+                            <IonItem lines='none'>
+                              <IonLabel>Scheduled Pickup:</IonLabel>
                             </IonItem>
-                            <IonItem>
-                              <IonLabel>Pickup Time:</IonLabel>
-                              <IonText slot="end">{selectedRequest.scheduleTime || 'N/A'}</IonText>
-                            </IonItem>
-                            <IonItem>
-                              <IonLabel>Pickup Location:</IonLabel>
-                              <IonText slot="end" className="ion-text-wrap">{selectedRequest.schedulePlace || 'N/A'}</IonText>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.scheduleDate?.toLocaleDateString() + ' ' + (selectedRequest.scheduleTime) + ' at ' + (selectedRequest.schedulePlace || 'N/A')}></IonTextarea>
                             </IonItem>
                           </IonCard>
                         )}
@@ -1151,10 +1154,9 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Completed By: {completionEntry.userName} ({completionEntry.userEmail})</IonLabel>
-                            </IonItem>
-                            <IonItem>
-                              <IonLabel>Completed At: {completionEntry.timestamp.toLocaleString()}</IonLabel>
+                              <IonLabel>Completed By: {completionEntry.userName}
+                                <p>{completionEntry.userEmail} at {completionEntry.timestamp.toLocaleString()}</p>
+                              </IonLabel>
                             </IonItem>
                           </IonCard>
                         )}
@@ -1280,7 +1282,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         <IonModal isOpen={showProcessModal} onDidDismiss={() => setShowProcessModal(false)}>
           <IonHeader className='ion-no-border'>
             <IonToolbar>
-              <IonTitle>Process Request - Step {processStep} of 3</IonTitle>
+              <IonTitle>Process Request</IonTitle>
               <IonButtons slot="end">
                 <IonButton onClick={() => setShowProcessModal(false)}>Close</IonButton>
               </IonButtons>
@@ -1335,44 +1337,45 @@ const SuperAdminMedRequestList: React.FC = () => {
                   <IonCardContent>
                       <IonSearchbar
                         value={medicineSearch}
-                        onIonChange={e => setMedicineSearch(e.detail.value!)}
+                        onIonInput={e => setMedicineSearch(e.detail.value!)}
                         placeholder="Search medicines..."
                       />
                    
-                    <IonItem lines='none' className='ion-margin-vertical'>
+                    <IonItem lines='none'>
                       <IonSelect
                         value={medicineFilter}
                         placeholder="Filter by category"
                         onIonChange={e => setMedicineFilter(e.detail.value)}
                       >
                         <IonSelectOption value="all">All Categories</IonSelectOption>
-                        {categoryOptions.map(cat => (
+                        {medicineCategoryOptions.map(cat => (
                           <IonSelectOption key={cat} value={cat}>{cat}</IonSelectOption>
                         ))}
                       </IonSelect>
                     </IonItem>
-                    <IonItemDivider>Medicines</IonItemDivider>
+                    
                     {filteredMedicines.map(med => (
+                      
                       <React.Fragment key={med.id}>
-                        <IonItem lines='none' className='ion-margin-vertical'>
-                          <IonLabel>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <div>
-                                {med.medicine_name}
-                              </div>
-                              <div>
-                                <small>{med.dosage_form} - {med.strength} ({med.unit_name})</small>
-                              </div>
-                              <div>
-                                <small>Quantity: {med.quantity} | Expires: {med.expiration_date.toLocaleDateString()}</small>
-                              </div>
-                            </div>
-                          </IonLabel>
-                          <IonCheckbox slot='end'
+                        <IonItem className='ion-margin-vertical'>
+                          <IonCheckbox
                             checked={!!selectedMedicines[med.id]}
                             onIonChange={() => toggleMedicineSelection(med.id)}
                             disabled={med.quantity <= 0}
-                          />
+                            justify='space-between'
+                          >
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <div>
+                                {med.medicine_name} ({med.category})
+                              </div>
+                              <div>
+                                <small>Quantity: {med.quantity}</small>
+                              </div>
+                            </div>
+                            <div>
+                                <small>{med.dosage_form} - {med.strength} ({med.unit_name}) | Expires: {med.expiration_date.toLocaleDateString()}</small>
+                              </div>
+                          </IonCheckbox>
                         </IonItem>
                         {selectedMedicines[med.id] && (
                           <IonItem key={`${med.id}-quantity`}>
@@ -1392,7 +1395,7 @@ const SuperAdminMedRequestList: React.FC = () => {
               <>
                 <IonCard className="ion-padding">
                   <IonNote>
-                    Review the selected medicines and add a process note.
+                    Review the selected medicines and add an optional process note.
                   </IonNote>
                 </IonCard>
                 <IonCard>
@@ -1419,13 +1422,14 @@ const SuperAdminMedRequestList: React.FC = () => {
                         );
                       })
                     )}
-                    <IonItemDivider>Process Note</IonItemDivider>
+                    <IonItemDivider className='ion-margin-top'>Process Note (Optional)</IonItemDivider>
                     <IonItem lines='none' className='ion-margin-vertical'>
                       <IonTextarea
                         fill="outline"
                         value={processNote}
                         onIonChange={e => setProcessNote(e.detail.value!)}
                         placeholder="Add a note about the processing..."
+                        rows={3}
                       />
                     </IonItem>
                   </IonCardContent>
