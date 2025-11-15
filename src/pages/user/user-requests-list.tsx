@@ -29,6 +29,8 @@ import {
   IonSkeletonText,
   IonIcon,
   IonTextarea,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -61,6 +63,7 @@ const UserRequestsList: React.FC = () => {
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [archivedRequests, setArchivedRequests] = useState<{[key: string]: CombinedRequest[]}>({});
   const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
+  const [archiveFilter, setArchiveFilter] = useState('all');
   const [detailSegment, setDetailSegment] = useState<'request' | 'resident'>('request');
   const userId = currentUser?.uid;
 
@@ -197,10 +200,14 @@ const UserRequestsList: React.FC = () => {
   }, [filter, combinedRequests]);
 
   useEffect(() => {
-    const archived = combinedRequests.filter(r =>
+    let archived = combinedRequests.filter(r =>
         r.isShown === false &&
         ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
     );
+
+    if (archiveFilter !== 'all') {
+      archived = archived.filter(r => r.status === archiveFilter);
+    }
 
     const grouped = archived.reduce((acc, request) => {
         const date = request.createdAt;
@@ -213,7 +220,7 @@ const UserRequestsList: React.FC = () => {
     }, {} as {[key: string]: CombinedRequest[]});
 
     setArchivedRequests(grouped);
-}, [combinedRequests]);
+}, [combinedRequests, archiveFilter]);
 
   const handleViewDetails = (request: CombinedRequest) => {
     setSelectedRequest(request);
@@ -833,6 +840,16 @@ const UserRequestsList: React.FC = () => {
                     </IonText>
                 </IonItem>
             </IonCard>
+
+            <IonToolbar>
+                <IonSelect value={archiveFilter} placeholder="Filter by Status" onIonChange={(e: CustomEvent) => setArchiveFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Statuses</IonSelectOption>
+                    <IonSelectOption value="completed">Completed</IonSelectOption>
+                    <IonSelectOption value="rejected">Rejected</IonSelectOption>
+                    <IonSelectOption value="cancelled">Cancelled</IonSelectOption>
+                    <IonSelectOption value="no show">No Show</IonSelectOption>
+                </IonSelect>
+            </IonToolbar>
 
             {Object.keys(archivedRequests).length === 0 ? (
                 <IonCard className="ion-padding"><IonText>No archived requests found.</IonText></IonCard>
