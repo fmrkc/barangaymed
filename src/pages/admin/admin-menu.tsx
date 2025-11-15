@@ -7,12 +7,10 @@ import Dashboard from './admin-dashboard';
 import Profile from './admin-profile';
 import Residents from './admin-residents';
 import Verification from './admin-resident-verification';
-import Inventory from './admin-med-inventory';
 import Brgy_Announcements from './admin-brgy-announcements';
 import RHU_Announcements from './admin-rhu-announcements';
-import Medicine_Requests from './admin-medicine-requests';
 
-import { calendar, medical, medkit, megaphone, podium, reader, logOut, people, person, shield, checkbox, peopleCircle, add, personAdd } from 'ionicons/icons';
+import { medical, megaphone, podium, logOut, people, person, checkbox } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Menu: React.FC = () => {
@@ -23,13 +21,7 @@ const Menu: React.FC = () => {
     const dashboard = { name: 'Dashboard', url: '/admin/dashboard', icon: podium };
     const residents = [
         { name: 'Verified Residents', url: '/admin/dashboard/residents', icon: people },
-        { name: 'Register New Resident', url: '/admin/dashboard', icon: personAdd },
         { name: 'Resident Verification', url: '/admin/dashboard/residents/verification', icon: checkbox },
-    ];
-    const medicine = [
-        { name: 'Medicine Inventory', url: '/admin/dashboard/inventory', icon: medkit },
-        { name: 'Create Medicine Request', url: '/admin/dashboard', icon: personAdd },
-        { name: 'Incoming Medicine Requests', url: '/admin/dashboard/medicine-requests', icon: reader },
     ];
     const announcements = [
         { name: 'Barangay Announcements', url: '/admin/dashboard/brgy-announcements', icon: megaphone },
@@ -79,21 +71,6 @@ const Menu: React.FC = () => {
                       </IonItem>
                       <div slot="content">
                         {residents.map((item, index) => (
-                          <IonMenuToggle key={index} autoHide={false}>
-                            <IonItem detail={false} routerLink={item.url} routerDirection="none">
-                              <IonIcon slot="start" icon={item.icon} />
-                              {item.name}
-                            </IonItem>
-                          </IonMenuToggle>
-                        ))}
-                      </div>
-                    </IonAccordion>
-                    <IonAccordion value="medicine">
-                      <IonItem slot="header">
-                        <IonLabel>Medicine</IonLabel>
-                      </IonItem>
-                      <div slot="content">
-                        {medicine.map((item, index) => (
                           <IonMenuToggle key={index} autoHide={false}>
                             <IonItem detail={false} routerLink={item.url} routerDirection="none">
                               <IonIcon slot="start" icon={item.icon} />
@@ -180,10 +157,8 @@ const Menu: React.FC = () => {
             <Route exact path="/admin/dashboard/profile" component={Profile} />
             <Route exact path="/admin/dashboard/residents" component={Residents} />
             <Route exact path="/admin/dashboard/residents/verification" component={Verification} />
-            <Route exact path="/admin/dashboard/inventory" component={Inventory} />
             <Route exact path="/admin/dashboard/brgy-announcements" component={Brgy_Announcements} />
             <Route exact path="/admin/dashboard/rhu-announcements" component={RHU_Announcements} />
-            <Route exact path="/admin/dashboard/medicine-requests" component={Medicine_Requests} />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonPage>
