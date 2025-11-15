@@ -48,7 +48,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline, cloudUpload, checkmarkDone, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
+import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline, cloudUpload, checkmarkDone, archiveOutline, chevronUp, chevronDown, closeCircleOutline } from 'ionicons/icons';
 import './sa-tele-request-list.css';
 
 import { useIonRouter } from '@ionic/react';
@@ -147,6 +147,12 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
   const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
   const [archiveSelectedBarangayFilter, setArchiveSelectedBarangayFilter] = useState('all');
+
+  const [showCancelledModal, setShowCancelledModal] = useState(false);
+  const [cancelledTeleconsultationRequests, setCancelledTeleconsultationRequests] = useState<{ [key: string]: TeleconsultationRequest[] }>({});
+  const [openCancelledGroup, setOpenCancelledGroup] = useState<string | null>(null);
+  const [cancelledSearchQuery, setCancelledSearchQuery] = useState('');
+  const [cancelledSelectedBarangayFilter, setCancelledSelectedBarangayFilter] = useState('all');
 
 
   // Add refresher handler
@@ -302,6 +308,36 @@ const SuperAdminTeleRequestList: React.FC = () => {
 
     setArchivedTeleconsultationRequests(grouped);
 }, [requests, archiveSearchQuery, archiveSelectedBarangayFilter]);
+
+  useEffect(() => {
+    let cancelled = requests.filter(r => r.status === 'cancelled');
+
+    // Apply search query to cancelled requests
+    if (cancelledSearchQuery) {
+      cancelled = cancelled.filter(request =>
+        request.userData?.firstName?.toLowerCase().includes(cancelledSearchQuery.toLowerCase()) ||
+        request.userData?.lastName?.toLowerCase().includes(cancelledSearchQuery.toLowerCase()) ||
+        request.id?.toLowerCase().includes(cancelledSearchQuery.toLowerCase())
+      );
+    }
+
+    // Apply barangay filter to cancelled requests
+    if (cancelledSelectedBarangayFilter !== 'all') {
+      cancelled = cancelled.filter(r => r.barangayId === cancelledSelectedBarangayFilter);
+    }
+
+    const grouped = cancelled.reduce((acc, request) => {
+        const date = request.createdAt;
+        const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        if (!acc[monthYear]) {
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(request);
+        return acc;
+    }, {} as {[key: string]: TeleconsultationRequest[]});
+
+    setCancelledTeleconsultationRequests(grouped);
+  }, [requests, cancelledSearchQuery, cancelledSelectedBarangayFilter]);
 
   const handleViewDetails = (request: TeleconsultationRequest) => {
     setSelectedRequest(request);
@@ -605,6 +641,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
           </IonButtons>
           <IonTitle>Teleconsultation Requests</IonTitle>
           <IonButtons slot="end">
+            <IonButton onClick={() => setShowCancelledModal(true)}>
+              <IonIcon icon={closeCircleOutline} slot='icon-only' />
+            </IonButton>
             <IonButton onClick={() => setShowArchiveModal(true)}>
               <IonIcon icon={archiveOutline} slot='icon-only' />
             </IonButton>
@@ -840,100 +879,112 @@ const SuperAdminTeleRequestList: React.FC = () => {
           ))}
         </IonList>
 
-
-
-        <IonModal isOpen={showScheduleModal} onDidDismiss={() => setShowScheduleModal(false)}>
-          <IonHeader className='ion-no-border'>
+        {/* Cancelled Requests Modal */}
+        <IonModal isOpen={showCancelledModal} onDidDismiss={() => setShowCancelledModal(false)}>
+          <IonHeader className="ion-no-border">
             <IonToolbar>
-              <IonTitle>Schedule Teleconsultation</IonTitle>
+              <IonTitle>Cancelled Teleconsultation Requests</IonTitle>
               <IonButtons slot="start">
-                <IonButton onClick={() => setShowScheduleModal(false)}>
+                <IonButton onClick={() => setShowCancelledModal(false)}>
                   <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonLoading isOpen={isScheduling} message="Scheduling teleconsultation..." />
-            <IonCard className="ion-padding">
-              <IonNote>
-                Please provide the schedule and details for the teleconsultation.
-              </IonNote>
+            <IonCard className="ion-padding-horizontal">
+                <IonItem lines="none">
+                    <IonText>
+                        <p>This section shows all teleconsultation requests that have been cancelled by users. They are grouped by month and year for easier tracking.</p>
+                    </IonText>
+                </IonItem>
             </IonCard>
-            <IonCard>
-              <IonCardHeader>
-                <IonItem lines='none'>
-                  You are scheduling for: {selectedRequest?.userData?.firstName} {selectedRequest?.userData?.lastName}
-                </IonItem>
-              </IonCardHeader>
-              <IonCardContent>
-                <IonItemDivider>Schedule Date</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonInput
-                    fill="outline"
-                    type="date"
-                    value={scheduleDate}
-                    min={new Date().toISOString().split('T')[0]}
-                    onIonChange={(e) => setScheduleDate(e.detail.value!)}
-                    required
-                  />
-                </IonItem>
-                <IonItemDivider>Start Time</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonInput
-                    fill='outline'
-                    type="time"
-                    value={startTime}
-                    onIonChange={e => handleStartTimeChange(e.detail.value!)}
-                  />
-                </IonItem>
-                <IonItemDivider>End Time</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonInput
-                    fill='outline'
-                    type="time"
-                    value={endTime}
-                    onIonChange={e => handleEndTimeChange(e.detail.value!)}
-                  />
-                </IonItem>
-                <IonItemDivider>Assigned Doctor's Name</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonInput
-                    fill='outline'
-                    value={doctorName}
-                    onIonChange={e => setDoctorName(e.detail.value!)}
-                    placeholder="Enter doctor's name"
-                  />
-                </IonItem>
 
-                <IonItemDivider>Meeting Link</IonItemDivider>
-                <IonItem lines='none' className='ion-margin-vertical'>
-                  <IonInput
-                    fill='outline'
-                    value={meetingLink}
-                    onIonChange={e => setMeetingLink(e.detail.value!)}
-                    placeholder="Enter meeting link"
-                  />
-                </IonItem>
-                <IonItem>
-                  <IonNote>
-                    Make sure that the meeting link looks like this: <strong>https://meet.google.com/xxx-xxxx-xxx</strong> to make sure that the resident can join the meeting.
-                  </IonNote>
-                </IonItem>
-              </IonCardContent>
-            </IonCard>
-          </IonContent>
-          <IonFooter>
             <IonToolbar>
-              <IonItem lines='none'>
-                <small>If all fields are filled out correctly, click "Schedule" to finalize the scheduling.</small>
-              </IonItem>
-              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleSubmit} disabled={isScheduling}>
-                Schedule
-                <IonIcon slot="end" icon={calendar}></IonIcon>
-              </IonButton>
+                <IonSearchbar value={cancelledSearchQuery} onIonInput={e => setCancelledSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
             </IonToolbar>
-          </IonFooter>
+            <IonToolbar className="ion-padding-horizontal">
+                <IonSelect value={cancelledSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setCancelledSelectedBarangayFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Barangays</IonSelectOption>
+                    {barangayFilterOptions.map(b => (
+                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                    ))}
+                </IonSelect>
+            </IonToolbar>
+
+            {Object.keys(cancelledTeleconsultationRequests).length === 0 ? (
+                <IonCard className="ion-padding"><IonText>No cancelled requests found.</IonText></IonCard>
+            ) : (
+                <IonList>
+                    {Object.keys(cancelledTeleconsultationRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
+                        <div key={groupKey}>
+                                  <IonItem button onClick={() => setOpenCancelledGroup(openCancelledGroup === groupKey ? null : groupKey)}>
+                                    <IonLabel>{groupKey}</IonLabel>
+                                    <IonIcon icon={openCancelledGroup === groupKey ? chevronUp : chevronDown} slot="end" />
+                                  </IonItem>  {openCancelledGroup === groupKey && (
+                                <IonList>
+                                    {cancelledTeleconsultationRequests[groupKey].map(request => renderCancelledTeleconsultationCard(request, handleViewDetails))}
+                                </IonList>
+                            )}
+                        </div>
+                    ))}
+                </IonList>
+            )}
+          </IonContent>
+        </IonModal>
+
+        {/* Archive Modal */}
+        <IonModal isOpen={showArchiveModal} onDidDismiss={() => setShowArchiveModal(false)}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Archived Teleconsultation Requests</IonTitle>
+              <IonButtons slot="start">
+                <IonButton onClick={() => setShowArchiveModal(false)}>
+                  <IonIcon icon={arrowBack} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard className="ion-padding-horizontal">
+                <IonItem lines="none">
+                    <IonText>
+                        <p>Requests that are over 31 days old are automatically archived to maintain an organized and clutter-free list. Archived requests are grouped by month and year for easier tracking and reference. You can view them anytime in this Archive section.</p>
+                    </IonText>
+                </IonItem>
+            </IonCard>
+
+            <IonToolbar>
+                <IonSearchbar value={archiveSearchQuery} onIonInput={e => setArchiveSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
+            </IonToolbar>
+            <IonToolbar className="ion-padding-horizontal">
+                <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Barangays</IonSelectOption>
+                    {barangayFilterOptions.map(b => (
+                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                    ))}
+                </IonSelect>
+            </IonToolbar>
+
+            {Object.keys(archivedTeleconsultationRequests).length === 0 ? (
+                <IonCard className="ion-padding"><IonText>No archived teleconsultation requests found.</IonText></IonCard>
+            ) : (
+                <IonList>
+                    {Object.keys(archivedTeleconsultationRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
+                        <div key={groupKey}>
+                                  <IonItem button onClick={() => setOpenArchiveGroup(openArchiveGroup === groupKey ? null : groupKey)}>
+                                    <IonLabel>{groupKey}</IonLabel>
+                                    <IonIcon icon={openArchiveGroup === groupKey ? chevronUp : chevronDown} slot="end" />
+                                  </IonItem>  {openArchiveGroup === groupKey && (
+                                <IonList>
+                                    {archivedTeleconsultationRequests[groupKey].map(request => renderArchivedTeleconsultationCard(request, handleViewDetails))}
+                                </IonList>
+                            )}
+                        </div>
+                    ))}
+                </IonList>
+            )}
+          </IonContent>
         </IonModal>
 
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
@@ -1533,6 +1584,47 @@ const SuperAdminTeleRequestList: React.FC = () => {
 };
 
 export default SuperAdminTeleRequestList;
+
+const renderCancelledTeleconsultationCard = (request: TeleconsultationRequest, handleViewDetails: (request: TeleconsultationRequest) => void) => {
+    const title = 'Teleconsultation Request';
+    const reason = request.reason;
+    const createdAt = request.createdAt;
+    const status = request.status;
+
+    return (
+      <IonCard
+        key={request.id}
+        style={{
+          borderLeft: `8px solid #eb445a` // danger
+        }}>
+        <IonCardHeader>
+          <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {title}
+              <IonChip
+                color='danger'
+                style={{ margin: '0' }}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </IonChip>
+            </div>
+          </IonCardTitle>
+           <IonCardSubtitle>
+            Barangay: <strong>{request.barangayName || request.barangayId}</strong>
+          </IonCardSubtitle>
+        </IonCardHeader>
+        <IonCardContent>
+          <p><strong>Resident:</strong> {request.userData?.firstName} {request.userData?.lastName}</p>
+          <p><strong>Reason:</strong> {reason}</p>
+          <p><strong>Cancelled At:</strong> {request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</p>
+          <p><strong>Cancellation Reason:</strong> {request.cancellationReason || 'N/A'}</p>
+          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+          </div>
+        </IonCardContent>
+      </IonCard>
+    );
+  };
 
 const renderArchivedTeleconsultationCard = (request: TeleconsultationRequest, handleViewDetails: (request: TeleconsultationRequest) => void) => {
     const title = 'Teleconsultation Request';

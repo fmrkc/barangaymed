@@ -51,7 +51,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown, checkmarkDone, arrowBackSharp } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown, checkmarkDone, arrowBackSharp, closeCircleOutline } from 'ionicons/icons';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
@@ -145,6 +145,12 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
   const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
   const [archiveSelectedBarangayFilter, setArchiveSelectedBarangayFilter] = useState('all');
+
+  const [showCancelledModal, setShowCancelledModal] = useState(false);
+  const [cancelledRequests, setCancelledRequests] = useState<{ [key: string]: MedicineRequest[] }>({});
+  const [openCancelledGroup, setOpenCancelledGroup] = useState<string | null>(null);
+  const [cancelledSearchQuery, setCancelledSearchQuery] = useState('');
+  const [cancelledSelectedBarangayFilter, setCancelledSelectedBarangayFilter] = useState('all');
 
   const barangayFilterOptions = useMemo(() => {
     const uniqueBarangays = new Map<string, string>();
@@ -319,6 +325,36 @@ const SuperAdminMedRequestList: React.FC = () => {
 
     setArchivedRequests(grouped);
 }, [requests, archiveSearchQuery, archiveSelectedBarangayFilter]);
+
+  useEffect(() => {
+    let cancelled = requests.filter(r => r.status === 'cancelled');
+
+    // Apply search query to cancelled requests
+    if (cancelledSearchQuery) {
+      cancelled = cancelled.filter(request =>
+        request.userData?.firstName?.toLowerCase().includes(cancelledSearchQuery.toLowerCase()) ||
+        request.userData?.lastName?.toLowerCase().includes(cancelledSearchQuery.toLowerCase()) ||
+        request.id?.toLowerCase().includes(cancelledSearchQuery.toLowerCase())
+      );
+    }
+
+    // Apply barangay filter to cancelled requests
+    if (cancelledSelectedBarangayFilter !== 'all') {
+      cancelled = cancelled.filter(r => r.barangayId === cancelledSelectedBarangayFilter);
+    }
+
+    const grouped = cancelled.reduce((acc, request) => {
+        const date = request.createdAt;
+        const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        if (!acc[monthYear]) {
+            acc[monthYear] = [];
+        }
+        acc[monthYear].push(request);
+        return acc;
+    }, {} as {[key: string]: MedicineRequest[]});
+
+    setCancelledRequests(grouped);
+  }, [requests, cancelledSearchQuery, cancelledSelectedBarangayFilter]);
 
   const handleViewDetails = (request: MedicineRequest) => {
     setSelectedRequest(request);
@@ -706,6 +742,9 @@ const SuperAdminMedRequestList: React.FC = () => {
           </IonButtons>
           <IonTitle>Medicine Requests</IonTitle>
           <IonButtons slot="end">
+            <IonButton onClick={() => setShowCancelledModal(true)}>
+              <IonIcon icon={closeCircleOutline} slot='icon-only' />
+            </IonButton>
             <IonButton onClick={() => setShowArchiveModal(true)}>
               <IonIcon icon={archiveOutline} slot='icon-only' />
             </IonButton>
@@ -887,6 +926,60 @@ const SuperAdminMedRequestList: React.FC = () => {
             </IonCard>
           ))}
         </IonList>
+
+        {/* Cancelled Requests Modal */}
+        <IonModal isOpen={showCancelledModal} onDidDismiss={() => setShowCancelledModal(false)}>
+          <IonHeader className="ion-no-border">
+            <IonToolbar>
+              <IonTitle>Cancelled Requests</IonTitle>
+              <IonButtons slot="start">
+                <IonButton onClick={() => setShowCancelledModal(false)}>
+                  <IonIcon icon={arrowBack} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard className="ion-padding-horizontal">
+                <IonItem lines="none">
+                    <IonText>
+                        <p>This section shows all requests that have been cancelled by users. They are grouped by month and year for easier tracking.</p>
+                    </IonText>
+                </IonItem>
+            </IonCard>
+
+            <IonToolbar>
+                <IonSearchbar value={cancelledSearchQuery} onIonInput={e => setCancelledSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
+            </IonToolbar>
+            <IonToolbar className="ion-padding-horizontal">
+                <IonSelect value={cancelledSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setCancelledSelectedBarangayFilter(e.detail.value)}>
+                    <IonSelectOption value="all">All Barangays</IonSelectOption>
+                    {barangayFilterOptions.map(b => (
+                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                    ))}
+                </IonSelect>
+            </IonToolbar>
+
+            {Object.keys(cancelledRequests).length === 0 ? (
+                <IonCard className="ion-padding"><IonText>No cancelled requests found.</IonText></IonCard>
+            ) : (
+                <IonList>
+                    {Object.keys(cancelledRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
+                        <div key={groupKey}>
+                                  <IonItem button onClick={() => setOpenCancelledGroup(openCancelledGroup === groupKey ? null : groupKey)}>
+                                    <IonLabel>{groupKey}</IonLabel>
+                                    <IonIcon icon={openCancelledGroup === groupKey ? chevronUp : chevronDown} slot="end" />
+                                  </IonItem>  {openCancelledGroup === groupKey && (
+                                <IonList>
+                                    {cancelledRequests[groupKey].map(request => renderCancelledCard(request, handleViewDetails))}
+                                </IonList>
+                            )}
+                        </div>
+                    ))}
+                </IonList>
+            )}
+          </IonContent>
+        </IonModal>
 
         {/* Archive Modal */}
         <IonModal isOpen={showArchiveModal} onDidDismiss={() => setShowArchiveModal(false)}>
@@ -1789,7 +1882,48 @@ const renderArchivedCard = (request: MedicineRequest, handleViewDetails: (reques
           </div>
         </IonCardContent>
       </IonCard>
-    );
-  };
-
-export default SuperAdminMedRequestList;
+      );
+    };
+    
+    const renderCancelledCard = (request: MedicineRequest, handleViewDetails: (request: MedicineRequest) => void) => {
+        const title = 'Medicine Request';
+        const reason = request.reason;
+        const createdAt = request.createdAt;
+        const status = request.status;
+    
+        return (
+          <IonCard
+            key={request.id}
+            style={{
+              borderLeft: `8px solid #eb445a` // danger
+            }}>
+            <IonCardHeader>
+              <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {title}
+                  <IonChip
+                    color='danger'
+                    style={{ margin: '0' }}
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </IonChip>
+                </div>
+              </IonCardTitle>
+               <IonCardSubtitle>
+                Barangay: <strong>{request.barangayName || request.barangayId}</strong>
+              </IonCardSubtitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <p><strong>Resident:</strong> {request.userData?.firstName} {request.userData?.lastName}</p>
+              <p><strong>Reason:</strong> {reason}</p>
+              <p><strong>Cancelled At:</strong> {request.updatedAt ? request.updatedAt.toLocaleString() : 'N/A'}</p>
+              <p><strong>Cancellation Reason:</strong> {request.cancellationReason || 'N/A'}</p>
+              <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
+              </div>
+            </IonCardContent>
+          </IonCard>
+        );
+      };
+    
+    export default SuperAdminMedRequestList;
