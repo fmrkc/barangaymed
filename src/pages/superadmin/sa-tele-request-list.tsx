@@ -655,9 +655,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Archived Teleconsultation Requests</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowArchiveModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -846,9 +846,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Schedule Teleconsultation</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowScheduleModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -940,9 +940,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -1343,9 +1343,9 @@ const SuperAdminTeleRequestList: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Complete Teleconsultation</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowCompleteModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>

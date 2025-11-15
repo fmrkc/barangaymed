@@ -51,7 +51,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
-import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown, checkmarkDone } from 'ionicons/icons';
+import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown, checkmarkDone, arrowBackSharp } from 'ionicons/icons';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
@@ -893,9 +893,9 @@ const SuperAdminMedRequestList: React.FC = () => {
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Archived Requests</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowArchiveModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -947,9 +947,9 @@ const SuperAdminMedRequestList: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Request Details</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowModal(false)}>
-                  Close
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -1283,8 +1283,10 @@ const SuperAdminMedRequestList: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Process Request</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowProcessModal(false)}>Close</IonButton>
+              <IonButtons slot="start">
+                <IonButton onClick={() => setShowProcessModal(false)}>
+                  <IonIcon icon={arrowBack} slot='icon-only' />
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
@@ -1587,8 +1589,10 @@ const SuperAdminMedRequestList: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Schedule Request</IonTitle>
-              <IonButtons slot="end">
-                <IonButton onClick={() => setShowScheduleModal(false)}>Close</IonButton>
+              <IonButtons slot="start">
+                <IonButton onClick={() => setShowScheduleModal(false)}>
+                  <IonIcon icon={arrowBack} slot='icon-only' />
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
