@@ -147,6 +147,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
   const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
   const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
   const [archiveSelectedBarangayFilter, setArchiveSelectedBarangayFilter] = useState('all');
+  const [archiveSelectedStatusFilter, setArchiveSelectedStatusFilter] = useState('all');
 
   const [showCancelledModal, setShowCancelledModal] = useState(false);
   const [cancelledTeleconsultationRequests, setCancelledTeleconsultationRequests] = useState<{ [key: string]: TeleconsultationRequest[] }>({});
@@ -297,6 +298,11 @@ const SuperAdminTeleRequestList: React.FC = () => {
       archived = archived.filter(r => r.barangayId === archiveSelectedBarangayFilter);
     }
 
+    // Apply status filter to archived requests
+    if (archiveSelectedStatusFilter !== 'all') {
+      archived = archived.filter(r => r.status === archiveSelectedStatusFilter);
+    }
+
     const grouped = archived.reduce((acc, request) => {
         const date = request.createdAt;
         const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
@@ -308,7 +314,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
     }, {} as {[key: string]: TeleconsultationRequest[]});
 
     setArchivedTeleconsultationRequests(grouped);
-}, [requests, archiveSearchQuery, archiveSelectedBarangayFilter]);
+}, [requests, archiveSearchQuery, archiveSelectedBarangayFilter, archiveSelectedStatusFilter]);
 
   useEffect(() => {
     let cancelled = requests.filter(r => r.status === 'cancelled');
@@ -715,12 +721,26 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 <IonSearchbar value={archiveSearchQuery} onIonInput={e => setArchiveSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
             </IonToolbar>
             <IonToolbar className="ion-padding-horizontal">
-                <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
-                    <IonSelectOption value="all">All Barangays</IonSelectOption>
-                    {barangayFilterOptions.map(b => (
-                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
-                    ))}
-                </IonSelect>
+                <IonGrid>
+                    <IonRow>
+                        <IonCol size="6">
+                            <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
+                                <IonSelectOption value="all">All Barangays</IonSelectOption>
+                                {barangayFilterOptions.map(b => (
+                                    <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonCol>
+                        <IonCol size="6">
+                            <IonSelect value={archiveSelectedStatusFilter} placeholder="Filter by Status" onIonChange={e => setArchiveSelectedStatusFilter(e.detail.value)}>
+                                <IonSelectOption value="all">All Statuses</IonSelectOption>
+                                <IonSelectOption value="completed">Completed</IonSelectOption>
+                                <IonSelectOption value="rejected">Rejected</IonSelectOption>
+                                <IonSelectOption value="no show">No Show</IonSelectOption>
+                            </IonSelect>
+                        </IonCol>
+                    </IonRow>
+                </IonGrid>
             </IonToolbar>
 
             {Object.keys(archivedTeleconsultationRequests).length === 0 ? (
@@ -922,60 +942,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
                                   </IonItem>  {openCancelledGroup === groupKey && (
                                 <IonList>
                                     {cancelledTeleconsultationRequests[groupKey].map(request => renderCancelledTeleconsultationCard(request, handleViewDetails))}
-                                </IonList>
-                            )}
-                        </div>
-                    ))}
-                </IonList>
-            )}
-          </IonContent>
-        </IonModal>
-
-        {/* Archive Modal */}
-        <IonModal isOpen={showArchiveModal} onDidDismiss={() => setShowArchiveModal(false)}>
-          <IonHeader className="ion-no-border">
-            <IonToolbar>
-              <IonTitle>Archived Teleconsultation Requests</IonTitle>
-              <IonButtons slot="start">
-                <IonButton onClick={() => setShowArchiveModal(false)}>
-                  <IonIcon icon={arrowBack} slot='icon-only' />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <IonCard className="ion-padding-horizontal">
-                <IonItem lines="none">
-                    <IonText>
-                        <p>Requests that are over 31 days old are automatically archived to maintain an organized and clutter-free list. Archived requests are grouped by month and year for easier tracking and reference. You can view them anytime in this Archive section.</p>
-                    </IonText>
-                </IonItem>
-            </IonCard>
-
-            <IonToolbar>
-                <IonSearchbar value={archiveSearchQuery} onIonInput={e => setArchiveSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
-            </IonToolbar>
-            <IonToolbar className="ion-padding-horizontal">
-                <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
-                    <IonSelectOption value="all">All Barangays</IonSelectOption>
-                    {barangayFilterOptions.map(b => (
-                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
-                    ))}
-                </IonSelect>
-            </IonToolbar>
-
-            {Object.keys(archivedTeleconsultationRequests).length === 0 ? (
-                <IonCard className="ion-padding"><IonText>No archived teleconsultation requests found.</IonText></IonCard>
-            ) : (
-                <IonList>
-                    {Object.keys(archivedTeleconsultationRequests).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).map(groupKey => (
-                        <div key={groupKey}>
-                                  <IonItem button onClick={() => setOpenArchiveGroup(openArchiveGroup === groupKey ? null : groupKey)}>
-                                    <IonLabel>{groupKey}</IonLabel>
-                                    <IonIcon icon={openArchiveGroup === groupKey ? chevronUp : chevronDown} slot="end" />
-                                  </IonItem>  {openArchiveGroup === groupKey && (
-                                <IonList>
-                                    {archivedTeleconsultationRequests[groupKey].map(request => renderArchivedTeleconsultationCard(request, handleViewDetails))}
                                 </IonList>
                             )}
                         </div>
