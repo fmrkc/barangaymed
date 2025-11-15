@@ -1,9 +1,9 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonTextarea, IonButton, IonToast, IonModal, IonFab, IonFabButton, IonIcon, IonList, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonFooter, IonLoading, IonItemDivider, IonActionSheet, IonAlert, IonSearchbar, IonRefresher, IonRefresherContent, RefresherCustomEvent, IonText, IonSegment, IonSegmentButton, IonCardSubtitle, IonChip, IonPopover, IonSkeletonText } from '@ionic/react';
-import { add, addCircle, albums, close, create, ellipsisVertical, filter, pencil } from 'ionicons/icons';
+import { add, addCircle, albums, arrowBack, ellipsisVertical, filter, pencil } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebaseConfig';
-import { collection, addDoc, getDocs, serverTimestamp, doc, updateDoc, arrayUnion, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, serverTimestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 
 const Med_Inventory: React.FC = () => {
@@ -339,9 +339,9 @@ const Med_Inventory: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Filter Medicines</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowFilterModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -486,9 +486,9 @@ const Med_Inventory: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>Medicine Details</IonTitle>
-              <IonButtons slot="end">
+              <IonButtons slot="start">
                 <IonButton onClick={() => setShowDetailsModal(false)}>
-                  <IonIcon icon={close} slot='icon-only' />
+                  <IonIcon icon={arrowBack} slot='icon-only' />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -679,8 +679,10 @@ const Med_Inventory: React.FC = () => {
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>{modalMode === 'add' ? 'Add New Medicine' : 'Edit Medicine'}</IonTitle>
-              <IonButtons slot='end'>
-                <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              <IonButtons slot='start'>
+                <IonButton onClick={() => setShowModal(false)}>
+                  <IonIcon icon={arrowBack} slot='icon-only' />
+                </IonButton>
               </IonButtons>
             </IonToolbar>
           </IonHeader>
