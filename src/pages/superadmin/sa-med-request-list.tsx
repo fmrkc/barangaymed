@@ -180,7 +180,7 @@ const SuperAdminMedRequestList: React.FC = () => {
 
     const q = query(
       collection(db, 'medicineRequests'),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'asc')
     );
 
     const timeoutId = setTimeout(() => {

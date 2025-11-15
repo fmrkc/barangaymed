@@ -165,7 +165,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
 
     const q = query(
         collection(db, 'teleconsultationRequests'),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'asc')
     );
 
     const timeoutId = setTimeout(() => {

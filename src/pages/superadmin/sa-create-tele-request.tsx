@@ -127,7 +127,7 @@ const SuperAdminCreateTeleRequest: React.FC = () => {
     setShowSearchResults(false);
     setIsSearching(true);
     try {
-      const q = query(collection(db, 'users'), where('role', '==', 'user'));
+      const q = query(collection(db, 'users'), where('role', '==', 'user'), where('verificationStatus', '==', 'verified'));
       const querySnapshot = await getDocs(q);
       const users: { uid: string; firstName: string; lastName: string; barangayId: string; barangayName: string; name: string; birthdate: any; gender: string; }[] = [];
       querySnapshot.forEach((doc) => {
