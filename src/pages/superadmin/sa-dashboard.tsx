@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonMenuButton, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonIcon, IonText } from '@ionic/react';
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { personAdd, medkit, videocam, megaphone, calendar, medical, people, menu } from 'ionicons/icons';
+import { medkit, videocam, megaphone, calendar, medical, people, menu } from 'ionicons/icons';
 
 const SuperAdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();

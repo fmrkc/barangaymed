@@ -17,9 +17,8 @@ import SAResidents from './sa-residents';
 import SAResidentVerification from './sa-resident-verification';
 
 
-import { medical, medkit, megaphone, people, podium, logOut, person, personAdd, calendar, shield, bagAdd, clipboard, videocam, checkbox } from 'ionicons/icons';
+import { medical, medkit, megaphone, people, podium, logOut, person, calendar, clipboard, videocam, checkbox } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
-import SARegisterResident from './sa-register-resident';
 
 const Menu: React.FC = () => {
     const { currentUser, logout, userRole } = useAuth();
@@ -34,7 +33,6 @@ const Menu: React.FC = () => {
     ];
     const residentmanagement = [
         { name: 'Verified Residents', url: '/superadmin/dashboard/residents', icon: people },
-        { name: 'Register New Resident', url: '/superadmin/dashboard/register-resident', icon: personAdd },
         { name: 'Resident Verification', url: '/superadmin/dashboard/residents/verification', icon: checkbox },
     ];
     const medicine = [
@@ -259,7 +257,6 @@ const Menu: React.FC = () => {
             <Route exact path="/superadmin/dashboard/register-bhw" component={Admin_Register} />
             <Route exact path="/superadmin/dashboard/register-rhu" component={Super_Admin_Register} />
             <Route exact path="/superadmin/dashboard/rhu-announcements" component={Super_Announcements} />
-            <Route exact path="/superadmin/dashboard/register-resident" component={SARegisterResident} />
             <Route exact path="/superadmin/dashboard/create-tele-request" component={SuperAdminCreateTeleRequest} />
           </IonRouterOutlet>
         </IonSplitPane>
