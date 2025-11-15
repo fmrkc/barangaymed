@@ -57,6 +57,10 @@ const UserRegister: React.FC = () => {
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear() - 13);
+  const maxDateString = maxDate.toISOString().split('T')[0];
+
   const progress = currentStep / 4;
 
   const validateStep1 = () => {
@@ -85,6 +89,21 @@ const UserRegister: React.FC = () => {
       setShowErrorToast(true);
       return false;
     }
+
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    if (age < 13) {
+      setError('You must be 13 years old or older to register.');
+      setShowErrorToast(true);
+      return false;
+    }
+
     setError(null);
     return true;
   };
@@ -338,7 +357,7 @@ const UserRegister: React.FC = () => {
                   type="date"
                   placeholder="Select your birthdate"
                   value={birthdate}
-                  max={new Date().toISOString().split('T')[0]}
+                  max={maxDateString}
                   onIonChange={(e) => setBirthdate(e.detail.value!)}
                   className="ion-margin-bottom"
                   required
