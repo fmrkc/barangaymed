@@ -1,7 +1,7 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonIcon, IonText, IonButton } from '@ionic/react';
 import React, { useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { people, personAdd, checkbox, medkit, reader, megaphone, medical, menu } from 'ionicons/icons';
+import { people, checkbox, megaphone, medical, menu } from 'ionicons/icons';
 
 const ADashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -31,7 +31,7 @@ const ADashboard: React.FC = () => {
             </IonCol>
           </IonRow>
           <IonRow>
-            <IonCol size="12" size-md="4">
+            <IonCol size="12" size-md="6">
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/admin/dashboard/residents">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -46,22 +46,7 @@ const ADashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
             </IonCol>
-            <IonCol size="12" size-md="4">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/admin/dashboard">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={personAdd} style={{ marginRight: '8px' }} />
-                    <IonText>Register New Resident</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    Register a new resident in the system.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol size="12" size-md="4">
+            <IonCol size="12" size-md="6">
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/admin/dashboard/residents/verification">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -72,59 +57,6 @@ const ADashboard: React.FC = () => {
                 <IonCardContent>
                   <IonText>
                     Verify resident applications.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-
-          <IonRow>
-            <IonCol size="12">
-              <h2>Medicine</h2>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol size="12" size-md="4">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/admin/dashboard/inventory">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={medkit} style={{ marginRight: '8px' }} />
-                    <IonText>Medicine Inventory</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    Manage medicine inventory.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol size="12" size-md="4">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/admin/dashboard">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={personAdd} style={{ marginRight: '8px' }} />
-                    <IonText>Create Medicine Request</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    Create a new medicine request.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol size="12" size-md="4">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/admin/dashboard/medicine-requests">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={reader} style={{ marginRight: '8px' }} />
-                    <IonText>Incoming Medicine Requests</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    View incoming medicine requests.
                   </IonText>
                 </IonCardContent>
               </IonCard>
