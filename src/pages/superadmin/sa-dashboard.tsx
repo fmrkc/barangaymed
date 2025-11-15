@@ -36,7 +36,7 @@ const SuperAdminDashboard: React.FC = () => {
             </IonCol>
           </IonRow>
           <IonRow>
-            <IonCol size="12" size-md="6">
+            <IonCol size="12" size-md="6" sizeSm='3'>
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-inventory">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -51,7 +51,7 @@ const SuperAdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
             </IonCol>
-            <IonCol size="12" size-md="6">
+            <IonCol size="12" size-md="6" sizeSm='3'>
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-requests">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -99,22 +99,7 @@ const SuperAdminDashboard: React.FC = () => {
           </IonRow>
           <IonRow>
             <IonCol size="12" size-md="6">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/rhu-announcements">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={medical} style={{ marginRight: '8px' }} />
-                    <IonText>Brgy. Announcements</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    Manage barangay announcements.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol size="12" size-md="6">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/rhu-announcements">
+              <IonCard className='ion-padding-vertical' color='secondary' button routerLink="/superadmin/dashboard/rhu-announcements">
                 <IonCardHeader>
                   <IonCardTitle>
                     <IonIcon icon={medical} style={{ marginRight: '8px' }} />
@@ -123,7 +108,7 @@ const SuperAdminDashboard: React.FC = () => {
                 </IonCardHeader>
                 <IonCardContent>
                   <IonText>
-                    Manage RHU announcements.
+                    Manage RHU announcements for the BHWs.
                   </IonText>
                 </IonCardContent>
               </IonCard>
@@ -132,36 +117,21 @@ const SuperAdminDashboard: React.FC = () => {
 
           <IonRow>
             <IonCol size="12">
-              <h2>Accounts</h2>
+              <h2>Account Management</h2>
             </IonCol>
           </IonRow>
           <IonRow>
             <IonCol size="12" size-md="6">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/bhw-accounts">
+              <IonCard className='ion-padding-vertical' color='secondary' button routerLink="/superadmin/dashboard/bhw-accounts">
                 <IonCardHeader>
                   <IonCardTitle>
                     <IonIcon icon={people} style={{ marginRight: '8px' }} />
-                    <IonText>BHW Accounts</IonText>
+                    <IonText>Accounts</IonText>
                   </IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
                   <IonText>
-                    Manage BHW accounts.
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol size="12" size-md="6">
-              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/rhu-accounts">
-                <IonCardHeader>
-                  <IonCardTitle>
-                    <IonIcon icon={people} style={{ marginRight: '8px' }} />
-                    <IonText>RHU Accounts</IonText>
-                  </IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <IonText>
-                    Manage RHU accounts.
+                    View all registered BHW and RHU accounts.
                   </IonText>
                 </IonCardContent>
               </IonCard>
