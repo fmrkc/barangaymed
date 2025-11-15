@@ -582,6 +582,11 @@ const CompleteProfile: React.FC<CompleteProfileProps> = () => {
                         className="ion-margin-bottom"
                       >
                         <IonSelectOption value="National ID">National ID</IonSelectOption>
+                        <IonSelectOption value="Driver's License">Driver's License</IonSelectOption>
+                        <IonSelectOption value="Passport">Passport</IonSelectOption>
+                        <IonSelectOption value="Postal ID">Postal ID</IonSelectOption>
+                        <IonSelectOption value="UMID">UMID</IonSelectOption>
+                        <IonSelectOption value="Voter's ID">Voter's ID</IonSelectOption>
                         <IonSelectOption value="Barangay ID">Barangay ID</IonSelectOption>
                         <IonSelectOption value="PhilHealth ID">PhilHealth ID</IonSelectOption>
                       </IonSelect>
