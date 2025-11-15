@@ -252,7 +252,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let filtered: MedicineRequest[] = requests;
+    let filtered: MedicineRequest[] = requests.filter(r => r.status !== 'cancelled'); // Exclude cancelled from main filtered list
 
     // Filter by status
     switch (filter) {
@@ -273,7 +273,7 @@ const SuperAdminMedRequestList: React.FC = () => {
         break;
       case 'not completed':
         filtered = filtered.filter((r) =>
-          ['rejected', 'no show', 'cancelled'].includes(r.status) && (r as any).isShown !== false
+          ['rejected', 'no show'].includes(r.status) && (r as any).isShown !== false // 'cancelled' removed from here
         );
         break;
       default:
@@ -295,8 +295,9 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   useEffect(() => {
     let archived = requests.filter(r =>
+        r.status !== 'cancelled' && // Exclude cancelled from archives
         (r as any).isShown === false &&
-        ['completed', 'rejected', 'cancelled', 'no show'].includes(r.status)
+        ['completed', 'rejected', 'no show'].includes(r.status) // 'cancelled' removed from here
     );
 
     // Apply search query to archived requests
@@ -917,9 +918,6 @@ const SuperAdminMedRequestList: React.FC = () => {
                   <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
                 {request.status === 'no show' && (
-                  <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
-                )}
-                {request.status === 'cancelled' && (
                   <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
                 )}
               </IonCardContent>
