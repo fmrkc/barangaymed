@@ -1331,20 +1331,15 @@ const SuperAdminMedRequestList: React.FC = () => {
             {processStep === 2 && (
               <>
                 <IonCard className="ion-padding">
-                  <IonNote>
                     Select medicines from inventory. Use search and filter to find medicines quickly.
-                  </IonNote>
-                </IonCard>
-                <IonCard>
-                  <IonCardContent>
-                      <IonSearchbar
+                    <IonSearchbar
+                    className='ion-margin-vertical'
                         value={medicineSearch}
                         onIonInput={e => setMedicineSearch(e.detail.value!)}
                         placeholder="Search medicines..."
                       />
-                   
-                    <IonItem lines='none'>
                       <IonSelect
+                      className='ion-margin-horizontal'
                         value={medicineFilter}
                         placeholder="Filter by category"
                         onIonChange={e => setMedicineFilter(e.detail.value)}
@@ -1354,43 +1349,47 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonSelectOption key={cat} value={cat}>{cat}</IonSelectOption>
                         ))}
                       </IonSelect>
-                    </IonItem>
-                    
-                    {filteredMedicines.map(med => (
-                      
-                      <React.Fragment key={med.id}>
-                        <IonItem className='ion-margin-vertical'>
-                          <IonCheckbox
-                            checked={!!selectedMedicines[med.id]}
-                            onIonChange={() => toggleMedicineSelection(med.id)}
-                            disabled={med.quantity <= 0}
-                            justify='space-between'
-                          >
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <div>
-                                {med.medicine_name} ({med.category})
-                              </div>
-                              <div>
-                                <small>Quantity: {med.quantity}</small>
-                              </div>
-                            </div>
-                            <div>
-                                <small>{med.dosage_form} - {med.strength} ({med.unit_name}) | Expires: {med.expiration_date.toLocaleDateString()}</small>
-                              </div>
-                          </IonCheckbox>
-                        </IonItem>
-                        {selectedMedicines[med.id] && (
-                          <IonItem key={`${med.id}-quantity`}>
-                            <IonLabel slot='start'>Quantity: {selectedMedicines[med.id]?.quantity || 1} / {med.quantity} available</IonLabel>
-                            <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id)}>
-                              Change
-                            </IonButton>
-                          </IonItem>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </IonCardContent>
                 </IonCard>
+              
+                    {filteredMedicines.map(med => (
+                        
+                      <React.Fragment key={med.id}>
+                        <IonCard>
+                          <IonCardContent>
+                            <IonItem lines='none'>
+                              <IonCheckbox
+                                checked={!!selectedMedicines[med.id]}
+                                onIonChange={() => toggleMedicineSelection(med.id)}
+                                disabled={med.quantity <= 0}
+                                justify='space-between'
+                              >
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <div>
+                                    {med.medicine_name} ({med.category})
+                                  </div>
+                                  <div>
+                                    <small>Quantity: {med.quantity}</small>
+                                  </div>
+                                </div>
+                                <div>
+                                  <small>{med.dosage_form} - {med.strength} ({med.unit_name}) | Expires: {med.expiration_date.toLocaleDateString()}</small>
+                                </div>
+                              </IonCheckbox>
+                            </IonItem>
+                            {selectedMedicines[med.id] && (
+                              <IonItem key={`${med.id}-quantity`} lines='none'>
+                                <IonLabel slot='start'>Quantity: {selectedMedicines[med.id]?.quantity || 1} / {med.quantity} available</IonLabel>
+                                <IonButton slot='end' fill="outline" onClick={() => openQuantityActionSheet(med.id)}>
+                                  Change
+                                </IonButton>
+                              </IonItem>
+                            )}
+                          </IonCardContent>
+                        </IonCard>
+                      </React.Fragment>
+                     
+                    ))}
+                 
               </>
             )}
             {processStep === 3 && (
