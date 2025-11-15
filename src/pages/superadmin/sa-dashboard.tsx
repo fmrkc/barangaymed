@@ -36,7 +36,7 @@ const SuperAdminDashboard: React.FC = () => {
             </IonCol>
           </IonRow>
           <IonRow>
-            <IonCol size="12" size-md="6" sizeSm='3'>
+            <IonCol size="12" size-md="6">
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-inventory">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -51,7 +51,7 @@ const SuperAdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
             </IonCol>
-            <IonCol size="12" size-md="6" sizeSm='3'>
+            <IonCol size="12" size-md="6">
               <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/medicine-requests">
                 <IonCardHeader>
                   <IonCardTitle>
@@ -99,7 +99,7 @@ const SuperAdminDashboard: React.FC = () => {
           </IonRow>
           <IonRow>
             <IonCol size="12" size-md="6">
-              <IonCard className='ion-padding-vertical' color='secondary' button routerLink="/superadmin/dashboard/rhu-announcements">
+              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/rhu-announcements">
                 <IonCardHeader>
                   <IonCardTitle>
                     <IonIcon icon={medical} style={{ marginRight: '8px' }} />
@@ -117,12 +117,12 @@ const SuperAdminDashboard: React.FC = () => {
 
           <IonRow>
             <IonCol size="12">
-              <h2>Account Management</h2>
+              <h2>Accounts</h2>
             </IonCol>
           </IonRow>
           <IonRow>
             <IonCol size="12" size-md="6">
-              <IonCard className='ion-padding-vertical' color='secondary' button routerLink="/superadmin/dashboard/bhw-accounts">
+              <IonCard className='ion-padding-vertical' color='primary' button routerLink="/superadmin/dashboard/bhw-accounts">
                 <IonCardHeader>
                   <IonCardTitle>
                     <IonIcon icon={people} style={{ marginRight: '8px' }} />
