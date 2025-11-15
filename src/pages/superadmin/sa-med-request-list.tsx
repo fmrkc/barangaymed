@@ -145,6 +145,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [openArchiveGroup, setOpenArchiveGroup] = useState<string | null>(null);
   const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
   const [archiveSelectedBarangayFilter, setArchiveSelectedBarangayFilter] = useState('all');
+  const [archiveStatusFilter, setArchiveStatusFilter] = useState('all');
 
   const [showCancelledModal, setShowCancelledModal] = useState(false);
   const [cancelledRequests, setCancelledRequests] = useState<{ [key: string]: MedicineRequest[] }>({});
@@ -314,6 +315,11 @@ const SuperAdminMedRequestList: React.FC = () => {
       archived = archived.filter(r => r.barangayId === archiveSelectedBarangayFilter);
     }
 
+    // Apply status filter to archived requests
+    if (archiveStatusFilter !== 'all') {
+      archived = archived.filter(r => r.status === archiveStatusFilter);
+    }
+
     const grouped = archived.reduce((acc, request) => {
         const date = request.createdAt;
         const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
@@ -325,7 +331,7 @@ const SuperAdminMedRequestList: React.FC = () => {
     }, {} as {[key: string]: MedicineRequest[]});
 
     setArchivedRequests(grouped);
-}, [requests, archiveSearchQuery, archiveSelectedBarangayFilter]);
+}, [requests, archiveSearchQuery, archiveSelectedBarangayFilter, archiveStatusFilter]);
 
   useEffect(() => {
     let cancelled = requests.filter(r => r.status === 'cancelled');
@@ -1004,12 +1010,26 @@ const SuperAdminMedRequestList: React.FC = () => {
                 <IonSearchbar value={archiveSearchQuery} onIonInput={e => setArchiveSearchQuery(e.detail.value!)} placeholder="Search by resident name or request ID..." showClearButton="always" />
             </IonToolbar>
             <IonToolbar className="ion-padding-horizontal">
-                <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
-                    <IonSelectOption value="all">All Barangays</IonSelectOption>
-                    {barangayFilterOptions.map(b => (
-                        <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
-                    ))}
-                </IonSelect>
+                <IonGrid>
+                    <IonRow>
+                        <IonCol size="6">
+                            <IonSelect value={archiveSelectedBarangayFilter} placeholder="Filter by Barangay" onIonChange={e => setArchiveSelectedBarangayFilter(e.detail.value)}>
+                                <IonSelectOption value="all">All Barangays</IonSelectOption>
+                                {barangayFilterOptions.map(b => (
+                                    <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonCol>
+                        <IonCol size="6">
+                            <IonSelect value={archiveStatusFilter} placeholder="Filter by Status" onIonChange={e => setArchiveStatusFilter(e.detail.value)}>
+                                <IonSelectOption value="all">All Statuses</IonSelectOption>
+                                <IonSelectOption value="completed">Completed</IonSelectOption>
+                                <IonSelectOption value="rejected">Rejected</IonSelectOption>
+                                <IonSelectOption value="no show">No Show</IonSelectOption>
+                            </IonSelect>
+                        </IonCol>
+                    </IonRow>
+                </IonGrid>
             </IonToolbar>
 
             {Object.keys(archivedRequests).length === 0 ? (
