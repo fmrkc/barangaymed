@@ -212,6 +212,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     cancellationReason: data.cancellationReason,
                     prescriptionUrl: data.prescriptionUrl,
                     medicalRecord: data.medicalRecord,
+                    uploadedFile: data.uploadedFile,
                     isShown: data.isShown, // Add isShown property
                     auditTrail: data.auditTrail ? data.auditTrail.map((entry: FirestoreAuditTrailEntry) => ({
                       action: entry.action,
@@ -1110,12 +1111,15 @@ const SuperAdminTeleRequestList: React.FC = () => {
                              <IonTextarea  fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
                         </IonItem>
                         {selectedRequest.uploadedFile && (
-                          <IonItem>
-                            <IonLabel>Uploaded File:</IonLabel>
-                            <IonButton slot="end" fill="outline" size="small" onClick={() => window.open(selectedRequest.uploadedFile!.url, '_blank')}>
-                                View {selectedRequest.uploadedFile.name}
+                          <>
+                            <IonItem lines='none'>
+                              <IonLabel>Uploaded File:</IonLabel>
+                            </IonItem>
+                            <IonButton expand='block' className='ion-padding-vertical' onClick={() => window.open(selectedRequest.uploadedFile!.url, '_blank')}>
+                              View Uploaded File
+                              <IonIcon slot='end' icon={open} />
                             </IonButton>
-                          </IonItem>
+                          </>
                         )}
                         </IonCard>
                         
