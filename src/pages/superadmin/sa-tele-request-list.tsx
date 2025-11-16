@@ -886,6 +886,100 @@ const SuperAdminTeleRequestList: React.FC = () => {
           ))}
         </IonList>
 
+        <IonModal isOpen={showScheduleModal} onDidDismiss={() => setShowScheduleModal(false)}>
+          <IonHeader className='ion-no-border'>
+            <IonToolbar>
+              <IonTitle>Schedule Teleconsultation</IonTitle>
+              <IonButtons slot="start">
+                <IonButton onClick={() => setShowScheduleModal(false)}>
+                  <IonIcon icon={arrowBack} slot='icon-only' />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonLoading isOpen={isScheduling} message="Scheduling teleconsultation..." />
+            <IonCard className="ion-padding">
+              <IonNote>
+                Please provide the schedule and details for the teleconsultation.
+              </IonNote>
+            </IonCard>
+            <IonCard>
+              <IonCardHeader>
+                <IonItem lines='none'>
+                  You are scheduling for: {selectedRequest?.userData?.firstName} {selectedRequest?.userData?.lastName}
+                </IonItem>
+              </IonCardHeader>
+              <IonCardContent>
+                <IonItemDivider>Schedule Date</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill="outline"
+                    type="date"
+                    value={scheduleDate}
+                    min={new Date().toISOString().split('T')[0]}
+                    onIonChange={(e) => setScheduleDate(e.detail.value!)}
+                    required
+                  />
+                </IonItem>
+                <IonItemDivider>Start Time</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill='outline'
+                    type="time"
+                    value={startTime}
+                    onIonChange={e => handleStartTimeChange(e.detail.value!)}
+                  />
+                </IonItem>
+                <IonItemDivider>End Time</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill='outline'
+                    type="time"
+                    value={endTime}
+                    onIonChange={e => handleEndTimeChange(e.detail.value!)}
+                  />
+                </IonItem>
+                <IonItemDivider>Assigned Doctor's Name</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill='outline'
+                    value={doctorName}
+                    onIonChange={e => setDoctorName(e.detail.value!)}
+                    placeholder="Enter doctor's name"
+                  />
+                </IonItem>
+
+                <IonItemDivider>Meeting Link</IonItemDivider>
+                <IonItem lines='none' className='ion-margin-vertical'>
+                  <IonInput
+                    fill='outline'
+                    value={meetingLink}
+                    onIonChange={e => setMeetingLink(e.detail.value!)}
+                    placeholder="Enter meeting link"
+                  />
+                </IonItem>
+                <IonItem>
+                  <IonNote>
+                    Make sure that the meeting link looks like this: <strong>https://meet.google.com/xxx-xxxx-xxx</strong> to make sure that the resident can join the meeting.
+                  </IonNote>
+                </IonItem>
+              </IonCardContent>
+            </IonCard>
+          </IonContent>
+          <IonFooter>
+            <IonToolbar>
+              <IonItem lines='none'>
+                <small>If all fields are filled out correctly, click "Schedule" to finalize the scheduling.</small>
+              </IonItem>
+              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleSubmit} disabled={isScheduling}>
+                Schedule
+                <IonIcon slot="end" icon={calendar}></IonIcon>
+              </IonButton>
+            </IonToolbar>
+          </IonFooter>
+        </IonModal>
+
         {/* Cancelled Requests Modal */}
         <IonModal isOpen={showCancelledModal} onDidDismiss={() => setShowCancelledModal(false)}>
           <IonHeader className="ion-no-border">
