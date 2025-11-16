@@ -890,7 +890,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 )}
                 {request.status === 'scheduled' && (
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <IonButton className='ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
+                    <IonButton className='btn-25-w ion-padding-vertical' expand='block' fill="outline" onClick={() => handleViewDetails(request)}>
                       View Details
                     </IonButton>
                     <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>
