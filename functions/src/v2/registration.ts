@@ -22,7 +22,32 @@ const GMAIL_APP_PASSWORD = defineSecret('GMAIL_APP_PASSWORD');
 
 // Helper to generate a random password
 const generatePassword = (length = 12) => {
-    return randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
+    const characterSets = {
+        lowercase: 'abcdefghijklmnopqrstuvwxyz',
+        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        numbers: '0123456789',
+    };
+
+    // Ensure the password has at least one of each required character type
+    let password = '';
+    password += characterSets.uppercase[randomBytes(1)[0] % characterSets.uppercase.length];
+    password += characterSets.lowercase[randomBytes(1)[0] % characterSets.lowercase.length];
+    password += characterSets.numbers[randomBytes(1)[0] % characterSets.numbers.length];
+
+    // Fill the rest of the password with random characters from all sets
+    const allChars = Object.values(characterSets).join('');
+    for (let i = password.length; i < length; i++) {
+        password += allChars[randomBytes(1)[0] % allChars.length];
+    }
+
+    // Shuffle the password to randomize the order of characters
+    const passwordArray = password.split('');
+    for (let i = passwordArray.length - 1; i > 0; i--) {
+        const j = randomBytes(1)[0] % (i + 1);
+        [passwordArray[i], passwordArray[j]] = [passwordArray[j], passwordArray[i]]; // Swap
+    }
+
+    return passwordArray.join('');
 };
 
 // Helper to generate a random role-based email
