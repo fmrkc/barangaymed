@@ -1700,7 +1700,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             <IonLoading isOpen={isScheduling} message="Scheduling request..." />
             <IonCard className="ion-padding">
               <IonNote>
-                Please select where and when the resident can pick up their request.
+                Please select where and when the resident can go for their consultation.
               </IonNote>
             </IonCard>
             <IonCard>
