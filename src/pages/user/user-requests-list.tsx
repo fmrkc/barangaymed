@@ -31,6 +31,7 @@ import {
   IonTextarea,
   IonSelect,
   IonSelectOption,
+  IonCardSubtitle,
 } from '@ionic/react';
 import { getFirestore, collection, query, where, onSnapshot, orderBy, Timestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,6 +39,7 @@ import { MedicineRequest } from '../../types/medicineRequests';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Medicine } from '../../types/medicine';
 import { close, open, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
+import { formatTimeAgo } from '../../utils/timeUtils';
 
 const db = getFirestore();
 
@@ -295,6 +297,7 @@ const UserRequestsList: React.FC = () => {
                   : '#017457' // primary
             }`
         }}>
+        <IonItemDivider>Request ID: &nbsp;<strong>{request.id}</strong></IonItemDivider>
         <IonCardHeader>
           <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -313,8 +316,14 @@ const UserRequestsList: React.FC = () => {
           </IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
-          <p><strong>Reasons:</strong> {reason}</p>
-          <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
+          <p>
+            <strong>
+               {request.updatedAt && request.updatedAt.getTime() !== request.createdAt.getTime()
+                    ? `Last updated ${formatTimeAgo(request.updatedAt)}`
+                    : `Created ${formatTimeAgo(request.createdAt)}`}
+            </strong>
+          </p>
+      
           <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
             {status === 'pending' && (
@@ -340,46 +349,50 @@ const UserRequestsList: React.FC = () => {
     return (
       <>
         {/* Request Information */}
-       <IonCard>
-         <IonItemDivider style={{ marginTop: '10px' }}>Your Request Details</IonItemDivider>
-        <IonItem>
-          <IonLabel>Status:</IonLabel>
-          <IonChip
-            slot="end"
-            color={
-              selectedRequest.status === 'pending'
-                ? 'warning'
-                : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
-                  ? 'primary'
-                  : selectedRequest.status === 'completed'
-                    ? 'success'
-                    : 'danger'
-            }
-          >
-            {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
-          </IonChip>
-        </IonItem>
+        <IonCard>
+          <IonItemDivider style={{ marginTop: '10px' }}>Your Request Details</IonItemDivider>
+          <IonItem>
+            <IonLabel>Request ID:</IonLabel>
+            <IonText slot="end">{selectedRequest.id}</IonText>
+          </IonItem>
+          <IonItem>
+            <IonLabel>Requested At:</IonLabel>
+            <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+          </IonItem>
+          <IonItem>
+            <IonLabel>Status:</IonLabel>
+            <IonChip
+              slot="end"
+              color={
+                selectedRequest.status === 'pending'
+                  ? 'warning'
+                  : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
+                    ? 'primary'
+                    : selectedRequest.status === 'completed'
+                      ? 'success'
+                      : 'danger'
+              }
+            >
+              {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+            </IonChip>
+          </IonItem>
           <IonItem lines='none'>
             <IonLabel>Reason:</IonLabel>
           </IonItem>
           <IonItem lines='none' className='ion-margin-bottom'>
             <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
           </IonItem>
-        <IonItem>
-          <IonLabel>Has Prescription:</IonLabel>
-          <IonText slot="end">{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
-        </IonItem>
-        {selectedRequest.prescriptionUrl && (
-          <IonItem>
-            <IonLabel>Prescription:</IonLabel>
-            <IonButton slot="end" fill="outline" size="small" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View</IonButton>
+          <IonItem lines='none'>
+            <IonLabel>Has Prescription:</IonLabel>
+            <IonText slot="end">{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
           </IonItem>
-        )}
-        <IonItem>
-          <IonLabel>Requested At:</IonLabel>
-          <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
-        </IonItem>
-       </IonCard>
+          {selectedRequest.prescriptionUrl && (
+            <IonButton expand='block' className='ion-padding-vertical' onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>
+              View Prescription
+              <IonIcon slot='end' icon={open} />
+            </IonButton>
+          )}
+        </IonCard>
       
 
         {/* Cancellation Details */}
@@ -526,9 +539,17 @@ const UserRequestsList: React.FC = () => {
       <>
         <>
           {detailSegment === 'request' && (
-            <>
+            <IonCard>
               {/* Request Information */}
               <IonItemDivider>Your Request Details</IonItemDivider>
+              <IonItem>
+                <IonLabel>Request ID:</IonLabel>
+                <IonText slot="end">{selectedRequest.id}</IonText>
+              </IonItem>
+              <IonItem>
+                <IonLabel>Requested At:</IonLabel>
+                <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+              </IonItem>
               <IonItem>
                 <IonLabel>Status:</IonLabel>
                 <IonChip
@@ -548,23 +569,23 @@ const UserRequestsList: React.FC = () => {
                   {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
                 </IonChip>
               </IonItem>
-               <IonItem>
-                <IonLabel>Requested At:</IonLabel>
-                <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
-              </IonItem>
+
               <IonItem lines='none'>
                 <IonLabel>Reason for Consultation:</IonLabel>
               </IonItem>
-              <IonItem lines='none' className='ion-margin-bottom'>
+              <IonItem>
                 <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
               </IonItem>
               {selectedRequest.uploadedFile && (
-                <IonItem>
-                  <IonLabel>Uploaded File:</IonLabel>
-                  <IonButton slot="end" fill="outline" size="small" onClick={() => window.open(selectedRequest.uploadedFile!.url, '_blank')}>
-                      View {selectedRequest.uploadedFile.name}
+                <>
+                  <IonItem lines='none'>
+                    <IonLabel>Uploaded File:</IonLabel>
+                  </IonItem>
+                  <IonButton expand='block' className='ion-padding-vertical' onClick={() => window.open(selectedRequest.uploadedFile!.url, '_blank')}>
+                    View Uploaded File
+                    <IonIcon slot='end' icon={open} />
                   </IonButton>
-                </IonItem>
+                </>
               )}
 
               {cancellationEntry && (
@@ -643,10 +664,10 @@ const UserRequestsList: React.FC = () => {
                     <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
                   </IonItem>
                   {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
-                      <IonButton fill="outline" expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
-                        Join Meeting
-                        <IonIcon icon={open} slot="end" />
-                      </IonButton>
+                    <IonButton fill="outline" expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
+                      Join Meeting
+                      <IonIcon icon={open} slot="end" />
+                    </IonButton>
                   )}
                   <IonItem lines='none'>
                     <IonLabel>Scheduled Time:</IonLabel>
@@ -684,7 +705,7 @@ const UserRequestsList: React.FC = () => {
                   )}
                 </IonCard>
               )}
-            </>
+            </IonCard>
           )}
           {detailSegment === 'resident' && (
             <>
@@ -718,7 +739,7 @@ const UserRequestsList: React.FC = () => {
                 </>
               )}
               {selectedRequest.medicalRecord && (
-                <>
+                <IonCard>
                   <IonItemDivider>Medical Record</IonItemDivider>
                   {selectedRequest.medicalRecord.symptoms.length > 0 && (
                     <IonItem>
@@ -753,7 +774,7 @@ const UserRequestsList: React.FC = () => {
                       ))}
                     </>
                   )}
-                </>
+                </IonCard>
               )}
               {selectedRequest.notes && (
                 <IonItem>
