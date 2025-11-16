@@ -22,6 +22,7 @@ import {
   IonInput,
   IonButtons,
   IonPage,
+  IonMenuButton,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -119,12 +120,10 @@ const Profile: React.FC = () => {
     <IonPage>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonTitle>My Profile</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={() => router.goBack()}>
-              <IonIcon icon={close} slot="icon-only" />
-            </IonButton>
+          <IonButtons slot="start">
+            <IonMenuButton />
           </IonButtons>
+          <IonTitle>My Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="with-tab-padding">
