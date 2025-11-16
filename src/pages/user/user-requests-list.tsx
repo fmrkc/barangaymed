@@ -289,9 +289,9 @@ const UserRequestsList: React.FC = () => {
               : ['accepted', 'scheduled', 'processed'].includes(status)
                 ? '#017457' // primary
                 : status === 'completed'
-                ? '#eb445a' // danger
+                ? '#2dd36f' // success
                 : ['rejected', 'cancelled', 'no show'].includes(status)
-                  ? '#2dd36f' // success
+                  ? '#eb445a' // danger
                   : '#017457' // primary
             }`
         }}>
