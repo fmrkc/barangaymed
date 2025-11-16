@@ -40,6 +40,7 @@ import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Medicine } from '../../types/medicine';
 import { close, open, archiveOutline, chevronUp, chevronDown } from 'ionicons/icons';
 import { formatTimeAgo } from '../../utils/timeUtils';
+import '../superadmin/sa-med-request-list.css';
 
 const db = getFirestore();
 
@@ -327,20 +328,29 @@ const UserRequestsList: React.FC = () => {
           <div style={{ marginTop: '10px' }}>
             {status === 'pending' ? (
               <div style={{ display: 'flex', gap: '10px' }}>
-                <IonButton style={{ flex: 1 }} fill="outline" onClick={() => handleViewDetails(request)}>
+                <IonButton className="btn-25-w ion-padding-vertical" fill="outline" onClick={() => handleViewDetails(request)}>
                   View Details
-                  <IonIcon slot="end" icon={open} />
                 </IonButton>
-                <IonButton style={{ flex: 1 }} color="danger" onClick={() => {
+                <IonButton className="btn-75-w ion-padding-vertical" color="danger" onClick={() => {
                   setRequestToCancel({ id: request.id!, type: request.type });
                   setShowCancelAlert(true);
                 }}>
-                  Cancel
+                  Cancel Request
                   <IonIcon slot="end" icon={close} />
                 </IonButton>
               </div>
+            ) : status === 'scheduled' && request.type === 'teleconsultation' && request.meetingLink ? (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <IonButton className="btn-25-w ion-padding-vertical" fill="outline" onClick={() => handleViewDetails(request)}>
+                  View Details
+                </IonButton>
+                <IonButton className="btn-75-w ion-padding-vertical" color="primary" href={request.meetingLink} target="_blank" rel="noopener noreferrer">
+                  Join Meeting
+                  <IonIcon slot='end' icon={open} />
+                </IonButton>
+              </div>
             ) : (
-              <IonButton expand="block" fill="outline" onClick={() => handleViewDetails(request)}>
+              <IonButton expand="block" className="ion-padding-vertical" fill="outline" onClick={() => handleViewDetails(request)}>
                 View Details
                 <IonIcon slot="end" icon={open} />
               </IonButton>
