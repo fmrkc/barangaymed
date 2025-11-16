@@ -307,7 +307,7 @@ app.get('/getPhilippineAddresses', async (req, res) => {
 
 
 
-export const provisionUser = onCall(provisionUserV2);
+export const provisionUser = onCall({ secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, provisionUserV2);
 
 export const reviewUserRegistration = onCall({ cors: true, secrets: [GMAIL_EMAIL, GMAIL_APP_PASSWORD] }, async (request) => {
   if (!request.auth || (request.auth.token.role !== 'admin' && request.auth.token.role !== 'superadmin')) {
