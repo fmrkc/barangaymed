@@ -5,7 +5,7 @@ import { getFirestore, collection, addDoc, serverTimestamp, query, getDocs, wher
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { UserService } from '../../services/userService';
 import { getBarangayNameByCode } from '../../services/addressService';
-import { paperPlane, send, arrowBack, arrowForward, open, cloudUpload, checkmarkCircle, close } from 'ionicons/icons';
+import { paperPlane, send, arrowBack, arrowForward, open, cloudUpload, checkmarkCircle, close, trash } from 'ionicons/icons';
 
 interface UserMedRequestProps {
   isOpen: boolean;
@@ -353,11 +353,11 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
                     </IonButton>
                     {prescriptionFile && (
                       <>
-                        <IonItem>
-                          Uploaded file: &nbsp;
-                          <IonText color={'primary'}>
-                            {prescriptionFile.name}
-                          </IonText>
+                        <IonItem lines="none">
+                          <IonLabel>Uploaded file: {prescriptionFile.name}</IonLabel>
+                          <IonButton fill="clear" color="danger" onClick={() => setPrescriptionFile(null)}>
+                              <IonIcon slot="icon-only" icon={trash} />
+                          </IonButton>
                         </IonItem>
                         <IonItem lines='none'>
                           <img src={URL.createObjectURL(prescriptionFile)} alt="Uploaded Prescription" style={{ maxWidth: '100%', marginTop: '10px' }} />
