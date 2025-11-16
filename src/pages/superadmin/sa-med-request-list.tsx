@@ -1117,10 +1117,15 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonText slot="end">{selectedRequest.hasPrescription ? 'Yes' : 'No'}</IonText>
                         </IonItem>
                         {selectedRequest.prescriptionUrl && (
-                          <IonItem>
+                         <>
+                          <IonItem lines='none'>
                             <IonLabel>Prescription:</IonLabel>
-                            <IonButton slot="end" fill="outline" size="small" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View</IonButton>
                           </IonItem>
+                          <IonButton expand='block' className='ion-padding-vertical' onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>
+                            View Prescription
+                            <IonIcon slot='end' icon={open} />
+                          </IonButton>
+                         </>
                         )}
                         <IonItem>
                           <IonLabel>Requested At:</IonLabel>
@@ -1414,13 +1419,16 @@ const SuperAdminMedRequestList: React.FC = () => {
                         Reason: <strong>{selectedRequest?.reason}</strong>
                       </IonLabel>
                     </IonItem>
-                    <IonItem>
+                    <IonItem lines='none'>
                       <IonLabel>
                         Has Prescription: <strong>{selectedRequest?.hasPrescription ? 'Yes' : 'No'}</strong>
                       </IonLabel>
                     </IonItem>
                     {selectedRequest?.hasPrescription && selectedRequest?.prescriptionUrl && (
-                      <IonButton fill="outline" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>View Prescription</IonButton>
+                      <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => window.open(selectedRequest.prescriptionUrl, '_blank')}>
+                        View Prescription
+                        <IonIcon slot='end' icon={open} />
+                      </IonButton>
                     )}
                   </IonCardContent>
                 </IonCard>
