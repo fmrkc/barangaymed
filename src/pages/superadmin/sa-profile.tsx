@@ -21,6 +21,7 @@ import {
   IonModal,
   IonInput,
   IonButtons,
+  IonPage,
 } from "@ionic/react";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -115,7 +116,7 @@ const Profile: React.FC = () => {
   const isVerified = verificationStatus === 'verified';
 
   return (
-    <>
+    <IonPage>
       <IonHeader className='ion-no-border'>
         <IonToolbar>
           <IonTitle>My Profile</IonTitle>
@@ -253,7 +254,6 @@ const Profile: React.FC = () => {
                     {currentUser?.email || "Not specified"}
                   </IonLabel>
                 </IonItem>
-                <IonButton className="ion-padding-vertical" expand="block">Change Email</IonButton>
                  <IonItemDivider className="ion-margin-top">Password:</IonItemDivider>
                 
                 <IonButton className="ion-padding-vertical" expand="block">Change Password</IonButton>
@@ -267,7 +267,7 @@ const Profile: React.FC = () => {
 
         <IonLoading isOpen={showLoading} message="Logging out..." />
       </IonContent>
-    </>
+    </IonPage>
   );
 };
 
