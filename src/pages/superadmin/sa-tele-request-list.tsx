@@ -858,7 +858,6 @@ const SuperAdminTeleRequestList: React.FC = () => {
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>
                         View Details
-                        <IonIcon slot='end' icon={open} />
                       </IonButton>
                       {request.meetingLink && (
                         <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" href={request.meetingLink} target="_blank" rel="noopener noreferrer">
