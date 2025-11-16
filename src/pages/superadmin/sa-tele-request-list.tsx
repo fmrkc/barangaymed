@@ -972,7 +972,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
               <IonItem lines='none'>
                 <small>If all fields are filled out correctly, click "Schedule" to finalize the scheduling.</small>
               </IonItem>
-              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleSubmit} disabled={isScheduling}>
+              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleSubmit} disabled={isScheduling || !scheduleDate || !startTime || !endTime || !doctorName}>
                 Schedule
                 <IonIcon slot="end" icon={calendar}></IonIcon>
               </IonButton>

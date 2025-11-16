@@ -1756,7 +1756,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 <small>  If all fields are filled out correctly, click "Schedule" to finalize the scheduling.
               </small>
               </IonItem>
-              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleRequest} disabled={isScheduling}>
+              <IonButton shape='round' className='ion-padding-vertical' expand="full" onClick={handleScheduleRequest} disabled={isScheduling || !scheduleDate || !scheduleTime || !schedulePlace}>
                 Schedule
                 <IonIcon slot="end" icon={calendar}></IonIcon>
                 </IonButton>
