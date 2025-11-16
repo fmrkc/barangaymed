@@ -675,7 +675,7 @@ const Med_Inventory: React.FC = () => {
           </IonList>
         </IonPopover>
 
-        <IonModal isOpen={showModal} onDidDismiss={() => { resetForm(); setModalMode('add'); }}>
+        <IonModal isOpen={showModal} onDidDismiss={() => { setShowModal(false); resetForm(); setModalMode('add'); }}>
           <IonHeader className='ion-no-border'>
             <IonToolbar>
               <IonTitle>{modalMode === 'add' ? 'Add New Medicine' : 'Edit Medicine'}</IonTitle>
