@@ -64,7 +64,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   }, [currentUser]);
 
   const nextStep = () => {
-    if (step < 4) setStep(step + 1);
+    if (step < 5) setStep(step + 1);
   };
 
   const prevStep = () => {
@@ -342,39 +342,6 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 )}
               
               </IonCard>
-              <IonCard className="ion-padding">
-                <IonItem lines='none'>
-                  <h2>Are you uploading a file?</h2>
-                </IonItem>
-                <IonItem lines='none'>
-                  <small>
-                    If you have any relevant documents (e.g., previous consultation notes, lab results, images), you may upload them here to provide more context for your teleconsultation.
-                  </small>
-                </IonItem>
-                
-                <IonItem lines='none'>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleFileChange}
-                />
-                <IonButton fill="outline" expand="block" onClick={() => fileInputRef.current?.click()}>
-                    <IonIcon slot="start" icon={cloudUpload} />
-                    Upload a File Here
-                </IonButton>
-                </IonItem>
-                <IonItem>
-                  {uploadedFile && (
-                    <IonItem lines="none">
-                        <IonLabel>Uploaded file:{uploadedFile.name}</IonLabel>
-                        <IonButton fill="clear" color="danger" onClick={() => setUploadedFile(null)}>
-                            <IonIcon slot="icon-only" icon={trash} />
-                        </IonButton>
-                    </IonItem>
-                )}
-                </IonItem>
-              </IonCard>
 
               {hasMedicalRecord && (
                 <IonCard className='ion-padding'>
@@ -397,6 +364,49 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
           )}
 
           {step === 3 && (
+            <IonCard className="ion-padding">
+                <IonItem lines='none'>
+                  <h2>Are you uploading a file?</h2>
+                </IonItem>
+                <IonItem lines='none'>
+                  <small>
+                    If you have any relevant documents (e.g., previous consultation notes, lab results, images), you may upload them here to provide more context for your teleconsultation.
+                  </small>
+                </IonItem>
+                
+               
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                />
+                <IonButton className='ion-padding-vertical' fill="outline" expand="block" onClick={() => fileInputRef.current?.click()}>
+                    <IonIcon slot="start" icon={cloudUpload} />
+                    Upload a File Here
+                </IonButton>
+              
+               
+                  {uploadedFile && (
+                    <>
+                      <IonItem lines="none">
+                          <IonLabel>Uploaded file:{uploadedFile.name}</IonLabel>
+                          <IonButton fill="clear" color="danger" onClick={() => setUploadedFile(null)}>
+                              <IonIcon slot="icon-only" icon={trash} />
+                          </IonButton>
+                      </IonItem>
+                      {uploadedFile.type.startsWith('image/') && (
+                        <IonItem lines='none'>
+                          <img src={URL.createObjectURL(uploadedFile)} alt="Uploaded File Preview" style={{ maxWidth: '100%', marginTop: '10px' }} />
+                        </IonItem>
+                      )}
+                    </>
+                )}
+                
+              </IonCard>
+          )}
+
+          {step === 4 && (
             <IonCard className="ion-padding">
               <IonItem lines='none'>
                 <h2>These are the information you have provided:</h2>
@@ -427,7 +437,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
             </IonCard>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <IonCard className="ion-padding">
             <IonCardHeader>
               <IonText color={'success'}>
@@ -450,7 +460,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
         </IonContent>
         <IonFooter>
           <IonToolbar>
-            {step === 3 && (
+            {step === 4 && (
               <IonItem lines='none'>
                 <p><small> You will be contacted once your request is reviewed. After submitting, you can check updates on this request on <IonText color={'primary'}>My Requests</IonText> .</small></p>
               </IonItem>
@@ -465,7 +475,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <IonIcon slot="end" icon={arrowForward} />
                 <IonText className='ion-padding-vertical'>Next</IonText>
               </IonButton>
-            ) : step === 4 ? (
+            ) : step === 5 ? (
               <IonButton
                 expand="block"
                 shape="round"
@@ -489,12 +499,12 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                     </IonButton>
                   </IonCol>
                   <IonCol size="9">
-                    {step === 2 ? (
+                    {step === 2 || step === 3 ? (
                       <IonButton
                         expand="block"
                         shape="round"
                         onClick={nextStep}
-                        disabled={!isAnyReasonSelected || (reasons.Others && !otherReason.trim())}
+                        disabled={step === 2 && (!isAnyReasonSelected || (reasons.Others && !otherReason.trim()))}
                       >
                         <IonIcon slot="end" icon={arrowForward} />
                         <IonText className='ion-padding-vertical'>Next</IonText>
