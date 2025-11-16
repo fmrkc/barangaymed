@@ -283,13 +283,16 @@ const UserRequestsList: React.FC = () => {
       <IonCard
         key={request.id}
         style={{
-          borderLeft: `8px solid ${status === 'pending'
+          borderLeft: `8px solid ${
+            status === 'pending'
               ? '#ffc409' // warning
               : ['accepted', 'scheduled', 'processed'].includes(status)
                 ? '#017457' // primary
                 : status === 'completed'
+                ? '#eb445a' // danger
+                : ['rejected', 'cancelled', 'no show'].includes(status)
                   ? '#2dd36f' // success
-                  : '#eb445a' // danger
+                  : '#017457' // primary
             }`
         }}>
         <IonCardHeader>
@@ -539,7 +542,7 @@ const UserRequestsList: React.FC = () => {
                           ? 'primary'
                           : selectedRequest.status === 'completed'
                             ? 'success'
-                            : 'medium'
+                            : 'primary'
                   }
                 >
                   {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
