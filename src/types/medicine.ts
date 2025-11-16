@@ -21,8 +21,6 @@ export interface Medicine {
   dosage_form: string;
   strength: string;
   category: string;
-  requires_prescription: boolean;
-  description?: string;
   created_at: Date;
   expiration_date: Date;
   unit_name: string;

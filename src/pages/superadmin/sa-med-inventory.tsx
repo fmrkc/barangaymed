@@ -13,8 +13,6 @@ const Med_Inventory: React.FC = () => {
   const [dosageForm, setDosageForm] = useState('');
   const [strength, setStrength] = useState('');
   const [category, setCategory] = useState('');
-  const [requiresPrescription, setRequiresPrescription] = useState(false);
-  const [description, setDescription] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
   const [unitName, setUnitName] = useState('');
   const [quantity, setQuantity] = useState<number | undefined>(undefined);
@@ -89,8 +87,6 @@ const Med_Inventory: React.FC = () => {
     setDosageForm('');
     setStrength('');
     setCategory('');
-    setRequiresPrescription(false);
-    setDescription('');
     setExpirationDate('');
     setUnitName('');
     setQuantity(undefined);
@@ -127,8 +123,6 @@ const Med_Inventory: React.FC = () => {
         dosage_form: dosageForm,
         strength: strength,
         category: category,
-        requires_prescription: requiresPrescription,
-        description: description || null,
         created_at: serverTimestamp(),
         expiration_date: new Date(expirationDate + "-01"),
         unit_name: unitName,
@@ -173,8 +167,6 @@ const Med_Inventory: React.FC = () => {
         dosage_form: dosageForm,
         strength: strength,
         category: category,
-        requires_prescription: requiresPrescription,
-        description: description || null,
         expiration_date: new Date(expirationDate + "-01"),
         unit_name: unitName,
         quantity: quantity,
@@ -531,14 +523,6 @@ const Med_Inventory: React.FC = () => {
                         <IonText slot="end">{selectedMedicine.category}</IonText>
                       </IonItem>
                       <IonItem>
-                        <IonLabel>Requires Prescription:</IonLabel>
-                        <IonText slot="end">{selectedMedicine.requires_prescription ? 'Yes' : 'No'}</IonText>
-                      </IonItem>
-                      <IonItem>
-                        <IonLabel>Description:</IonLabel>
-                        <IonText slot="end">{selectedMedicine.description || 'N/A'}</IonText>
-                      </IonItem>
-                      <IonItem>
                         <IonLabel>Expiration Date:</IonLabel>
                         <IonText slot="end">{selectedMedicine.expiration_date.toLocaleDateString()}</IonText>
                       </IonItem>
@@ -641,8 +625,6 @@ const Med_Inventory: React.FC = () => {
                 setDosageForm(selectedMedicine.dosage_form);
                 setStrength(selectedMedicine.strength);
                 setCategory(selectedMedicine.category);
-                setRequiresPrescription(selectedMedicine.requires_prescription);
-                setDescription(selectedMedicine.description || '');
                 setExpirationDate(selectedMedicine.expiration_date.toISOString().substring(0, 7));
                 setUnitName(selectedMedicine.unit_name);
                 setQuantity(selectedMedicine.quantity);
@@ -771,20 +753,6 @@ const Med_Inventory: React.FC = () => {
                 className="ion-margin-bottom"
                 required
               />
-            </IonItem>
-            <IonItem lines="none" className="ion-margin-bottom">
-              <IonLabel>Requires Prescription?</IonLabel>
-              <IonToggle slot='end' checked={requiresPrescription} onIonChange={e => setRequiresPrescription(e.detail.checked)} />
-            </IonItem>
-            <IonItemDivider className='ion-margin-top'>Description (Optional)</IonItemDivider>
-            <IonItem>
-              <IonTextarea
-              rows={4}
-              fill="outline"
-              value={description}
-              onIonChange={e => setDescription(e.detail.value!)}
-              className="ion-margin-bottom"
-            />
             </IonItem>
             
            <IonItemDivider className='ion-margin-top'>Quantity *</IonItemDivider>

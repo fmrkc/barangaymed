@@ -531,22 +531,19 @@ const SuperAdminMedRequestList: React.FC = () => {
         const medicinesList: Medicine[] = [];
         querySnapshot.forEach(doc => {
           const data = doc.data();
-          medicinesList.push({
-            id: doc.id,
-            medicine_name: data.medicine_name,
-            dosage_form: data.dosage_form,
-            strength: data.strength,
-            category: data.category,
-            requires_prescription: data.requires_prescription,
-            description: data.description,
-            created_at: data.created_at instanceof Timestamp ? data.created_at.toDate() : new Date(data.created_at),
-            expiration_date: data.expiration_date instanceof Timestamp ? data.expiration_date.toDate() : new Date(data.expiration_date),
-            unit_name: data.unit_name,
-            conversion_factor: data.conversion_factor,
-            quantity: data.quantity,
-            isDeleted: data.isDeleted || false,
-          });
-        });
+                      medicinesList.push({
+                      id: doc.id,
+                      medicine_name: data.medicine_name,
+                      dosage_form: data.dosage_form,
+                      strength: data.strength,
+                      category: data.category,
+                      created_at: data.created_at instanceof Timestamp ? data.created_at.toDate() : new Date(data.created_at),
+                      expiration_date: data.expiration_date instanceof Timestamp ? data.expiration_date.toDate() : new Date(data.expiration_date),
+                      unit_name: data.unit_name,
+                      conversion_factor: data.conversion_factor,
+                      quantity: data.quantity,
+                      isDeleted: data.isDeleted || false,
+                    });        });
         setMedicines(medicinesList);
       },
       (error) => {
