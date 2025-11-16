@@ -52,6 +52,7 @@ import { MedicineRequest } from '../../types/medicineRequests';
 import { FirestoreAuditTrailEntry, Medicine } from '../../types/medicine';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
 import { calendar, arrowBack, arrowForward, paperPlane, open, openOutline, close, checkbox, checkmark, personRemove, filter, filterCircle, carSportOutline, filterOutline, archiveOutline, chevronUp, chevronDown, checkmarkDone, arrowBackSharp, closeCircleOutline } from 'ionicons/icons';
+import { formatTimeAgo } from '../../utils/timeUtils';
 import './sa-med-request-list.css';
 
 const db = getFirestore();
@@ -820,6 +821,7 @@ const SuperAdminMedRequestList: React.FC = () => {
             ))}
           </IonList>
         )}
+
         {error && (
           <IonText color="danger" className="ion-padding">
             {error}
@@ -856,34 +858,22 @@ const SuperAdminMedRequestList: React.FC = () => {
                 }`
               }}
             >
+               <IonItemDivider>Barangay: &nbsp;<strong>{request.barangayName || request.barangayId}</strong></IonItemDivider>
               <IonCardHeader>
-                <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   Request ID: {request.id}
+                <IonCardTitle>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.9em' }}>
+                  <div>Request ID: {request.id}</div>
                   
-                    <IonChip
-                      color={
-                        request.status === 'pending'
-                          ? 'warning'
-                          : request.status === 'rejected' || request.status === 'no show' || request.status === 'cancelled'
-                          ? 'danger'
-                          : request.status === 'accepted'
-                          ? 'primary'
-                          : request.status === 'scheduled'
-                          ? 'primary'
-                          : request.status === 'completed'
-                          ? 'success'
-                          : 'primary'
-                      }
-                      style={{ margin: '0' }}
-                    >
-                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                    </IonChip>
+                  <div>
+                   <IonChip>
+                     {request.updatedAt && request.updatedAt.getTime() !== request.createdAt.getTime()
+                      ? `Last updated ${formatTimeAgo(request.updatedAt)}`
+                      : `Created ${formatTimeAgo(request.createdAt)}`}
+                   </IonChip>
+                  </div>
+                
                   </div>
                 </IonCardTitle>
-                <IonCardSubtitle>
-                  Barangay: <strong>{request.barangayName || request.barangayId}</strong>
-                </IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>
                 {request.status === 'pending' && (

@@ -49,6 +49,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { TeleconsultationRequest } from '../../types/teleconsultationRequests';
 import { Region, Province, CityMunicipality, Barangay, getRegions, getProvincesByRegion, getCitiesMunicipalitiesByProvince, getBarangaysByCityMunicipality } from '../../services/addressService';
 import { close, checkmark, checkmarkCircle, open, personRemove, calendar, arrowBack, arrowForward, paperPlane, openOutline, checkbox, filter, filterOutline, cloudUpload, checkmarkDone, archiveOutline, chevronUp, chevronDown, closeCircleOutline } from 'ionicons/icons';
+import { formatTimeAgo } from '../../utils/timeUtils';
 import './sa-tele-request-list.css';
 
 import { useIonRouter } from '@ionic/react';
@@ -822,35 +823,23 @@ const SuperAdminTeleRequestList: React.FC = () => {
                 }`
               }}
             >
-              <IonCardHeader>
-                <IonCardTitle style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     Request ID: {request.id}
-
-                    <IonChip
-                      color={
-                        request.status === 'pending'
-                          ? 'warning'
-                          : request.status === 'rejected' || request.status === 'no show' || request.status === 'cancelled'
-                          ? 'danger'
-                          : request.status === 'accepted'
-                          ? 'primary'
-                          : request.status === 'scheduled'
-                          ? 'primary'
-                          : request.status === 'completed'
-                          ? 'success'
-                          : 'primary'
-                      }
-                      style={{ margin: '0' }}
-                    >
-                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                    </IonChip>
-                  </div>
-                </IonCardTitle>
-                <IonCardSubtitle>
-                  Barangay: <strong>{request.barangayName || request.barangayId}</strong>
-                </IonCardSubtitle>
-              </IonCardHeader>
+              <IonItemDivider>Barangay: &nbsp;<strong>{request.barangayName || request.barangayId}</strong></IonItemDivider>
+                           <IonCardHeader>
+                             <IonCardTitle>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.9em' }}>
+                               <div>Request ID: {request.id}</div>
+                               
+                               <div>
+                                <IonChip>
+                                  {request.updatedAt && request.updatedAt.getTime() !== request.createdAt.getTime()
+                                   ? `Last updated ${formatTimeAgo(request.updatedAt)}`
+                                   : `Created ${formatTimeAgo(request.createdAt)}`}
+                                </IonChip>
+                               </div>
+                             
+                               </div>
+                             </IonCardTitle>
+                           </IonCardHeader>
               <IonCardContent>
                 {request.status === 'pending' && (
                     <IonButton expand='block' className='ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details<IonIcon slot='end' icon={open} /></IonButton>
@@ -999,7 +988,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
                         </IonItem>
                         <IonItem className='ion-margin-top'>
                           <IonLabel>Requested At:</IonLabel>
-                          <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                          <IonText slot="end">{formatTimeAgo(selectedRequest.createdAt)}</IonText>
                         </IonItem>
                         <IonItem className='ion-margin-top'>
                           <IonLabel>Status:</IonLabel>
@@ -1632,7 +1621,10 @@ const renderArchivedTeleconsultationCard = (request: TeleconsultationRequest, ha
         <IonCardContent>
           <p><strong>Resident:</strong> {request.userData?.firstName} {request.userData?.lastName}</p>
           <p><strong>Reasons:</strong> {reason}</p>
-          <p><strong>Created At:</strong> {createdAt ? createdAt.toLocaleString() : 'N/A'}</p>
+          <p><strong>Created At:</strong> {formatTimeAgo(request.createdAt)}</p>
+          {request.updatedAt && request.updatedAt.getTime() !== request.createdAt.getTime() && (
+            <p><strong>Last Updated:</strong> {formatTimeAgo(request.updatedAt)}</p>
+          )}
           <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
           </div>
