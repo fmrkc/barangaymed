@@ -324,13 +324,26 @@ const UserRequestsList: React.FC = () => {
             </strong>
           </p>
       
-          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <IonButton fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-            {status === 'pending' && (
-              <IonButton color="danger" onClick={() => {
-                setRequestToCancel({ id: request.id!, type: request.type });
-                setShowCancelAlert(true);
-              }}>Cancel</IonButton>
+          <div style={{ marginTop: '10px' }}>
+            {status === 'pending' ? (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <IonButton style={{ flex: 1 }} fill="outline" onClick={() => handleViewDetails(request)}>
+                  View Details
+                  <IonIcon slot="end" icon={open} />
+                </IonButton>
+                <IonButton style={{ flex: 1 }} color="danger" onClick={() => {
+                  setRequestToCancel({ id: request.id!, type: request.type });
+                  setShowCancelAlert(true);
+                }}>
+                  Cancel
+                  <IonIcon slot="end" icon={close} />
+                </IonButton>
+              </div>
+            ) : (
+              <IonButton expand="block" fill="outline" onClick={() => handleViewDetails(request)}>
+                View Details
+                <IonIcon slot="end" icon={open} />
+              </IonButton>
             )}
           </div>
         </IonCardContent>
