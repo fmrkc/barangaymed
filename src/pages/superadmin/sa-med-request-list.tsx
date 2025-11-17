@@ -45,7 +45,7 @@ import {
   IonSkeletonText,
   ActionSheetButton,
 } from '@ionic/react';
-import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment, FieldValue, UpdateData, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, onSnapshot, orderBy, Timestamp, doc, updateDoc, getDocs, arrayUnion, increment, FieldValue, UpdateData, getDoc, where } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../contexts/AuthContext';
 import { MedicineRequest } from '../../types/medicineRequests';
@@ -524,9 +524,10 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   // Fetch medicines for process modal
   useEffect(() => {
-    const medicinesCol = collection(db, 'medicine');
+    const medicinesColRef = collection(db, 'medicine');
+    const q = query(medicinesColRef, where('isDeleted', '==', false));
     const unsubscribe = onSnapshot(
-      medicinesCol,
+      q,
       (querySnapshot) => {
         const medicinesList: Medicine[] = [];
         querySnapshot.forEach(doc => {
@@ -1144,9 +1145,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Cancellation Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Cancelled By: {cancellationEntry.userName}
-                              <p>{cancellationEntry.userEmail} at {cancellationEntry.timestamp.toLocaleString()}</p> 
-                              </IonLabel>
+                              <IonLabel>Cancelled By: {cancellationEntry.userName}</IonLabel>
+                              <IonText slot="end"><small>({cancellationEntry.userEmail})</small></IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Cancelled At:</IonLabel>
+                              <IonText slot="end">{cancellationEntry.timestamp.toLocaleString()}</IonText>
                             </IonItem>
                             <IonItem lines='none'>
                               <IonLabel>Cancellation Reason:</IonLabel>
@@ -1162,9 +1166,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Rejection Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Rejected By: {rejectionEntry.userName}
-                                <p>({rejectionEntry.userEmail} at {rejectionEntry.timestamp.toLocaleString()}</p>
-                              </IonLabel>
+                              <IonLabel>Rejected By: {rejectionEntry.userName}</IonLabel>
+                              <IonText slot="end"><small>({rejectionEntry.userEmail})</small></IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Rejected At:</IonLabel>
+                              <IonText slot="end">{rejectionEntry.timestamp.toLocaleString()}</IonText>
                             </IonItem>
                             <IonItem lines='none'>
                               <IonLabel>Rejection Reason:</IonLabel>
@@ -1180,10 +1187,12 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>No Show Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Marked By: {noShowEntry.userName} ({noShowEntry.userEmail})</IonLabel>
+                              <IonLabel>Marked By:</IonLabel>
+                              <IonText slot="end">{noShowEntry.userName} ({noShowEntry.userEmail})</IonText>
                             </IonItem>
                             <IonItem>
-                              <IonLabel>Marked At: {noShowEntry.timestamp.toLocaleString()}</IonLabel>
+                              <IonLabel>Marked At:</IonLabel>
+                              <IonText slot="end">{noShowEntry.timestamp.toLocaleString()}</IonText>
                             </IonItem>
                           </IonCard>
                         )}
@@ -1193,11 +1202,46 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Acceptance Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Accepted By: {acceptanceEntry.userName}
-                                <p>{acceptanceEntry.userEmail} at {acceptanceEntry.timestamp.toLocaleString()}</p>
-                              </IonLabel>
+                              <IonLabel>Accepted By:</IonLabel>
+                              <IonText slot="end">{acceptanceEntry.userName}</IonText>
                             </IonItem>
-                          
+                            <IonItem>
+                              <IonLabel>Email:</IonLabel>
+                              <IonText slot="end"><small>{acceptanceEntry.userEmail}</small></IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Accepted At:</IonLabel>
+                              <IonText slot="end">{acceptanceEntry.timestamp.toLocaleString()}</IonText>
+                            </IonItem>
+                          </IonCard>
+                        )}
+
+                        {/* Scheduling Information */}
+                        {isScheduled && (
+                          <IonCard>
+                            <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
+                            {schedulingEntry && (
+                              <>
+                                <IonItem>
+                                  <IonLabel>Scheduled By:</IonLabel>
+                                  <IonText slot="end">{schedulingEntry.userName}</IonText>
+                                </IonItem>
+                                <IonItem>
+                                  <IonLabel>Email:</IonLabel>
+                                  <IonText slot="end"><small>{schedulingEntry.userEmail}</small></IonText>
+                                </IonItem>
+                                <IonItem>
+                                  <IonLabel>Scheduled At:</IonLabel>
+                                  <IonText slot="end">{schedulingEntry.timestamp.toLocaleString()}</IonText>
+                                </IonItem>
+                              </>
+                            )}
+                            <IonItem lines='none'>
+                              <IonLabel>Scheduled Pickup:</IonLabel>
+                            </IonItem>
+                            <IonItem lines='none' className='ion-margin-bottom'>
+                              <IonTextarea fill='outline' readonly value={selectedRequest.scheduleDate?.toLocaleDateString() + ' ' + (selectedRequest.scheduleTime) + ' at ' + (selectedRequest.schedulePlace || 'N/A')}></IonTextarea>
+                            </IonItem>
                           </IonCard>
                         )}
 
@@ -1206,13 +1250,22 @@ const SuperAdminMedRequestList: React.FC = () => {
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Processing Details</IonItemDivider>
                             {processingEntry && (
-                                <IonItem>
-                                  <IonLabel>Processed By: {processingEntry.userName}
-                                    <p>{processingEntry.userEmail} at {processingEntry.timestamp.toLocaleString()}</p>
-                                  </IonLabel>
-                                </IonItem>
+                                <>
+                                  <IonItem>
+                                    <IonLabel>Processed By:</IonLabel>
+                                    <IonText slot="end">{processingEntry.userName}</IonText>
+                                  </IonItem>
+                                  <IonItem>
+                                    <IonLabel>Email:</IonLabel>
+                                    <IonText slot="end"><small>{processingEntry.userEmail}</small></IonText>
+                                  </IonItem>
+                                  <IonItem>
+                                    <IonLabel>Processed At:</IonLabel>
+                                    <IonText slot="end">{processingEntry.timestamp.toLocaleString()}</IonText>
+                                  </IonItem>
+                                </>
                             )}
-                            <IonItem>
+                            <IonItem lines='none'>
                               <IonLabel>Dispensed Medicines:</IonLabel>
                             </IonItem>
                             <IonItem lines='none'>
@@ -1230,36 +1283,21 @@ const SuperAdminMedRequestList: React.FC = () => {
                           </IonCard>
                         )}
 
-                        {/* Scheduling Information */}
-                        {isScheduled && (
-                          <IonCard>
-                            <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
-                            {schedulingEntry && (
-                              <>
-                                <IonItem>
-                                  <IonLabel>Scheduled By: {schedulingEntry.userName}
-                                    <p>{schedulingEntry.userEmail} at {schedulingEntry.timestamp.toLocaleString()}</p>
-                                  </IonLabel>
-                                </IonItem>
-                              </>
-                            )}
-                            <IonItem lines='none'>
-                              <IonLabel>Scheduled Pickup:</IonLabel>
-                            </IonItem>
-                            <IonItem lines='none' className='ion-margin-bottom'>
-                              <IonTextarea fill='outline' readonly value={selectedRequest.scheduleDate?.toLocaleDateString() + ' ' + (selectedRequest.scheduleTime) + ' at ' + (selectedRequest.schedulePlace || 'N/A')}></IonTextarea>
-                            </IonItem>
-                          </IonCard>
-                        )}
-
                         {/* Completion Information */}
                         {isCompleted && completionEntry && (
                           <IonCard>
                             <IonItemDivider className='ion-margin-top'>Completion Details</IonItemDivider>
                             <IonItem>
-                              <IonLabel>Completed By: {completionEntry.userName}
-                                <p>{completionEntry.userEmail} at {completionEntry.timestamp.toLocaleString()}</p>
-                              </IonLabel>
+                              <IonLabel>Completed By:</IonLabel>
+                              <IonText slot="end">{completionEntry.userName}</IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Email:</IonLabel>
+                              <IonText slot="end"><small>{completionEntry.userEmail}</small></IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Completed At:</IonLabel>
+                              <IonText slot="end">{completionEntry.timestamp.toLocaleString()}</IonText>
                             </IonItem>
                           </IonCard>
                         )}
