@@ -1625,7 +1625,7 @@ const SuperAdminTeleRequestList: React.FC = () => {
           onDidDismiss={() => setShowNoShowToast(false)}
           message={toastMessage}
           duration={2000}
-          color="danger"
+          color="success"
         />
 
       </IonContent>
