@@ -191,7 +191,8 @@ service cloud.firestore {
                       (resource.data.status == 'pending' && request.resource.data.status == 'cancelled') &&
                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'cancellationReason', 'updatedAt', 'auditTrail'])) ||
                       (isAdmin() && resource.data.barangayId == request.auth.token.barangayId) ||
-                      (isSuperAdmin() && request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'processed', 'completed', 'cancelled', 'no show']);
+                      (isSuperAdmin() &&
+                        request.resource.data.status in ['pending', 'accepted', 'rejected', 'scheduled', 'processed', 'completed', 'cancelled', 'no show']);
 
       allow delete: if false; // Deletion not allowed from client
     }

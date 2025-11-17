@@ -17,6 +17,7 @@ export interface MedicineRequest {
   scheduleDate?: Date;
   scheduleTime?: string;
   schedulePlace?: string;
+
   dispensedMedicines?: { [key: string]: number };
   processNote?: string;
   rejectionReason?: string;

@@ -102,6 +102,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [requestToMarkComplete, setRequestToMarkComplete] = useState<string | null>(null);
   const [showNoShowAlert, setShowNoShowAlert] = useState(false);
   const [requestToMarkAsNoShow, setRequestToMarkAsNoShow] = useState<string | null>(null);
+  const [isMarkingComplete, setIsMarkingComplete] = useState(false);
 
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [requestToSchedule, setRequestToSchedule] = useState<string | null>(null);
@@ -121,6 +122,7 @@ const SuperAdminMedRequestList: React.FC = () => {
   const [processStep, setProcessStep] = useState<number>(1);
   const [medicineSearch, setMedicineSearch] = useState<string>('');
   const [medicineFilter, setMedicineFilter] = useState<string>('all');
+
 
   const [showQuantityActionSheet, setShowQuantityActionSheet] = useState(false);
   const [currentMedId, setCurrentMedId] = useState<string>('');
@@ -462,6 +464,7 @@ const SuperAdminMedRequestList: React.FC = () => {
 
   const handleMarkAsComplete = async () => {
     if (!requestToMarkComplete) return;
+    setIsMarkingComplete(true);
     try {
       await handleUpdateRequestStatus(requestToMarkComplete, 'completed', 'Marked as completed');
       setShowMarkCompleteToast(true);
@@ -470,6 +473,8 @@ const SuperAdminMedRequestList: React.FC = () => {
     } catch (error) {
       console.error('Error marking request as complete:', error);
       setError('Failed to mark the request as complete.');
+    } finally {
+      setIsMarkingComplete(false);
     }
   };
 
@@ -502,7 +507,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       // Send SMS notification
       const request = requests.find(r => r.id === requestToSchedule);
       if (request && request.userId) {
-        const smsMessage = 'Your medicine request has been scheduled.';
+        const smsMessage = 'Your medicine request has been scheduled for a consultation. Please check the app for details.';
         await sendSms(request.userId, smsMessage);
       }
 
@@ -711,11 +716,7 @@ const SuperAdminMedRequestList: React.FC = () => {
 
       // Send SMS notification
       if (selectedRequest.userId) {
-        const dispensedMedNames = Object.entries(dispensedMedicines).map(([id, qty]) => {
-          const med = medicines.find(m => m.id === id);
-          return `${med?.medicine_name || id} (x${qty})`;
-        }).join(', ');
-        const smsMessage = 'Your medicine request has been processed.';
+        const smsMessage = `Your medicine request has been processed and is ready for collection.`;
         await sendSms(selectedRequest.userId, smsMessage);
       }
 
@@ -760,6 +761,7 @@ const SuperAdminMedRequestList: React.FC = () => {
       <IonContent>
         <IonLoading isOpen={isAccepting} message={"Accepting request..."} />
         <IonLoading isOpen={isRejecting} message={"Rejecting request..."} />
+        <IonLoading isOpen={isMarkingComplete} message={"Marking as complete..."} />
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
@@ -883,7 +885,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 {request.status === 'accepted' && (
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <IonButton className='btn-25-w ion-padding-vertical' fill="outline" onClick={() => handleViewDetails(request)}>View Details</IonButton>
-                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule<IonIcon slot='end' icon={open} /></IonButton>
+                    <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => { setRequestToSchedule(request.id!); setShowScheduleModal(true); }}>Schedule Consultation<IonIcon slot='end' icon={open} /></IonButton>
                   </div>
                 )}
                 {request.status === 'scheduled' && (
@@ -892,7 +894,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                       View Details
                     </IonButton>
                     <IonButton className='btn-75-w ion-padding-vertical' expand='block' color="primary" onClick={() => handleProcessClick(request)}>
-                      Process
+                      Process Request
                       <IonIcon slot='end' icon={open} />
                     </IonButton>
                   </div>
@@ -1237,7 +1239,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                               </>
                             )}
                             <IonItem lines='none'>
-                              <IonLabel>Scheduled Pickup:</IonLabel>
+                              <IonLabel>Scheduled Consultation:</IonLabel>
                             </IonItem>
                             <IonItem lines='none' className='ion-margin-bottom'>
                               <IonTextarea fill='outline' readonly value={selectedRequest.scheduleDate?.toLocaleDateString() + ' ' + (selectedRequest.scheduleTime) + ' at ' + (selectedRequest.schedulePlace || 'N/A')}></IonTextarea>
@@ -1252,16 +1254,10 @@ const SuperAdminMedRequestList: React.FC = () => {
                             {processingEntry && (
                                 <>
                                   <IonItem>
-                                    <IonLabel>Processed By:</IonLabel>
-                                    <IonText slot="end">{processingEntry.userName}</IonText>
-                                  </IonItem>
-                                  <IonItem>
-                                    <IonLabel>Email:</IonLabel>
-                                    <IonText slot="end"><small>{processingEntry.userEmail}</small></IonText>
-                                  </IonItem>
-                                  <IonItem>
-                                    <IonLabel>Processed At:</IonLabel>
-                                    <IonText slot="end">{processingEntry.timestamp.toLocaleString()}</IonText>
+                                    <IonLabel>Processed By {processingEntry.userName}
+                                      <p>{processingEntry.userEmail} at {processingEntry.timestamp.toLocaleString()}</p>
+                                    </IonLabel>
+                                    <IonText slot="end"></IonText>
                                   </IonItem>
                                 </>
                             )}
@@ -1282,6 +1278,8 @@ const SuperAdminMedRequestList: React.FC = () => {
                             </IonItem>
                           </IonCard>
                         )}
+
+
 
                         {/* Completion Information */}
                         {isCompleted && completionEntry && (
@@ -1581,6 +1579,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 </IonCard>
               </>
             )}
+
           </IonContent>
           <IonFooter>
             <IonToolbar>
@@ -1588,7 +1587,7 @@ const SuperAdminMedRequestList: React.FC = () => {
                 <IonButton
                   expand="block"
                   shape="round"
-                  onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}
+                  onClick={() => setProcessStep(2)}
                   className="ion-margin"
                 >
                   <IonIcon slot="end" icon={arrowForward} />
@@ -1604,19 +1603,19 @@ const SuperAdminMedRequestList: React.FC = () => {
                         expand="block"
                         shape="round"
                         fill="outline"
-                        onClick={() => setProcessStep(prev => prev - 1 as 1 | 2 | 3)}
+                        onClick={() => setProcessStep(prev => prev - 1)}
                       >
                         <IonIcon slot="start" icon={arrowBack} />
                         <IonText className='ion-padding-vertical'>Back</IonText>
                       </IonButton>
                     </IonCol>
                     <IonCol size="9">
-                      {processStep === 2 ? (
+                      {processStep < 3 ? (
                         <IonButton
                           expand="block"
                           shape="round"
-                          onClick={() => setProcessStep(prev => prev + 1 as 1 | 2 | 3)}
-                          disabled={Object.keys(selectedMedicines).length === 0}
+                          onClick={() => setProcessStep(prev => prev + 1)}
+                          disabled={(processStep === 2 && Object.keys(selectedMedicines).length === 0)}
                         >
                           <IonIcon slot="end" icon={arrowForward} />
                           <IonText className='ion-padding-vertical'>Next</IonText>

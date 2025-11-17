@@ -60,6 +60,7 @@ const UserRequestsList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState<{ id: string, type: 'medicine' | 'teleconsultation' } | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showCancelToast, setShowCancelToast] = useState<boolean>(false);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
@@ -242,6 +243,8 @@ const UserRequestsList: React.FC = () => {
       return;
     }
 
+    setIsCancelling(true);
+
     const { id, type } = requestToCancel;
     const collectionName = type === 'medicine' ? 'medicineRequests' : 'teleconsultationRequests';
     const auditAction = type === 'medicine' ? 'Cancelled medicine request by user' : 'Cancelled teleconsultation request by user';
@@ -266,6 +269,8 @@ const UserRequestsList: React.FC = () => {
     } catch (error) {
       console.error("Error cancelling request: ", error);
       setError("Failed to cancel the request.");
+    } finally {
+      setIsCancelling(false);
     }
     setRequestToCancel(null);
   };
@@ -273,6 +278,112 @@ const UserRequestsList: React.FC = () => {
   const handleRefresh = (event: CustomEvent) => {
     fetchData();
     event.detail.complete();
+  };
+
+  const renderRequestSummary = (request: CombinedRequest) => {
+    const isMedicine = request.type === 'medicine';
+    const auditTrail = request.auditTrail || [];
+
+    const acceptanceEntry = auditTrail.slice().reverse().find(e =>
+      isMedicine ? e.action === 'Accepted request' : e.action === 'Accepted teleconsultation request'
+    );
+    const rejectionEntry = auditTrail.slice().reverse().find(e =>
+      isMedicine ? e.action === 'Rejected request' : e.action === 'Rejected teleconsultation request'
+    );
+    const cancellationEntry = auditTrail.slice().reverse().find(e =>
+      isMedicine ? e.action.startsWith('Cancelled medicine request') : e.action.startsWith('Cancelled teleconsultation request')
+    );
+    const schedulingEntry = auditTrail.slice().reverse().find(e =>
+      isMedicine ? e.action === 'Scheduled request' : e.action === 'Scheduled teleconsultation request'
+    );
+    const completionEntry = auditTrail.slice().reverse().find(e =>
+      isMedicine ? e.action === 'Marked as completed' : e.action === 'Marked teleconsultation as completed'
+    );
+    const noShowEntry = auditTrail.slice().reverse().find(e =>
+      isMedicine ? e.action === 'Marked as no show' : e.action === 'Marked teleconsultation as no show'
+    );
+
+    switch (request.status) {
+      case 'processed':
+        if (isMedicine) {
+          const processingEntry = auditTrail.slice().reverse().find(e => e.action === 'Processed request');
+          if (processingEntry) {
+            return (
+              <p>
+                Processed and ready for collection.
+              </p>
+            );
+          }
+        }
+        break;
+      case 'accepted':
+        if (acceptanceEntry) {
+          return (
+            <p>
+              Accepted by {acceptanceEntry.userName} {formatTimeAgo(acceptanceEntry.timestamp)}.
+            </p>
+          );
+        }
+        break;
+      case 'scheduled':
+        if (schedulingEntry) {
+          if (isMedicine) {
+            const medRequest = request as MedicineRequest;
+            return (
+              <p>
+                Scheduled for consultation on {medRequest.scheduleDate?.toLocaleDateString()} at {medRequest.scheduleTime} in {medRequest.schedulePlace}.
+              </p>
+            );
+          } else {
+            const teleRequest = request as TeleconsultationRequest;
+            return (
+              <p>
+                Scheduled with Dr. {teleRequest.doctorName} on {teleRequest.startTime?.toLocaleDateString()} at {teleRequest.startTime?.toLocaleTimeString()}.
+              </p>
+            );
+          }
+        }
+        break;
+      case 'completed':
+        if (completionEntry) {
+          return (
+            <p>
+              Completed by {completionEntry.userName} {formatTimeAgo(completionEntry.timestamp)}.
+            </p>
+          );
+        }
+        break;
+      case 'rejected':
+        if (rejectionEntry) {
+          return (
+            <p>
+              Rejected by {rejectionEntry.userName} {formatTimeAgo(rejectionEntry.timestamp)}. Reason: {request.rejectionReason}.
+            </p>
+          );
+        }
+        break;
+      case 'cancelled':
+        if (cancellationEntry) {
+          return (
+            <p>
+              Cancelled by {cancellationEntry.userName} {formatTimeAgo(cancellationEntry.timestamp)}. Reason: {request.cancellationReason}.
+            </p>
+          );
+        }
+        break;
+      case 'no show':
+        if (noShowEntry) {
+          return (
+            <p>
+              Marked as No Show by {noShowEntry.userName} {formatTimeAgo(noShowEntry.timestamp)}.
+            </p>
+          );
+        }
+        break;
+      default:
+        return null;
+    }
+    return null;
   };
 
   const renderCard = (request: CombinedRequest) => {
@@ -305,10 +416,16 @@ const UserRequestsList: React.FC = () => {
               {title}
               <IonChip
                 color={
-                  status === 'pending' ? 'warning' :
-                    ['accepted', 'scheduled'].includes(status) ? 'primary' :
-                      status === 'completed' ? 'success' : 'danger'
-                }
+                    request.status === 'pending'
+                      ? 'warning'
+                      : request.status === 'rejected' || request.status === 'cancelled' || request.status === 'no show'
+                        ? 'danger'
+                        : ['accepted', 'scheduled', 'processed'].includes(request.status)
+                          ? 'primary'
+                          : request.status === 'completed'
+                            ? 'success'
+                            : 'primary'
+                  }
                 style={{ margin: '0' }}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -324,6 +441,8 @@ const UserRequestsList: React.FC = () => {
                     : `Created ${formatTimeAgo(request.createdAt)}`}
             </strong>
           </p>
+          {renderRequestSummary(request)}
+          
       
           <div style={{ marginTop: '10px' }}>
             {status === 'pending' ? (
@@ -387,14 +506,16 @@ const UserRequestsList: React.FC = () => {
             <IonChip
               slot="end"
               color={
-                selectedRequest.status === 'pending'
-                  ? 'warning'
-                  : ['accepted', 'processed', 'scheduled'].includes(selectedRequest.status)
-                    ? 'primary'
-                    : selectedRequest.status === 'completed'
-                      ? 'success'
-                      : 'danger'
-              }
+                    selectedRequest.status === 'pending'
+                      ? 'warning'
+                      : selectedRequest.status === 'rejected' || selectedRequest.status === 'cancelled' || selectedRequest.status === 'no show'
+                        ? 'danger'
+                        : ['accepted', 'scheduled', 'processed'].includes(selectedRequest.status)
+                          ? 'primary'
+                          : selectedRequest.status === 'completed'
+                            ? 'success'
+                            : 'primary'
+                  }
             >
               {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
             </IonChip>
@@ -492,36 +613,22 @@ const UserRequestsList: React.FC = () => {
           </IonCard>
         )}
 
-        {/* Scheduling Details */}
+        {/* Consultation Details */}
         {schedulingEntry && (
           <IonCard>
-            <IonItemDivider className='ion-margin-top'>Scheduling Details</IonItemDivider>
+            <IonItemDivider className='ion-margin-top'>Consultation Details</IonItemDivider>
             <IonItem>
               <IonLabel>Scheduled By: {schedulingEntry.userName}
                 <p>{schedulingEntry.userEmail} at {schedulingEntry.timestamp.toLocaleString()}</p>
               </IonLabel>
             </IonItem>
+             <IonItem lines='none' className='ion-margin-bottom'>
+              <IonTextarea fill='outline' readonly value={`Date: ${selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}\nTime: ${selectedRequest.scheduleTime || 'N/A'}\nLocation: ${selectedRequest.schedulePlace || 'N/A'}`}></IonTextarea>
+            </IonItem>
           </IonCard>
         )}
 
-        {/* Pickup Details */}
-        {['scheduled', 'completed'].includes(selectedRequest.status) && (
-          <IonCard>
-            <IonItemDivider className='ion-margin-top'>Pickup Details</IonItemDivider>
-            <IonItem>
-              <IonLabel>Date:</IonLabel>
-              <IonText slot="end">{selectedRequest.scheduleDate ? selectedRequest.scheduleDate.toLocaleDateString() : 'N/A'}</IonText>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Time:</IonLabel>
-              <IonText slot="end">{selectedRequest.scheduleTime || 'N/A'}</IonText>
-            </IonItem>
-            <IonItem>
-              <IonLabel>Location:</IonLabel>
-              <IonText slot="end" className="ion-text-wrap">{selectedRequest.schedulePlace || 'N/A'}</IonText>
-            </IonItem>
-          </IonCard>
-        )}
+
 
         {/* Completion Details */}
         {completionEntry && (
@@ -562,41 +669,42 @@ const UserRequestsList: React.FC = () => {
       <>
         <>
           {detailSegment === 'request' && (
-            <IonCard>
+            <>
               {/* Request Information */}
-              <IonItemDivider>Your Request Details</IonItemDivider>
-              <IonItem>
-                <IonLabel>Request ID:</IonLabel>
-                <IonText slot="end">{selectedRequest.id}</IonText>
-              </IonItem>
-              <IonItem>
-                <IonLabel>Requested At:</IonLabel>
-                <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
-              </IonItem>
-              <IonItem>
-                <IonLabel>Status:</IonLabel>
-                <IonChip
-                  slot="end"
-                  color={
-                    selectedRequest.status === 'pending'
-                      ? 'warning'
-                      : selectedRequest.status === 'rejected' || selectedRequest.status === 'cancelled' || selectedRequest.status === 'no show'
-                        ? 'danger'
-                        : ['accepted', 'scheduled', 'processed'].includes(selectedRequest.status)
-                          ? 'primary'
-                          : selectedRequest.status === 'completed'
-                            ? 'success'
-                            : 'primary'
-                  }
-                >
-                  {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
-                </IonChip>
-              </IonItem>
+              <IonCard>
+                <IonItemDivider>Your Request Details</IonItemDivider>
+                <IonItem>
+                  <IonLabel>Request ID:</IonLabel>
+                  <IonText slot="end">{selectedRequest.id}</IonText>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Requested At:</IonLabel>
+                  <IonText slot="end">{selectedRequest.createdAt ? selectedRequest.createdAt.toLocaleString() : 'N/A'}</IonText>
+                </IonItem>
+                <IonItem>
+                  <IonLabel>Status:</IonLabel>
+                  <IonChip
+                    slot="end"
+                    color={
+                      selectedRequest.status === 'pending'
+                        ? 'warning'
+                        : selectedRequest.status === 'rejected' || selectedRequest.status === 'cancelled' || selectedRequest.status === 'no show'
+                          ? 'danger'
+                          : ['accepted', 'scheduled', 'processed'].includes(selectedRequest.status)
+                            ? 'primary'
+                            : selectedRequest.status === 'completed'
+                              ? 'success'
+                              : 'primary'
+                    }
+                  >
+                    {selectedRequest.status.charAt(0).toUpperCase() + selectedRequest.status.slice(1)}
+                  </IonChip>
+                </IonItem>
 
-              <IonItem lines='none'>
+                 <IonItem>
                 <IonLabel>Reason for Consultation:</IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem lines='none' className='ion-margin-bottom'>
                 <IonTextarea fill='outline' readonly value={selectedRequest.reason}></IonTextarea>
               </IonItem>
               {selectedRequest.uploadedFile && (
@@ -610,6 +718,10 @@ const UserRequestsList: React.FC = () => {
                   </IonButton>
                 </>
               )}
+              </IonCard>
+             
+
+             
 
               {cancellationEntry && (
                 <IonCard>
@@ -671,23 +783,16 @@ const UserRequestsList: React.FC = () => {
                 <IonCard>
                   <IonItemDivider>Scheduling Details</IonItemDivider>
                   <IonItem>
-                    <IonLabel>Scheduled By:</IonLabel>
-                    <IonText slot="end">{schedulingEntry.userName}</IonText>
-                  </IonItem>
-                  <IonItem>
-                    <IonLabel>Scheduled At:</IonLabel>
-                    <IonText slot="end">{schedulingEntry.timestamp.toLocaleString()}</IonText>
+                    <IonLabel>Scheduled By {schedulingEntry.userName}
+                      <p>{schedulingEntry.userEmail} at {schedulingEntry.timestamp.toLocaleString()}</p>
+                    </IonLabel>
                   </IonItem>
                   <IonItem>
                     <IonLabel>Doctor:</IonLabel>
                     <IonText slot="end">{selectedRequest.doctorName || 'N/A'}</IonText>
                   </IonItem>
-                  <IonItem>
-                    <IonLabel>Specialty:</IonLabel>
-                    <IonText slot="end">{selectedRequest.doctorSpecialty || 'N/A'}</IonText>
-                  </IonItem>
                   {selectedRequest.status !== 'completed' && selectedRequest.meetingLink && (
-                    <IonButton fill="outline" expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
+                    <IonButton fill="outline" className='ion-padding-vertical' expand='block' href={selectedRequest.meetingLink} target="_blank" rel="noopener noreferrer">
                       Join Meeting
                       <IonIcon icon={open} slot="end" />
                     </IonButton>
@@ -728,7 +833,7 @@ const UserRequestsList: React.FC = () => {
                   )}
                 </IonCard>
               )}
-            </IonCard>
+            </>
           )}
           {detailSegment === 'resident' && (
             <>
@@ -828,6 +933,7 @@ const UserRequestsList: React.FC = () => {
       </IonHeader>
       <IonContent>
 
+        <IonLoading isOpen={isCancelling} message={"Cancelling request..."} />
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
