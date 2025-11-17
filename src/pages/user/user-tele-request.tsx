@@ -63,29 +63,31 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
     checkActiveRequest();
   }, [currentUser]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setReasons({
+        'Follow-up check-up': false,
+        'Prescription renewal': false,
+        'New health concern': false,
+        'Mental health support': false,
+        'General health advice': false,
+        'Others': false,
+      });
+      setOtherReason('');
+      setAttachMedicalRecord(false);
+      setToastMessage('');
+      setShowToast(false);
+      setUploadedFile(null);
+    }
+  }, [isOpen]);
+
   const nextStep = () => {
     if (step < 5) setStep(step + 1);
   };
 
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
-  };
-
-  const handleDismiss = () => {
-    setStep(1);
-    setReasons({
-      'Follow-up check-up': false,
-      'Prescription renewal': false,
-      'New health concern': false,
-      'Mental health support': false,
-      'General health advice': false,
-      'Others': false,
-    });
-    setOtherReason('');
-    setAttachMedicalRecord(false);
-    setToastMessage('');
-    setShowToast(false);
-    setUploadedFile(null);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,7 +233,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
   if (hasActiveRequest) {
     return (
       <>
-      <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
+      <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
             <IonTitle>Teleconsultation Request</IonTitle>
@@ -255,7 +257,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
                 <p className="ion-margin-top">
                   Your request has been successfully sent. Please check your newly created request for updates on the <strong>My Requests</strong> page.
                 </p>
-                <IonButton expand="block" routerLink="/user/dashboard/requests" className="ion-padding-vertical" onClick={handleDismiss}>
+                <IonButton expand="block" routerLink="/user/dashboard/requests" className="ion-padding-vertical" onClick={onDidDismiss}>
                   Go to My Requests
                   <IonIcon slot="end" icon={open} />
                 </IonButton>
@@ -270,7 +272,7 @@ const UserTeleRequest: React.FC<UserTeleRequestProps> = ({ isOpen, onDidDismiss 
 
   return (
     <>
-      <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
+      <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
             <IonTitle>Teleconsultation Request</IonTitle>

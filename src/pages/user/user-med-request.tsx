@@ -55,30 +55,32 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
     checkActiveRequest();
   }, [currentUser]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setReasons({
+        'Fever': false,
+        'Cough and Colds': false,
+        'Headache': false,
+        'Body Pain': false,
+        'Allergies': false,
+        'Diarrhea': false,
+        'Others': false,
+      });
+      setOtherReason('');
+      setHasPrescription(false);
+      setPrescriptionFile(null);
+      setToastMessage('');
+      setShowToast(false);
+    }
+  }, [isOpen]);
+
   const nextStep = () => {
     if (step < 5) setStep(step + 1);
   };
 
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
-  };
-
-  const handleDismiss = () => {
-    setStep(1);
-        setReasons({
-      'Fever': false,
-      'Cough and Colds': false,
-      'Headache': false,
-      'Body Pain': false,
-      'Allergies': false,
-      'Diarrhea': false,
-      'Others': false,
-    });
-    setOtherReason('');
-    setHasPrescription(false);
-    setPrescriptionFile(null);
-    setToastMessage('');
-    setShowToast(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,7 +211,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
 
   if (hasActiveRequest) {
     return (
-      <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
+      <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
             <IonTitle>Medicine Request</IonTitle>
@@ -247,7 +249,7 @@ const UserMedRequest: React.FC<UserMedRequestProps> = ({ isOpen, onDidDismiss })
 
   return (
     <>
-      <IonModal isOpen={isOpen} onDidDismiss={handleDismiss}>
+      <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
         <IonHeader className='ion-no-border'>
           <IonToolbar>
             <IonTitle>Create Medicine Request</IonTitle>
