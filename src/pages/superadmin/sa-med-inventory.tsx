@@ -43,7 +43,7 @@ const Med_Inventory: React.FC = () => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
   const [selectedDosageFormFilter, setSelectedDosageFormFilter] = useState('all');
   const [selectedStrengthFilter, setSelectedStrengthFilter] = useState('all');
-  const [showArchivedFilter, setShowArchivedFilter] = useState(false);
+  const [archiveFilter, setArchiveFilter] = useState<'active' | 'archived' | 'all'>('active');
 
   useEffect(() => {
     setIsSearching(true);
@@ -71,16 +71,19 @@ const Med_Inventory: React.FC = () => {
       }
 
       // Apply archived filter
-      if (!showArchivedFilter) {
+      if (archiveFilter === 'archived') {
+        meds = meds.filter(med => med.isDeleted);
+      } else if (archiveFilter === 'active') {
         meds = meds.filter(med => !med.isDeleted);
       }
+      // for 'all', we don't filter
 
       setFilteredMedicines(meds);
       setIsSearching(false);
     }, 300); // Debounce to improve performance and user experience
 
     return () => clearTimeout(searchDebounce);
-  }, [searchQuery, medicines, selectedCategoryFilter, selectedDosageFormFilter, selectedStrengthFilter, showArchivedFilter]);
+  }, [searchQuery, medicines, selectedCategoryFilter, selectedDosageFormFilter, selectedStrengthFilter, archiveFilter]);
 
   const resetForm = () => {
     setMedicineName('');
@@ -314,7 +317,7 @@ const Med_Inventory: React.FC = () => {
           <IonButton size='large' slot="end" onClick={() => setShowFilterModal(true)}>
             <IonIcon icon={filter} slot='icon-only' />
           </IonButton>
-        </IonToolbar>    
+        </IonToolbar> 
       </IonHeader>
       <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
@@ -365,10 +368,18 @@ const Med_Inventory: React.FC = () => {
                     ))}
                   </IonSelect>
                 </IonItem>
-                <IonItem lines='none' className='ion-margin-top'>
-                  <IonLabel>Show Archived Medicines</IonLabel>
-                  <IonToggle slot='end' checked={showArchivedFilter} onIonChange={e => setShowArchivedFilter(e.detail.checked)} />
-                </IonItem>
+                <IonItemDivider className="ion-margin-top">Filter Medicines</IonItemDivider>
+                <IonSegment value={archiveFilter} onIonChange={e => setArchiveFilter(e.detail.value as any)}>
+                  <IonSegmentButton value="active">
+                    <IonLabel>Active</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="archived">
+                    <IonLabel>Archived</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="all">
+                    <IonLabel>All</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
               </IonCardContent>
             </IonCard>
           </IonContent>
